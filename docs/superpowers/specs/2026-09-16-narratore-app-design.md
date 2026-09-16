@@ -99,22 +99,28 @@ valore d'uso il prima possibile.
      Pifferaio, Maga, Sacerdote, Guaritore/Sciacallo Mannaro.
    - **5c — Ruoli con legami persistenti** (fatto): Apprendista, Cavaliere,
      Figlia dei Lupi (legano a un bersaglio la prima notte; la conseguenza si
-     risolve quando il narratore passa alla notte successiva) e Cortigiana
-     (visita un cliente ogni notte, con conseguenze legate alla sua sorte).
+     risolve quando il narratore passa alla notte successiva), Cortigiana
+     (visita un cliente ogni notte, con conseguenze legate alla sua sorte) e
+     Addolorata (scambia il proprio ruolo con quello della vittima del rogo
+     della notte corrente, completata dopo il passo 6 e 7 — vedi sotto).
      Guardie/Guardia Mannara/Mucca Mannara non hanno richiesto lavoro
      aggiuntivo: si riconoscono a vicenda senza bersaglio, già coperti dal
-     passo informativo del piano 5a. Addolorata resta fuori scope: il suo
-     potere dipende da chi è stato mandato al rogo, dato che esisterà solo
-     con la fase giorno/voto (passo 6).
+     passo informativo del piano 5a.
 6. Fase giorno/voto (fatto): conteggio voti con un pulsante +1/-1 per ogni
    giocatore vivo, rilevazione automatica di vittima singola o spareggio,
    timer a conto alla rovescia configurabile per l'arringa (la risoluzione
-   dello spareggio resta a voce), dichiarazione di morte sul rogo, e
-   dichiarazione di morte sul colpo (Boia, Untore, Scemo del Villaggio)
-   sempre disponibile e indipendente dalla votazione. Addolorata potrebbe
-   ora essere riconsiderata, dato che questo passo introduce la morte sul
-   rogo — ma non è stata implementata in questo passo.
-7. Log partita (vista cronologia, nessun nuovo input).
+   dello spareggio resta a voce), dichiarazione di morte sul rogo
+   (`causaMorte: 'rogo'`, taggata con la notte corrente) e dichiarazione di
+   morte sul colpo (Boia, Untore, Scemo del Villaggio; `causaMorte: 'colpo'`)
+   sempre disponibile e indipendente dalla votazione.
+7. Log partita (fatto): quinto tab "Registro" con la cronologia degli
+   eventi (morti con causa, resurrezioni, condizioni ottenute/perse, cambi
+   di ruolo), derivata automaticamente confrontando lo stato dei giocatori
+   a ogni cambiamento — nessun nuovo input del narratore, nessuna modifica
+   alle azioni esistenti.
+
+Con il completamento di Addolorata, la roadmap dell'MVP originale (passi
+1-7) è interamente implementata.
 
 Ogni fase produce uno strumento già utilizzabile da solo, indipendentemente
 dalle fasi successive.
