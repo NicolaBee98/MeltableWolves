@@ -1,10 +1,33 @@
+import { useState } from 'react'
+import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { PlayerTracker } from './features/players/PlayerTracker'
+import { useMazzo } from './state/useMazzo'
 
 export default function App() {
+  const [tab, setTab] = useState('mazzo')
+  const { numGiocatori, ruoliSelezionati, setNumGiocatori, toggleRuolo, ruoliInMazzo } = useMazzo()
+
   return (
     <main className="app">
       <h1>Meltable Wolves — Narratore</h1>
-      <PlayerTracker />
+      <nav className="app__tabs">
+        <button type="button" aria-pressed={tab === 'mazzo'} onClick={() => setTab('mazzo')}>
+          Mazzo
+        </button>
+        <button type="button" aria-pressed={tab === 'giocatori'} onClick={() => setTab('giocatori')}>
+          Giocatori
+        </button>
+      </nav>
+      {tab === 'mazzo' ? (
+        <MazzoBuilder
+          numGiocatori={numGiocatori}
+          ruoliSelezionati={ruoliSelezionati}
+          setNumGiocatori={setNumGiocatori}
+          toggleRuolo={toggleRuolo}
+        />
+      ) : (
+        <PlayerTracker ruoliDisponibili={ruoliInMazzo} />
+      )}
     </main>
   )
 }
