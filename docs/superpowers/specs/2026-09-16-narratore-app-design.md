@@ -106,7 +106,14 @@ valore d'uso il prima possibile.
      passo informativo del piano 5a. Addolorata resta fuori scope: il suo
      potere dipende da chi è stato mandato al rogo, dato che esisterà solo
      con la fase giorno/voto (passo 6).
-6. Fase giorno/voto (accuse, voto, morti, condizioni collegate).
+6. Fase giorno/voto (fatto): conteggio voti con un pulsante +1/-1 per ogni
+   giocatore vivo, rilevazione automatica di vittima singola o spareggio,
+   timer a conto alla rovescia configurabile per l'arringa (la risoluzione
+   dello spareggio resta a voce), dichiarazione di morte sul rogo, e
+   dichiarazione di morte sul colpo (Boia, Untore, Scemo del Villaggio)
+   sempre disponibile e indipendente dalla votazione. Addolorata potrebbe
+   ora essere riconsiderata, dato che questo passo introduce la morte sul
+   rogo — ma non è stata implementata in questo passo.
 7. Log partita (vista cronologia, nessun nuovo input).
 
 Ogni fase produce uno strumento già utilizzabile da solo, indipendentemente
