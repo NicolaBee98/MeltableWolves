@@ -4,11 +4,21 @@ const RAPPORTO_LUPI_CONSIGLIATO = 5
 const MAX_INDIPENDENTI = 2
 const SOGLIA_NOTTURNI = 0.7
 
-export function validaMazzo(ruoliSelezionati, numGiocatori) {
+function espandiRuoli(quantita) {
+  const ruoli = []
+  for (const slug of Object.keys(quantita)) {
+    const ruolo = ROLES.find((r) => r.slug === slug)
+    if (!ruolo) continue
+    for (let i = 0; i < quantita[slug]; i++) {
+      ruoli.push(ruolo)
+    }
+  }
+  return ruoli
+}
+
+export function validaMazzo(quantita, numGiocatori) {
   const avvisi = []
-  const ruoli = ruoliSelezionati
-    .map((slug) => ROLES.find((r) => r.slug === slug))
-    .filter(Boolean)
+  const ruoli = espandiRuoli(quantita)
 
   if (ruoli.length !== numGiocatori) {
     avvisi.push(`Hai selezionato ${ruoli.length} ruoli per ${numGiocatori} giocatori.`)
