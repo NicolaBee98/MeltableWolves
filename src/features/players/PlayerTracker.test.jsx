@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PlayerTracker } from './PlayerTracker'
-import { ROLES } from '../../data/roles'
 
 function setup(overrides = {}) {
   const props = {
-    ruoliDisponibili: ROLES,
     giocatori: [],
     addGiocatore: vi.fn(),
     toggleVivo: vi.fn(),
@@ -17,37 +15,27 @@ function setup(overrides = {}) {
   return props
 }
 
-test('senza ruoli disponibili mostra un messaggio invece del form', () => {
-  setup({ ruoliDisponibili: [] })
-  expect(screen.getByText(/seleziona almeno un ruolo/i)).toBeInTheDocument()
-  expect(screen.queryByPlaceholderText('Nome giocatore')).not.toBeInTheDocument()
-})
-
-test('aggiungere un giocatore chiama addGiocatore con nome e ruolo', async () => {
+test('aggiungere un giocatore chiama addGiocatore con il nome', async () => {
   const user = userEvent.setup()
   const { addGiocatore } = setup()
 
-  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Giulia')
-  await user.click(screen.getByRole('button', { name: /aggiungi/i }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Giulia{Enter}')
 
-  expect(addGiocatore).toHaveBeenCalledWith('Giulia', ROLES[0].slug)
+  expect(addGiocatore).toHaveBeenCalledWith('Giulia')
 })
 
-test('mostra i giocatori esistenti come card', () => {
+test('mostra i giocatori esistenti come card, con ruolo non assegnato se assente', () => {
   setup({
-    giocatori: [
-      { id: '1', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [], note: '' },
-    ],
+    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [], note: '' }],
   })
   expect(screen.getByText('Marco')).toBeInTheDocument()
+  expect(screen.getByText('Ruolo non ancora assegnato')).toBeInTheDocument()
 })
 
 test('click sul pulsante stato chiama toggleVivo con id del giocatore', async () => {
   const user = userEvent.setup()
   const { toggleVivo } = setup({
-    giocatori: [
-      { id: '1', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [], note: '' },
-    ],
+    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [], note: '' }],
   })
 
   await user.click(screen.getByRole('button', { name: 'Vivo' }))
