@@ -4,12 +4,16 @@ import { usePartita } from '../../state/usePartita'
 import { AddPlayerForm } from './AddPlayerForm'
 import { PlayerCard } from './PlayerCard'
 
-export function PlayerTracker() {
+export function PlayerTracker({ ruoliDisponibili }) {
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote } = usePartita()
 
   return (
     <section className="player-tracker">
-      <AddPlayerForm roles={ROLES} onAdd={addGiocatore} />
+      {ruoliDisponibili.length === 0 ? (
+        <p>Seleziona almeno un ruolo nella scheda Mazzo per iniziare ad aggiungere giocatori.</p>
+      ) : (
+        <AddPlayerForm roles={ruoliDisponibili} onAdd={addGiocatore} />
+      )}
       <div className="player-tracker__list">
         {giocatori.map((giocatore) => (
           <PlayerCard
