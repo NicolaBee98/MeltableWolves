@@ -1,8 +1,20 @@
 import { passiNotte } from '../../data/nightSteps'
+import { ruoliAssegnabili } from '../../data/assegnazione'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
+import { AssegnaRuolo } from './AssegnaRuolo'
 
-export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore, round, stepIndex, avanti, indietro, nuovaNotte }) {
+export function NightSequencer({
+  ruoliSelezionati,
+  giocatori,
+  aggiornaGiocatore,
+  quantita = {},
+  round,
+  stepIndex,
+  avanti,
+  indietro,
+  nuovaNotte,
+}) {
   const steps = passiNotte(ruoliSelezionati, round, giocatori)
 
   if (steps.length === 0) {
@@ -16,6 +28,9 @@ export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore,
   const giocatoriCoinvolti = step.condizione
     ? giocatori.filter((g) => g.condizioni.includes(step.condizione))
     : giocatori.filter((g) => step.ruoli.includes(g.ruoloSlug))
+
+  const ruoliPendenti =
+    step.ruoli && step.assegnabile !== false ? ruoliAssegnabili(step.ruoli, giocatori, quantita) : []
 
   const azione = AZIONI_NOTTURNE[step.id]
   const qualcunoVivo = giocatoriCoinvolti.some((g) => g.vivo)
@@ -47,6 +62,10 @@ export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore,
       <p className="night-sequencer__tipo">
         {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
       </p>
+
+      {ruoliPendenti.length > 0 && (
+        <AssegnaRuolo key={step.id} ruoli={ruoliPendenti} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />
+      )}
 
       {giocatoriCoinvolti.length === 0 ? (
         <p>Nessun giocatore assegnato a questo ruolo per ora.</p>
