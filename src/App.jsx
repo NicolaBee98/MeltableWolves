@@ -16,7 +16,7 @@ export default function App() {
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
   const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
   const notte = useNotte()
-  const eventi = useLog(giocatori, notte.round)
+  const { eventi, aggiungiEvento } = useLog(giocatori, notte.round)
 
   return (
     <main className="app">
@@ -61,6 +61,7 @@ export default function App() {
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
           quantita={quantita}
+          registraEvento={aggiungiEvento}
           round={notte.round}
           stepIndex={notte.stepIndex}
           avanti={notte.avanti}

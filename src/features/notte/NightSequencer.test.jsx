@@ -172,3 +172,24 @@ test('non mostra AssegnaRuolo per i passi di solo promemoria (potere-passivo)', 
   )
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
 })
+
+test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'pastore', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const registraEvento = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['mimo']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      registraEvento={registraEvento}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.')
+})
