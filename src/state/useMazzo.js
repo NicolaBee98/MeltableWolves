@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { ROLES } from '../data/roles'
+import { maxQuantita } from '../data/quantitaRuoli'
 
 const STORAGE_KEY = 'meltable-wolves-mazzo'
-const DEFAULT_MAZZO = { numGiocatori: 8, ruoliSelezionati: [] }
+const DEFAULT_MAZZO = { numGiocatori: 8, quantita: {} }
 
 function loadMazzo() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : DEFAULT_MAZZO
+    if (!raw) return DEFAULT_MAZZO
+    const parsed = JSON.parse(raw)
+    return { ...DEFAULT_MAZZO, ...parsed, quantita: parsed.quantita ?? {} }
   } catch {
     return DEFAULT_MAZZO
   }
@@ -24,22 +27,18 @@ export function useMazzo() {
     setMazzo((prev) => ({ ...prev, numGiocatori }))
   }
 
-  function toggleRuolo(slug) {
-    setMazzo((prev) => ({
-      ...prev,
-      ruoliSelezionati: prev.ruoliSelezionati.includes(slug)
-        ? prev.ruoliSelezionati.filter((s) => s !== slug)
-        : [...prev.ruoliSelezionati, slug],
-    }))
+  function setQuantita(slug, valore) {
+    const clampato = Math.max(0, Math.min(valore, maxQuantita(slug)))
+    setMazzo((prev) => ({ ...prev, quantita: { ...prev.quantita, [slug]: clampato } }))
   }
 
-  const ruoliInMazzo = ROLES.filter((ruolo) => mazzo.ruoliSelezionati.includes(ruolo.slug))
+  const ruoliInMazzo = ROLES.filter((ruolo) => (mazzo.quantita[ruolo.slug] ?? 0) > 0)
 
   return {
     numGiocatori: mazzo.numGiocatori,
-    ruoliSelezionati: mazzo.ruoliSelezionati,
+    quantita: mazzo.quantita,
     setNumGiocatori,
-    toggleRuolo,
+    setQuantita,
     ruoliInMazzo,
   }
 }
