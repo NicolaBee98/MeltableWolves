@@ -1,10 +1,8 @@
 import { passiNotte } from '../../data/nightSteps'
-import { useNotte } from '../../state/useNotte'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
 
-export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore }) {
-  const { round, stepIndex, avanti, indietro, nuovaNotte } = useNotte()
+export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore, round, stepIndex, avanti, indietro, nuovaNotte }) {
   const steps = passiNotte(ruoliSelezionati, round, giocatori)
 
   if (steps.length === 0) {
@@ -63,7 +61,9 @@ export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore 
         </ul>
       )}
 
-      {mostraAzione && <azione.Componente giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} {...azione.props} />}
+      {mostraAzione && (
+        <azione.Componente giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={round} {...azione.props} />
+      )}
 
       <div className="night-sequencer__nav">
         <button type="button" onClick={indietro} disabled={indiceValido === 0}>
