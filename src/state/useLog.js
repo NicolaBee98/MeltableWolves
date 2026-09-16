@@ -28,5 +28,9 @@ export function useLog(giocatori, round) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(eventi))
   }, [eventi])
 
-  return eventi
+  function aggiungiEvento(messaggio) {
+    setEventi((prev) => [...prev, { round, messaggio }])
+  }
+
+  return { eventi, aggiungiEvento }
 }

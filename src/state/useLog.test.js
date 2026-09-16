@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { useLog } from './useLog'
 
 beforeEach(() => {
@@ -8,7 +8,7 @@ beforeEach(() => {
 test('nessun evento al primo montaggio', () => {
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
   const { result } = renderHook(() => useLog(giocatori, 1))
-  expect(result.current).toEqual([])
+  expect(result.current.eventi).toEqual([])
 })
 
 test('rileva un cambiamento tra due render successivi', () => {
@@ -20,7 +20,7 @@ test('rileva un cambiamento tra due render successivi', () => {
   const morto = [{ ...vivo[0], vivo: false }]
   rerender({ giocatori: morto, round: 1 })
 
-  expect(result.current).toEqual([{ round: 1, messaggio: 'Anna è morto/a' }])
+  expect(result.current.eventi).toEqual([{ round: 1, messaggio: 'Anna è morto/a' }])
 })
 
 test('lo stato persiste in localStorage tra due montaggi', () => {
@@ -33,5 +33,16 @@ test('lo stato persiste in localStorage tra due montaggi', () => {
   unmount()
 
   const { result: result2 } = renderHook(() => useLog(morto, 1))
-  expect(result2.current).toEqual([{ round: 1, messaggio: 'Anna è morto/a' }])
+  expect(result2.current.eventi).toEqual([{ round: 1, messaggio: 'Anna è morto/a' }])
+})
+
+test('aggiungiEvento aggiunge una voce manuale al log', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
+  const { result } = renderHook(() => useLog(giocatori, 4))
+
+  act(() => {
+    result.current.aggiungiEvento('Si sentono dei belati.')
+  })
+
+  expect(result.current.eventi).toEqual([{ round: 4, messaggio: 'Si sentono dei belati.' }])
 })
