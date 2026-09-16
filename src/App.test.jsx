@@ -30,3 +30,12 @@ test('scheda Notte mostra un messaggio se il mazzo non ha ruoli con azione nottu
 
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
+
+test('scheda Giorno mostra i controlli di votazione', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Giorno' }))
+
+  expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
+})

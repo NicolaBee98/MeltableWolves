@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { PlayerTracker } from './features/players/PlayerTracker'
 import { NightSequencer } from './features/notte/NightSequencer'
+import { GiornoPanel } from './features/giorno/GiornoPanel'
 import { useMazzo } from './state/useMazzo'
 import { usePartita } from './state/usePartita'
+import { useVotazione } from './state/useVotazione'
 
 export default function App() {
   const [tab, setTab] = useState('mazzo')
   const { numGiocatori, ruoliSelezionati, setNumGiocatori, toggleRuolo, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
+  const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
 
   return (
     <main className="app">
@@ -22,6 +25,9 @@ export default function App() {
         </button>
         <button type="button" aria-pressed={tab === 'notte'} onClick={() => setTab('notte')}>
           Notte
+        </button>
+        <button type="button" aria-pressed={tab === 'giorno'} onClick={() => setTab('giorno')}>
+          Giorno
         </button>
       </nav>
       {tab === 'mazzo' && (
@@ -44,6 +50,16 @@ export default function App() {
       )}
       {tab === 'notte' && (
         <NightSequencer ruoliSelezionati={ruoliSelezionati} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />
+      )}
+      {tab === 'giorno' && (
+        <GiornoPanel
+          giocatori={giocatori}
+          voti={voti}
+          incrementaVoto={incrementaVoto}
+          decrementaVoto={decrementaVoto}
+          ricominciaVotazione={ricominciaVotazione}
+          aggiornaGiocatore={aggiornaGiocatore}
+        />
       )}
     </main>
   )
