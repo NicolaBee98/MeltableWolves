@@ -5,11 +5,11 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-test('stato iniziale: 8 giocatori, nessun ruolo selezionato', () => {
+test('stato iniziale: 8 giocatori, nessuna quantità impostata', () => {
   const { result } = renderHook(() => useMazzo())
 
   expect(result.current.numGiocatori).toBe(8)
-  expect(result.current.ruoliSelezionati).toEqual([])
+  expect(result.current.quantita).toEqual({})
   expect(result.current.ruoliInMazzo).toEqual([])
 })
 
@@ -23,32 +23,66 @@ test('setNumGiocatori aggiorna il numero di giocatori', () => {
   expect(result.current.numGiocatori).toBe(12)
 })
 
-test('toggleRuolo aggiunge e rimuove uno slug da ruoliSelezionati e ruoliInMazzo', () => {
+test('setQuantita imposta la quantità e aggiorna ruoliInMazzo', () => {
   const { result } = renderHook(() => useMazzo())
 
   act(() => {
-    result.current.toggleRuolo('villico')
+    result.current.setQuantita('villico', 5)
   })
-  expect(result.current.ruoliSelezionati).toEqual(['villico'])
+
+  expect(result.current.quantita.villico).toBe(5)
   expect(result.current.ruoliInMazzo.map((r) => r.slug)).toEqual(['villico'])
+})
+
+test('setQuantita rimuove il ruolo da ruoliInMazzo se impostata a zero', () => {
+  const { result } = renderHook(() => useMazzo())
 
   act(() => {
-    result.current.toggleRuolo('villico')
+    result.current.setQuantita('villico', 3)
+    result.current.setQuantita('villico', 0)
   })
-  expect(result.current.ruoliSelezionati).toEqual([])
+
   expect(result.current.ruoliInMazzo).toEqual([])
 })
 
-test('lo stato persiste in localStorage tra due montaggi dell\'hook', () => {
+test('setQuantita rispetta il massimo del ruolo (villico max 12)', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('villico', 20)
+  })
+
+  expect(result.current.quantita.villico).toBe(12)
+})
+
+test('setQuantita rispetta il massimo di un ruolo unico (default 1)', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('paladino', 5)
+  })
+
+  expect(result.current.quantita.paladino).toBe(1)
+})
+
+test('setQuantita non scende sotto zero', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('villico', -3)
+  })
+
+  expect(result.current.quantita.villico).toBe(0)
+})
+
+test('lo stato persiste in localStorage tra due montaggi', () => {
   const { result, unmount } = renderHook(() => useMazzo())
 
   act(() => {
-    result.current.setNumGiocatori(10)
-    result.current.toggleRuolo('lupo-mannaro')
+    result.current.setQuantita('lupo-mannaro', 2)
   })
   unmount()
 
   const { result: result2 } = renderHook(() => useMazzo())
-  expect(result2.current.numGiocatori).toBe(10)
-  expect(result2.current.ruoliSelezionati).toEqual(['lupo-mannaro'])
+  expect(result2.current.quantita['lupo-mannaro']).toBe(2)
 })
