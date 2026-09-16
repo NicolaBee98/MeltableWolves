@@ -1,4 +1,4 @@
-import { vicini } from './vicinanza'
+import { vicini, viciniVivi } from './vicinanza'
 
 test('ritorna il vicino di sinistra e destra nel mezzo del cerchio', () => {
   const giocatori = [{ id: '1' }, { id: '2' }, { id: '3' }]
@@ -18,4 +18,30 @@ test("l'ultimo giocatore ha come vicino di destra il primo (cerchio)", () => {
 test('ritorna null per un id non presente', () => {
   const giocatori = [{ id: '1' }, { id: '2' }]
   expect(vicini(giocatori, 'x')).toEqual({ sinistra: null, destra: null })
+})
+
+test('viciniVivi trova i vicini vivi più prossimi saltando i morti', () => {
+  const giocatori = [
+    { id: '1', vivo: false },
+    { id: '2', vivo: true },
+    { id: '3', vivo: false },
+    { id: '4', vivo: true },
+    { id: '5', vivo: false },
+  ]
+  expect(viciniVivi(giocatori, '5')).toEqual({ sinistra: giocatori[3], destra: giocatori[1] })
+})
+
+test('viciniVivi ritorna il vicino immediato se è vivo', () => {
+  const giocatori = [{ id: '1', vivo: true }, { id: '2', vivo: true }, { id: '3', vivo: true }]
+  expect(viciniVivi(giocatori, '2')).toEqual({ sinistra: giocatori[0], destra: giocatori[2] })
+})
+
+test('viciniVivi ritorna null se non ci sono altri giocatori vivi', () => {
+  const giocatori = [{ id: '1', vivo: true }, { id: '2', vivo: false }]
+  expect(viciniVivi(giocatori, '1')).toEqual({ sinistra: null, destra: null })
+})
+
+test('viciniVivi ritorna null per un id non presente', () => {
+  const giocatori = [{ id: '1', vivo: true }]
+  expect(viciniVivi(giocatori, 'x')).toEqual({ sinistra: null, destra: null })
 })
