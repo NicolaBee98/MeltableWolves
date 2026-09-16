@@ -118,3 +118,57 @@ test("mostra lo scambio per Addolorata quando c'è una vittima al rogo della not
 
   expect(screen.getByRole('button', { name: 'Scambia' })).toBeInTheDocument()
 })
+
+test('mostra AssegnaRuolo per un passo con un ruolo non ancora assegnato', () => {
+  const giocatori = [{ id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [] }]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ paladino: 1 }}
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Steve' })).toBeInTheDocument()
+})
+
+test('assegnare il ruolo tramite AssegnaRuolo fa comparire subito la selezione bersaglio', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [], poteriUsati: [] }]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori[0] = { ...giocatori[0], ...patch }
+  })
+  const { rerender } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      quantita={{ paladino: 1 }}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Steve' }))
+  rerender(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      quantita={{ paladino: 1 }}
+    />,
+  )
+
+  expect(screen.getByRole('combobox')).toBeInTheDocument()
+})
+
+test('non mostra AssegnaRuolo per i passi di solo promemoria (potere-passivo)', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: undefined, vivo: true, condizioni: [] }]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['eremita']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ eremita: 1 }}
+    />,
+  )
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+})
