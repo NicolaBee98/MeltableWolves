@@ -12,7 +12,7 @@ import { useLog } from './state/useLog'
 
 export default function App() {
   const [tab, setTab] = useState('mazzo')
-  const { numGiocatori, ruoliSelezionati, setNumGiocatori, toggleRuolo, ruoliInMazzo } = useMazzo()
+  const { numGiocatori, quantita, setNumGiocatori, setQuantita, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
   const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
   const notte = useNotte()
@@ -41,9 +41,9 @@ export default function App() {
       {tab === 'mazzo' && (
         <MazzoBuilder
           numGiocatori={numGiocatori}
-          ruoliSelezionati={ruoliSelezionati}
+          quantita={quantita}
           setNumGiocatori={setNumGiocatori}
-          toggleRuolo={toggleRuolo}
+          setQuantita={setQuantita}
         />
       )}
       {tab === 'giocatori' && (
@@ -58,7 +58,7 @@ export default function App() {
       )}
       {tab === 'notte' && (
         <NightSequencer
-          ruoliSelezionati={ruoliSelezionati}
+          ruoliSelezionati={ruoliInMazzo.map((r) => r.slug)}
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
           round={notte.round}
