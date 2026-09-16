@@ -21,7 +21,7 @@ export function usePartita() {
   function addGiocatore(nome, ruoloSlug) {
     setGiocatori((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), nome, ruoloSlug, vivo: true, condizioni: [], note: '' },
+      { id: crypto.randomUUID(), nome, ruoloSlug, vivo: true, condizioni: [], note: '', poteriUsati: [] },
     ])
   }
 
@@ -37,5 +37,9 @@ export function usePartita() {
     setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, note } : g)))
   }
 
-  return { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote }
+  function aggiornaGiocatore(id, patch) {
+    setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)))
+  }
+
+  return { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore }
 }

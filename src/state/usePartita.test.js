@@ -66,3 +66,29 @@ test('lo stato persiste in localStorage tra due montaggi dell\'hook', () => {
   expect(result2.current.giocatori).toHaveLength(1)
   expect(result2.current.giocatori[0].nome).toBe('Anna')
 })
+
+test('addGiocatore inizializza poteriUsati vuoto', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Anna', 'villico')
+  })
+
+  expect(result.current.giocatori[0].poteriUsati).toEqual([])
+})
+
+test('aggiornaGiocatore applica una patch parziale al giocatore indicato', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Anna', 'villico')
+  })
+  const id = result.current.giocatori[0].id
+
+  act(() => {
+    result.current.aggiornaGiocatore(id, { vivo: false, poteriUsati: ['guaritore-resuscita'] })
+  })
+
+  expect(result.current.giocatori[0].vivo).toBe(false)
+  expect(result.current.giocatori[0].poteriUsati).toEqual(['guaritore-resuscita'])
+})
