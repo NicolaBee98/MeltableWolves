@@ -8,7 +8,7 @@ import { usePartita } from './state/usePartita'
 export default function App() {
   const [tab, setTab] = useState('mazzo')
   const { numGiocatori, ruoliSelezionati, setNumGiocatori, toggleRuolo, ruoliInMazzo } = useMazzo()
-  const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote } = usePartita()
+  const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
 
   return (
     <main className="app">
@@ -42,7 +42,9 @@ export default function App() {
           setNote={setNote}
         />
       )}
-      {tab === 'notte' && <NightSequencer ruoliSelezionati={ruoliSelezionati} giocatori={giocatori} />}
+      {tab === 'notte' && (
+        <NightSequencer ruoliSelezionati={ruoliSelezionati} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />
+      )}
     </main>
   )
 }
