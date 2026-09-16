@@ -1,4 +1,4 @@
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { aggiungiCondizionePatch } from '../../../data/effettiNotte'
 
 export function AzioneCondizioneSingola({ giocatori, aggiornaGiocatore, condizione, etichetta }) {

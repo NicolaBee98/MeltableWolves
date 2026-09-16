@@ -1,4 +1,4 @@
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, tipoLegame, etichetta }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)

@@ -1,4 +1,4 @@
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 export function AzioneCortigiana({ giocatori, aggiornaGiocatore }) {
   const cortigiana = giocatori.find((g) => g.ruoloSlug === 'cortigiana')
