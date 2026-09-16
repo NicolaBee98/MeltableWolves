@@ -1,4 +1,4 @@
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { resuscitaPatch } from '../../../data/effettiNotte'
 
 export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore }) {

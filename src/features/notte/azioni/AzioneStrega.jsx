@@ -1,4 +1,4 @@
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { aggiungiCondizionePatch, uccidiPatch } from '../../../data/effettiNotte'
 
 export function AzioneStrega({ giocatori, aggiornaGiocatore }) {

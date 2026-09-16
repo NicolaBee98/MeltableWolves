@@ -1,5 +1,5 @@
 import { ROLES } from '../../../data/roles'
-import { SceltaGiocatore } from './SceltaGiocatore'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { uccidiPatch } from '../../../data/effettiNotte'
 
 function fazioneDi(giocatore) {
