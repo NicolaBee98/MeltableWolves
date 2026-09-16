@@ -1,6 +1,7 @@
 import { passiNotte } from '../../data/nightSteps'
 import { useNotte } from '../../state/useNotte'
 import { AZIONI_NOTTURNE } from './azioni'
+import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
 
 export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore }) {
   const { round, stepIndex, avanti, indietro, nuovaNotte } = useNotte()
@@ -29,6 +30,12 @@ export function NightSequencer({ ruoliSelezionati, giocatori, aggiornaGiocatore 
         aggiornaGiocatore(g.id, { condizioni: condizioniRipulite })
       }
     })
+
+    const patchRisoluzione = { ...risolviLegami(giocatori), ...risolviCortigiana(giocatori) }
+    for (const [id, patch] of Object.entries(patchRisoluzione)) {
+      aggiornaGiocatore(id, patch)
+    }
+
     nuovaNotte()
   }
 
