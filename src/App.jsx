@@ -70,6 +70,7 @@ export default function App() {
           decrementaVoto={decrementaVoto}
           ricominciaVotazione={ricominciaVotazione}
           aggiornaGiocatore={aggiornaGiocatore}
+          round={notte.round}
         />
       )}
     </main>
