@@ -1,5 +1,6 @@
 import { passiNotte } from '../../data/nightSteps'
 import { ruoliAssegnabili } from '../../data/assegnazione'
+import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
@@ -9,6 +10,7 @@ export function NightSequencer({
   giocatori,
   aggiornaGiocatore,
   quantita = {},
+  registraEvento = () => {},
   round,
   stepIndex,
   avanti,
@@ -47,6 +49,10 @@ export function NightSequencer({
     const patchRisoluzione = { ...risolviLegami(giocatori), ...risolviCortigiana(giocatori) }
     for (const [id, patch] of Object.entries(patchRisoluzione)) {
       aggiornaGiocatore(id, patch)
+    }
+
+    for (const messaggio of annunciAlba(giocatori, round)) {
+      registraEvento(messaggio)
     }
 
     nuovaNotte()
