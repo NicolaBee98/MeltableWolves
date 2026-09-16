@@ -1,12 +1,9 @@
 import { ROLES } from '../../data/roles'
 import { CONDIZIONI } from '../../data/conditions'
-import { usePartita } from '../../state/usePartita'
 import { AddPlayerForm } from './AddPlayerForm'
 import { PlayerCard } from './PlayerCard'
 
-export function PlayerTracker({ ruoliDisponibili }) {
-  const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote } = usePartita()
-
+export function PlayerTracker({ ruoliDisponibili, giocatori, addGiocatore, toggleVivo, setCondizioni, setNote }) {
   return (
     <section className="player-tracker">
       {ruoliDisponibili.length === 0 ? (
