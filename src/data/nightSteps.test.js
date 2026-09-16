@@ -1,4 +1,4 @@
-import { passiNotte } from './nightSteps'
+import { NIGHT_STEPS, passiNotte } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
@@ -44,4 +44,16 @@ test('il passo "innamorati" compare solo se un giocatore ha la condizione innamo
 
   expect(passiNotte(['sacerdote'], 1, giocatoriSenzaCondizione).map((p) => p.id)).not.toContain('innamorati')
   expect(passiNotte(['villico'], 1, giocatoriConCondizione).map((p) => p.id)).toContain('innamorati')
+})
+
+test('i passi di solo promemoria non sono assegnabili', () => {
+  const potere = NIGHT_STEPS.find((s) => s.id === 'potere-passivo')
+  const gesti = NIGHT_STEPS.find((s) => s.id === 'gesti-segreti')
+  expect(potere.assegnabile).toBe(false)
+  expect(gesti.assegnabile).toBe(false)
+})
+
+test('un passo normale non ha assegnabile impostato a false', () => {
+  const paladino = NIGHT_STEPS.find((s) => s.id === 'paladino')
+  expect(paladino.assegnabile).not.toBe(false)
 })

@@ -7,6 +7,7 @@ export const NIGHT_STEPS = [
     titolo: 'Promemoria: ruoli con potere passivo',
     tipo: 'informativo',
     primaNotteSolo: true,
+    assegnabile: false,
     ruoli: [
       'lupo-mannaro-capobranco', 'criceto-malvagio', 'cucciolo-di-lupo-mannaro',
       'eremita', 'nano', 'nonna', 'pastore', 'polpo-mannaro', 'ubriaco',
@@ -17,6 +18,7 @@ export const NIGHT_STEPS = [
     titolo: 'Promemoria: gesti segreti di Bardo e Gallo Mannaro',
     tipo: 'informativo',
     primaNotteSolo: true,
+    assegnabile: false,
     ruoli: ['bardo', 'gallo-mannaro'],
   },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
