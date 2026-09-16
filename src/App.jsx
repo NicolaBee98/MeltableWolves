@@ -6,12 +6,14 @@ import { GiornoPanel } from './features/giorno/GiornoPanel'
 import { useMazzo } from './state/useMazzo'
 import { usePartita } from './state/usePartita'
 import { useVotazione } from './state/useVotazione'
+import { useNotte } from './state/useNotte'
 
 export default function App() {
   const [tab, setTab] = useState('mazzo')
   const { numGiocatori, ruoliSelezionati, setNumGiocatori, toggleRuolo, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
   const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
+  const notte = useNotte()
 
   return (
     <main className="app">
@@ -49,7 +51,16 @@ export default function App() {
         />
       )}
       {tab === 'notte' && (
-        <NightSequencer ruoliSelezionati={ruoliSelezionati} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />
+        <NightSequencer
+          ruoliSelezionati={ruoliSelezionati}
+          giocatori={giocatori}
+          aggiornaGiocatore={aggiornaGiocatore}
+          round={notte.round}
+          stepIndex={notte.stepIndex}
+          avanti={notte.avanti}
+          indietro={notte.indietro}
+          nuovaNotte={notte.nuovaNotte}
+        />
       )}
       {tab === 'giorno' && (
         <GiornoPanel
