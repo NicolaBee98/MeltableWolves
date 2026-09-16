@@ -71,3 +71,17 @@ test('scrivere nella textarea chiama onChangeNote', async () => {
   await user.type(screen.getByPlaceholderText('Note...'), 'x')
   expect(onChangeNote).toHaveBeenCalledWith('1', 'x')
 })
+
+test('mostra "Ruolo non ancora assegnato" se il ruolo non è ancora noto', () => {
+  render(
+    <PlayerCard
+      giocatore={{ ...giocatore, ruoloSlug: undefined }}
+      ruolo={undefined}
+      condizioniDisponibili={condizioniDisponibili}
+      onToggleVivo={() => {}}
+      onChangeCondizioni={() => {}}
+      onChangeNote={() => {}}
+    />,
+  )
+  expect(screen.getByText('Ruolo non ancora assegnato')).toBeInTheDocument()
+})
