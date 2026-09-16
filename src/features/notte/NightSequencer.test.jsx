@@ -78,3 +78,27 @@ test('"Notte successiva" rimuove le condizioni protetto e inibito da tutti i gio
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['unto'] })
 })
+
+test('"Notte successiva" applica le conseguenze dei legami (apprendista eredita il ruolo del maestro)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(<NightSequencer ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', legame: null })
+})
+
+test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencer ruoliSelezionati={['apprendista']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('combobox')).toBeInTheDocument()
+})
