@@ -11,7 +11,7 @@ test('uccide un bersaglio di fazione lupi', async () => {
   await user.selectOptions(screen.getByRole('combobox'), '1')
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte' })
 })
 
 test('non ha effetto su un bersaglio non-lupo se ci sono ancora lupi vivi', async () => {
@@ -41,5 +41,5 @@ test('uccide chiunque se non ci sono più lupi vivi', async () => {
   await user.selectOptions(screen.getByRole('combobox'), '1')
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte' })
 })

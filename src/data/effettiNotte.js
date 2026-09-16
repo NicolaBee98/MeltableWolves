@@ -5,7 +5,7 @@ export function aggiungiCondizionePatch(giocatore, condizione) {
 
 export function uccidiPatch(giocatore) {
   if (giocatore.condizioni.includes('protetto')) return null
-  return { vivo: false }
+  return { vivo: false, causaMorte: 'notte' }
 }
 
 export function resuscitaPatch(giocatore) {

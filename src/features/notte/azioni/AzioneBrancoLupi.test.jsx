@@ -11,7 +11,7 @@ test('conferma uccide il bersaglio scelto', async () => {
   await user.selectOptions(screen.getByRole('combobox'), '1')
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte' })
 })
 
 test('non uccide un bersaglio protetto', async () => {
