@@ -2,29 +2,32 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AddPlayerForm } from './AddPlayerForm'
 
-const roles = [
-  { slug: 'villico', nome: 'Villico' },
-  { slug: 'veggente', nome: 'Veggente' },
-]
-
-test('invia nome e ruolo selezionato al submit', async () => {
+test('digitare un nome e premere Invio chiama onAdd con il nome', async () => {
   const user = userEvent.setup()
   const onAdd = vi.fn()
-  render(<AddPlayerForm roles={roles} onAdd={onAdd} />)
+  render(<AddPlayerForm onAdd={onAdd} />)
 
-  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Marco')
-  await user.selectOptions(screen.getByRole('combobox'), 'veggente')
-  await user.click(screen.getByRole('button', { name: /aggiungi/i }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Marco{Enter}')
 
-  expect(onAdd).toHaveBeenCalledWith('Marco', 'veggente')
+  expect(onAdd).toHaveBeenCalledWith('Marco')
 })
 
-test('non invia se il nome è vuoto', async () => {
+test("svuota il campo dopo l'aggiunta", async () => {
+  const user = userEvent.setup()
+  render(<AddPlayerForm onAdd={() => {}} />)
+
+  const input = screen.getByPlaceholderText('Nome giocatore')
+  await user.type(input, 'Marco{Enter}')
+
+  expect(input).toHaveValue('')
+})
+
+test('non chiama onAdd se il nome è vuoto', async () => {
   const user = userEvent.setup()
   const onAdd = vi.fn()
-  render(<AddPlayerForm roles={roles} onAdd={onAdd} />)
+  render(<AddPlayerForm onAdd={onAdd} />)
 
-  await user.click(screen.getByRole('button', { name: /aggiungi/i }))
+  await user.click(screen.getByRole('button', { name: 'Aggiungi' }))
 
   expect(onAdd).not.toHaveBeenCalled()
 })
