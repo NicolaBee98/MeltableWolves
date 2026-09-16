@@ -6,6 +6,7 @@ import { AzioneResuscita } from './AzioneResuscita'
 import { AzioneStrega } from './AzioneStrega'
 import { AzioneLegame } from './AzioneLegame'
 import { AzioneCortigiana } from './AzioneCortigiana'
+import { AzioneAddolorata } from './AzioneAddolorata'
 
 export const AZIONI_NOTTURNE = {
   paladino: { Componente: AzioneCondizioneSingola, props: { condizione: 'protetto', etichetta: 'Chi proteggere' } },
@@ -23,4 +24,5 @@ export const AZIONI_NOTTURNE = {
   cavaliere: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
   'figlia-dei-lupi': { Componente: AzioneLegame, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },
   cortigiana: { Componente: AzioneCortigiana, props: {} },
+  addolorata: { Componente: AzioneAddolorata, props: {} },
 }

@@ -108,3 +108,13 @@ test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
 
   expect(screen.getByRole('combobox')).toBeInTheDocument()
 })
+
+test("mostra lo scambio per Addolorata quando c'è una vittima al rogo della notte corrente", () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 1 },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['addolorata']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('button', { name: 'Scambia' })).toBeInTheDocument()
+})
