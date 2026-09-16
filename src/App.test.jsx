@@ -19,7 +19,7 @@ test('parte sulla scheda Mazzo e permette di passare a Giocatori', async () => {
 
   await user.click(screen.getByRole('button', { name: 'Giocatori' }))
 
-  expect(screen.getByText(/seleziona almeno un ruolo/i)).toBeInTheDocument()
+  expect(screen.getByPlaceholderText('Nome giocatore')).toBeInTheDocument()
 })
 
 test('scheda Notte mostra un messaggio se il mazzo non ha ruoli con azione notturna', async () => {

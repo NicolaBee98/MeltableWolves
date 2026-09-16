@@ -48,7 +48,6 @@ export default function App() {
       )}
       {tab === 'giocatori' && (
         <PlayerTracker
-          ruoliDisponibili={ruoliInMazzo}
           giocatori={giocatori}
           addGiocatore={addGiocatore}
           toggleVivo={toggleVivo}
