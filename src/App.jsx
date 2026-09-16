@@ -60,6 +60,7 @@ export default function App() {
           ruoliSelezionati={ruoliInMazzo.map((r) => r.slug)}
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
+          quantita={quantita}
           round={notte.round}
           stepIndex={notte.stepIndex}
           avanti={notte.avanti}
