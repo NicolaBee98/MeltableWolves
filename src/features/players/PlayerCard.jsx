@@ -22,7 +22,7 @@ export function PlayerCard({ giocatore, ruolo, condizioniDisponibili, onToggleVi
         </button>
       </header>
       <p className="player-card__ruolo">
-        {ruolo?.nome ?? 'Ruolo sconosciuto'}
+        {ruolo?.nome ?? 'Ruolo non ancora assegnato'}
         {ruolo && <span className="player-card__fazione"> — {FAZIONE_LABEL[ruolo.fazione]}</span>}
       </p>
       <div className="player-card__condizioni">
