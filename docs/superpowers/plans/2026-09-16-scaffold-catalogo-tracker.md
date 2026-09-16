@@ -352,7 +352,7 @@ export const ROLES = [
     testoRegole: "La prima notte sceglie due persone, unendole con un sigillo d'amore: se una delle due morirà, uccisa o mandata al rogo, anche l'altra la seguirà nella tomba (vedi Innamorato)." },
   { slug: 'scemo-del-villaggio', nome: 'Scemo del Villaggio', fazione: 'villaggio', notturno: false,
     testoRegole: "Un sortilegio opprime questo ruolo: per esprimersi deve parlare in rima. Se la sua rima fallisce, lo sfortunato perisce all'istante." },
-  { slug: 'sciacallo-mannaro', nome: 'Sciacallo Mannaro', fazione: 'indipendente', notturno: true,
+  { slug: 'sciacallo-mannaro', nome: 'Sciacallo Mannaro', fazione: 'lupi', notturno: true,
     testoRegole: "Ha il potere di far resuscitare, una volta per partita, un altro giocatore. Non conosce chi sono i Lupi Mannari e non caccia con loro." },
   { slug: 'spilungone', nome: 'Spilungone', fazione: 'villaggio', notturno: false,
     testoRegole: "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo del villaggio durante il giorno. Se viene favorito al rogo, svela la propria carta e la notte cala senza vittime." },
