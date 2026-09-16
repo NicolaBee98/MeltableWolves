@@ -1,4 +1,4 @@
-import { risolviLegami } from './risoluzioneNotte'
+import { risolviLegami, risolviCortigiana } from './risoluzioneNotte'
 
 test('apprendista eredita il ruolo del maestro quando muore', () => {
   const giocatori = [
@@ -44,4 +44,36 @@ test('nessun effetto se il bersaglio del legame è ancora vivo', () => {
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
   ]
   expect(risolviLegami(giocatori)).toEqual({})
+})
+
+test('la cortigiana muore se il cliente scelto è un lupo', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+})
+
+test('la cortigiana muore se il cliente è stato sbranato di notte', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte' },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+})
+
+test('la cortigiana sopravvive se il cliente è vivo e non è un lupo', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ visitaNotturna: null })
+})
+
+test('nessuna patch se la cortigiana non ha visitato nessuno', () => {
+  const giocatori = [{ id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [] }]
+  expect(risolviCortigiana(giocatori)).toEqual({})
 })
