@@ -21,3 +21,12 @@ test('parte sulla scheda Mazzo e permette di passare a Giocatori', async () => {
 
   expect(screen.getByText(/seleziona almeno un ruolo/i)).toBeInTheDocument()
 })
+
+test('scheda Notte mostra un messaggio se il mazzo non ha ruoli con azione notturna', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Notte' }))
+
+  expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
+})

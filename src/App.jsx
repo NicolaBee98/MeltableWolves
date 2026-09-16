@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { PlayerTracker } from './features/players/PlayerTracker'
+import { NightSequencer } from './features/notte/NightSequencer'
 import { useMazzo } from './state/useMazzo'
 import { usePartita } from './state/usePartita'
 
@@ -18,6 +19,9 @@ export default function App() {
         </button>
         <button type="button" aria-pressed={tab === 'giocatori'} onClick={() => setTab('giocatori')}>
           Giocatori
+        </button>
+        <button type="button" aria-pressed={tab === 'notte'} onClick={() => setTab('notte')}>
+          Notte
         </button>
       </nav>
       {tab === 'mazzo' && (
@@ -38,6 +42,7 @@ export default function App() {
           setNote={setNote}
         />
       )}
+      {tab === 'notte' && <NightSequencer ruoliSelezionati={ruoliSelezionati} giocatori={giocatori} />}
     </main>
   )
 }
