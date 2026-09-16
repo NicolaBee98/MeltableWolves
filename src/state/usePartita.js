@@ -18,10 +18,10 @@ export function usePartita() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(giocatori))
   }, [giocatori])
 
-  function addGiocatore(nome, ruoloSlug) {
+  function addGiocatore(nome) {
     setGiocatori((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), nome, ruoloSlug, vivo: true, condizioni: [], note: '', poteriUsati: [] },
+      { id: crypto.randomUUID(), nome, ruoloSlug: undefined, vivo: true, condizioni: [], note: '', poteriUsati: [] },
     ])
   }
 

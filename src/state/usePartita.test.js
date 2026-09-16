@@ -5,17 +5,17 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-test('addGiocatore aggiunge un giocatore vivo senza condizioni', () => {
+test('addGiocatore aggiunge un giocatore vivo senza ruolo assegnato', () => {
   const { result } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
 
   expect(result.current.giocatori).toHaveLength(1)
   expect(result.current.giocatori[0]).toMatchObject({
     nome: 'Anna',
-    ruoloSlug: 'villico',
+    ruoloSlug: undefined,
     vivo: true,
     condizioni: [],
     note: '',
@@ -26,7 +26,7 @@ test('toggleVivo inverte lo stato vivo/morto del giocatore indicato', () => {
   const { result } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
   const id = result.current.giocatori[0].id
 
@@ -41,7 +41,7 @@ test('setCondizioni e setNote aggiornano il giocatore indicato', () => {
   const { result } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
   const id = result.current.giocatori[0].id
 
@@ -58,7 +58,7 @@ test('lo stato persiste in localStorage tra due montaggi dell\'hook', () => {
   const { result, unmount } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
   unmount()
 
@@ -71,7 +71,7 @@ test('addGiocatore inizializza poteriUsati vuoto', () => {
   const { result } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
 
   expect(result.current.giocatori[0].poteriUsati).toEqual([])
@@ -81,7 +81,7 @@ test('aggiornaGiocatore applica una patch parziale al giocatore indicato', () =>
   const { result } = renderHook(() => usePartita())
 
   act(() => {
-    result.current.addGiocatore('Anna', 'villico')
+    result.current.addGiocatore('Anna')
   })
   const id = result.current.giocatori[0].id
 
@@ -91,4 +91,19 @@ test('aggiornaGiocatore applica una patch parziale al giocatore indicato', () =>
 
   expect(result.current.giocatori[0].vivo).toBe(false)
   expect(result.current.giocatori[0].poteriUsati).toEqual(['guaritore-resuscita'])
+})
+
+test('aggiornaGiocatore può assegnare il ruolo a un giocatore già esistente', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Anna')
+  })
+  const id = result.current.giocatori[0].id
+
+  act(() => {
+    result.current.aggiornaGiocatore(id, { ruoloSlug: 'paladino' })
+  })
+
+  expect(result.current.giocatori[0].ruoloSlug).toBe('paladino')
 })
