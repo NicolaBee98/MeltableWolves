@@ -89,7 +89,20 @@ valore d'uso il prima possibile.
 2. Catalogo ruoli (dati + icone placeholder per fazione).
 3. Tracker giocatori (MVP: lista, stato vivo/morto, condizioni, note).
 4. Creazione mazzo (form + validazione bilanciamento).
-5. Sequencer notte (wizard ordine chiamata sul mazzo corrente).
+5. Sequencer notte, diviso in tre sotto-passi per complessità:
+   - **5a — Motore sequencer**: ordine di chiamata per notte (filtrato su
+     mazzo + notte corrente + vivo/morto), avanzamento passo-passo, skip,
+     passi informativi. Nessuna azione bersaglio-selezionabile.
+   - **5b — Effetti automatici (prima fetta)**: selezione bersaglio +
+     applicazione automatica per i ruoli con logica semplice: Paladino,
+     Strega (2 pozioni), Branco dei Lupi, Chupacabra, Untore, Fattucchiera,
+     Pifferaio, Maga, Sacerdote, Guaritore/Sciacallo Mannaro.
+   - **5c — Ruoli restanti con legami persistenti** (futuro): Apprendista,
+     Cavaliere, Figlia dei Lupi (legano a un bersaglio con conseguenze
+     future), Guardie/Guardia Mannara/Mucca Mannara (si riconoscono a
+     vicenda, nessun bersaglio), Addolorata, Cortigiana (interazioni più
+     particolari). Richiede un modello di "legami tra giocatori" non ancora
+     progettato.
 6. Fase giorno/voto (accuse, voto, morti, condizioni collegate).
 7. Log partita (vista cronologia, nessun nuovo input).
 
