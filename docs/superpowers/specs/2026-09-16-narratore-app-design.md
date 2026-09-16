@@ -97,12 +97,15 @@ valore d'uso il prima possibile.
      applicazione automatica per i ruoli con logica semplice: Paladino,
      Strega (2 pozioni), Branco dei Lupi, Chupacabra, Untore, Fattucchiera,
      Pifferaio, Maga, Sacerdote, Guaritore/Sciacallo Mannaro.
-   - **5c — Ruoli restanti con legami persistenti** (futuro): Apprendista,
-     Cavaliere, Figlia dei Lupi (legano a un bersaglio con conseguenze
-     future), Guardie/Guardia Mannara/Mucca Mannara (si riconoscono a
-     vicenda, nessun bersaglio), Addolorata, Cortigiana (interazioni più
-     particolari). Richiede un modello di "legami tra giocatori" non ancora
-     progettato.
+   - **5c — Ruoli con legami persistenti** (fatto): Apprendista, Cavaliere,
+     Figlia dei Lupi (legano a un bersaglio la prima notte; la conseguenza si
+     risolve quando il narratore passa alla notte successiva) e Cortigiana
+     (visita un cliente ogni notte, con conseguenze legate alla sua sorte).
+     Guardie/Guardia Mannara/Mucca Mannara non hanno richiesto lavoro
+     aggiuntivo: si riconoscono a vicenda senza bersaglio, già coperti dal
+     passo informativo del piano 5a. Addolorata resta fuori scope: il suo
+     potere dipende da chi è stato mandato al rogo, dato che esisterà solo
+     con la fase giorno/voto (passo 6).
 6. Fase giorno/voto (accuse, voto, morti, condizioni collegate).
 7. Log partita (vista cronologia, nessun nuovo input).
 
