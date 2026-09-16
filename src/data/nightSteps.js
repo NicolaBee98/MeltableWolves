@@ -41,7 +41,7 @@ export const NIGHT_STEPS = [
   { id: 'cartomante', titolo: 'Cartomante', tipo: 'informativo', primaNotteSolo: false, ruoli: ['cartomante'] },
   { id: 'inquisitore', titolo: 'Inquisitore', tipo: 'informativo', primaNotteSolo: false, ruoli: ['inquisitore'] },
   { id: 'medium', titolo: 'Medium', tipo: 'informativo', primaNotteSolo: false, ruoli: ['medium'] },
-  { id: 'veggente', titolo: 'Veggente', tipo: 'informativo', primaNotteSolo: false, ruoli: ['veggente'] },
+  { id: 'veggente', titolo: 'Veggente', tipo: 'azione', primaNotteSolo: false, ruoli: ['veggente'] },
   { id: 'veggente-mannaro', titolo: 'Veggente Mannaro', tipo: 'informativo', primaNotteSolo: false, ruoli: ['veggente-mannaro'] },
   { id: 'guaritore', titolo: 'Guaritore', tipo: 'azione', primaNotteSolo: false, ruoli: ['guaritore'] },
   { id: 'sciacallo-mannaro', titolo: 'Sciacallo Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['sciacallo-mannaro'] },
