@@ -39,3 +39,12 @@ test('scheda Giorno mostra i controlli di votazione', async () => {
 
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
 })
+
+test('scheda Registro mostra un messaggio se non ci sono eventi', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro' }))
+
+  expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
+})

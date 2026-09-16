@@ -3,10 +3,12 @@ import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { PlayerTracker } from './features/players/PlayerTracker'
 import { NightSequencer } from './features/notte/NightSequencer'
 import { GiornoPanel } from './features/giorno/GiornoPanel'
+import { LogPartita } from './features/log/LogPartita'
 import { useMazzo } from './state/useMazzo'
 import { usePartita } from './state/usePartita'
 import { useVotazione } from './state/useVotazione'
 import { useNotte } from './state/useNotte'
+import { useLog } from './state/useLog'
 
 export default function App() {
   const [tab, setTab] = useState('mazzo')
@@ -14,6 +16,7 @@ export default function App() {
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
   const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
   const notte = useNotte()
+  const eventi = useLog(giocatori, notte.round)
 
   return (
     <main className="app">
@@ -30,6 +33,9 @@ export default function App() {
         </button>
         <button type="button" aria-pressed={tab === 'giorno'} onClick={() => setTab('giorno')}>
           Giorno
+        </button>
+        <button type="button" aria-pressed={tab === 'registro'} onClick={() => setTab('registro')}>
+          Registro
         </button>
       </nav>
       {tab === 'mazzo' && (
@@ -73,6 +79,7 @@ export default function App() {
           round={notte.round}
         />
       )}
+      {tab === 'registro' && <LogPartita eventi={eventi} />}
     </main>
   )
 }
