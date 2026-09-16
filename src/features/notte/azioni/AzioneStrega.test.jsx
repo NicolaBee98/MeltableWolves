@@ -33,7 +33,7 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
   await user.selectOptions(selectMortale, '2')
   await user.click(confermaMortale)
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte' })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
 })
 
