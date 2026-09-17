@@ -14,7 +14,7 @@ export default function App() {
   const [tab, setTab] = useState('mazzo')
   const { numGiocatori, quantita, setNumGiocatori, setQuantita, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
-  const { voti, incrementaVoto, decrementaVoto, ricominciaVotazione } = useVotazione()
+  const { voti, fase, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } = useVotazione()
   const notte = useNotte()
   const { eventi, aggiungiEvento } = useLog(giocatori, notte.round)
 
@@ -73,9 +73,12 @@ export default function App() {
         <GiornoPanel
           giocatori={giocatori}
           voti={voti}
+          fase={fase}
           incrementaVoto={incrementaVoto}
           decrementaVoto={decrementaVoto}
           ricominciaVotazione={ricominciaVotazione}
+          vaiAEsito={vaiAEsito}
+          tornaAlVoto={tornaAlVoto}
           aggiornaGiocatore={aggiornaGiocatore}
           round={notte.round}
         />

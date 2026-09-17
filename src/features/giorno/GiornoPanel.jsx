@@ -1,7 +1,17 @@
 import { Votazione } from './Votazione'
-import { MorteSulColpo } from './MorteSulColpo'
 
-export function GiornoPanel({ giocatori, voti, incrementaVoto, decrementaVoto, ricominciaVotazione, aggiornaGiocatore, round }) {
+export function GiornoPanel({
+  giocatori,
+  voti,
+  fase,
+  incrementaVoto,
+  decrementaVoto,
+  ricominciaVotazione,
+  vaiAEsito,
+  tornaAlVoto,
+  aggiornaGiocatore,
+  round,
+}) {
   function dichiaraRogo(id) {
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'rogo', mortoNotte: round })
   }
@@ -15,12 +25,15 @@ export function GiornoPanel({ giocatori, voti, incrementaVoto, decrementaVoto, r
       <Votazione
         giocatori={giocatori}
         voti={voti}
+        fase={fase}
         incrementaVoto={incrementaVoto}
         decrementaVoto={decrementaVoto}
         ricominciaVotazione={ricominciaVotazione}
+        vaiAEsito={vaiAEsito}
+        tornaAlVoto={tornaAlVoto}
         onRogo={dichiaraRogo}
+        onMorteImprovvisa={dichiaraColpo}
       />
-      <MorteSulColpo giocatori={giocatori} onDichiara={dichiaraColpo} />
     </section>
   )
 }
