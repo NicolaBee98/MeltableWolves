@@ -11,6 +11,7 @@ export function NightSequencer({
   aggiornaGiocatore,
   quantita = {},
   registraEvento = () => {},
+  onNotteConclusa = () => {},
   round,
   stepIndex,
   avanti,
@@ -55,6 +56,7 @@ export function NightSequencer({
       registraEvento(messaggio)
     }
 
+    onNotteConclusa()
     nuovaNotte()
   }
 
