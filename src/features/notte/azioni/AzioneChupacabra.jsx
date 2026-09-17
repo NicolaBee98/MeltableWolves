@@ -6,7 +6,7 @@ function fazioneDi(giocatore) {
   return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
 }
 
-export function AzioneChupacabra({ giocatori, aggiornaGiocatore }) {
+export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
   const vivi = giocatori.filter((g) => g.vivo)
   const nessunLupoVivo = !vivi.some((g) => fazioneDi(g) === 'lupi')
 
@@ -15,7 +15,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore }) {
     if (!target) return
     const puoUccidere = fazioneDi(target) === 'lupi' || nessunLupoVivo
     if (!puoUccidere) return
-    const patch = uccidiPatch(target)
+    const patch = uccidiPatch(target, round)
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     }

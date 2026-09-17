@@ -1,7 +1,7 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { aggiungiCondizionePatch, uccidiPatch } from '../../../data/effettiNotte'
 
-export function AzioneStrega({ giocatori, aggiornaGiocatore }) {
+export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
   const strega = giocatori.find((g) => g.ruoloSlug === 'strega')
   const poteriUsati = strega?.poteriUsati ?? []
   const vivi = giocatori.filter((g) => g.vivo)
@@ -19,7 +19,7 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore }) {
   function usaPozioneMortale(targetId) {
     const target = giocatori.find((g) => g.id === targetId)
     if (!target || !strega) return
-    const patch = uccidiPatch(target)
+    const patch = uccidiPatch(target, round)
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     }

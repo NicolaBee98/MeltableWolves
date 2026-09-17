@@ -6,12 +6,12 @@ test('conferma uccide il bersaglio scelto', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], note: '' }]
-  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   await user.selectOptions(screen.getByRole('combobox'), '1')
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
 })
 
 test('non uccide un bersaglio protetto', async () => {

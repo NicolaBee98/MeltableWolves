@@ -3,9 +3,9 @@ export function aggiungiCondizionePatch(giocatore, condizione) {
   return { condizioni: [...giocatore.condizioni, condizione] }
 }
 
-export function uccidiPatch(giocatore) {
+export function uccidiPatch(giocatore, round) {
   if (giocatore.condizioni.includes('protetto')) return null
-  return { vivo: false, causaMorte: 'notte' }
+  return { vivo: false, causaMorte: 'notte', mortoNotte: round }
 }
 
 export function resuscitaPatch(giocatore) {
