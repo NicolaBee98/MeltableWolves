@@ -20,6 +20,7 @@ function setup(overrides = {}) {
     tornaAlVoto: vi.fn(),
     onRogo: vi.fn(),
     onMorteImprovvisa: vi.fn(),
+    onProsegui: vi.fn(),
     ...overrides,
   }
   render(<Votazione {...props} />)
@@ -82,4 +83,11 @@ test('in fase esito il pulsante Torna al voto chiama tornaAlVoto', async () => {
 test("in fase esito è sempre presente l'icona Morte improvvisa", () => {
   setup({ voti: { 1: 2 }, fase: 'esito' })
   expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+})
+
+test('in fase esito il pulsante Prosegui alla notte chiama onProsegui', async () => {
+  const user = userEvent.setup()
+  const { onProsegui } = setup({ voti: { 1: 2 }, fase: 'esito' })
+  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  expect(onProsegui).toHaveBeenCalled()
 })
