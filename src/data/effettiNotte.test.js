@@ -10,12 +10,12 @@ test('aggiungiCondizionePatch ritorna null se la condizione è già presente', (
   expect(aggiungiCondizionePatch(giocatore, 'unto')).toBeNull()
 })
 
-test('uccidiPatch ritorna vivo:false e causaMorte:notte se il giocatore non è protetto', () => {
-  expect(uccidiPatch({ condizioni: [] })).toEqual({ vivo: false, causaMorte: 'notte' })
+test('uccidiPatch ritorna vivo:false, causaMorte:notte e la notte corrente se il giocatore non è protetto', () => {
+  expect(uccidiPatch({ condizioni: [] }, 3)).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 3 })
 })
 
 test('uccidiPatch ritorna null se il giocatore è protetto', () => {
-  expect(uccidiPatch({ condizioni: ['protetto'] })).toBeNull()
+  expect(uccidiPatch({ condizioni: ['protetto'] }, 3)).toBeNull()
 })
 
 test('resuscitaPatch riporta in vita un giocatore morto', () => {

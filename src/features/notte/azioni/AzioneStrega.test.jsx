@@ -25,7 +25,7 @@ test('la pozione vitale protegge il bersaglio e marca il potere come usato', asy
 test('la pozione mortale uccide il bersaglio e marca il potere come usato', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
-  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   const [, selectMortale] = screen.getAllByRole('combobox')
   const [, confermaMortale] = screen.getAllByRole('button', { name: 'Conferma' })
@@ -33,7 +33,7 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
   await user.selectOptions(selectMortale, '2')
   await user.click(confermaMortale)
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
 })
 
