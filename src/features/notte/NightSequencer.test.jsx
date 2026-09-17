@@ -193,3 +193,20 @@ test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
 
   expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.')
 })
+
+test('"Notte successiva" chiama onNotteConclusa', async () => {
+  const user = userEvent.setup()
+  const onNotteConclusa = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['mimo']}
+      giocatori={[]}
+      aggiornaGiocatore={() => {}}
+      onNotteConclusa={onNotteConclusa}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(onNotteConclusa).toHaveBeenCalled()
+})
