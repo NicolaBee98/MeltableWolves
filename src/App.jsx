@@ -26,8 +26,11 @@ export default function App() {
   }
 
   return (
-    <main className="app">
-      <h1>Meltable Wolves — Narratore</h1>
+    <main className={`app${faseApp === 'home' ? ' app--home' : ''}`}>
+      <h1 className="app__titolo">
+        <span className="app__titolo-meltable">Meltable</span>
+        <span className="app__titolo-wolves">Wolves</span>
+      </h1>
 
       {faseApp !== 'home' && <LogImpostazioniPopup eventi={eventi} />}
 
