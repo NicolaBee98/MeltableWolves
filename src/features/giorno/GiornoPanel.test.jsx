@@ -5,10 +5,13 @@ import { GiornoPanel } from './GiornoPanel'
 function setup(overrides = {}) {
   const props = {
     giocatori: [{ id: '1', nome: 'Anna', vivo: true }],
-    voti: {},
+    voti: { 1: 2 },
+    fase: 'esito',
     incrementaVoto: vi.fn(),
     decrementaVoto: vi.fn(),
     ricominciaVotazione: vi.fn(),
+    vaiAEsito: vi.fn(),
+    tornaAlVoto: vi.fn(),
     aggiornaGiocatore: vi.fn(),
     round: 3,
     ...overrides,
@@ -17,11 +20,11 @@ function setup(overrides = {}) {
   return props
 }
 
-test('dichiarare una morte sul colpo chiama aggiornaGiocatore con causaMorte:colpo', async () => {
+test('dichiarare una morte improvvisa dal popup chiama aggiornaGiocatore con causaMorte:colpo', async () => {
   const user = userEvent.setup()
   const { aggiornaGiocatore } = setup()
 
-  await user.selectOptions(screen.getByRole('combobox'), '1')
+  await user.click(screen.getByRole('button', { name: /morte improvvisa/i }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
@@ -29,7 +32,7 @@ test('dichiarare una morte sul colpo chiama aggiornaGiocatore con causaMorte:col
 
 test('dichiarare morte sul rogo chiama aggiornaGiocatore con causaMorte:rogo e la notte corrente', async () => {
   const user = userEvent.setup()
-  const { aggiornaGiocatore } = setup({ voti: { 1: 3 } })
+  const { aggiornaGiocatore } = setup()
 
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
 
