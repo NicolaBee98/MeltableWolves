@@ -1,7 +1,8 @@
 export function Home({ onNuovaPartita }) {
   return (
     <section className="home">
-      <button type="button" onClick={onNuovaPartita}>
+      <p className="home__tagline">Assistente per il Narratore</p>
+      <button type="button" className="home__cta" onClick={onNuovaPartita}>
         Nuova Partita
       </button>
       <button type="button" disabled title="Prossimamente">
