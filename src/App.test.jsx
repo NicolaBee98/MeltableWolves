@@ -41,12 +41,15 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
 })
 
-test('il pulsante Registro mostra il log anche a partita in corso', async () => {
+test("l'icona Registro e impostazioni apre il popup con log e impostazioni", async () => {
   const user = userEvent.setup()
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByRole('button', { name: 'Registro' }))
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
 
   expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
+  expect(screen.getByText(/impostazioni in arrivo/i)).toBeInTheDocument()
 })
