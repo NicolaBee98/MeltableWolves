@@ -53,3 +53,34 @@ test('lo stato persiste in localStorage tra due montaggi', () => {
   const { result: result2 } = renderHook(() => useVotazione())
   expect(result2.current.voti['1']).toBe(1)
 })
+
+test('fase iniziale è voto', () => {
+  const { result } = renderHook(() => useVotazione())
+  expect(result.current.fase).toBe('voto')
+})
+
+test('vaiAEsito passa la fase a esito', () => {
+  const { result } = renderHook(() => useVotazione())
+  act(() => {
+    result.current.vaiAEsito()
+  })
+  expect(result.current.fase).toBe('esito')
+})
+
+test('tornaAlVoto riporta la fase a voto', () => {
+  const { result } = renderHook(() => useVotazione())
+  act(() => {
+    result.current.vaiAEsito()
+    result.current.tornaAlVoto()
+  })
+  expect(result.current.fase).toBe('voto')
+})
+
+test('ricominciaVotazione riporta la fase a voto', () => {
+  const { result } = renderHook(() => useVotazione())
+  act(() => {
+    result.current.vaiAEsito()
+    result.current.ricominciaVotazione()
+  })
+  expect(result.current.fase).toBe('voto')
+})

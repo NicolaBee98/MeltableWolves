@@ -1,34 +1,51 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'meltable-wolves-votazione'
+const DEFAULT_STATO = { voti: {}, fase: 'voto' }
 
-function loadVoti() {
+function loadStato() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
+    return raw ? JSON.parse(raw) : DEFAULT_STATO
   } catch {
-    return {}
+    return DEFAULT_STATO
   }
 }
 
 export function useVotazione() {
-  const [voti, setVoti] = useState(loadVoti)
+  const [stato, setStato] = useState(loadStato)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(voti))
-  }, [voti])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stato))
+  }, [stato])
 
   function incrementaVoto(id) {
-    setVoti((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
+    setStato((prev) => ({ ...prev, voti: { ...prev.voti, [id]: (prev.voti[id] ?? 0) + 1 } }))
   }
 
   function decrementaVoto(id) {
-    setVoti((prev) => ({ ...prev, [id]: Math.max((prev[id] ?? 0) - 1, 0) }))
+    setStato((prev) => ({ ...prev, voti: { ...prev.voti, [id]: Math.max((prev.voti[id] ?? 0) - 1, 0) } }))
   }
 
   function ricominciaVotazione() {
-    setVoti({})
+    setStato({ voti: {}, fase: 'voto' })
   }
 
-  return { voti, incrementaVoto, decrementaVoto, ricominciaVotazione }
+  function vaiAEsito() {
+    setStato((prev) => ({ ...prev, fase: 'esito' }))
+  }
+
+  function tornaAlVoto() {
+    setStato((prev) => ({ ...prev, fase: 'voto' }))
+  }
+
+  return {
+    voti: stato.voti,
+    fase: stato.fase,
+    incrementaVoto,
+    decrementaVoto,
+    ricominciaVotazione,
+    vaiAEsito,
+    tornaAlVoto,
+  }
 }
