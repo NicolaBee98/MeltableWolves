@@ -131,3 +131,34 @@ dalle fasi successive.
 - Salvataggio/ripresa partite tra sessioni diverse o storico partite passate.
 - Backend, account utente, sincronizzazione cloud.
 - Asset grafici ufficiali (placeholder fino a nuovo avviso).
+
+## Revisione UX (2026-09-17)
+
+Dopo aver provato l'MVP a tab, è emerso uno scarto tra il flusso atteso dal
+narratore e l'interfaccia costruita. La revisione è stata scomposta in 8
+sotto-progetti, ciascuno con il proprio piano in `docs/superpowers/plans/`:
+
+1. Mazzo con quantità (Villico ≤12, Lupo Mannaro ≤5, Guardie in coppia,
+   Guardia Mannara solo con Guardie presenti) — fatto.
+2. Giocatori a chip in ordine di seduta oraria dal Narratore — fatto.
+3. Notte con assegnazione ruolo dal vivo (il ruolo non è mai pre-assegnato:
+   si sceglie chi lo rivela quando tocca il suo passo) — fatto.
+4. Alba con annunci derivati (aura esplicita per ruolo, indagine del
+   Veggente, annunci su Pastore/Ambasciatore) — fatto.
+5. Voto ed esito nel flusso unico (schermate voto/esito separate, "Morte
+   improvvisa" sempre raggiungibile in entrambe le varianti di esito) —
+   fatto.
+6. Home + macchina a stati: la barra a tab è sostituita da un flusso
+   Home → Mazzo → Giocatori → Notte → Alba → Voto → Esito → di nuovo
+   Notte, con `faseApp` persistito in `localStorage` — fatto.
+7. Popup Log + Impostazioni: icona sempre visibile durante la partita che
+   apre un popup con le tab "Impostazioni partita" (placeholder) e "Log
+   partita" — fatto.
+8. Redesign visivo: palette e font ispirati alla copertina/impaginazione
+   del libretto (navy/rosso/blu-grigio, `Baloo 2` per i titoli, `Nunito`
+   per il corpo testo, `Permanent Marker` per il logo in Home), popup a
+   scheda intera su mobile — fatto. Icone e immagini ufficiali restano
+   un placeholder in attesa degli asset reali.
+
+Con il completamento dell'ottavo sotto-progetto, la revisione UX è
+interamente implementata.
