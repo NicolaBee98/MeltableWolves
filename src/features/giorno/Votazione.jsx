@@ -13,6 +13,7 @@ export function Votazione({
   tornaAlVoto,
   onRogo,
   onMorteImprovvisa,
+  onProsegui,
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
   const { vincitori, maxVoti } = risultatoVotazione(voti, vivi.map((g) => g.id))
@@ -35,6 +36,9 @@ export function Votazione({
         )}
         <button type="button" onClick={tornaAlVoto}>
           Torna al voto
+        </button>
+        <button type="button" onClick={onProsegui}>
+          Prosegui alla notte
         </button>
         <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />
       </section>

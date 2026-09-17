@@ -11,6 +11,7 @@ export function GiornoPanel({
   tornaAlVoto,
   aggiornaGiocatore,
   round,
+  onProsegui,
 }) {
   function dichiaraRogo(id) {
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'rogo', mortoNotte: round })
@@ -33,6 +34,7 @@ export function GiornoPanel({
         tornaAlVoto={tornaAlVoto}
         onRogo={dichiaraRogo}
         onMorteImprovvisa={dichiaraColpo}
+        onProsegui={onProsegui}
       />
     </section>
   )

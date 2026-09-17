@@ -14,6 +14,7 @@ function setup(overrides = {}) {
     tornaAlVoto: vi.fn(),
     aggiornaGiocatore: vi.fn(),
     round: 3,
+    onProsegui: vi.fn(),
     ...overrides,
   }
   render(<GiornoPanel {...props} />)
@@ -37,4 +38,11 @@ test('dichiarare morte sul rogo chiama aggiornaGiocatore con causaMorte:rogo e l
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'rogo', mortoNotte: 3 })
+})
+
+test('il pulsante Prosegui alla notte chiama onProsegui', async () => {
+  const user = userEvent.setup()
+  const { onProsegui } = setup()
+  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  expect(onProsegui).toHaveBeenCalled()
 })
