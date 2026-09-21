@@ -19,8 +19,22 @@ test('paladino compare a ogni notte', () => {
   expect(passiNotte(['paladino'], 5, NESSUN_GIOCATORE).map((p) => p.id)).toContain('paladino')
 })
 
-test('i ruoli del branco dei lupi attivano il passo "branco-lupi"', () => {
-  expect(passiNotte(['lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)).toContain('branco-lupi')
+test('senza lupi ancora identificati, la prima notte propone solo "identifica-branco", non "branco-lupi"', () => {
+  const passi = passiNotte(['lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(passi).toContain('identifica-branco')
+  expect(passi).not.toContain('branco-lupi')
+})
+
+test('una volta identificato un lupo vivo, "branco-lupi" compare per la caccia', () => {
+  const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]
+  expect(passiNotte(['lupo-mannaro'], 1, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)).toContain('branco-lupi')
+})
+
+test('"identifica-branco" compare solo alla prima notte, "branco-lupi" continua a comparire', () => {
+  const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]
+  const passi = passiNotte(['lupo-mannaro'], 2, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
+  expect(passi).not.toContain('identifica-branco')
+  expect(passi).toContain('branco-lupi')
 })
 
 test("rispetta l'ordine del regolamento tra le categorie", () => {
@@ -29,9 +43,9 @@ test("rispetta l'ordine del regolamento tra le categorie", () => {
   expect(ordine).toEqual(['fattucchiera', 'veggente', 'strega'])
 })
 
-test('cucciolo di lupo mannaro compare sia nel promemoria potere-passivo sia nel branco', () => {
+test('cucciolo di lupo mannaro compare nel promemoria potere-passivo e in identifica-branco, non ancora nel branco', () => {
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
-  expect(ordine).toEqual(['potere-passivo', 'branco-lupi'])
+  expect(ordine).toEqual(['potere-passivo', 'identifica-branco'])
 })
 
 test('il passo "innamorati" compare solo se un giocatore ha la condizione innamorato', () => {
@@ -56,4 +70,26 @@ test('i passi di solo promemoria non sono assegnabili', () => {
 test('un passo normale non ha assegnabile impostato a false', () => {
   const paladino = NIGHT_STEPS.find((s) => s.id === 'paladino')
   expect(paladino.assegnabile).not.toBe(false)
+})
+
+test('salta un passo di ruolo il cui unico titolare è morto e il ruolo è già stato assegnato del tutto', () => {
+  const giocatori = [{ id: '1', nome: 'Bruno', ruoloSlug: 'veggente', vivo: false, condizioni: [] }]
+  expect(passiNotte(['veggente'], 2, giocatori, { veggente: 1 }).map((p) => p.id)).not.toContain('veggente')
+})
+
+test('"branco-lupi" sparisce quando tutti i lupi identificati sono morti', () => {
+  const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [] }]
+  expect(
+    passiNotte(['lupo-mannaro'], 2, giocatori, { 'lupo-mannaro': 2 }).map((p) => p.id),
+  ).not.toContain('branco-lupi')
+})
+
+test('mostra ancora il passo se il titolare è vivo anche a mazzo già completo', () => {
+  const giocatori = [{ id: '1', nome: 'Bruno', ruoloSlug: 'veggente', vivo: true, condizioni: [] }]
+  expect(passiNotte(['veggente'], 2, giocatori, { veggente: 1 }).map((p) => p.id)).toContain('veggente')
+})
+
+test('i passi di solo promemoria restano anche se nessun giocatore ha mai quel ruolo assegnato', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] }]
+  expect(passiNotte(['eremita'], 1, giocatori, {}).map((p) => p.id)).toContain('potere-passivo')
 })

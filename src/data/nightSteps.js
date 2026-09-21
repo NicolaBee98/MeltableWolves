@@ -1,3 +1,10 @@
+import { ruoliAssegnabili } from './assegnazione'
+
+export const RUOLI_BRANCO_LUPI = [
+  'cucciolo-di-lupo-mannaro', 'lupo-mannaro', 'lupo-mannaro-capobranco',
+  'lupo-mannaro-progenitore', 'nonna',
+]
+
 export const NIGHT_STEPS = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
@@ -8,10 +15,18 @@ export const NIGHT_STEPS = [
     tipo: 'informativo',
     primaNotteSolo: true,
     assegnabile: false,
+    soloPromemoria: true,
     ruoli: [
       'lupo-mannaro-capobranco', 'criceto-malvagio', 'cucciolo-di-lupo-mannaro',
       'eremita', 'nano', 'nonna', 'pastore', 'polpo-mannaro', 'ubriaco',
     ],
+  },
+  {
+    id: 'identifica-branco',
+    titolo: 'Il branco si riconosce',
+    tipo: 'informativo',
+    primaNotteSolo: true,
+    ruoli: RUOLI_BRANCO_LUPI,
   },
   {
     id: 'gesti-segreti',
@@ -19,6 +34,7 @@ export const NIGHT_STEPS = [
     tipo: 'informativo',
     primaNotteSolo: true,
     assegnabile: false,
+    soloPromemoria: true,
     ruoli: ['bardo', 'gallo-mannaro'],
   },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
@@ -53,16 +69,16 @@ export const NIGHT_STEPS = [
     titolo: 'Branco dei Lupi',
     tipo: 'azione',
     primaNotteSolo: false,
-    ruoli: [
-      'cucciolo-di-lupo-mannaro', 'lupo-mannaro', 'lupo-mannaro-capobranco',
-      'lupo-mannaro-progenitore', 'nonna',
-    ],
+    // l'identità dei lupi si stabilisce solo nel passo "identifica-branco",
+    // la prima notte: qui si sceglie soltanto la vittima, ogni notte
+    assegnabile: false,
+    ruoli: RUOLI_BRANCO_LUPI,
   },
   { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
   { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato' },
 ]
 
-export function passiNotte(ruoliSelezionati, round, giocatori) {
+export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
 
@@ -70,6 +86,17 @@ export function passiNotte(ruoliSelezionati, round, giocatori) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))
     }
 
-    return step.ruoli.some((slug) => ruoliSelezionati.includes(slug))
+    // i passi di solo promemoria (potere-passivo, gesti-segreti) raggruppano
+    // ruoli mai assegnati tramite AssegnaRuolo: restano finché sono nel mazzo
+    if (step.soloPromemoria) {
+      return step.ruoli.some((slug) => ruoliSelezionati.includes(slug))
+    }
+
+    return step.ruoli.some((slug) => {
+      if (!ruoliSelezionati.includes(slug)) return false
+      const daAssegnare = step.assegnabile !== false && ruoliAssegnabili([slug], giocatori, quantita).length > 0
+      const titolareVivo = giocatori.some((g) => g.ruoloSlug === slug && g.vivo)
+      return daAssegnare || titolareVivo
+    })
   })
 }

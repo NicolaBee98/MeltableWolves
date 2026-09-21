@@ -1,30 +1,57 @@
+import { useEffect, useRef } from 'react'
 import { passiNotte } from '../../data/nightSteps'
 import { ruoliAssegnabili } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
+import { MorteImprovvisa } from '../giorno/MorteImprovvisa'
 
 export function NightSequencer({
   ruoliSelezionati,
   giocatori,
   aggiornaGiocatore,
+  impostaGiocatori = () => {},
   quantita = {},
   registraEvento = () => {},
   onNotteConclusa = () => {},
+  onMorteImprovvisa,
   round,
   stepIndex,
   avanti,
   indietro,
   nuovaNotte,
 }) {
-  const steps = passiNotte(ruoliSelezionati, round, giocatori)
+  const steps = passiNotte(ruoliSelezionati, round, giocatori, quantita)
+  const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
+
+  // cronologia degli stati dei giocatori: lo stato dei giocatori
+  // all'ingresso di ogni passo, per poter annullare l'azione del passo
+  // precedente con "Indietro" (non persistita: non deve sopravvivere a un
+  // refresh, e si azzera a ogni nuova notte)
+  const cronologiaRef = useRef({})
+
+  useEffect(() => {
+    cronologiaRef.current = {}
+  }, [round])
+
+  useEffect(() => {
+    cronologiaRef.current[indiceValido] = giocatori.map((g) => ({ ...g }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indiceValido])
+
+  function vaiIndietro() {
+    const precedente = cronologiaRef.current[indiceValido - 1]
+    if (precedente) {
+      impostaGiocatori(precedente)
+    }
+    indietro()
+  }
 
   if (steps.length === 0) {
     return <p>Nessun ruolo con azione notturna nel mazzo attuale.</p>
   }
 
-  const indiceValido = Math.min(stepIndex, steps.length - 1)
   const step = steps[indiceValido]
   const ultimoPasso = indiceValido === steps.length - 1
 
@@ -33,7 +60,13 @@ export function NightSequencer({
     : giocatori.filter((g) => step.ruoli.includes(g.ruoloSlug))
 
   const ruoliPendenti =
-    step.ruoli && step.assegnabile !== false ? ruoliAssegnabili(step.ruoli, giocatori, quantita) : []
+    step.ruoli && step.assegnabile !== false
+      ? ruoliAssegnabili(
+          step.ruoli.filter((slug) => ruoliSelezionati.includes(slug)),
+          giocatori,
+          quantita,
+        )
+      : []
 
   const azione = AZIONI_NOTTURNE[step.id]
   const qualcunoVivo = giocatoriCoinvolti.some((g) => g.vivo)
@@ -42,8 +75,13 @@ export function NightSequencer({
   function passaAllaNotteSuccessiva() {
     giocatori.forEach((g) => {
       const condizioniRipulite = g.condizioni.filter((c) => c !== 'protetto' && c !== 'inibito')
-      if (condizioniRipulite.length !== g.condizioni.length) {
-        aggiornaGiocatore(g.id, { condizioni: condizioniRipulite })
+      const cambiaCondizioni = condizioniRipulite.length !== g.condizioni.length
+      const cambiaUsi = (g.usiNotte ?? []).length > 0
+      if (cambiaCondizioni || cambiaUsi) {
+        aggiornaGiocatore(g.id, {
+          ...(cambiaCondizioni ? { condizioni: condizioniRipulite } : {}),
+          ...(cambiaUsi ? { usiNotte: [] } : {}),
+        })
       }
     })
 
@@ -66,7 +104,10 @@ export function NightSequencer({
       <p className="night-sequencer__passo">
         Passo {indiceValido + 1} di {steps.length}
       </p>
-      <h2>{step.titolo}</h2>
+      <h2>
+        {step.titolo}
+        {giocatoriCoinvolti.length > 0 && ` (${giocatoriCoinvolti.map((g) => g.nome).join(', ')})`}
+      </h2>
       <p className="night-sequencer__tipo">
         {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
       </p>
@@ -92,8 +133,12 @@ export function NightSequencer({
         <azione.Componente giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={round} {...azione.props} />
       )}
 
+      {ruoliPendenti.length > 0 && (
+        <p className="night-sequencer__avviso">⚠️ Ruolo non ancora assegnato a nessun giocatore.</p>
+      )}
+
       <div className="night-sequencer__nav">
-        <button type="button" onClick={indietro} disabled={indiceValido === 0}>
+        <button type="button" onClick={vaiIndietro} disabled={indiceValido === 0}>
           Indietro
         </button>
         {ultimoPasso ? (
@@ -106,6 +151,8 @@ export function NightSequencer({
           </button>
         )}
       </div>
+
+      {onMorteImprovvisa && <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />}
     </section>
   )
 }

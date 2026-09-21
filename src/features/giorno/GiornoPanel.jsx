@@ -4,6 +4,7 @@ export function GiornoPanel({
   giocatori,
   voti,
   fase,
+  candidatiEsito,
   incrementaVoto,
   decrementaVoto,
   ricominciaVotazione,
@@ -27,6 +28,7 @@ export function GiornoPanel({
         giocatori={giocatori}
         voti={voti}
         fase={fase}
+        candidatiEsito={candidatiEsito}
         incrementaVoto={incrementaVoto}
         decrementaVoto={decrementaVoto}
         ricominciaVotazione={ricominciaVotazione}

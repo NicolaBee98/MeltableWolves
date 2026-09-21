@@ -25,12 +25,26 @@ test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi all
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
+test('mostra un avviso non bloccante se il numero di giocatori non combacia con i ruoli del mazzo', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+
+  expect(screen.getByText(/hai 0 giocatori per 1 ruoli/i)).toBeInTheDocument()
+
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+})
+
 test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   const user = userEvent.setup()
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByLabelText('Mimo'))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
   await user.click(screen.getByRole('button', { name: 'Continua' }))
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
@@ -51,5 +65,33 @@ test("l'icona Registro e impostazioni apre il popup con log e impostazioni", asy
   expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
-  expect(screen.getByText(/impostazioni in arrivo/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
+})
+
+test('Nuova Partita dalle Impostazioni riporta alla Home e azzera lo stato della partita', async () => {
+  const user = userEvent.setup()
+  vi.spyOn(window, 'confirm').mockReturnValue(true)
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  expect(screen.getByText('Anna')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+
+  expect(screen.queryByLabelText('Numero giocatori')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  expect(screen.getByLabelText('Numero giocatori')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  expect(screen.queryByText('Anna')).not.toBeInTheDocument()
+
+  window.confirm.mockRestore()
 })

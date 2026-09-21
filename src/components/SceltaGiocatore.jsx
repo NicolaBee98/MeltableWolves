@@ -4,22 +4,35 @@ export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta }) {
   const [selezionato, setSelezionato] = useState(candidati[0]?.id ?? '')
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return (
+      <div className="scelta-giocatore">
+        <p>Nessun bersaglio disponibile.</p>
+        <button type="button" onClick={onSalta}>
+          Chiudi
+        </button>
+      </div>
+    )
   }
+
+  const selezionatoValido = candidati.some((g) => g.id === selezionato) ? selezionato : candidati[0].id
 
   return (
     <div className="scelta-giocatore">
-      <label>
-        {etichetta}
-        <select value={selezionato} onChange={(event) => setSelezionato(event.target.value)}>
-          {candidati.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.nome}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="button" onClick={() => onConferma(selezionato)}>
+      <p>{etichetta}</p>
+      <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
+        {candidati.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            aria-pressed={g.id === selezionatoValido}
+            onClick={() => setSelezionato(g.id)}
+          >
+            {g.nome}
+          </button>
+        ))}
+      </div>
+      <button type="button" onClick={() => onConferma(selezionatoValido)}>
         Conferma
       </button>
       <button type="button" onClick={onSalta}>
