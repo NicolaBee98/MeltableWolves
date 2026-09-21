@@ -45,6 +45,11 @@ export const AZIONI_NOTTURNE = {
   apprendista: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
   cavaliere: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
   'figlia-dei-lupi': { Componente: AzioneLegame, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },
+  // il Mimo non ha reazioni alla morte del bersaglio (a differenza di
+  // apprendista/cavaliere/figlia dei lupi): risolviLegami ignora il tipo
+  // 'mimo', il legame resta per tutta la partita. Il "risveglio insieme al
+  // ruolo imitato" è puramente di presentazione, vedi NightSequencer.jsx
+  mimo: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'mimo', tipoLegame: 'mimo', etichetta: 'Chi imitare' } },
   cortigiana: { Componente: AzioneCortigiana, props: {} },
   addolorata: { Componente: AzioneAddolorata, props: {} },
   veggente: { Componente: AzioneIndagine, props: {} },

@@ -14,6 +14,8 @@ function setup(overrides = {}) {
     vaiAEsito: vi.fn(),
     tornaAlVoto: vi.fn(),
     aggiornaGiocatore: vi.fn(),
+    ruoliSelezionati: [],
+    quantita: {},
     round: 3,
     onProsegui: vi.fn(),
     ...overrides,
@@ -26,7 +28,8 @@ test('dichiarare una morte improvvisa dal popup chiama aggiornaGiocatore con cau
   const user = userEvent.setup()
   const { aggiornaGiocatore } = setup()
 
-  await user.click(screen.getByRole('button', { name: /morte improvvisa/i }))
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Morte improvvisa' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
@@ -42,10 +45,35 @@ test('dichiarare morte sul rogo, dopo la conferma, chiama aggiornaGiocatore con 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'rogo', mortoNotte: 3 })
 })
 
+test("L'Antico designato al rogo sopravvive come Villico e maledice la notte successiva", async () => {
+  const user = userEvent.setup()
+  const { aggiornaGiocatore } = setup({
+    giocatori: [{ id: '1', nome: 'Anna', ruoloSlug: 'lantico', vivo: true, storiaRuoli: ['lantico'] }],
+  })
+
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ruoloSlug: 'villico',
+    storiaRuoli: ['lantico', 'villico'],
+    notteBloccataFinoA: 3,
+  })
+})
+
 test('il pulsante Prosegui alla notte è disabilitato finché il rogo non è confermato, poi chiama onProsegui', async () => {
   const user = userEvent.setup()
   const { onProsegui } = setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: false }] })
 
   await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
   expect(onProsegui).toHaveBeenCalled()
+})
+
+test('la prop mostraRuoli passa a Votazione: con mostraRuoli mostra icona di ruolo', () => {
+  setup({
+    fase: 'voto',
+    giocatori: [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' }],
+    mostraRuoli: true,
+  })
+  expect(screen.getByRole('img', { name: 'Lupo Mannaro' })).toBeInTheDocument()
 })

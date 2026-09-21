@@ -1,13 +1,63 @@
 import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
+import { CONDIZIONI } from '../../data/conditions'
+import { ROLES } from '../../data/roles'
 import { TimerSpareggio } from './TimerSpareggio'
-import { MorteImprovvisa } from './MorteImprovvisa'
+import { EventiSpeciali } from './EventiSpeciali'
+
+// emoji per ogni condizione attiva (significato completo in src/data/conditions.js)
+const ICONE_CONDIZIONE = {
+  accecato: '🙈',
+  inibito: '🚫',
+  innamorato: '❤️',
+  ipnotizzato: '🌀',
+  maledetto: '💀',
+  trasformato: '🐷',
+  'morto-sul-colpo': '⚡',
+  protetto: '🛡️',
+  resuscitato: '✨',
+  unto: '🤐', // non può dire "sì" né "no"
+}
+
+// icona per fazione del ruolo, invece di 51 icone diverse una per ruolo
+const ICONE_FAZIONE = {
+  villaggio: '🧑‍🌾',
+  lupi: '🐺',
+  indipendente: '🃏',
+  sconosciuto: '❓',
+}
+
+function BadgeCondizioni({ condizioni = [] }) {
+  return condizioni.map((slug) => {
+    const icona = ICONE_CONDIZIONE[slug]
+    if (!icona) return null
+    const nome = CONDIZIONI.find((c) => c.slug === slug)?.nome ?? slug
+    return (
+      <span key={slug} role="img" aria-label={nome} title={nome}>
+        {icona}
+      </span>
+    )
+  })
+}
+
+function BadgeRuolo({ ruoloSlug }) {
+  if (!ruoloSlug) return null
+  const ruolo = ROLES.find((r) => r.slug === ruoloSlug)
+  if (!ruolo) return null
+  const icona = ICONE_FAZIONE[ruolo.fazione] ?? '❔'
+  return (
+    <span role="img" aria-label={ruolo.nome} title={ruolo.nome}>
+      {icona}
+    </span>
+  )
+}
 
 export function Votazione({
   giocatori,
   voti,
   fase,
   candidatiEsito = [],
+  mostraRuoli = false,
   incrementaVoto,
   decrementaVoto,
   ricominciaVotazione,
@@ -15,19 +65,28 @@ export function Votazione({
   tornaAlVoto,
   onRogo,
   onMorteImprovvisa,
+  onAnticoRivelazione,
+  onRivelazione,
+  onBoiaGiustizia,
+  onAlchimistaEsplode,
+  onBardoSaltaNotte,
+  onElezioneBorgomastro,
+  ruoliSelezionati,
+  quantita,
   onProsegui,
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
   const [daConfermare, setDaConfermare] = useState(null)
-  // lo Spilungone non può essere messo al rogo (pag. 21): si rivela e basta,
-  // niente vittima. Tracciato a parte perché non passa mai da onRogo.
+  // Spilungone e L'Antico non muoiono mai al primo rogo: si rivelano e
+  // basta (pag. 16, 21). Tracciati a parte perché non passano mai da onRogo.
   // ponytail: questo stato locale non si resetta tra un giorno e l'altro
   // (a differenza di voti/fase, che vivono nell'hook useVotazione): se lo
-  // stesso Spilungone venisse designato una seconda volta in una notte
-  // successiva, l'esito resterebbe comunque corretto (nessuna vittima) ma
-  // salterebbe il passo di conferma. Da rivedere se capita davvero in una
-  // partita reale.
+  // stesso personaggio venisse designato una seconda volta in una notte
+  // successiva, l'esito resterebbe comunque corretto (nessuna vittima, o
+  // per L'Antico normale morte da Villico) ma salterebbe il passo di
+  // conferma. Da rivedere se capita davvero in una partita reale.
   const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
+  const [anticoRivelatoId, setAnticoRivelatoId] = useState(null)
 
   if (fase === 'esito') {
     // l'esito si calcola sui candidati congelati al momento di "Vai all'esito",
@@ -36,12 +95,17 @@ export function Votazione({
     // che porta a uno spareggio senza nessuno indicato)
     const { vincitori: designati } = risultatoVotazione(voti, candidatiEsito)
     const morteConfermata =
-      designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) || spilungoneRivelatoId !== null
+      designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) ||
+      spilungoneRivelatoId !== null ||
+      anticoRivelatoId !== null
 
     function confermaMorte(id) {
       const target = giocatori.find((g) => g.id === id)
       if (target?.ruoloSlug === 'spilungone') {
         setSpilungoneRivelatoId(id)
+      } else if (target?.ruoloSlug === 'lantico') {
+        onAnticoRivelazione(id)
+        setAnticoRivelatoId(id)
       } else {
         onRogo(id)
       }
@@ -73,6 +137,15 @@ export function Votazione({
           </p>
         )
       }
+      if (anticoRivelatoId === id) {
+        const nome = giocatori.find((g) => g.id === id)?.nome
+        return (
+          <p>
+            {nome} rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora
+            gioca da Villico. Il villaggio è maledetto: la notte successiva nessun potere si sveglierà.
+          </p>
+        )
+      }
       if (daConfermare === id) return renderConferma(id)
       if (!morteConfermata) {
         return (
@@ -97,6 +170,8 @@ export function Votazione({
             <TimerSpareggio />
             {spilungoneRivelatoId !== null ? (
               renderEsitoDesignato(spilungoneRivelatoId)
+            ) : anticoRivelatoId !== null ? (
+              renderEsitoDesignato(anticoRivelatoId)
             ) : !morteConfermata ? (
               daConfermare ? (
                 renderEsitoDesignato(daConfermare)
@@ -122,7 +197,18 @@ export function Votazione({
         <button type="button" onClick={onProsegui} disabled={!morteConfermata}>
           Prosegui alla notte
         </button>
-        <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />
+        <EventiSpeciali
+          giocatori={giocatori}
+          ruoliSelezionati={ruoliSelezionati}
+          quantita={quantita}
+          contesto="giorno"
+          onMorteImprovvisa={onMorteImprovvisa}
+          onRivelazione={onRivelazione}
+          onBoiaGiustizia={onBoiaGiustizia}
+          onAlchimistaEsplode={onAlchimistaEsplode}
+          onBardoSaltaNotte={onBardoSaltaNotte}
+          onElezioneBorgomastro={onElezioneBorgomastro}
+        />
       </section>
     )
   }
@@ -135,6 +221,8 @@ export function Votazione({
         {vivi.map((g) => (
           <li key={g.id}>
             <span>{g.nome}</span>
+            <BadgeCondizioni condizioni={g.condizioni} />
+            {mostraRuoli && <BadgeRuolo ruoloSlug={g.ruoloSlug} />}
             <span>{voti[g.id] ?? 0} voti</span>
             <button type="button" onClick={() => decrementaVoto(g.id)}>
               -1
@@ -153,7 +241,18 @@ export function Votazione({
           Vai all'esito
         </button>
       )}
-      <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />
+      <EventiSpeciali
+        giocatori={giocatori}
+        ruoliSelezionati={ruoliSelezionati}
+        quantita={quantita}
+        contesto="giorno"
+        onMorteImprovvisa={onMorteImprovvisa}
+        onRivelazione={onRivelazione}
+        onBoiaGiustizia={onBoiaGiustizia}
+        onAlchimistaEsplode={onAlchimistaEsplode}
+        onBardoSaltaNotte={onBardoSaltaNotte}
+        onElezioneBorgomastro={onElezioneBorgomastro}
+      />
     </section>
   )
 }

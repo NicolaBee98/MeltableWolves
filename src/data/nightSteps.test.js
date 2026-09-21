@@ -1,4 +1,4 @@
-import { NIGHT_STEPS, passiNotte } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, notteBloccata, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
@@ -7,13 +7,15 @@ test('un mazzo di soli ruoli senza azione notturna (es. Villico) genera comunque
   expect(passi).toEqual(['assegna-restanti'])
 })
 
-test('il passo "assegna-restanti" copre ogni ruolo senza uno step dedicato, tranne il Fantasma Onnisciente (assegnato a runtime al primo morto)', () => {
+test('il passo "assegna-restanti" copre i ruoli senza uno step dedicato e senza rivelazione diurna, escluso il Fantasma Onnisciente (assegnato a runtime al primo morto)', () => {
   const restanti = NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')
   expect(restanti.ruoli).toContain('villico')
-  expect(restanti.ruoli).toContain('spilungone')
   expect(restanti.ruoli).toContain('berserker')
   expect(restanti.ruoli).not.toContain('fantasma-onnisciente')
   expect(restanti.ruoli).not.toContain('veggente') // ha già un passo dedicato
+  for (const slug of RUOLI_RIVELAZIONE_GIORNO) {
+    expect(restanti.ruoli).not.toContain(slug) // si assegnano dal menu Eventi speciali, non di notte
+  }
 })
 
 test('"assegna-restanti" compare solo alla prima notte', () => {
@@ -123,4 +125,26 @@ test('mostra ancora il passo se il titolare è vivo anche a mazzo già completo'
 test('il passo individuale di un ruolo a potere passivo sparisce una volta assegnato e morto il titolare', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'eremita', vivo: false, condizioni: [] }]
   expect(passiNotte(['eremita'], 2, giocatori, { eremita: 1 }).map((p) => p.id)).not.toContain('eremita')
+})
+
+test('notteBloccata è vera se un giocatore ha notteBloccataFinoA uguale al round corrente', () => {
+  const giocatori = [{ id: '1', notteBloccataFinoA: 3 }]
+  expect(notteBloccata(giocatori, 3)).toBe(true)
+  expect(notteBloccata(giocatori, 4)).toBe(false)
+})
+
+test('con la notte bloccata (Maledetto/Bardo) nessun passo "azione" compare, ma i passi passivi restano', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], notteBloccataFinoA: 2 },
+    { id: '2', nome: 'Bruno', ruoloSlug: 'nano', vivo: true, condizioni: [] },
+  ]
+  const passi = passiNotte(['veggente', 'nano'], 2, giocatori, { veggente: 1, nano: 1 }).map((p) => p.id)
+  expect(passi).not.toContain('veggente') // azione, bloccato
+})
+
+test('senza la notte bloccata i passi "azione" tornano regolarmente', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], notteBloccataFinoA: 2 }]
+  expect(passiNotte(['veggente'], 3, giocatori, { veggente: 1 })).toContainEqual(
+    expect.objectContaining({ id: 'veggente' }),
+  )
 })

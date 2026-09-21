@@ -6,6 +6,15 @@ import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
 
+// il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
+// (pag. 18): puramente di presentazione, il narratore ricorda così di
+// coinvolgerlo, il potere reale resta del titolare del ruolo imitato
+function mimoDiQuestoPasso(giocatore, giocatori, step) {
+  if (giocatore.legame?.tipo !== 'mimo') return false
+  const bersaglio = giocatori.find((g) => g.id === giocatore.legame.targetId)
+  return Boolean(bersaglio) && step.ruoli.includes(bersaglio.ruoloSlug)
+}
+
 export function NightSequencer({
   ruoliSelezionati,
   giocatori,
@@ -61,7 +70,7 @@ export function NightSequencer({
 
   const giocatoriCoinvolti = step.condizione
     ? giocatori.filter((g) => g.condizioni.includes(step.condizione))
-    : giocatori.filter((g) => step.ruoli.includes(g.ruoloSlug))
+    : giocatori.filter((g) => step.ruoli.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, giocatori, step))
 
   const ruoliPendenti =
     step.ruoli && step.assegnabile !== false

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo } from '../data/effettiNotte'
+import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo } from '../data/effettiNotte'
 import { risolviLegami, applicaPatchMap } from '../data/risoluzioneNotte'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
@@ -51,6 +51,7 @@ export function usePartita() {
         // al rogo le rimanda all'intera notte successiva (vedi audit).
         aggiornati = applicaCrepacuore(aggiornati, id)
         aggiornati = rimuoviAccecamentoSeMortoPolpo(aggiornati, id)
+        aggiornati = maturaCucciolo(aggiornati, id)
         aggiornati = applicaPatchMap(aggiornati, risolviLegami(aggiornati))
       }
       return aggiornati
