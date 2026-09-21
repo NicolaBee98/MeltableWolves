@@ -91,6 +91,34 @@ test('resetMazzo riporta il mazzo allo stato iniziale', () => {
   expect(result.current.quantita).toEqual({})
 })
 
+test('setScartoLadro imposta le due carte di scarto senza toccare quantita', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('ladro', 1)
+    result.current.setScartoLadro(0, 'veggente')
+    result.current.setScartoLadro(1, 'lupo-mannaro')
+  })
+
+  expect(result.current.scartoLadro).toEqual(['veggente', 'lupo-mannaro'])
+  expect(result.current.quantita.veggente).toBeUndefined()
+})
+
+test('azzerare la quantità del Ladro svuota anche lo scarto', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('ladro', 1)
+    result.current.setScartoLadro(0, 'veggente')
+    result.current.setScartoLadro(1, 'lupo-mannaro')
+  })
+  act(() => {
+    result.current.setQuantita('ladro', 0)
+  })
+
+  expect(result.current.scartoLadro).toEqual([])
+})
+
 test('lo stato persiste in localStorage tra due montaggi', () => {
   const { result, unmount } = renderHook(() => useMazzo())
 

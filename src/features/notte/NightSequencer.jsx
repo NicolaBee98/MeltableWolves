@@ -21,6 +21,7 @@ export function NightSequencer({
   aggiornaGiocatore,
   impostaGiocatori = () => {},
   quantita = {},
+  scartoLadro = [],
   registraEvento = () => {},
   onNotteConclusa = () => {},
   round,
@@ -219,7 +220,13 @@ export function NightSequencer({
       )}
 
       {mostraAzione && (
-        <azione.Componente giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={round} {...azione.props} />
+        <azione.Componente
+          giocatori={giocatori}
+          aggiornaGiocatore={aggiornaGiocatore}
+          round={round}
+          scartoLadro={scartoLadro}
+          {...azione.props}
+        />
       )}
 
       {assegnazioneIncompleta && (
