@@ -37,3 +37,13 @@ test('il pulsante Vai al voto chiama onVaiAlVoto', async () => {
   await user.click(screen.getByRole('button', { name: 'Vai al voto' }))
   expect(onVaiAlVoto).toHaveBeenCalled()
 })
+
+test('mostra il pulsante Morte Improvvisa quando viene passato onMorteImprovvisa', () => {
+  render(<AlbaPanel giocatori={[]} round={1} onVaiAlVoto={() => {}} onMorteImprovvisa={() => {}} />)
+  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+})
+
+test('non mostra il pulsante Morte Improvvisa senza onMorteImprovvisa', () => {
+  render(<AlbaPanel giocatori={[]} round={1} onVaiAlVoto={() => {}} />)
+  expect(screen.queryByRole('button', { name: /morte improvvisa/i })).not.toBeInTheDocument()
+})

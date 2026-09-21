@@ -75,6 +75,35 @@ test('setQuantita non scende sotto zero', () => {
   expect(result.current.quantita.villico).toBe(0)
 })
 
+test('azzerare la Guardia azzera anche la Guardia Mannara nello state', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setQuantita('guardia', 2)
+    result.current.setQuantita('guardia-mannara', 1)
+  })
+  act(() => {
+    result.current.setQuantita('guardia', 0)
+  })
+
+  expect(result.current.quantita['guardia-mannara']).toBe(0)
+})
+
+test('resetMazzo riporta il mazzo allo stato iniziale', () => {
+  const { result } = renderHook(() => useMazzo())
+
+  act(() => {
+    result.current.setNumGiocatori(15)
+    result.current.setQuantita('villico', 5)
+  })
+  act(() => {
+    result.current.resetMazzo()
+  })
+
+  expect(result.current.numGiocatori).toBe(8)
+  expect(result.current.quantita).toEqual({})
+})
+
 test('lo stato persiste in localStorage tra due montaggi', () => {
   const { result, unmount } = renderHook(() => useMazzo())
 

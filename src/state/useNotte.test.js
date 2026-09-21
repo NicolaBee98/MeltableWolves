@@ -65,3 +65,18 @@ test('lo stato persiste in localStorage tra due montaggi dell\'hook', () => {
   const { result: result2 } = renderHook(() => useNotte())
   expect(result2.current.stepIndex).toBe(1)
 })
+
+test('resetNotte riporta round 1 e passo 0', () => {
+  const { result } = renderHook(() => useNotte())
+
+  act(() => {
+    result.current.avanti(3)
+    result.current.nuovaNotte()
+  })
+  act(() => {
+    result.current.resetNotte()
+  })
+
+  expect(result.current.round).toBe(1)
+  expect(result.current.stepIndex).toBe(0)
+})

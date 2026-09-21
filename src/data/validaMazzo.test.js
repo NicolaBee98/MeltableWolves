@@ -34,3 +34,13 @@ test('conta le quantità multiple nel totale ruoli', () => {
   expect(avvisi).not.toContain('Hai selezionato 1 ruoli per 3 giocatori.')
   expect(avvisi).toContain('Nessun lupo mannaro nel mazzo.')
 })
+
+test('Guardia Mannara senza Guardie genera un avviso dedicato', () => {
+  const avvisi = validaMazzo({ 'guardia-mannara': 1 }, 8)
+  expect(avvisi).toContain('Guardia Mannara richiede la presenza delle Guardie nel mazzo.')
+})
+
+test('Guardia Mannara con le Guardie presenti non genera l\'avviso dedicato', () => {
+  const avvisi = validaMazzo({ 'guardia-mannara': 1, guardia: 2 }, 8)
+  expect(avvisi).not.toContain('Guardia Mannara richiede la presenza delle Guardie nel mazzo.')
+})

@@ -1,8 +1,13 @@
 import { SceltaDoppiaGiocatore } from './SceltaDoppiaGiocatore'
-import { aggiungiCondizionePatch } from '../../../data/effettiNotte'
+import { aggiungiCondizionePatch, usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
 
-export function AzioneCondizioneDoppia({ giocatori, aggiornaGiocatore, condizione, etichetta }) {
+export function AzioneCondizioneDoppia({ giocatori, aggiornaGiocatore, condizione, etichetta, ruoloSlugAttore }) {
   const vivi = giocatori.filter((g) => g.vivo)
+  const ruoli = [ruoloSlugAttore]
+
+  if (usatoStanotte(giocatori, ruoli, ruoloSlugAttore)) {
+    return <p>Potere già utilizzato questa notte.</p>
+  }
 
   function confermaScelta(idA, idB) {
     for (const id of [idA, idB]) {
@@ -13,7 +18,12 @@ export function AzioneCondizioneDoppia({ giocatori, aggiornaGiocatore, condizion
         aggiornaGiocatore(id, patch)
       }
     }
+    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, ruoloSlugAttore)
   }
 
-  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={() => {}} etichetta={etichetta} />
+  function salta() {
+    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, ruoloSlugAttore)
+  }
+
+  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={salta} etichetta={etichetta} />
 }

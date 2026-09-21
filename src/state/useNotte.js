@@ -31,5 +31,9 @@ export function useNotte() {
     setNotte((prev) => ({ round: prev.round + 1, stepIndex: 0 }))
   }
 
-  return { round: notte.round, stepIndex: notte.stepIndex, avanti, indietro, nuovaNotte }
+  function resetNotte() {
+    setNotte(DEFAULT_NOTTE)
+  }
+
+  return { round: notte.round, stepIndex: notte.stepIndex, avanti, indietro, nuovaNotte, resetNotte }
 }
