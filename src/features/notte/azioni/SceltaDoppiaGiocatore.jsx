@@ -4,11 +4,14 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichett
   const [selezionati, setSelezionati] = useState([])
 
   function toggleSelezione(id) {
-    setSelezionati((prev) => {
-      if (prev.includes(id)) return prev.filter((s) => s !== id)
-      if (prev.length >= 2) return prev
-      return [...prev, id]
-    })
+    if (selezionati.includes(id)) {
+      setSelezionati(selezionati.filter((s) => s !== id))
+      return
+    }
+    if (selezionati.length >= 2) return
+    const nuovi = [...selezionati, id]
+    setSelezionati(nuovi)
+    if (nuovi.length === 2) onConferma(nuovi[0], nuovi[1])
   }
 
   if (candidati.length < 2) {
@@ -38,12 +41,6 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichett
           </button>
         ))}
       </div>
-      <button type="button" disabled={selezionati.length !== 2} onClick={() => onConferma(selezionati[0], selezionati[1])}>
-        Conferma
-      </button>
-      <button type="button" onClick={onSalta}>
-        Salta
-      </button>
     </div>
   )
 }

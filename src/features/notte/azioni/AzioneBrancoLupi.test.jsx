@@ -12,7 +12,6 @@ test('conferma uccide il bersaglio scelto e marca il branco come già usato', as
   render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro']} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: ['branco-lupi-sbrana'] })
@@ -25,7 +24,6 @@ test('non uccide un bersaglio protetto', async () => {
   render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })

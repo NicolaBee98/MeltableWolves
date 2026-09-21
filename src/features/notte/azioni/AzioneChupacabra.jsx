@@ -35,5 +35,13 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
     segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
   }
 
-  return <SceltaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={salta} etichetta="Il Chupacabra caccia" />
+  return (
+    <SceltaGiocatore
+      candidati={vivi}
+      onConferma={confermaScelta}
+      onSalta={salta}
+      etichetta="Il Chupacabra caccia"
+      mostraSalta={false}
+    />
+  )
 }

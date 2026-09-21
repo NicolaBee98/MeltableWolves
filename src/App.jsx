@@ -14,7 +14,7 @@ import { useFaseApp } from './state/useFaseApp'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
-  const { numGiocatori, quantita, setNumGiocatori, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
+  const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, impostaGiocatori } = usePartita()
   const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
     useVotazione()
@@ -26,10 +26,6 @@ export default function App() {
   function proseguiAllaNotte() {
     ricominciaVotazione()
     setFaseApp('notte')
-  }
-
-  function dichiaraMorteImprovvisa(id) {
-    aggiornaGiocatore(id, { vivo: false, causaMorte: 'colpo' })
   }
 
   function nuovaPartita() {
@@ -54,12 +50,7 @@ export default function App() {
 
       {faseApp === 'mazzo' && (
         <section>
-          <MazzoBuilder
-            numGiocatori={numGiocatori}
-            quantita={quantita}
-            setNumGiocatori={setNumGiocatori}
-            setQuantita={setQuantita}
-          />
+          <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
           <button type="button" onClick={() => setFaseApp('giocatori')}>
             Continua
           </button>
@@ -94,7 +85,6 @@ export default function App() {
           indietro={notte.indietro}
           nuovaNotte={notte.nuovaNotte}
           onNotteConclusa={() => setFaseApp('alba')}
-          onMorteImprovvisa={dichiaraMorteImprovvisa}
         />
       )}
 
@@ -103,7 +93,6 @@ export default function App() {
           giocatori={giocatori}
           round={notte.round - 1}
           onVaiAlVoto={() => setFaseApp('giorno')}
-          onMorteImprovvisa={dichiaraMorteImprovvisa}
         />
       )}
 

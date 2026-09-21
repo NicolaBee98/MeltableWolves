@@ -2,47 +2,104 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AssegnaRuolo } from './AssegnaRuolo'
 
-test('con un solo ruolo pendente, click su un giocatore lo assegna direttamente', async () => {
+test('cliccare un giocatore lo seleziona (chip attiva) senza assegnarlo subito', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
+  const onCambiaSelezioni = vi.fn()
   const giocatori = [{ id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined }]
-  render(<AssegnaRuolo ruoli={['paladino']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  render(
+    <AssegnaRuolo
+      ruoli={['paladino']}
+      giocatori={giocatori}
+      quantita={{ paladino: 1 }}
+      selezioni={{}}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
+  )
 
   await user.click(screen.getByRole('button', { name: 'Steve' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'paladino', storiaRuoli: ['paladino'] })
+  expect(onCambiaSelezioni).toHaveBeenCalledWith({ paladino: ['1'] })
 })
 
-test('con più ruoli pendenti, un selettore permette di scegliere quale ruolo assegnare', async () => {
+test('ricliccare un giocatore già selezionato lo deseleziona', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
+  const onCambiaSelezioni = vi.fn()
   const giocatori = [{ id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined }]
-  render(<AssegnaRuolo ruoli={['lupo-mannaro', 'nonna']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  render(
+    <AssegnaRuolo
+      ruoli={['paladino']}
+      giocatori={giocatori}
+      quantita={{ paladino: 1 }}
+      selezioni={{ paladino: ['1'] }}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
+  )
 
-  await user.selectOptions(screen.getByRole('combobox'), 'nonna')
   await user.click(screen.getByRole('button', { name: 'Steve' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'nonna', storiaRuoli: ['nonna'] })
+  expect(onCambiaSelezioni).toHaveBeenCalledWith({ paladino: [] })
 })
 
-test('se la variante scelta esce dalle opzioni (es. quantità esaurita), non resta selezionata: si ricade sulla prima disponibile', async () => {
+test('selezionare oltre la capacità del ruolo mostra un avviso e non chiama onCambiaSelezioni', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
+  const onCambiaSelezioni = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined },
     { id: '2', nome: 'Anna', vivo: true, ruoloSlug: undefined },
   ]
-  const { rerender } = render(
-    <AssegnaRuolo ruoli={['lupo-mannaro', 'nonna']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+  render(
+    <AssegnaRuolo
+      ruoli={['sacerdote']}
+      giocatori={giocatori}
+      quantita={{ sacerdote: 1 }}
+      selezioni={{ sacerdote: ['1'] }}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onCambiaSelezioni).not.toHaveBeenCalled()
+  expect(screen.getByText(/puoi selezionare al massimo 1/i)).toBeInTheDocument()
+})
+
+test('con più varianti di ruolo, un selettore permette di scegliere quale assegnare, mantenendo selezioni separate', async () => {
+  const user = userEvent.setup()
+  const onCambiaSelezioni = vi.fn()
+  const giocatori = [{ id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined }]
+  render(
+    <AssegnaRuolo
+      ruoli={['lupo-mannaro', 'nonna']}
+      giocatori={giocatori}
+      quantita={{ 'lupo-mannaro': 1, nonna: 1 }}
+      selezioni={{}}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
   )
 
   await user.selectOptions(screen.getByRole('combobox'), 'nonna')
+  await user.click(screen.getByRole('button', { name: 'Steve' }))
 
-  // "nonna" esaurisce la quantità e sparisce dalle opzioni pendenti
-  rerender(<AssegnaRuolo ruoli={['lupo-mannaro']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
-  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(onCambiaSelezioni).toHaveBeenCalledWith({ nonna: ['1'] })
+})
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'] })
+test('un giocatore già selezionato per un\'altra variante non è più candidato', () => {
+  const giocatori = [
+    { id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined },
+    { id: '2', nome: 'Anna', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['lupo-mannaro']}
+      giocatori={giocatori}
+      quantita={{ 'lupo-mannaro': 2 }}
+      selezioni={{ 'lupo-mannaro': ['1'] }}
+      onCambiaSelezioni={() => {}}
+    />,
+  )
+
+  expect(screen.getByRole('button', { name: 'Steve' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
 test('non mostra giocatori già con un ruolo assegnato o morti', () => {
@@ -51,7 +108,7 @@ test('non mostra giocatori già con un ruolo assegnato o morti', () => {
     { id: '2', nome: 'Anna', vivo: false, ruoloSlug: undefined },
     { id: '3', nome: 'Marco', vivo: true, ruoloSlug: undefined },
   ]
-  render(<AssegnaRuolo ruoli={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  render(<AssegnaRuolo ruoli={['paladino']} giocatori={giocatori} selezioni={{}} onCambiaSelezioni={() => {}} />)
 
   expect(screen.queryByRole('button', { name: 'Steve' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
@@ -59,6 +116,8 @@ test('non mostra giocatori già con un ruolo assegnato o morti', () => {
 })
 
 test('non renderizza nulla se non ci sono ruoli da assegnare', () => {
-  const { container } = render(<AssegnaRuolo ruoli={[]} giocatori={[]} aggiornaGiocatore={() => {}} />)
+  const { container } = render(
+    <AssegnaRuolo ruoli={[]} giocatori={[]} selezioni={{}} onCambiaSelezioni={() => {}} />,
+  )
   expect(container).toBeEmptyDOMElement()
 })

@@ -13,10 +13,8 @@ test('la pozione vitale protegge il bersaglio e marca il potere come usato', asy
   render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
   const [chipAnnaVitale] = screen.getAllByRole('button', { name: 'Anna' })
-  const [confermaVitale] = screen.getAllByRole('button', { name: 'Conferma' })
 
   await user.click(chipAnnaVitale)
-  await user.click(confermaVitale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['protetto'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-vitale'] })
@@ -28,10 +26,8 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
   render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   const [, chipAnnaMortale] = screen.getAllByRole('button', { name: 'Anna' })
-  const [, confermaMortale] = screen.getAllByRole('button', { name: 'Conferma' })
 
   await user.click(chipAnnaMortale)
-  await user.click(confermaMortale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
@@ -44,10 +40,8 @@ test('la pozione mortale uccide anche un bersaglio protetto (la protezione non b
   render(<AzioneStrega giocatori={giocatoriConProtetto} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   const [, chipAnnaMortale] = screen.getAllByRole('button', { name: 'Anna' })
-  const [, confermaMortale] = screen.getAllByRole('button', { name: 'Conferma' })
 
   await user.click(chipAnnaMortale)
-  await user.click(confermaMortale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
 })
@@ -58,10 +52,8 @@ test('avvisa se la pozione vitale non ha effetto perché il bersaglio è già pr
   render(<AzioneStrega giocatori={giocatoriConProtetto} aggiornaGiocatore={() => {}} />)
 
   const [chipAnnaVitale] = screen.getAllByRole('button', { name: 'Anna' })
-  const [confermaVitale] = screen.getAllByRole('button', { name: 'Conferma' })
 
   await user.click(chipAnnaVitale)
-  await user.click(confermaVitale)
 
   expect(screen.getByText(/non ha avuto alcun effetto/i)).toBeInTheDocument()
 })

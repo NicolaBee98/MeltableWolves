@@ -9,33 +9,20 @@ export const NIGHT_STEPS = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
-  {
-    id: 'potere-passivo',
-    titolo: 'Promemoria: ruoli con potere passivo',
-    tipo: 'informativo',
-    primaNotteSolo: true,
-    assegnabile: false,
-    soloPromemoria: true,
-    ruoli: [
-      'lupo-mannaro-capobranco', 'criceto-malvagio', 'cucciolo-di-lupo-mannaro',
-      'eremita', 'nano', 'nonna', 'pastore', 'polpo-mannaro', 'ubriaco',
-    ],
-  },
+  { id: 'criceto-malvagio', titolo: 'Criceto Malvagio', tipo: 'informativo', primaNotteSolo: true, ruoli: ['criceto-malvagio'] },
+  { id: 'eremita', titolo: 'Eremita', tipo: 'informativo', primaNotteSolo: true, ruoli: ['eremita'] },
+  { id: 'nano', titolo: 'Nano', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nano'] },
+  { id: 'pastore', titolo: 'Pastore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['pastore'] },
+  { id: 'polpo-mannaro', titolo: 'Polpo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['polpo-mannaro'] },
+  { id: 'ubriaco', titolo: 'Ubriaco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ubriaco'] },
+  { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
+  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   {
     id: 'identifica-branco',
     titolo: 'Il branco si riconosce',
     tipo: 'informativo',
     primaNotteSolo: true,
     ruoli: RUOLI_BRANCO_LUPI,
-  },
-  {
-    id: 'gesti-segreti',
-    titolo: 'Promemoria: gesti segreti di Bardo e Gallo Mannaro',
-    tipo: 'informativo',
-    primaNotteSolo: true,
-    assegnabile: false,
-    soloPromemoria: true,
-    ruoli: ['bardo', 'gallo-mannaro'],
   },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
   { id: 'cavaliere', titolo: 'Cavaliere', tipo: 'azione', primaNotteSolo: true, ruoli: ['cavaliere'] },
@@ -84,12 +71,6 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))
-    }
-
-    // i passi di solo promemoria (potere-passivo, gesti-segreti) raggruppano
-    // ruoli mai assegnati tramite AssegnaRuolo: restano finché sono nel mazzo
-    if (step.soloPromemoria) {
-      return step.ruoli.some((slug) => ruoliSelezionati.includes(slug))
     }
 
     return step.ruoli.some((slug) => {

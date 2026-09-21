@@ -16,20 +16,16 @@ function espandiRuoli(quantita) {
   return ruoli
 }
 
-export function validaMazzo(quantita, numGiocatori) {
+export function validaMazzo(quantita) {
   const avvisi = []
   const ruoli = espandiRuoli(quantita)
-
-  if (ruoli.length !== numGiocatori) {
-    avvisi.push(`Hai selezionato ${ruoli.length} ruoli per ${numGiocatori} giocatori.`)
-  }
 
   const numLupi = ruoli.filter((r) => r.fazione === 'lupi').length
   if (numLupi === 0) {
     avvisi.push('Nessun lupo mannaro nel mazzo.')
-  } else if (numLupi < Math.floor(numGiocatori / RAPPORTO_LUPI_CONSIGLIATO)) {
+  } else if (numLupi < Math.floor(ruoli.length / RAPPORTO_LUPI_CONSIGLIATO)) {
     avvisi.push(
-      `Pochi lupi mannari per ${numGiocatori} giocatori (consigliato circa 1 ogni ${RAPPORTO_LUPI_CONSIGLIATO}).`,
+      `Pochi lupi mannari per ${ruoli.length} giocatori (consigliato circa 1 ogni ${RAPPORTO_LUPI_CONSIGLIATO}).`,
     )
   }
 

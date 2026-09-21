@@ -14,5 +14,13 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
     aggiornaGiocatore(attore.id, { legame: { tipo: tipoLegame, targetId } })
   }
 
-  return <SceltaGiocatore candidati={candidati} onConferma={confermaScelta} onSalta={() => {}} etichetta={etichetta} />
+  return (
+    <SceltaGiocatore
+      candidati={candidati}
+      onConferma={confermaScelta}
+      onSalta={() => {}}
+      etichetta={etichetta}
+      mostraSalta={false}
+    />
+  )
 }

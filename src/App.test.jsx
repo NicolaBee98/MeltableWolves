@@ -16,7 +16,7 @@ test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi all
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  expect(screen.getByLabelText('Numero giocatori')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /nel mazzo/i })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Continua' }))
   expect(screen.getByPlaceholderText('Nome giocatore')).toBeInTheDocument()
@@ -83,11 +83,11 @@ test('Nuova Partita dalle Impostazioni riporta alla Home e azzera lo stato della
   await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
 
-  expect(screen.queryByLabelText('Numero giocatori')).not.toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: /nel mazzo/i })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  expect(screen.getByLabelText('Numero giocatori')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /nel mazzo/i })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
 
   await user.click(screen.getByRole('button', { name: 'Continua' }))

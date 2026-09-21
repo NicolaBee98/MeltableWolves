@@ -24,6 +24,12 @@ export function AzioneCortigiana({ giocatori, aggiornaGiocatore }) {
   }
 
   return (
-    <SceltaGiocatore candidati={candidati} onConferma={confermaScelta} onSalta={salta} etichetta="Chi visita la Cortigiana" />
+    <SceltaGiocatore
+      candidati={candidati}
+      onConferma={confermaScelta}
+      onSalta={salta}
+      etichetta="Chi visita la Cortigiana"
+      mostraSalta={false}
+    />
   )
 }

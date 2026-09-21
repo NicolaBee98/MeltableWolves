@@ -12,7 +12,6 @@ test('conferma imposta la visita notturna sulla cortigiana', async () => {
   render(<AzioneCortigiana giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { visitaNotturna: '2' })
 })

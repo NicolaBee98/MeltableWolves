@@ -79,9 +79,13 @@ export function Votazione({
               ))}
           </div>
         )}
-        <button type="button" onClick={tornaAlVoto}>
-          Torna al voto
-        </button>
+        {/* una volta confermata la morte, il voto del giorno è chiuso: niente
+            "Torna al voto" per evitare una seconda esecuzione lo stesso giorno */}
+        {!morteConfermata && (
+          <button type="button" onClick={tornaAlVoto}>
+            Torna al voto
+          </button>
+        )}
         <button type="button" onClick={onProsegui} disabled={!morteConfermata}>
           Prosegui alla notte
         </button>
@@ -116,6 +120,7 @@ export function Votazione({
           Vai all'esito
         </button>
       )}
+      <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />
     </section>
   )
 }

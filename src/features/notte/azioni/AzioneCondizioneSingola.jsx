@@ -24,5 +24,13 @@ export function AzioneCondizioneSingola({ giocatori, aggiornaGiocatore, condizio
     segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, ruoloSlugAttore)
   }
 
-  return <SceltaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={salta} etichetta={etichetta} />
+  return (
+    <SceltaGiocatore
+      candidati={vivi}
+      onConferma={confermaScelta}
+      onSalta={salta}
+      etichetta={etichetta}
+      mostraSalta={false}
+    />
+  )
 }

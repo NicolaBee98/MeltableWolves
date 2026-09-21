@@ -7,37 +7,14 @@ const candidati = [
   { id: '2', nome: 'Marco' },
 ]
 
-test("conferma chiama onConferma con l'id selezionato tramite chip", async () => {
+test('cliccare una chip chiama subito onConferma con quell\'id (nessun passo di conferma separato)', async () => {
   const user = userEvent.setup()
   const onConferma = vi.fn()
   render(<SceltaGiocatore candidati={candidati} onConferma={onConferma} onSalta={() => {}} etichetta="Scegli" />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onConferma).toHaveBeenCalledWith('2')
-})
-
-test('il primo candidato è selezionato di default', async () => {
-  const user = userEvent.setup()
-  const onConferma = vi.fn()
-  render(<SceltaGiocatore candidati={candidati} onConferma={onConferma} onSalta={() => {}} etichetta="Scegli" />)
-
-  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
-
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
-
-  expect(onConferma).toHaveBeenCalledWith('1')
-})
-
-test('cliccare una chip la marca come selezionata e deseleziona le altre', async () => {
-  const user = userEvent.setup()
-  render(<SceltaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli" />)
-
-  await user.click(screen.getByRole('button', { name: 'Marco' }))
-
-  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
-  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
 })
 
 test('salta chiama onSalta', async () => {
@@ -48,6 +25,13 @@ test('salta chiama onSalta', async () => {
   await user.click(screen.getByRole('button', { name: 'Salta' }))
 
   expect(onSalta).toHaveBeenCalled()
+})
+
+test('con mostraSalta=false non mostra il pulsante Salta, ma il fallback "Chiudi" a lista vuota resta', () => {
+  render(
+    <SceltaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli" mostraSalta={false} />,
+  )
+  expect(screen.queryByRole('button', { name: 'Salta' })).not.toBeInTheDocument()
 })
 
 test('senza candidati mostra un messaggio con un pulsante Chiudi che chiama onSalta', async () => {

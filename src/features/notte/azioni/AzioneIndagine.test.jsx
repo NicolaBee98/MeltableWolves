@@ -12,7 +12,6 @@ test('indagare un bersaglio con aura malvagia registra esito malvagia', async ()
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={3} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 3 } })
 })
@@ -27,7 +26,6 @@ test('indagare un bersaglio con aura benevola registra esito benevola', async ()
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 } })
 })
@@ -42,7 +40,6 @@ test('un veggente accecato percepisce sempre aura benevola', async () => {
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
 })
@@ -56,4 +53,40 @@ test('non permette di indagare una seconda volta nella stessa notte, evitando di
 
   expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+})
+
+test('dopo la conferma mostra subito il responso da dare al Veggente (aura malvagia)', () => {
+  const giocatori = [
+    {
+      id: '1',
+      nome: 'Anna',
+      ruoloSlug: 'veggente',
+      vivo: true,
+      condizioni: [],
+      usiNotte: ['veggente-indagine'],
+      ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 3 },
+    },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={3} />)
+
+  expect(screen.getByText(/aura malvagia/i)).toBeInTheDocument()
+})
+
+test('non mostra il responso di una notte precedente', () => {
+  const giocatori = [
+    {
+      id: '1',
+      nome: 'Anna',
+      ruoloSlug: 'veggente',
+      vivo: true,
+      condizioni: [],
+      usiNotte: ['veggente-indagine'],
+      ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 1 },
+    },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
+
+  expect(screen.queryByText(/aura malvagia/i)).not.toBeInTheDocument()
 })

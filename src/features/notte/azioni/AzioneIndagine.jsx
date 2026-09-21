@@ -8,9 +8,19 @@ const POTERE = 'veggente-indagine'
 export function AzioneIndagine({ giocatori, aggiornaGiocatore, round }) {
   const veggente = giocatori.find((g) => g.ruoloSlug === 'veggente')
   const candidati = giocatori.filter((g) => g.vivo && g.id !== veggente?.id)
+  const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
 
   if (usatoStanotte(giocatori, RUOLI, POTERE)) {
-    return <p>Potere già utilizzato questa notte.</p>
+    return (
+      <div className="azione-indagine">
+        <p>Potere già utilizzato questa notte.</p>
+        {indagineStanotte && (
+          <p className="azione-indagine__esito">
+            Rispondi al Veggente: aura {indagineStanotte.esito === 'malvagia' ? 'malvagia 🐺' : 'benevola 🕊️'}
+          </p>
+        )}
+      </div>
+    )
   }
 
   function confermaScelta(targetId) {
@@ -29,5 +39,13 @@ export function AzioneIndagine({ giocatori, aggiornaGiocatore, round }) {
     segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
   }
 
-  return <SceltaGiocatore candidati={candidati} onConferma={confermaScelta} onSalta={salta} etichetta="Chi indagare" />
+  return (
+    <SceltaGiocatore
+      candidati={candidati}
+      onConferma={confermaScelta}
+      onSalta={salta}
+      etichetta="Chi indagare"
+      mostraSalta={false}
+    />
+  )
 }

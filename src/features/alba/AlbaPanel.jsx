@@ -1,9 +1,16 @@
 import { annunciAlba } from '../../data/alba'
-import { MorteImprovvisa } from '../giorno/MorteImprovvisa'
+import { condizioniVittoria } from '../../data/vittoria'
 
-export function AlbaPanel({ giocatori, round, onVaiAlVoto, onMorteImprovvisa }) {
-  const morti = giocatori.filter((g) => !g.vivo && g.mortoNotte === round)
+// solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
+// improvvisa sono decessi diurni e non vanno mostrati all'alba
+const CAUSE_MORTE_NOTTURNE = ['notte', 'crepacuore']
+
+export function AlbaPanel({ giocatori, round, onVaiAlVoto }) {
+  const morti = giocatori.filter(
+    (g) => !g.vivo && g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte),
+  )
   const annunci = annunciAlba(giocatori, round)
+  const vittoria = condizioniVittoria(giocatori)
 
   return (
     <section className="alba-panel">
@@ -24,10 +31,16 @@ export function AlbaPanel({ giocatori, round, onVaiAlVoto, onMorteImprovvisa }) 
           ))}
         </ul>
       )}
+      {vittoria.length > 0 && (
+        <ul className="alba-panel__vittoria">
+          {vittoria.map((testo) => (
+            <li key={testo}>🏆 {testo}</li>
+          ))}
+        </ul>
+      )}
       <button type="button" onClick={onVaiAlVoto}>
         Vai al voto
       </button>
-      {onMorteImprovvisa && <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />}
     </section>
   )
 }

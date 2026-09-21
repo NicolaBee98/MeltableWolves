@@ -5,22 +5,11 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-test('stato iniziale: 8 giocatori, nessuna quantità impostata', () => {
+test('stato iniziale: nessuna quantità impostata', () => {
   const { result } = renderHook(() => useMazzo())
 
-  expect(result.current.numGiocatori).toBe(8)
   expect(result.current.quantita).toEqual({})
   expect(result.current.ruoliInMazzo).toEqual([])
-})
-
-test('setNumGiocatori aggiorna il numero di giocatori', () => {
-  const { result } = renderHook(() => useMazzo())
-
-  act(() => {
-    result.current.setNumGiocatori(12)
-  })
-
-  expect(result.current.numGiocatori).toBe(12)
 })
 
 test('setQuantita imposta la quantità e aggiorna ruoliInMazzo', () => {
@@ -93,14 +82,12 @@ test('resetMazzo riporta il mazzo allo stato iniziale', () => {
   const { result } = renderHook(() => useMazzo())
 
   act(() => {
-    result.current.setNumGiocatori(15)
     result.current.setQuantita('villico', 5)
   })
   act(() => {
     result.current.resetMazzo()
   })
 
-  expect(result.current.numGiocatori).toBe(8)
   expect(result.current.quantita).toEqual({})
 })
 

@@ -4,8 +4,8 @@ import { AlbaPanel } from './AlbaPanel'
 
 test('mostra i giocatori morti nella notte appena conclusa, non quelli di notti precedenti', () => {
   const giocatori = [
-    { id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, ruoloSlug: 'villico' },
-    { id: '2', nome: 'Marco', vivo: false, mortoNotte: 1, ruoloSlug: 'villico' },
+    { id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico' },
+    { id: '2', nome: 'Marco', vivo: false, mortoNotte: 1, causaMorte: 'notte', ruoloSlug: 'villico' },
     { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'villico' },
   ]
   render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} />)
@@ -13,6 +13,28 @@ test('mostra i giocatori morti nella notte appena conclusa, non quelli di notti 
   expect(screen.getByText('Anna')).toBeInTheDocument()
   expect(screen.queryByText('Marco')).not.toBeInTheDocument()
   expect(screen.queryByText('Luca')).not.toBeInTheDocument()
+})
+
+test('non mostra chi è morto sul rogo o per morte improvvisa, solo le morti notturne', () => {
+  const giocatori = [
+    { id: '1', nome: 'Dario', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico' },
+    { id: '2', nome: 'Carlo', vivo: false, mortoNotte: 2, causaMorte: 'rogo', ruoloSlug: 'villico' },
+    { id: '3', nome: 'Elena', vivo: false, mortoNotte: 2, causaMorte: 'colpo', ruoloSlug: 'villico' },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} />)
+
+  expect(screen.getByText('Dario')).toBeInTheDocument()
+  expect(screen.queryByText('Carlo')).not.toBeInTheDocument()
+  expect(screen.queryByText('Elena')).not.toBeInTheDocument()
+})
+
+test('mostra un annuncio di vittoria se una fazione ha vinto', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: false, ruoloSlug: 'lupo-mannaro', condizioni: [], mortoNotte: 1, causaMorte: 'notte' },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={1} onVaiAlVoto={() => {}} />)
+  expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
 })
 
 test('mostra un messaggio se nessuno è morto questa notte', () => {
@@ -38,12 +60,7 @@ test('il pulsante Vai al voto chiama onVaiAlVoto', async () => {
   expect(onVaiAlVoto).toHaveBeenCalled()
 })
 
-test('mostra il pulsante Morte Improvvisa quando viene passato onMorteImprovvisa', () => {
-  render(<AlbaPanel giocatori={[]} round={1} onVaiAlVoto={() => {}} onMorteImprovvisa={() => {}} />)
-  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
-})
-
-test('non mostra il pulsante Morte Improvvisa senza onMorteImprovvisa', () => {
+test('non mostra mai il pulsante Morte Improvvisa: di notte non si può dichiarare', () => {
   render(<AlbaPanel giocatori={[]} round={1} onVaiAlVoto={() => {}} />)
   expect(screen.queryByRole('button', { name: /morte improvvisa/i })).not.toBeInTheDocument()
 })
