@@ -19,7 +19,7 @@ test('conferma stabilisce il legame sul giocatore attore', async () => {
     />,
   )
 
-  await user.selectOptions(screen.getByRole('combobox'), '2')
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: { tipo: 'apprendista', targetId: '2' } })

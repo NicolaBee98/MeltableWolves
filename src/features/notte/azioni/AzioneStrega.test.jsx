@@ -12,10 +12,10 @@ test('la pozione vitale protegge il bersaglio e marca il potere come usato', asy
   const aggiornaGiocatore = vi.fn()
   render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
-  const [selectVitale] = screen.getAllByRole('combobox')
+  const [chipAnnaVitale] = screen.getAllByRole('button', { name: 'Anna' })
   const [confermaVitale] = screen.getAllByRole('button', { name: 'Conferma' })
 
-  await user.selectOptions(selectVitale, '2')
+  await user.click(chipAnnaVitale)
   await user.click(confermaVitale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['protetto'] })
@@ -27,14 +27,43 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
   const aggiornaGiocatore = vi.fn()
   render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
-  const [, selectMortale] = screen.getAllByRole('combobox')
+  const [, chipAnnaMortale] = screen.getAllByRole('button', { name: 'Anna' })
   const [, confermaMortale] = screen.getAllByRole('button', { name: 'Conferma' })
 
-  await user.selectOptions(selectMortale, '2')
+  await user.click(chipAnnaMortale)
   await user.click(confermaMortale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
+})
+
+test('la pozione mortale uccide anche un bersaglio protetto (la protezione non blocca la pozione mortale)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatoriConProtetto = [giocatori[0], { ...giocatori[1], condizioni: ['protetto'] }]
+  render(<AzioneStrega giocatori={giocatoriConProtetto} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  const [, chipAnnaMortale] = screen.getAllByRole('button', { name: 'Anna' })
+  const [, confermaMortale] = screen.getAllByRole('button', { name: 'Conferma' })
+
+  await user.click(chipAnnaMortale)
+  await user.click(confermaMortale)
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+})
+
+test('avvisa se la pozione vitale non ha effetto perché il bersaglio è già protetto', async () => {
+  const user = userEvent.setup()
+  const giocatoriConProtetto = [giocatori[0], { ...giocatori[1], condizioni: ['protetto'] }]
+  render(<AzioneStrega giocatori={giocatoriConProtetto} aggiornaGiocatore={() => {}} />)
+
+  const [chipAnnaVitale] = screen.getAllByRole('button', { name: 'Anna' })
+  const [confermaVitale] = screen.getAllByRole('button', { name: 'Conferma' })
+
+  await user.click(chipAnnaVitale)
+  await user.click(confermaVitale)
+
+  expect(screen.getByText(/non ha avuto alcun effetto/i)).toBeInTheDocument()
 })
 
 test('nasconde la pozione già usata', () => {
@@ -42,5 +71,5 @@ test('nasconde la pozione già usata', () => {
   render(<AzioneStrega giocatori={giocatoriConPozioneUsata} aggiornaGiocatore={() => {}} />)
 
   expect(screen.getByText(/pozione vitale già utilizzata/i)).toBeInTheDocument()
-  expect(screen.getAllByRole('combobox')).toHaveLength(1)
+  expect(screen.getAllByRole('button', { name: 'Anna' })).toHaveLength(1)
 })

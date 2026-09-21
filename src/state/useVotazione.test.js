@@ -67,6 +67,14 @@ test('vaiAEsito passa la fase a esito', () => {
   expect(result.current.fase).toBe('esito')
 })
 
+test('vaiAEsito congela la lista dei candidati passata', () => {
+  const { result } = renderHook(() => useVotazione())
+  act(() => {
+    result.current.vaiAEsito(['1', '2', '3'])
+  })
+  expect(result.current.candidatiEsito).toEqual(['1', '2', '3'])
+})
+
 test('tornaAlVoto riporta la fase a voto', () => {
   const { result } = renderHook(() => useVotazione())
   act(() => {

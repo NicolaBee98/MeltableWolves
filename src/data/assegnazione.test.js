@@ -11,6 +11,11 @@ test('contaAssegnati conta i giocatori con quel ruolo', () => {
   expect(contaAssegnati(giocatori, 'veggente')).toBe(0)
 })
 
+test('contaAssegnati resta a 1 anche se il giocatore ha poi cambiato ruoloSlug (es. Addolorata che scambia carta)', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'veggente', storiaRuoli: ['addolorata', 'veggente'] }]
+  expect(contaAssegnati(giocatori, 'addolorata')).toBe(1)
+})
+
 test('ruoliAssegnabili esclude i ruoli già al completo rispetto alla quantità nel mazzo', () => {
   const giocatori = [
     { id: '1', ruoloSlug: 'lupo-mannaro' },

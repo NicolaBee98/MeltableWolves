@@ -13,6 +13,8 @@ const RUOLI_A_QUANTITA = ['villico', 'lupo-mannaro']
 export function MazzoBuilder({ numGiocatori, quantita, setNumGiocatori, setQuantita }) {
   const avvisi = validaMazzo(quantita, numGiocatori)
   const guardiePresenti = (quantita.guardia ?? 0) > 0
+  const ruoliNelMazzo = ROLES.filter((ruolo) => (quantita[ruolo.slug] ?? 0) > 0)
+  const totaleRuoli = ruoliNelMazzo.reduce((somma, ruolo) => somma + (quantita[ruolo.slug] ?? 0), 0)
 
   function toggleGuardie(valoreAttuale) {
     if (valoreAttuale === 2) {
@@ -21,6 +23,10 @@ export function MazzoBuilder({ numGiocatori, quantita, setNumGiocatori, setQuant
     } else {
       setQuantita('guardia', 2)
     }
+  }
+
+  function etichettaRuolo(ruolo) {
+    return ruolo.slug === 'guardia' ? `${ruolo.nome} (coppia)` : ruolo.nome
   }
 
   return (
@@ -34,6 +40,46 @@ export function MazzoBuilder({ numGiocatori, quantita, setNumGiocatori, setQuant
         onChange={(event) => setNumGiocatori(Number(event.target.value))}
       />
 
+      <div className="mazzo-builder__nel-mazzo">
+        <h3>Nel mazzo ({totaleRuoli})</h3>
+        {ruoliNelMazzo.length === 0 ? (
+          <p className="mazzo-builder__vuoto">Nessuna carta selezionata.</p>
+        ) : (
+          <div className="scelta-giocatore__chips" role="group" aria-label="Ruoli nel mazzo">
+            {ruoliNelMazzo.map((ruolo) => {
+              const valore = quantita[ruolo.slug] ?? 0
+
+              if (RUOLI_A_QUANTITA.includes(ruolo.slug)) {
+                return (
+                  <div key={ruolo.slug} className="mazzo-builder__stepper">
+                    <span>{ruolo.nome}</span>
+                    <button type="button" onClick={() => setQuantita(ruolo.slug, valore - 1)} disabled={valore === 0}>
+                      -
+                    </button>
+                    <span>{valore}</span>
+                    <button type="button" onClick={() => setQuantita(ruolo.slug, valore + 1)}>
+                      +
+                    </button>
+                  </div>
+                )
+              }
+
+              return (
+                <button
+                  key={ruolo.slug}
+                  type="button"
+                  className="chip"
+                  aria-pressed="true"
+                  onClick={() => (ruolo.slug === 'guardia' ? toggleGuardie(2) : setQuantita(ruolo.slug, 0))}
+                >
+                  {etichettaRuolo(ruolo)} ✕
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
       {avvisi.length > 0 && (
         <ul className="mazzo-builder__avvisi">
           {avvisi.map((avviso) => (
@@ -42,64 +88,45 @@ export function MazzoBuilder({ numGiocatori, quantita, setNumGiocatori, setQuant
         </ul>
       )}
 
-      {FAZIONI_ORDINE.map((fazione) => (
-        <fieldset key={fazione}>
-          <legend>{FAZIONE_LABEL[fazione]}</legend>
-          {ROLES.filter((ruolo) => ruolo.fazione === fazione).map((ruolo) => {
-            const valore = quantita[ruolo.slug] ?? 0
+      {FAZIONI_ORDINE.map((fazione) => {
+        const disponibili = ROLES.filter((ruolo) => ruolo.fazione === fazione && (quantita[ruolo.slug] ?? 0) === 0)
+        if (disponibili.length === 0) return null
 
-            if (RUOLI_A_QUANTITA.includes(ruolo.slug)) {
-              return (
-                <div key={ruolo.slug} className="mazzo-builder__stepper">
-                  <span>{ruolo.nome}</span>
-                  <button type="button" onClick={() => setQuantita(ruolo.slug, valore - 1)} disabled={valore === 0}>
-                    -
+        return (
+          <fieldset key={fazione}>
+            <legend>{FAZIONE_LABEL[fazione]}</legend>
+            <div className="scelta-giocatore__chips" role="group" aria-label={`${FAZIONE_LABEL[fazione]} disponibili`}>
+              {disponibili.map((ruolo) => {
+                if (ruolo.slug === 'guardia-mannara') {
+                  return (
+                    <button
+                      key={ruolo.slug}
+                      type="button"
+                      className="chip"
+                      disabled={!guardiePresenti}
+                      onClick={() => setQuantita(ruolo.slug, 1)}
+                    >
+                      {ruolo.nome}
+                      {!guardiePresenti && ' (richiede le Guardie)'}
+                    </button>
+                  )
+                }
+
+                return (
+                  <button
+                    key={ruolo.slug}
+                    type="button"
+                    className="chip"
+                    onClick={() => (ruolo.slug === 'guardia' ? toggleGuardie(0) : setQuantita(ruolo.slug, 1))}
+                  >
+                    {etichettaRuolo(ruolo)}
                   </button>
-                  <span>{valore}</span>
-                  <button type="button" onClick={() => setQuantita(ruolo.slug, valore + 1)}>
-                    +
-                  </button>
-                </div>
-              )
-            }
-
-            if (ruolo.slug === 'guardia') {
-              return (
-                <label key={ruolo.slug} className="mazzo-builder__ruolo">
-                  <input type="checkbox" checked={valore === 2} onChange={() => toggleGuardie(valore)} />
-                  {ruolo.nome} (coppia)
-                </label>
-              )
-            }
-
-            if (ruolo.slug === 'guardia-mannara') {
-              return (
-                <label key={ruolo.slug} className="mazzo-builder__ruolo">
-                  <input
-                    type="checkbox"
-                    checked={valore > 0}
-                    disabled={!guardiePresenti}
-                    onChange={() => setQuantita(ruolo.slug, valore > 0 ? 0 : 1)}
-                  />
-                  {ruolo.nome}
-                  {!guardiePresenti && ' (richiede le Guardie)'}
-                </label>
-              )
-            }
-
-            return (
-              <label key={ruolo.slug} className="mazzo-builder__ruolo">
-                <input
-                  type="checkbox"
-                  checked={valore > 0}
-                  onChange={() => setQuantita(ruolo.slug, valore > 0 ? 0 : 1)}
-                />
-                {ruolo.nome}
-              </label>
-            )
-          })}
-        </fieldset>
-      ))}
+                )
+              })}
+            </div>
+          </fieldset>
+        )
+      })}
     </section>
   )
 }

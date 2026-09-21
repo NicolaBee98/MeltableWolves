@@ -14,15 +14,31 @@ import { useFaseApp } from './state/useFaseApp'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
-  const { numGiocatori, quantita, setNumGiocatori, setQuantita, ruoliInMazzo } = useMazzo()
-  const { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore } = usePartita()
-  const { voti, fase, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } = useVotazione()
+  const { numGiocatori, quantita, setNumGiocatori, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
+  const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, impostaGiocatori } = usePartita()
+  const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
+    useVotazione()
   const notte = useNotte()
-  const { eventi, aggiungiEvento } = useLog(giocatori, notte.round)
+  const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round)
+
+  const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
 
   function proseguiAllaNotte() {
     ricominciaVotazione()
     setFaseApp('notte')
+  }
+
+  function dichiaraMorteImprovvisa(id) {
+    aggiornaGiocatore(id, { vivo: false, causaMorte: 'colpo' })
+  }
+
+  function nuovaPartita() {
+    resetPartita()
+    resetMazzo()
+    notte.resetNotte()
+    ricominciaVotazione()
+    resetLog()
+    setFaseApp('home')
   }
 
   return (
@@ -32,7 +48,7 @@ export default function App() {
         <span className="app__titolo-wolves">Wolves</span>
       </h1>
 
-      {faseApp !== 'home' && <LogImpostazioniPopup eventi={eventi} />}
+      {faseApp !== 'home' && <LogImpostazioniPopup eventi={eventi} onNuovaPartita={nuovaPartita} />}
 
       {faseApp === 'home' && <Home onNuovaPartita={() => setFaseApp('mazzo')} />}
 
@@ -52,13 +68,12 @@ export default function App() {
 
       {faseApp === 'giocatori' && (
         <section>
-          <PlayerTracker
-            giocatori={giocatori}
-            addGiocatore={addGiocatore}
-            toggleVivo={toggleVivo}
-            setCondizioni={setCondizioni}
-            setNote={setNote}
-          />
+          <PlayerTracker giocatori={giocatori} addGiocatore={addGiocatore} removeGiocatore={removeGiocatore} />
+          {giocatori.length !== totaleRuoliMazzo && (
+            <p className="app__avviso">
+              ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo.
+            </p>
+          )}
           <button type="button" onClick={() => setFaseApp('notte')}>
             Inizia la notte
           </button>
@@ -70,6 +85,7 @@ export default function App() {
           ruoliSelezionati={ruoliInMazzo.map((r) => r.slug)}
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
+          impostaGiocatori={impostaGiocatori}
           quantita={quantita}
           registraEvento={aggiungiEvento}
           round={notte.round}
@@ -78,11 +94,17 @@ export default function App() {
           indietro={notte.indietro}
           nuovaNotte={notte.nuovaNotte}
           onNotteConclusa={() => setFaseApp('alba')}
+          onMorteImprovvisa={dichiaraMorteImprovvisa}
         />
       )}
 
       {faseApp === 'alba' && (
-        <AlbaPanel giocatori={giocatori} round={notte.round - 1} onVaiAlVoto={() => setFaseApp('giorno')} />
+        <AlbaPanel
+          giocatori={giocatori}
+          round={notte.round - 1}
+          onVaiAlVoto={() => setFaseApp('giorno')}
+          onMorteImprovvisa={dichiaraMorteImprovvisa}
+        />
       )}
 
       {faseApp === 'giorno' && (
@@ -90,6 +112,7 @@ export default function App() {
           giocatori={giocatori}
           voti={voti}
           fase={fase}
+          candidatiEsito={candidatiEsito}
           incrementaVoto={incrementaVoto}
           decrementaVoto={decrementaVoto}
           ricominciaVotazione={ricominciaVotazione}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { applicaCrepacuore } from '../data/effettiNotte'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
 
@@ -21,25 +22,44 @@ export function usePartita() {
   function addGiocatore(nome) {
     setGiocatori((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), nome, ruoloSlug: undefined, vivo: true, condizioni: [], note: '', poteriUsati: [] },
+      {
+        id: crypto.randomUUID(),
+        nome,
+        ruoloSlug: undefined,
+        vivo: true,
+        condizioni: [],
+        poteriUsati: [],
+        usiNotte: [],
+        storiaRuoli: [],
+      },
     ])
   }
 
-  function toggleVivo(id) {
-    setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, vivo: !g.vivo } : g)))
-  }
-
-  function setCondizioni(id, condizioni) {
-    setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, condizioni } : g)))
-  }
-
-  function setNote(id, note) {
-    setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, note } : g)))
+  function removeGiocatore(id) {
+    setGiocatori((prev) => prev.filter((g) => g.id !== id))
   }
 
   function aggiornaGiocatore(id, patch) {
-    setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)))
+    setGiocatori((prev) => {
+      const aggiornati = prev.map((g) => (g.id === id ? { ...g, ...patch } : g))
+      return patch.vivo === false ? applicaCrepacuore(aggiornati, id) : aggiornati
+    })
   }
 
-  return { giocatori, addGiocatore, toggleVivo, setCondizioni, setNote, aggiornaGiocatore }
+  function resetPartita() {
+    setGiocatori([])
+  }
+
+  function impostaGiocatori(nuovi) {
+    setGiocatori(nuovi)
+  }
+
+  return {
+    giocatori,
+    addGiocatore,
+    removeGiocatore,
+    aggiornaGiocatore,
+    resetPartita,
+    impostaGiocatori,
+  }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'meltable-wolves-votazione'
-const DEFAULT_STATO = { voti: {}, fase: 'voto' }
+const DEFAULT_STATO = { voti: {}, fase: 'voto', candidatiEsito: [] }
 
 function loadStato() {
   try {
@@ -31,8 +31,8 @@ export function useVotazione() {
     setStato({ voti: {}, fase: 'voto' })
   }
 
-  function vaiAEsito() {
-    setStato((prev) => ({ ...prev, fase: 'esito' }))
+  function vaiAEsito(candidatiIds) {
+    setStato((prev) => ({ ...prev, fase: 'esito', candidatiEsito: candidatiIds }))
   }
 
   function tornaAlVoto() {
@@ -42,6 +42,7 @@ export function useVotazione() {
   return {
     voti: stato.voti,
     fase: stato.fase,
+    candidatiEsito: stato.candidatiEsito ?? [],
     incrementaVoto,
     decrementaVoto,
     ricominciaVotazione,

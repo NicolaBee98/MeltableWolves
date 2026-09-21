@@ -21,7 +21,7 @@ test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], note: '' }]
   render(<NightSequencerConNotte ruoliSelezionati={['mimo', 'paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByText('Mimo')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /mimo/i })).toBeInTheDocument()
   expect(screen.getByText('Sara')).toBeInTheDocument()
 })
 
@@ -57,7 +57,7 @@ test("mostra la selezione bersaglio quando il passo ha un'azione automatizzata e
   ]
   render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByRole('combobox')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
 test('non mostra la selezione bersaglio se il titolare del ruolo è morto', () => {
@@ -106,7 +106,7 @@ test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
   ]
   render(<NightSequencerConNotte ruoliSelezionati={['apprendista']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByRole('combobox')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
 test("mostra lo scambio per Addolorata quando c'è una vittima al rogo della notte corrente", () => {
@@ -157,7 +157,7 @@ test('assegnare il ruolo tramite AssegnaRuolo fa comparire subito la selezione b
     />,
   )
 
-  expect(screen.getByRole('combobox')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Steve' })).toBeInTheDocument()
 })
 
 test('non mostra AssegnaRuolo per i passi di solo promemoria (potere-passivo)', () => {
@@ -192,6 +192,96 @@ test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
   await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
 
   expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.')
+})
+
+test('"Notte successiva" azzera usiNotte per far ripartire i poteri della notte', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Piero', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: ['paladino'] }]
+  const aggiornaGiocatore = vi.fn()
+  render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
+})
+
+test('non propone di assegnare ruoli del branco non presenti nel mazzo, e non mostra avvisi se l\'unico ruolo lupo selezionato è già assegnato', () => {
+  const giocatori = [
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Fabio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 2 }}
+    />,
+  )
+
+  expect(screen.queryByText('Nonna')).not.toBeInTheDocument()
+  expect(screen.queryByText(/ruolo non ancora assegnato/i)).not.toBeInTheDocument()
+})
+
+test('mostra un avviso non bloccante se un ruolo del mazzo non è ancora stato assegnato', () => {
+  const giocatori = [{ id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [] }]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ paladino: 1 }}
+    />,
+  )
+  expect(screen.getByText(/ruolo non ancora assegnato/i)).toBeInTheDocument()
+})
+
+test('mostra il pulsante Morte Improvvisa quando viene passato onMorteImprovvisa', () => {
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['mimo']}
+      giocatori={[]}
+      aggiornaGiocatore={() => {}}
+      onMorteImprovvisa={() => {}}
+    />,
+  )
+  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+})
+
+test('"Indietro" ripristina lo stato dei giocatori all\'ingresso del passo precedente, riabilitando l\'azione già fatta', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+  ]
+  const impostaGiocatori = vi.fn((nuovi) => {
+    giocatori = nuovi
+  })
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const props = () => ({
+    ruoliSelezionati: ['paladino', 'veggente'],
+    giocatori,
+    aggiornaGiocatore,
+    impostaGiocatori,
+  })
+
+  const { rerender } = render(<NightSequencerConNotte {...props()} />)
+
+  await user.click(screen.getByRole('button', { name: 'Pietro' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+  expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
+
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+  expect(screen.getByRole('heading', { name: /veggente/i })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+
+  const ripristinati = impostaGiocatori.mock.calls[0][0]
+  expect(ripristinati.find((g) => g.id === '1').condizioni).not.toContain('protetto')
 })
 
 test('"Notte successiva" chiama onNotteConclusa', async () => {

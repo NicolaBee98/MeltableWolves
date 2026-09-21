@@ -6,9 +6,7 @@ function setup(overrides = {}) {
   const props = {
     giocatori: [],
     addGiocatore: vi.fn(),
-    toggleVivo: vi.fn(),
-    setCondizioni: vi.fn(),
-    setNote: vi.fn(),
+    removeGiocatore: vi.fn(),
     ...overrides,
   }
   render(<PlayerTracker {...props} />)
@@ -24,21 +22,20 @@ test('aggiungere un giocatore chiama addGiocatore con il nome', async () => {
   expect(addGiocatore).toHaveBeenCalledWith('Giulia')
 })
 
-test('mostra i giocatori esistenti come card, con ruolo non assegnato se assente', () => {
+test('mostra i giocatori esistenti come card, con solo il nome', () => {
   setup({
-    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [], note: '' }],
+    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [] }],
   })
   expect(screen.getByText('Marco')).toBeInTheDocument()
-  expect(screen.getByText('Ruolo non ancora assegnato')).toBeInTheDocument()
 })
 
-test('click sul pulsante stato chiama toggleVivo con id del giocatore', async () => {
+test('click sul pulsante di rimozione chiama removeGiocatore con id del giocatore', async () => {
   const user = userEvent.setup()
-  const { toggleVivo } = setup({
-    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [], note: '' }],
+  const { removeGiocatore } = setup({
+    giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [] }],
   })
 
-  await user.click(screen.getByRole('button', { name: 'Vivo' }))
+  await user.click(screen.getByRole('button', { name: /rimuovi marco/i }))
 
-  expect(toggleVivo).toHaveBeenCalledWith('1')
+  expect(removeGiocatore).toHaveBeenCalledWith('1')
 })

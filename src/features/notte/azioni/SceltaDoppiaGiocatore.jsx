@@ -12,22 +12,32 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichett
   }
 
   if (candidati.length < 2) {
-    return <p>Servono almeno due bersagli disponibili.</p>
+    return (
+      <div className="scelta-giocatore">
+        <p>Servono almeno due bersagli disponibili.</p>
+        <button type="button" onClick={onSalta}>
+          Chiudi
+        </button>
+      </div>
+    )
   }
 
   return (
     <div className="scelta-doppia-giocatore">
       <p>{etichetta}</p>
-      <ul>
+      <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
         {candidati.map((g) => (
-          <li key={g.id}>
-            <label>
-              <input type="checkbox" checked={selezionati.includes(g.id)} onChange={() => toggleSelezione(g.id)} />
-              {g.nome}
-            </label>
-          </li>
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            aria-pressed={selezionati.includes(g.id)}
+            onClick={() => toggleSelezione(g.id)}
+          >
+            {g.nome}
+          </button>
         ))}
-      </ul>
+      </div>
       <button type="button" disabled={selezionati.length !== 2} onClick={() => onConferma(selezionati[0], selezionati[1])}>
         Conferma
       </button>
