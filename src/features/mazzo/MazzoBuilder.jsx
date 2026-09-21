@@ -1,5 +1,6 @@
 import { ROLES } from '../../data/roles'
 import { validaMazzo } from '../../data/validaMazzo'
+import { maxQuantita } from '../../data/quantitaRuoli'
 
 const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
 const FAZIONE_LABEL = {
@@ -12,11 +13,17 @@ const FAZIONE_LABEL = {
 // aggiungerne un'altra unità, invece di sparire dopo il primo click
 const RUOLI_INFINITI = ['villico', 'lupo-mannaro']
 
-export function MazzoBuilder({ quantita, setQuantita }) {
+export function MazzoBuilder({ quantita, setQuantita, scartoLadro = [], setScartoLadro = () => {} }) {
   const avvisi = validaMazzo(quantita)
   const guardiePresenti = (quantita.guardia ?? 0) > 0
+  const ladroPresente = (quantita.ladro ?? 0) > 0
   const ruoliNelMazzo = ROLES.filter((ruolo) => (quantita[ruolo.slug] ?? 0) > 0)
   const totaleRuoli = ruoliNelMazzo.reduce((somma, ruolo) => somma + (quantita[ruolo.slug] ?? 0), 0)
+  // carte ancora "coperte" da poter scegliere come scarto per il Ladro: non
+  // già al massimo di copie disponibili nel mazzo reale (pag. 15: sono due
+  // carte fisiche in più, non possono duplicare una carta a copia unica
+  // già usata)
+  const ruoliScartabili = ROLES.filter((ruolo) => (quantita[ruolo.slug] ?? 0) < maxQuantita(ruolo.slug))
 
   function toggleGuardie(valoreAttuale) {
     if (valoreAttuale === 2) {
@@ -76,6 +83,25 @@ export function MazzoBuilder({ quantita, setQuantita }) {
             <li key={avviso}>{avviso}</li>
           ))}
         </ul>
+      )}
+
+      {ladroPresente && (
+        <fieldset className="mazzo-builder__scarto-ladro">
+          <legend>Carte di scarto per il Ladro (pag. 15: due carte in più, non assegnate a nessuno)</legend>
+          {[0, 1].map((indice) => (
+            <label key={indice}>
+              Carta {indice + 1}
+              <select value={scartoLadro[indice] ?? ''} onChange={(e) => setScartoLadro(indice, e.target.value)}>
+                <option value="">— nessuna —</option>
+                {ruoliScartabili.map((ruolo) => (
+                  <option key={ruolo.slug} value={ruolo.slug}>
+                    {ruolo.nome}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </fieldset>
       )}
 
       {FAZIONI_ORDINE.map((fazione) => {

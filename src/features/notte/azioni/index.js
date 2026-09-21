@@ -10,6 +10,7 @@ import { AzioneAddolorata } from './AzioneAddolorata'
 import { AzioneIndagine } from './AzioneIndagine'
 import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
 import { AzioneInquisitore } from './AzioneInquisitore'
+import { AzioneLadro } from './AzioneLadro'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
 export const AZIONI_NOTTURNE = {
@@ -66,4 +67,7 @@ export const AZIONI_NOTTURNE = {
     props: { ruoloSlugAttore: 'medium', etichettaAttore: 'Medium', bersaglio: 'morto' },
   },
   inquisitore: { Componente: AzioneInquisitore, props: {} },
+  // riceve anche scartoLadro da NightSequencer (non è uno degli ruoli/round
+  // "standard" passati a ogni azione, ma NightSequencer lo inoltra a tutte)
+  ladro: { Componente: AzioneLadro, props: {} },
 }

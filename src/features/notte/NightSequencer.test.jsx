@@ -313,3 +313,26 @@ test('"Notte successiva" chiama onNotteConclusa', async () => {
 
   expect(onNotteConclusa).toHaveBeenCalled()
 })
+
+test('il Mimo compare anche nel passo del ruolo che sta imitando', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('heading', { name: /paladino \(sara, marco\)/i })).toBeInTheDocument()
+})
+
+test('il Mimo non compare in un passo del ruolo che NON sta imitando', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Elena', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
+  ]
+  render(
+    <NightSequencerConNotte ruoliSelezionati={['paladino', 'veggente']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  expect(screen.getByRole('heading', { name: /^paladino \(elena\)$/i })).toBeInTheDocument()
+})

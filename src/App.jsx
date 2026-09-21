@@ -16,7 +16,7 @@ import { daRipulireCambioNotte } from './data/effettiNotte'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
-  const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
+  const { quantita, setQuantita, resetMazzo, ruoliInMazzo, scartoLadro, setScartoLadro } = useMazzo()
   const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, impostaGiocatori } = usePartita()
   const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
     useVotazione()
@@ -62,7 +62,12 @@ export default function App() {
 
       {faseApp === 'mazzo' && (
         <section>
-          <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
+          <MazzoBuilder
+            quantita={quantita}
+            setQuantita={setQuantita}
+            scartoLadro={scartoLadro}
+            setScartoLadro={setScartoLadro}
+          />
           <button type="button" onClick={() => setFaseApp('giocatori')}>
             Continua
           </button>
@@ -90,6 +95,7 @@ export default function App() {
           aggiornaGiocatore={aggiornaGiocatore}
           impostaGiocatori={impostaGiocatori}
           quantita={quantita}
+          scartoLadro={scartoLadro}
           registraEvento={aggiungiEvento}
           round={notte.round}
           stepIndex={notte.stepIndex}
