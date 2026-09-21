@@ -8,6 +8,7 @@ import {
   rimuoviAccecamentoSeMortoPolpo,
   risolviAttaccoBranco,
   daRipulireCambioNotte,
+  maturaCucciolo,
 } from './effettiNotte'
 
 const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
@@ -28,6 +29,18 @@ test('uccidiPatch ritorna vivo:false, causaMorte:notte e la notte corrente se il
 
 test('uccidiPatch ritorna null se il giocatore è protetto', () => {
   expect(uccidiPatch({ condizioni: ['protetto'] }, 3)).toBeNull()
+})
+
+test("uccidiPatch: L'Antico non muore di notte, sopravvive e diventa Villico (prima vita)", () => {
+  expect(uccidiPatch({ ruoloSlug: 'lantico', condizioni: [], storiaRuoli: ['lantico'] }, 3)).toEqual({
+    vivo: true,
+    ruoloSlug: 'villico',
+    storiaRuoli: ['lantico', 'villico'],
+  })
+})
+
+test("uccidiPatch: L'Antico protetto non consuma la sua prima vita (il morso non ha effetto)", () => {
+  expect(uccidiPatch({ ruoloSlug: 'lantico', condizioni: ['protetto'] }, 3)).toBeNull()
 })
 
 test('resuscitaPatch riporta in vita un giocatore morto e marca la notte della resurrezione', () => {
@@ -178,4 +191,28 @@ test('risolviAttaccoBranco: il Cucciolo ucciso fa scattare la vendetta doppia su
 test('risolviAttaccoBranco: un bersaglio protetto non muore e non genera reazioni', () => {
   const giocatori = [{ id: '1', ruoloSlug: 'ubriaco', vivo: true, condizioni: ['protetto'] }]
   expect(risolviAttaccoBranco(giocatori, '1', 3, RUOLI_BRANCO)).toEqual({})
+})
+
+test('maturaCucciolo trasforma il Cucciolo in Lupo Mannaro semplice quando muore un altro lupo', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['cucciolo-di-lupo-mannaro'] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [] },
+  ]
+  const risultato = maturaCucciolo(giocatori, '2')
+  expect(risultato.find((g) => g.id === '1')).toMatchObject({ ruoloSlug: 'lupo-mannaro' })
+  expect(risultato.find((g) => g.id === '1').storiaRuoli).toContain('lupo-mannaro')
+})
+
+test('maturaCucciolo non fa nulla se il morto non è di fazione lupi', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+  ]
+  expect(maturaCucciolo(giocatori, '2')).toBe(giocatori)
+})
+
+test('maturaCucciolo non fa nulla se il morto è il Cucciolo stesso', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: false, condizioni: [] }]
+  const risultato = maturaCucciolo(giocatori, '1')
+  expect(risultato.find((g) => g.id === '1').ruoloSlug).toBe('cucciolo-di-lupo-mannaro')
 })

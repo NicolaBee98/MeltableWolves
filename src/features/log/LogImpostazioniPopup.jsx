@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { LogPartita } from './LogPartita'
 
-export function LogImpostazioniPopup({ eventi, onNuovaPartita }) {
+export function LogImpostazioniPopup({
+  eventi,
+  onNuovaPartita,
+  mostraRuoliInVotazione,
+  onCambiaMostraRuoliInVotazione,
+}) {
   const [aperto, setAperto] = useState(false)
   const [tab, setTab] = useState('log')
 
@@ -33,6 +38,14 @@ export function LogImpostazioniPopup({ eventi, onNuovaPartita }) {
             <LogPartita eventi={eventi} />
           ) : (
             <div className="log-impostazioni__impostazioni">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={mostraRuoliInVotazione}
+                  onChange={(e) => onCambiaMostraRuoliInVotazione(e.target.checked)}
+                />
+                Mostra i ruoli durante la votazione (narratore)
+              </label>
               <button type="button" onClick={nuovaPartita}>
                 Nuova Partita
               </button>

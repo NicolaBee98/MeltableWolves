@@ -71,6 +71,11 @@ export function aggiungiCondizionePatch(giocatore, condizione) {
 
 export function uccidiPatch(giocatore, round, { ignoraProtezione = false } = {}) {
   if (!ignoraProtezione && giocatore.condizioni.includes('protetto')) return null
+  // L'Antico ha due vite: se perde la prima di notte, sopravvive e si rivela
+  // "senza conseguenze", continuando a giocare da Villico normale (pag. 16)
+  if (giocatore.ruoloSlug === 'lantico') {
+    return { vivo: true, ruoloSlug: 'villico', storiaRuoli: [...(giocatore.storiaRuoli ?? []), 'villico'] }
+  }
   return { vivo: false, causaMorte: 'notte', mortoNotte: round }
 }
 
@@ -126,6 +131,22 @@ export function rimuoviAccecamentoSeMortoPolpo(giocatori, idAppenaMorto) {
   return giocatori.map((g) =>
     (g.condizioni ?? []).includes('accecato')
       ? { ...g, condizioni: g.condizioni.filter((c) => c !== 'accecato') }
+      : g,
+  )
+}
+
+// "Alla morte del primo lupo, il cucciolo diventa adulto perdendo questo
+// potere" (pag. 13): il primo membro qualsiasi della fazione lupi a morire
+// (annunciato all'alba o al rogo) fa maturare il Cucciolo in un Lupo
+// Mannaro semplice, perdendo la vendetta doppia. Se il morto è il Cucciolo
+// stesso non c'è nulla da maturare.
+export function maturaCucciolo(giocatori, idAppenaMorto) {
+  const morto = giocatori.find((g) => g.id === idAppenaMorto)
+  if (!morto || fazioneDi(morto) !== 'lupi') return giocatori
+
+  return giocatori.map((g) =>
+    g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'
+      ? { ...g, ruoloSlug: 'lupo-mannaro', storiaRuoli: [...(g.storiaRuoli ?? []), 'lupo-mannaro'] }
       : g,
   )
 }

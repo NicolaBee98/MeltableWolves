@@ -21,6 +21,14 @@ function setup(overrides = {}) {
     tornaAlVoto: vi.fn(),
     onRogo: vi.fn(),
     onMorteImprovvisa: vi.fn(),
+    onAnticoRivelazione: vi.fn(),
+    onRivelazione: vi.fn(),
+    onBoiaGiustizia: vi.fn(),
+    onAlchimistaEsplode: vi.fn(),
+    onBardoSaltaNotte: vi.fn(),
+    onElezioneBorgomastro: vi.fn(),
+    ruoliSelezionati: [],
+    quantita: {},
     onProsegui: vi.fn(),
     ...overrides,
   }
@@ -125,6 +133,31 @@ test('lo Spilungone scelto nello spareggio si rivela e non muore', async () => {
   expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
 })
 
+test("L'Antico designato al rogo si rivela, sopravvive e chiama onAnticoRivelazione", async () => {
+  const user = userEvent.setup()
+  const giocatoriConAntico = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'lantico', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const { onRogo, onAnticoRivelazione, onProsegui } = setup({
+    giocatori: giocatoriConAntico,
+    voti: { 1: 2 },
+    fase: 'esito',
+  })
+
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
+
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(onAnticoRivelazione).toHaveBeenCalledWith('1')
+  expect(screen.getByText(/anna rivela la propria carta: è l'antico/i)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
+
+  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).not.toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  expect(onProsegui).toHaveBeenCalled()
+})
+
 test("il calcolo dell'esito usa i candidati congelati, non i giocatori vivi correnti (evita lo spareggio fantasma dopo il rogo)", () => {
   const giocatoriDopoRogo = [
     { id: '1', nome: 'Anna', vivo: false },
@@ -180,9 +213,11 @@ test('in fase esito il pulsante Torna al voto chiama tornaAlVoto', async () => {
   expect(tornaAlVoto).toHaveBeenCalled()
 })
 
-test("in fase esito è sempre presente l'icona Morte improvvisa", () => {
+test("in fase esito è sempre presente l'icona Eventi speciali, con la Morte improvvisa nel menu", async () => {
+  const user = userEvent.setup()
   setup({ voti: { 1: 2 }, fase: 'esito' })
-  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: 'Morte improvvisa' })).toBeInTheDocument()
 })
 
 test("in fase esito, una volta che la morte è confermata, 'Torna al voto' non c'è più (niente doppio rogo lo stesso giorno)", () => {
@@ -195,7 +230,42 @@ test("in fase esito, una volta che la morte è confermata, 'Torna al voto' non c
   expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
 })
 
-test("in fase voto è già presente l'icona Morte improvvisa (non solo in fase esito)", () => {
+test("in fase voto è già presente l'icona Eventi speciali (non solo in fase esito)", async () => {
+  const user = userEvent.setup()
   setup()
-  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: 'Morte improvvisa' })).toBeInTheDocument()
+})
+
+test('mostra un\'icona per ogni condizione attiva del giocatore', () => {
+  const giocatoriConCondizioni = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto', 'protetto'] },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({ giocatori: giocatoriConCondizioni })
+  expect(screen.getByRole('img', { name: 'Unto' })).toBeInTheDocument()
+  expect(screen.getByRole('img', { name: 'Protetto' })).toBeInTheDocument()
+})
+
+test('senza condizioni non mostra nessuna icona di condizione', () => {
+  setup()
+  expect(screen.queryByRole('img')).not.toBeInTheDocument()
+})
+
+test('senza mostraRuoli (default) non mostra icona di ruolo anche se il giocatore ha un ruolo assegnato', () => {
+  const giocatoriConRuolo = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' }]
+  setup({ giocatori: giocatoriConRuolo })
+  expect(screen.queryByRole('img', { name: 'Lupo Mannaro' })).not.toBeInTheDocument()
+})
+
+test('con mostraRuoli attivo mostra icona di ruolo per il giocatore con ruoloSlug', () => {
+  const giocatoriConRuolo = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' }]
+  setup({ giocatori: giocatoriConRuolo, mostraRuoli: true })
+  expect(screen.getByRole('img', { name: 'Lupo Mannaro' })).toBeInTheDocument()
+})
+
+test('con mostraRuoli attivo ma ruoloSlug non assegnato non mostra nessuna icona di ruolo', () => {
+  const giocatoriSenzaRuolo = [{ id: '1', nome: 'Anna', vivo: true }]
+  setup({ giocatori: giocatoriSenzaRuolo, mostraRuoli: true })
+  expect(screen.queryByRole('img')).not.toBeInTheDocument()
 })

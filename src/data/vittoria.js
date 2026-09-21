@@ -20,7 +20,13 @@ export function condizioniVittoria(giocatori) {
   const chupacabraVivo = vivi.some((g) => g.ruoloSlug === 'chupacabra')
   const pifferaioVivo = vivi.some((g) => g.ruoloSlug === 'pifferaio')
 
-  if (pifferaioVivo && vivi.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))) {
+  // vivi.length > 1: col solo Pifferaio rimasto in vita vale già la
+  // condizione "ultimo sopravvissuto" qui sotto, per non duplicare l'annuncio
+  if (
+    pifferaioVivo &&
+    vivi.length > 1 &&
+    vivi.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))
+  ) {
     messaggi.push('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
   }
 
@@ -28,6 +34,7 @@ export function condizioniVittoria(giocatori) {
     const ultimo = vivi[0]
     if (ultimo.ruoloSlug === 'chupacabra') messaggi.push("Il Chupacabra è l'ultimo sopravvissuto: vince lui.")
     if (ultimo.ruoloSlug === 'criceto-malvagio') messaggi.push("Il Criceto Malvagio è l'ultimo sopravvissuto: vince lui.")
+    if (ultimo.ruoloSlug === 'pifferaio') messaggi.push("Il Pifferaio è l'ultimo sopravvissuto: vince lui.")
   }
 
   if (vivi.length === 2 && vivi.every((g) => (g.condizioni ?? []).includes('innamorato'))) {

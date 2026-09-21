@@ -66,18 +66,35 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato' },
 ]
 
-// Ruoli come Villico, Spilungone, Boia, Ambasciatore, ... non hanno nessuna
-// azione o riconoscimento notturno, quindi altrimenti non comparirebbero mai
-// in nessun passo: non avrebbero mai occasione di essere assegnati a un
-// giocatore. Questo passo raccoglie tutti i ruoli del mazzo che non sono
-// già coperti da uno step dedicato, e li rende assegnabili come gli altri
-// entro la fine della prima notte. Il Fantasma Onnisciente è l'unica
-// eccezione voluta: per regolamento (pag. 13) la sua carta non va
-// distribuita all'inizio, va al primo giocatore che muore (non gestito da
-// questa app: va assegnato a mano dal narratore quando succede).
+// Ruoli che si rivelano pubblicamente DI GIORNO, a un momento scelto dal
+// narratore/giocatore (esecuzione del Boia, favorito al rogo per Spilungone
+// o Alchimista, autorivelazione dell'Innocente, morte al rogo de L'Antico,
+// rima sbagliata dello Scemo del Villaggio) o tramite elezione (Borgomastro):
+// non vanno forzati in un passo notturno all'inizio, perché il narratore
+// potrebbe non sapere ancora se/quando quel giocatore si rivelerà. Restano
+// assegnabili in qualsiasi momento tramite il menu "Eventi speciali"
+// (EventiSpeciali.jsx, evento "Rivelazione personaggio" o l'evento dedicato
+// del ruolo).
+export const RUOLI_RIVELAZIONE_GIORNO = [
+  'boia', 'spilungone', 'alchimista', 'innocente', 'lantico', 'scemo-del-villaggio', 'borgomastro',
+]
+
+// Ruoli come Villico, Ambasciatore, Berserker, Mezzosangue, Suocera non
+// hanno nessuna azione o riconoscimento notturno, quindi altrimenti non
+// comparirebbero mai in nessun passo: non avrebbero mai occasione di essere
+// assegnati a un giocatore. Questo passo raccoglie tutti i ruoli del mazzo
+// che non sono già coperti da uno step dedicato (né sono di rivelazione
+// diurna, vedi sopra), e li rende assegnabili come gli altri entro la fine
+// della prima notte. Il Fantasma Onnisciente è l'unica eccezione voluta:
+// per regolamento (pag. 13) la sua carta non va distribuita all'inizio, va
+// al primo giocatore che muore (non gestito da questa app: va assegnato a
+// mano dal narratore quando succede).
 const RUOLI_CON_STEP_DEDICATO = new Set(STEPS_CON_RUOLO_DEDICATO.flatMap((s) => s.ruoli ?? []))
 const RUOLI_SENZA_STEP_DEDICATO = ROLES.map((r) => r.slug).filter(
-  (slug) => slug !== 'fantasma-onnisciente' && !RUOLI_CON_STEP_DEDICATO.has(slug),
+  (slug) =>
+    slug !== 'fantasma-onnisciente' &&
+    !RUOLI_RIVELAZIONE_GIORNO.includes(slug) &&
+    !RUOLI_CON_STEP_DEDICATO.has(slug),
 )
 
 const PASSO_ASSEGNA_RESTANTI = {
@@ -104,9 +121,25 @@ export const NIGHT_STEPS = [
   ...STEPS_CON_RUOLO_DEDICATO.slice(indiceUltimoPassoPrimaNotte + 1),
 ]
 
+// Campo condiviso da due meccaniche di regolamento con lo stesso effetto
+// pratico: "questa notte nessun ruolo con potere attivo si sveglia".
+// - Maledetto (pag. 25): quando il villaggio manda al rogo L'Antico.
+// - Bardo (pag. 10): una volta per partita, dopo un rogo, fa saltare la notte.
+// Impostato con il numero della notte in cui si applica (stesso schema di
+// mortoNotte/brancoStorditoFinoA): scade da solo quando round lo supera,
+// non richiede nessuna pulizia esplicita.
+export function notteBloccata(giocatori, round) {
+  return giocatori.some((g) => g.notteBloccataFinoA === round)
+}
+
 export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
+  const bloccata = notteBloccata(giocatori, round)
+
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
+    // "l'effetto non si applica ai poteri passivi": solo i passi 'azione'
+    // (poteri attivi) vengono soppressi, non l'identificazione dei ruoli
+    if (bloccata && step.tipo === 'azione') return false
 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))

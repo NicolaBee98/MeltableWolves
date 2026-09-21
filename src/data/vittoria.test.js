@@ -69,6 +69,13 @@ test('il Pifferaio non vince se qualcuno non è ipnotizzato', () => {
   expect(condizioniVittoria(giocatori)).not.toContain('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
 })
 
+test("il Pifferaio vince se rimane l'ultimo sopravvissuto, anche senza aver ipnotizzato nessuno", () => {
+  const giocatori = [{ id: '1', vivo: true, ruoloSlug: 'pifferaio', condizioni: [] }]
+  const messaggi = condizioniVittoria(giocatori)
+  expect(messaggi).toContain("Il Pifferaio è l'ultimo sopravvissuto: vince lui.")
+  expect(messaggi).not.toContain('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
+})
+
 test('gli innamorati vincono se sono gli unici superstiti', () => {
   const giocatori = [
     { id: '1', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'] },

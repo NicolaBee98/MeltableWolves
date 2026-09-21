@@ -11,6 +11,7 @@ import { useVotazione } from './state/useVotazione'
 import { useNotte } from './state/useNotte'
 import { useLog } from './state/useLog'
 import { useFaseApp } from './state/useFaseApp'
+import { useImpostazioni } from './state/useImpostazioni'
 import { daRipulireCambioNotte } from './data/effettiNotte'
 
 export default function App() {
@@ -21,8 +22,10 @@ export default function App() {
     useVotazione()
   const notte = useNotte()
   const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round)
+  const { mostraRuoliInVotazione, setMostraRuoliInVotazione } = useImpostazioni()
 
   const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
+  const ruoliSelezionati = ruoliInMazzo.map((r) => r.slug)
 
   function proseguiAllaNotte() {
     daRipulireCambioNotte(giocatori).forEach(({ id, condizioni }) => aggiornaGiocatore(id, { condizioni }))
@@ -46,7 +49,14 @@ export default function App() {
         <span className="app__titolo-wolves">Wolves</span>
       </h1>
 
-      {faseApp !== 'home' && <LogImpostazioniPopup eventi={eventi} onNuovaPartita={nuovaPartita} />}
+      {faseApp !== 'home' && (
+        <LogImpostazioniPopup
+          eventi={eventi}
+          onNuovaPartita={nuovaPartita}
+          mostraRuoliInVotazione={mostraRuoliInVotazione}
+          onCambiaMostraRuoliInVotazione={setMostraRuoliInVotazione}
+        />
+      )}
 
       {faseApp === 'home' && <Home onNuovaPartita={() => setFaseApp('mazzo')} />}
 
@@ -75,7 +85,7 @@ export default function App() {
 
       {faseApp === 'notte' && (
         <NightSequencer
-          ruoliSelezionati={ruoliInMazzo.map((r) => r.slug)}
+          ruoliSelezionati={ruoliSelezionati}
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
           impostaGiocatori={impostaGiocatori}
@@ -94,7 +104,11 @@ export default function App() {
         <AlbaPanel
           giocatori={giocatori}
           round={notte.round - 1}
+          aggiornaGiocatore={aggiornaGiocatore}
+          ruoliSelezionati={ruoliSelezionati}
+          quantita={quantita}
           onVaiAlVoto={() => setFaseApp('giorno')}
+          onGalloSaltaGiorno={proseguiAllaNotte}
         />
       )}
 
@@ -110,8 +124,11 @@ export default function App() {
           vaiAEsito={vaiAEsito}
           tornaAlVoto={tornaAlVoto}
           aggiornaGiocatore={aggiornaGiocatore}
+          ruoliSelezionati={ruoliSelezionati}
+          quantita={quantita}
           round={notte.round}
           onProsegui={proseguiAllaNotte}
+          mostraRuoli={mostraRuoliInVotazione}
         />
       )}
     </main>
