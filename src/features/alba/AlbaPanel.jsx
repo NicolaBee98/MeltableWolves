@@ -1,6 +1,7 @@
 import { annunciAlba } from '../../data/alba'
+import { MorteImprovvisa } from '../giorno/MorteImprovvisa'
 
-export function AlbaPanel({ giocatori, round, onVaiAlVoto }) {
+export function AlbaPanel({ giocatori, round, onVaiAlVoto, onMorteImprovvisa }) {
   const morti = giocatori.filter((g) => !g.vivo && g.mortoNotte === round)
   const annunci = annunciAlba(giocatori, round)
 
@@ -26,6 +27,7 @@ export function AlbaPanel({ giocatori, round, onVaiAlVoto }) {
       <button type="button" onClick={onVaiAlVoto}>
         Vai al voto
       </button>
+      {onMorteImprovvisa && <MorteImprovvisa giocatori={giocatori} onDichiara={onMorteImprovvisa} />}
     </section>
   )
 }

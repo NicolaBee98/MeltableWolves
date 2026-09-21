@@ -29,7 +29,18 @@ export function useMazzo() {
 
   function setQuantita(slug, valore) {
     const clampato = Math.max(0, Math.min(valore, maxQuantita(slug)))
-    setMazzo((prev) => ({ ...prev, quantita: { ...prev.quantita, [slug]: clampato } }))
+    setMazzo((prev) => {
+      const quantita = { ...prev.quantita, [slug]: clampato }
+      if (slug === 'guardia' && clampato === 0) {
+        // la Guardia Mannara richiede le Guardie: senza non ha senso in mazzo
+        quantita['guardia-mannara'] = 0
+      }
+      return { ...prev, quantita }
+    })
+  }
+
+  function resetMazzo() {
+    setMazzo(DEFAULT_MAZZO)
   }
 
   const ruoliInMazzo = ROLES.filter((ruolo) => (mazzo.quantita[ruolo.slug] ?? 0) > 0)
@@ -39,6 +50,7 @@ export function useMazzo() {
     quantita: mazzo.quantita,
     setNumGiocatori,
     setQuantita,
+    resetMazzo,
     ruoliInMazzo,
   }
 }

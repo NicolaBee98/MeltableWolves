@@ -14,14 +14,19 @@ function loadEventi() {
 
 export function useLog(giocatori, round) {
   const [eventi, setEventi] = useState(loadEventi)
-  const precedentiRef = useRef(giocatori)
+  const precedentiRef = useRef({ giocatori, round })
 
   useEffect(() => {
-    const nuoviEventi = rilevaEventi(precedentiRef.current, giocatori, round)
+    const precedenti = precedentiRef.current
+    // se round e giocatori cambiano nello stesso aggiornamento (fine notte:
+    // pulizia condizioni + incremento round in un unico batch), la modifica
+    // ai giocatori appartiene alla notte appena conclusa, non a quella nuova
+    const roundEventi = round !== precedenti.round ? precedenti.round : round
+    const nuoviEventi = rilevaEventi(precedenti.giocatori, giocatori, roundEventi)
     if (nuoviEventi.length > 0) {
       setEventi((prev) => [...prev, ...nuoviEventi])
     }
-    precedentiRef.current = giocatori
+    precedentiRef.current = { giocatori, round }
   }, [giocatori, round])
 
   useEffect(() => {
@@ -32,5 +37,9 @@ export function useLog(giocatori, round) {
     setEventi((prev) => [...prev, { round, messaggio }])
   }
 
-  return { eventi, aggiungiEvento }
+  function resetLog() {
+    setEventi([])
+  }
+
+  return { eventi, aggiungiEvento, resetLog }
 }

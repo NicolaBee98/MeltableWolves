@@ -8,10 +8,20 @@ test('uccide un bersaglio di fazione lupi', async () => {
   const giocatori = [{ id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' }]
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
-  await user.selectOptions(screen.getByRole('combobox'), '1')
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+})
+
+test('non permette una seconda caccia nella stessa notte', () => {
+  const giocatori = [
+    { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
+    { id: '2', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: ['chupacabra-caccia'] },
+  ]
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
 })
 
 test('non ha effetto su un bersaglio non-lupo se ci sono ancora lupi vivi', async () => {
@@ -23,7 +33,7 @@ test('non ha effetto su un bersaglio non-lupo se ci sono ancora lupi vivi', asyn
   ]
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
-  await user.selectOptions(screen.getByRole('combobox'), '1')
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).not.toHaveBeenCalled()
@@ -38,7 +48,7 @@ test('uccide chiunque se non ci sono più lupi vivi', async () => {
   ]
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
-  await user.selectOptions(screen.getByRole('combobox'), '1')
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })

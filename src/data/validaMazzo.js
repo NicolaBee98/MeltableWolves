@@ -43,5 +43,9 @@ export function validaMazzo(quantita, numGiocatori) {
     avvisi.push('Molti ruoli agiscono di notte: le notti potrebbero allungarsi parecchio.')
   }
 
+  if ((quantita['guardia-mannara'] ?? 0) > 0 && (quantita['guardia'] ?? 0) === 0) {
+    avvisi.push('Guardia Mannara richiede la presenza delle Guardie nel mazzo.')
+  }
+
   return avvisi
 }

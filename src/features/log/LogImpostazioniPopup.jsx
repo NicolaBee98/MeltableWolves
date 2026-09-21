@@ -1,9 +1,18 @@
 import { useState } from 'react'
 import { LogPartita } from './LogPartita'
 
-export function LogImpostazioniPopup({ eventi }) {
+export function LogImpostazioniPopup({ eventi, onNuovaPartita }) {
   const [aperto, setAperto] = useState(false)
   const [tab, setTab] = useState('log')
+
+  function nuovaPartita() {
+    const confermato = window.confirm(
+      'Iniziare una nuova partita? I dati della partita attuale (giocatori, ruoli, registro) andranno persi.',
+    )
+    if (!confermato) return
+    onNuovaPartita()
+    setAperto(false)
+  }
 
   return (
     <div className="log-impostazioni">
@@ -20,7 +29,15 @@ export function LogImpostazioniPopup({ eventi }) {
               Log partita
             </button>
           </div>
-          {tab === 'log' ? <LogPartita eventi={eventi} /> : <p>Impostazioni in arrivo.</p>}
+          {tab === 'log' ? (
+            <LogPartita eventi={eventi} />
+          ) : (
+            <div className="log-impostazioni__impostazioni">
+              <button type="button" onClick={nuovaPartita}>
+                Nuova Partita
+              </button>
+            </div>
+          )}
           <button type="button" onClick={() => setAperto(false)}>
             Chiudi
           </button>
