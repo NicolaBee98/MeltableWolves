@@ -35,6 +35,37 @@ prima notte (vedi punto 0 più sotto), verificato dal vivo end-to-end
 (assegnazione → morso del branco su un Berserker → reazione sul lupo più
 vicino → annuncio di vittoria all'alba).
 
+## 🆕 Giro 2 (stesso giorno, a seguito delle tue precisazioni)
+
+Hai corretto un'assunzione sbagliata del giro 1: i ruoli che si rivelano
+**di giorno** (Boia, Spilungone, Alchimista, Innocente, L'Antico, Scemo del
+Villaggio) non vanno forzati in un passo notturno fisso, perché il
+narratore potrebbe non sapere ancora chi si rivelerà. Ho quindi:
+
+- Tolto questi ruoli dal passo automatico "Assegna i ruoli rimanenti"
+  (che ora copre solo Villico, Ambasciatore, Berserker, Mezzosangue,
+  Suocera — ruoli il cui meccanismo richiede che l'app sappia chi sono
+  PRIMA che si rivelino, o che non si rivelano mai spontaneamente).
+- Trasformato il menu "💀 Morte improvvisa" in **"🎭 Eventi speciali"**
+  (`EventiSpeciali.jsx`), con: Morte improvvisa (invariata), Rivelazione
+  personaggio (assegna uno dei ruoli sopra quando si rivela davvero), Il
+  Boia giustizia, L'Alchimista esplode, Il Bardo salta la notte, Il Gallo
+  Mannaro salta il giorno, Elezione Borgomastro. Ogni voce compare solo se
+  il ruolo è nel mazzo e nella fase giusta (☀️ giorno o 🌅 alba).
+- Implementato **tutti** i ruoli rimanenti tranne il Fantasma Onnisciente
+  (come richiesto): L'Antico (due vite + Maledetto), Bardo/Gallo Mannaro
+  (saltano notte/giorno), Borgomastro (elezione — voto doppio **non**
+  automatizzato, vedi domanda), Alchimista, Boia, Ladro (due carte di
+  scarto nel mazzo), Mimo (si risveglia col ruolo imitato), maturazione
+  del Cucciolo, vittoria del Pifferaio da ultimo sopravvissuto.
+- Aggiunto icone di condizione/ruolo nella lista di voto, ruolo
+  nascondibile da un'impostazione (delegato a un agente in parallelo,
+  poi unito a mano).
+- **Trovato e corretto dal vivo un secondo bug reale**: quando il Ladro
+  assumeva un ruolo (es. Veggente) da una delle sue carte di scarto,
+  quel ruolo non generava mai i suoi passi notturni successivi, perché
+  non faceva parte del mazzo originale. Vedi punto 24 più sotto.
+
 ## Sommario rapido
 
 | # | Argomento | Stato |
@@ -49,20 +80,22 @@ vicino → annuncio di vittoria all'alba).
 | 7 | Berserker: uccide il lupo più vicino se sbranato | 🔧 FIX (verificato dal vivo) |
 | 8 | Ubriaco: se sbranato, blocca i lupi la notte successiva | 🔧 FIX |
 | 9 | Mezzosangue: se sbranato diventa lupo invece di morire | 🔧 FIX |
-| 10 | Cucciolo di Lupo Mannaro: vendetta doppia se ucciso | 🔧 FIX (parziale, vedi nota) |
+| 10 | Cucciolo di Lupo Mannaro: vendetta doppia se ucciso + maturazione | 🔧 FIX (vedi tua precisazione, punto 5) |
 | 11 | Cartomante, Inquisitore, Medium, Veggente Mannaro: nessuna azione interattiva | 🔧 FIX (verificato dal vivo) |
-| 12 | Bardo / Gallo Mannaro: potere di saltare notte/giorno mai attivabile | 🟡 GAP APERTO |
-| 13 | L'Antico: due vite + condizione "Maledetto" | 🟡 GAP APERTO |
-| 14 | Borgomastro: voto doppio + elezione | 🟡 GAP APERTO |
+| 12 | Bardo / Gallo Mannaro: potere di saltare notte/giorno mai attivabile | 🔧 FIX (verificato dal vivo, vedi nota su Bardo) |
+| 13 | L'Antico: due vite + condizione "Maledetto" | 🔧 FIX |
+| 14 | Borgomastro: voto doppio + elezione | 🔧 FIX (parziale: elezione sì, voto doppio no — vedi domanda) |
 | 15 | Spilungone: immunità al rogo | 🔧 FIX |
-| 16 | Alchimista: esplosione al rogo | 🟡 GAP APERTO |
-| 17 | Ladro: due carte extra nel mazzo | 🟡 GAP APERTO |
-| 18 | Mimo: imita un ruolo per tutta la partita | 🟡 GAP APERTO |
-| 19 | Fantasma Onnisciente: carta consegnata al primo morto | 🟡 GAP APERTO (esplicitamente escluso dal fix del punto 0) |
+| 16 | Alchimista: esplosione al rogo | 🔧 FIX |
+| 17 | Ladro: due carte extra nel mazzo | 🔧 FIX (verificato dal vivo) |
+| 18 | Mimo: imita un ruolo per tutta la partita | 🔧 FIX (vedi nota su cosa è stato semplificato) |
+| 19 | Fantasma Onnisciente: carta consegnata al primo morto | 🟡 non implementato su tua esplicita richiesta |
 | 20 | Alba: annunci mancanti per resuscitati/unti/trasformati | 🔧 FIX |
 | 21 | Ordine "identifica-branco" nella prima notte | 🔧 FIX (riordino, cosmetico) |
-| 22 | Pifferaio: vittoria se resta l'unico vivo senza aver ipnotizzato nessuno | ❓ DOMANDA |
+| 22 | Pifferaio: vittoria se resta l'unico vivo | 🔧 FIX (confermato: vince comunque) |
 | 23 | Innocente, Guardia, Guardia Mannara, Mucca Mannara, Suocera | ✅ OK |
+| 24 | Ruolo assunto dal Ladro invisibile ai passi notturni successivi | 🔧 FIX (bug trovato dal vivo in questo giro) |
+| 25 | Icone condizione/ruolo in votazione, ruolo nascondibile | 🔧 FIX |
 
 Le sezioni seguenti dettagliano ogni voce.
 
@@ -265,165 +298,158 @@ per passo.
 
 ---
 
-## 🟡 Gap aperti (non risolti in questo giro)
+## 🔧 Dettaglio implementazioni del Giro 2
 
-Elenco in ordine di impatto stimato sulla giocabilità. Ognuno è una
-funzionalità di regolamento assente o solo parzialmente supportata
-dall'app. Nessuno di questi impedisce di giocare (il narratore può sempre
-gestirli a voce/a mano), ma l'app non li supporta né li ricorda.
+### 12. Bardo / Gallo Mannaro: poteri di salto implementati
 
-### 12. Bardo / Gallo Mannaro: il potere di saltare non è mai attivabile
+**Gallo Mannaro** ("salta il giorno", disponibile solo in Alba): il salto è
+un vero cambio di fase, riusa `proseguiAllaNotte` (la stessa funzione che
+"Prosegui alla notte" chiama normalmente) — Alba passa direttamente a
+Notte, saltando per intero `GiornoPanel`/Votazione. Verificato dal vivo:
+da Alba a Notte 2 senza passare dal voto.
 
-Regolamento: il Bardo (pag. 10) e il Gallo Mannaro (pag. 14) mostrano un
-gesto segreto la prima notte, e in seguito — **una sola volta per
-partita** — possono ripetere il gesto per attivare il potere: il Bardo
-dopo un rogo per far saltare una notte, il Gallo Mannaro all'alba per far
-saltare un giorno intero.
+**Bardo** ("salta la notte", disponibile solo in Giorno, dopo un rogo):
+qui ho fatto una scelta diversa, apposta per non toccare la state machine
+principale (troppo rischioso per i numerosi punti dell'app che confrontano
+il numero della notte, es. `mortoNotte === round`). Invece di saltare
+davvero la fase Notte, la notte **si presenta normalmente ma nessun passo
+di tipo "azione" viene mostrato** (riuso lo stesso meccanismo della
+condizione Maledetto de L'Antico, campo `notteBloccataFinoA`). L'effetto
+per i giocatori è identico (nessun potere si usa quella notte), ma il
+narratore vede comunque la sequenza notturna passare (con soli eventuali
+passi informativi/di riconoscimento, se presenti). **Domanda per te più
+sotto** su questa asimmetria.
 
-Nell'app questi ruoli hanno solo il passo "mostra il gesto" della prima
-notte (puramente informativo). Non esiste alcun modo per il narratore di
-dichiarare "il Bardo/Gallo Mannaro ha fatto il gesto" e non esiste nessuna
-logica per "saltare" una fase dell'app (la macchina a stati
-notte→alba→giorno→notte non ha un concetto di fase saltata).
+### 13. L'Antico: due vite + Maledetto — implementato senza contatore vite
 
-**Raccomandazione**: è la funzionalità mancante più grande dell'intero
-audit, perché tocca la state machine principale, non solo una singola
-azione. Prima di implementarla servirebbe decidere l'interazione UX (un
-pulsante "il gesto è stato mostrato" visibile dove il libretto lo prevede,
-che salta la fase successiva mantenendo `poteriUsati` per il limite "una
-volta per partita"). Priorità alta per la coerenza col regolamento, ma è
-un lavoro a sé.
+Invece di aggiungere un campo "vite: 2" al modello dati, ho sfruttato che
+"perde la sua prima vita... continua poi a giocare come un normale
+Villico": la prima volta che morirebbe (rogo o notte), invece sopravvive
+e il suo `ruoloSlug` diventa `'villico'`. Da quel momento è
+indistinguibile da un Villico qualsiasi (compresa una seconda morte
+normale). Per la notte: se muore di notte l'effetto è automatico (in
+`uccidiPatch`, come l'immunità di Mezzosangue); se muore al rogo, oltre a
+sopravvivere imposta anche `notteBloccataFinoA` (Maledetto) per la notte
+successiva. Verificato con test dedicati; non ancora rigiocato dal vivo
+fino in fondo (solo le sue parti unitarie).
 
-### 13. L'Antico: due vite + condizione "Maledetto"
+### 14. Borgomastro: elezione fatta, voto doppio no — vedi domanda 26
 
-Regolamento (pag. 16): due vite; se perde la prima al rogo, si rivela e
-blocca tutti i poteri notturni attivi per una notte (Maledetto); se la
-perde di notte, si rivela senza conseguenze; poi gioca da Villico normale.
+### 16. Alchimista: esplosione al rogo implementata
 
-Non implementato: il modello dati attuale ha solo `vivo: true/false`,
-nessun concetto di "vite multiple". La condizione `maledetto` esiste nel
-glossario (`conditions.js`) ma non viene mai impostata né controllata da
-nessuna parte (nessun passo notturno verifica se blocare i poteri).
+Evento dedicato "L'Alchimista esplode" nel menu Eventi speciali, disponibile
+solo quando l'Alchimista (già rivelato tramite "Rivelazione personaggio")
+risulta morto con `causaMorte: 'rogo'` e non ha ancora usato il potere:
+sceglie chi trascinare con sé (morte "sul colpo", stessa meccanica di
+Morte improvvisa).
 
-**Raccomandazione**: L'Antico avrebbe bisogno di un campo tipo `vite: 2`
-scalato invece di `vivo: boolean`, e la condizione Maledetto dovrebbe
-sopprimere temporaneamente `passiNotte` per i ruoli con potere attivo.
-Impatto medio (ruolo singolo, poco usato probabilmente), ma tocca il
-modello dati di base: da valutare se vale la pena vs. gestirlo a voce dal
-narratore.
+### 17. Ladro: implementato, con un bug trovato e corretto dal vivo
 
-### 14. Borgomastro: voto doppio + elezione
+Le due carte di scarto si scelgono nella composizione del mazzo (due
+select dedicati, visibili solo se il Ladro è nel mazzo), tenute
+volutamente **fuori** da `quantita` per non alterare il conteggio
+giocatori/ruoli. La prima notte (il Ladro agisce per primo, come da
+libretto) mostra le due carte e lascia scegliere: una delle due, o
+"Resta Villico" (nascosto se sono entrambe varianti di Lupo Mannaro,
+forzando lo scambio). **Bug trovato giocando dal vivo**: il ruolo assunto
+(es. Veggente) non generava più i suoi passi notturni, perché non faceva
+parte del mazzo originale — corretto con `ruoliAttivi()` (punto 24),
+verificato di nuovo dal vivo con successo.
 
-Regolamento (pag. 11): eletto dal villaggio all'alba del primo giorno, il
-suo voto vale doppio; se muore, il villaggio elegge un nuovo Borgomastro.
+### 18. Mimo: implementato come promemoria a schermo, non come potere autonomo
 
-Non implementato: `Votazione.jsx` conta ogni voto come 1, non c'è concetto
-di "voto pesato" né un flusso di elezione. **Raccomandazione**: aggiungere
-un flag `pesoVoto` sul giocatore Borgomastro e sommarlo in
-`risultatoVotazione`; l'elezione stessa (chi diventa Borgomastro) può
-restare una scelta manuale del narratore tramite un piccolo picker nella
-prima Alba. Priorità media.
+La prima notte sceglie chi imitare (riusando `AzioneLegame`, lo stesso
+componente di Apprendista/Cavaliere/Figlia dei Lupi, ma senza reazione
+alla morte del bersaglio: il legame `tipo: 'mimo'` resta per sempre).
+Da lì, `NightSequencer` mostra il Mimo nell'elenco dei coinvolti di
+qualunque passo appartenga al ruolo **attuale** del suo bersaglio (letto
+dinamicamente ogni volta, non congelato alla scelta — necessario perché il
+Mimo agisce per primo nella notte, quando il ruolo del bersaglio non è
+ancora quasi mai assegnato). Non gli ho dato un'azione indipendente
+nell'app: "si accorda sull'agire" col titolare del ruolo imitato resta una
+cosa che narratore e giocatori fanno a voce, l'app si limita a ricordare
+al narratore di richiamarlo. Verificato con test, non dal vivo per tempo.
 
-### 16. Alchimista: esplosione al rogo
+### 19. Fantasma Onnisciente: non implementato su tua richiesta esplicita
 
-Regolamento (pag. 9): se il villaggio lo manda al rogo, si rivela e sceglie
-un'altra persona da portare con sé nell'aldilà.
+Nessuna modifica. Resta gestito a voce dal narratore se capita in partita.
 
-Non implementato: nessuna UI per questa scelta quando l'Alchimista muore al
-rogo. **Raccomandazione**: un piccolo componente analogo a
-`AzioneAddolorata.jsx` (che già gestisce "reagisci alla vittima del rogo"),
-mostrato nella fase Alba o subito dopo la conferma del rogo. Priorità
-media.
+### 24. Il ruolo assunto dal Ladro non generava i suoi passi notturni (bug trovato dal vivo)
 
-### 17. Ladro: due carte extra nel mazzo
+`passiNotte` filtrava i passi in base ai soli ruoli presenti nel mazzo
+originale (`ruoliSelezionati`). Se il Ladro assumeva un ruolo (es.
+Veggente) da una delle sue carte di scarto — un ruolo mai stato "nel
+mazzo" in senso stretto — quel ruolo restava invisibile per sempre: il
+Ladro diventava Veggente sulla carta ma non poteva mai indagare. **Fix**:
+nuova `ruoliAttivi(ruoliMazzo, giocatori)` in `nightSteps.js`, che unisce i
+ruoli del mazzo con i ruoli che i giocatori hanno effettivamente in questo
+momento; usata al posto del semplice elenco del mazzo ovunque nell'app.
+Verificato dal vivo: dopo la correzione il Veggente assunto dal Ladro
+indaga regolarmente la notte stessa.
 
-Regolamento (pag. 15): nel creare il mazzo vanno aggiunte due carte extra
-rispetto al numero di giocatori; il Ladro le guarda la prima notte e
-sceglie se diventare una di quelle o un semplice Villico.
+### 25. Icone di condizione/ruolo in votazione, ruolo nascondibile
 
-Non implementato, e **incompatibile con l'attuale modello del mazzo**: dal
-Gruppo A del giro precedente, il numero di giocatori è derivato
-direttamente dal totale delle carte nel mazzo (una carta = un giocatore).
-Il concetto di "due carte in più di quante servono" non esiste più
-nell'architettura attuale. **Raccomandazione**: richiede di reintrodurre
-uno scarto mazzo/giocatori limitatamente al caso "Ladro nel mazzo", una
-modifica non banale al builder. Priorità bassa (ruolo raro da usare, il
-narratore può gestirlo interamente a mano con due carte fisiche vere).
-
-### 18. Mimo: imita un ruolo per tutta la partita
-
-Regolamento (pag. 18): la prima notte sceglie un giocatore e ne imita il
-ruolo per tutta la partita, svegliandosi insieme a lui se il ruolo scelto
-agisce di notte.
-
-Non implementato: il passo "Mimo" esiste in `nightSteps.js` come
-`tipo: 'azione'` ma non ha nessun componente in `AZIONI_NOTTURNE`, quindi
-non mostra nessuna UI (incoerenza minore: un passo `azione` che di fatto si
-comporta come `informativo`). **Raccomandazione**: servirebbe un
-meccanismo per "duplicare" dinamicamente i passi notturni del ruolo
-imitato — un cambiamento strutturale a `passiNotte`, non una singola
-azione. Priorità bassa-media, complessità alta.
-
-### 19. Fantasma Onnisciente: carta consegnata al primo morto
-
-Regolamento (pag. 13): non distribuita all'inizio, va al primo giocatore
-che muore; da lì tiene gli occhi aperti la notte.
-
-Non implementato: nessun meccanismo per assegnare questo ruolo "a runtime"
-al primo morto della partita (il mazzo attuale assegna tutti i ruoli
-all'inizio). **Raccomandazione**: priorità bassa, ruolo di nicchia; da
-gestire a mano dal narratore finché non emerge una richiesta esplicita.
+Fatto da un agente in background con istruzioni dettagliate, poi unito a
+mano ai file nel frattempo modificati da me (per evitare che lavorasse in
+parallelo sugli stessi file). Badge emoji per ogni condizione attiva
+(sempre visibili) e per il ruolo (nascosto di default, attivabile da
+Impostazioni → "Mostra i ruoli durante la votazione"). Icona ruolo per
+fazione (villaggio/lupi/indipendente/sconosciuto), non una per ciascuno
+dei 51 ruoli — il nome esatto resta comunque leggibile passandoci sopra
+(title/aria-label). **Nota**: il titolo di Borgomastro (che non è un
+ruolo ma un flag `eBorgomastro` separato) non ha ancora un'icona propria;
+lo si vede solo aprendo "Eventi speciali" o dal Registro.
 
 ---
 
 ## ❓ Domande aperte per l'utente
 
-### 22. Pifferaio: vittoria se resta l'unico sopravvissuto senza aver ipnotizzato nessuno
+### 26. Borgomastro: il voto doppio non è automatizzato
 
-Il regolamento dice "Quando **tutti i giocatori in vita** saranno
-ipnotizzati, avrà vinto il gioco." Il caso limite: se il Pifferaio resta
-l'**unico** sopravvissuto (tutti gli altri morti per altre cause, nessuno
-mai ipnotizzato), la frase "tutti i giocatori in vita sono ipnotizzati" è
-vacuamente vera (non c'è nessun altro vivo da controllare), e
-l'implementazione attuale annuncerebbe la sua vittoria. Non è chiaro se sia
-l'intenzione del libretto o un caso limite non previsto.
+Ho implementato l'elezione (evento dedicato, assegna un titolo
+`eBorgomastro` a un giocatore, indipendente dal suo ruolo segreto — coerente
+col libretto, dove la carta è "scoperta" e chi la riceve **mantiene il
+proprio ruolo assegnato all'inizio della partita"). Il voto doppio invece
+no: `Votazione.jsx` conta i voti come un semplice contatore per candidato
+(+1/-1 cliccato dal narratore), non registra "chi ha votato chi" — non c'è
+un posto dove "raddoppiare" automaticamente il voto del Borgomastro senza
+prima cambiare tutto il modello della votazione (tracciare il voto di ogni
+singolo giocatore, non solo il totale ricevuto da ogni candidato). Per ora
+il narratore deve ricordarsi di cliccare **due volte** "+1" quando il
+Borgomastro vota qualcuno (l'icona di ruolo, quando riattivi la sua
+visibilità, non lo segnala neanche perché non è un ruolo). **Vuoi che
+investa nel rifacimento del modello di voto per automatizzarlo davvero,**
+oppure preferisci che aggiunga almeno un'icona/promemoria visivo accanto al
+nome del Borgomastro nella lista di voto (soluzione via di mezzo, poco
+lavoro) e lasci il resto manuale?
 
-**Come vorresti gestirlo?**
-- (A) Lasciare così (vince comunque, come ultimo sopravvissuto di fatto).
-- (B) Richiedere che almeno un altro giocatore sia stato effettivamente
-  ipnotizzato prima che questa vittoria possa scattare (il Pifferaio da
-  solo, per morte naturale altrui, non vince).
+### 27. Bardo: "salta la notte" neutralizza i poteri invece di saltare davvero la fase
 
-Non ho scelto in autonomia perché cambia l'esito di una partita reale e
-non è un bug "di implementazione" ma un'interpretazione del regolamento.
+Per il Gallo Mannaro ho implementato un salto di fase vero (Alba → Notte
+successiva, bypassando tutto il giorno). Per il Bardo ho scelto una via
+più prudente: la notte si presenta comunque al narratore, ma nessun passo
+di tipo "azione" viene mostrato (stesso meccanismo della maledizione de
+L'Antico). L'effetto pratico per il villaggio è identico (nessun potere si
+usa quella notte), ma il narratore vede comunque scorrere gli eventuali
+passi informativi invece di passare direttamente al giorno successivo. Ho
+evitato il salto di fase vero qui perché la notte "saltata" dal Bardo può
+capitare a **qualsiasi** numero di notte (non solo alla prima, come per
+ora capita più naturalmente col Gallo Mannaro all'alba), e più punti
+dell'app confrontano il numero della notte corrente con quello registrato
+su un giocatore (`mortoNotte`, `brancoStorditoFinoA`, ecc.): saltare
+davvero l'incremento del contatore notte rischiava di disallineare questi
+confronti in modi difficili da verificare tutti a mente. **Ti va bene
+questa semplificazione**, o preferisci che investa il tempo per capire se
+un salto di fase vero è sicuro anche per il Bardo?
 
-### 23'. Cucciolo di Lupo Mannaro: cosa significa "alla morte del primo lupo"
+### 28. Priorità per il prossimo giro
 
-Vedi punto 10. "Alla morte del primo lupo, il cucciolo diventa adulto
-perdendo questo potere [la vendetta doppia]." Possibili letture:
-- (A) Il primo membro **qualsiasi** della fazione lupi (Lupo Mannaro,
-  Capobranco, Progenitore, Nonna, lo stesso Cucciolo) a morire nel corso
-  della partita, chiunque sia.
-- (B) Specificamente un Lupo Mannaro "semplice" (carta base), non le
-  varianti.
-- (C) Il Cucciolo stesso, cioè la frase descrive semplicemente "se il
-  Cucciolo muore, perde il potere" (ma questo è già ovvio essendo morto, e
-  ridondante con la prima frase della stessa voce — lettura meno
-  probabile).
-
-Se confermi la lettura (A) o (B) implemento la "maturazione" (il Cucciolo
-smette di generare vendetta doppia dopo quella morte, pur restando nel
-branco).
-
-### 24. Priorità per il prossimo giro
-
-Tutti i fix a basso rischio e alto valore individuati in questo giro sono
-stati completati (punto 0 su tutti). Restano aperti solo gap che
-richiedono più tempo o toccano la state machine principale. La mia
-raccomandazione, in ordine: (1) Bardo/Gallo Mannaro salta-notte/giorno
-(grande, ma è l'unico gap rimasto che tocca meccaniche di gioco vistose
-durante una partita reale), (2) Borgomastro voto doppio + elezione
-(piccolo-medio, incide sull'esito dei voti), (3) L'Antico due vite +
-Maledetto, (4) Alchimista esplosione al rogo, (5) Ladro/Mimo/Fantasma
-Onnisciente (bassa priorità, ruoli di nicchia, gestibili a voce dal
-narratore nel frattempo).
+Con questo giro considero implementati tutti i ruoli richiesti (tutti tranne
+il Fantasma Onnisciente, come da tua indicazione). Gli unici punti
+davvero aperti sono le due domande sopra (26, 27) e piccoli affinamenti
+possibili se vuoi: un'icona per il Borgomastro nella lista di voto, o
+un secondo giro di partite simulate più lungo per stanare altri bug non
+ancora emersi (il Ladro ne aveva uno, magari altri ruoli meno comuni ne
+hanno). Fammi sapere se vuoi che continui a testare/rifinire in autonomia
+o se preferisci giocare tu una partita vera con la build attuale prima di
+procedere oltre.
