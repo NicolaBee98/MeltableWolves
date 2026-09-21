@@ -121,6 +121,15 @@ export const NIGHT_STEPS = [
   ...STEPS_CON_RUOLO_DEDICATO.slice(indiceUltimoPassoPrimaNotte + 1),
 ]
 
+// i ruoli "attivi" da considerare per i passi notturni non sono solo quelli
+// scelti nel mazzo, ma anche quelli che un giocatore ha in questo momento
+// senza che fossero nel mazzo originale (es. il Ladro che assume una delle
+// sue due carte di scarto, pag. 15): altrimenti i passi di quel ruolo (es.
+// l'indagine del Veggente) non comparirebbero mai per lui
+export function ruoliAttivi(ruoliMazzo, giocatori) {
+  return [...new Set([...ruoliMazzo, ...giocatori.map((g) => g.ruoloSlug).filter(Boolean)])]
+}
+
 // Campo condiviso da due meccaniche di regolamento con lo stesso effetto
 // pratico: "questa notte nessun ruolo con potere attivo si sveglia".
 // - Maledetto (pag. 25): quando il villaggio manda al rogo L'Antico.

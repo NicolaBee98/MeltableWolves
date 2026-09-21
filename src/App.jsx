@@ -13,6 +13,7 @@ import { useLog } from './state/useLog'
 import { useFaseApp } from './state/useFaseApp'
 import { useImpostazioni } from './state/useImpostazioni'
 import { daRipulireCambioNotte } from './data/effettiNotte'
+import { ruoliAttivi } from './data/nightSteps'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
@@ -25,7 +26,10 @@ export default function App() {
   const { mostraRuoliInVotazione, setMostraRuoliInVotazione } = useImpostazioni()
 
   const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
-  const ruoliSelezionati = ruoliInMazzo.map((r) => r.slug)
+  const ruoliSelezionati = ruoliAttivi(
+    ruoliInMazzo.map((r) => r.slug),
+    giocatori,
+  )
 
   function proseguiAllaNotte() {
     daRipulireCambioNotte(giocatori).forEach(({ id, condizioni }) => aggiornaGiocatore(id, { condizioni }))
