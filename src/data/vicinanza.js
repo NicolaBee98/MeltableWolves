@@ -8,6 +8,24 @@ export function vicini(giocatori, id) {
   return { sinistra, destra }
 }
 
+// scansiona i posti a sedere allontanandosi dal giocatore `id` (destra e
+// sinistra in parallelo, un passo alla volta) e ritorna il primo che
+// soddisfa `predicate`. A parità di distanza vince la destra: caso raro,
+// il narratore può comunque correggere a mano.
+export function vicinoPiuVicinoChe(giocatori, id, predicate) {
+  const indice = giocatori.findIndex((g) => g.id === id)
+  if (indice === -1) return null
+
+  const n = giocatori.length
+  for (let passo = 1; passo < n; passo++) {
+    const destra = giocatori[(indice + passo) % n]
+    const sinistra = giocatori[(indice - passo + n) % n]
+    if (destra && predicate(destra)) return destra
+    if (sinistra && predicate(sinistra)) return sinistra
+  }
+  return null
+}
+
 export function viciniVivi(giocatori, id) {
   const indice = giocatori.findIndex((g) => g.id === id)
   if (indice === -1) return { sinistra: null, destra: null }

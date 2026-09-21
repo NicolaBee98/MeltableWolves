@@ -15,12 +15,13 @@ test("resuscita il bersaglio morto e marca il potere come usato sull'attore", as
       aggiornaGiocatore={aggiornaGiocatore}
       potereSlug="guaritore-resuscita"
       ruoloSlugAttore="guaritore"
+      round={2}
     />,
   )
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: true, condizioni: ['resuscitato'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: true, condizioni: ['resuscitato'], resuscitatoNotte: 2 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['guaritore-resuscita'] })
 })
 

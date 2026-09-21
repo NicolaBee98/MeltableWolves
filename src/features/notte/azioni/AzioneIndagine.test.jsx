@@ -44,6 +44,67 @@ test('un veggente accecato percepisce sempre aura benevola', async () => {
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
 })
 
+test('Veggente Mannaro: legge l\'aura come il Veggente ma su un attore diverso', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'veggente-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneIndagine
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={1}
+      ruoloSlugAttore="veggente-mannaro"
+      etichettaAttore="Veggente Mannaro"
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 } })
+})
+
+test('indagare il Polpo Mannaro con il Veggente Mannaro non lo acceca (l\'accecamento riguarda solo il Veggente)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'veggente-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneIndagine
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={1}
+      ruoloSlugAttore="veggente-mannaro"
+      etichettaAttore="Veggente Mannaro"
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Piero' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 } })
+})
+
+test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'esito)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Piero' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 },
+    condizioni: ['accecato'],
+  })
+})
+
 test('non permette di indagare una seconda volta nella stessa notte, evitando di sovrascrivere l\'esito', async () => {
   const giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], usiNotte: ['veggente-indagine'] },

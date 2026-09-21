@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { applicaCrepacuore } from '../data/effettiNotte'
+import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo } from '../data/effettiNotte'
+import { risolviLegami, applicaPatchMap } from '../data/risoluzioneNotte'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
 
@@ -41,8 +42,18 @@ export function usePartita() {
 
   function aggiornaGiocatore(id, patch) {
     setGiocatori((prev) => {
-      const aggiornati = prev.map((g) => (g.id === id ? { ...g, ...patch } : g))
-      return patch.vivo === false ? applicaCrepacuore(aggiornati, id) : aggiornati
+      let aggiornati = prev.map((g) => (g.id === id ? { ...g, ...patch } : g))
+      if (patch.vivo === false) {
+        // reazioni a catena a una morte, ovunque avvenga (notte o rogo): il
+        // partner innamorato, l'accecamento del Veggente legato al Polpo
+        // Mannaro, e i legami di Apprendista/Cavaliere/Figlia dei Lupi.
+        // Vanno risolte qui e non solo a fine notte, altrimenti una morte
+        // al rogo le rimanda all'intera notte successiva (vedi audit).
+        aggiornati = applicaCrepacuore(aggiornati, id)
+        aggiornati = rimuoviAccecamentoSeMortoPolpo(aggiornati, id)
+        aggiornati = applicaPatchMap(aggiornati, risolviLegami(aggiornati))
+      }
+      return aggiornati
     })
   }
 

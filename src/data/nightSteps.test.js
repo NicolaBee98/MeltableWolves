@@ -2,8 +2,22 @@ import { NIGHT_STEPS, passiNotte } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
-test('mazzo senza ruoli con azione notturna non genera passi', () => {
-  expect(passiNotte(['villico'], 1, NESSUN_GIOCATORE)).toEqual([])
+test('un mazzo di soli ruoli senza azione notturna (es. Villico) genera comunque il passo per assegnarli (altrimenti non verrebbero mai assegnati a nessuno)', () => {
+  const passi = passiNotte(['villico'], 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(passi).toEqual(['assegna-restanti'])
+})
+
+test('il passo "assegna-restanti" copre ogni ruolo senza uno step dedicato, tranne il Fantasma Onnisciente (assegnato a runtime al primo morto)', () => {
+  const restanti = NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')
+  expect(restanti.ruoli).toContain('villico')
+  expect(restanti.ruoli).toContain('spilungone')
+  expect(restanti.ruoli).toContain('berserker')
+  expect(restanti.ruoli).not.toContain('fantasma-onnisciente')
+  expect(restanti.ruoli).not.toContain('veggente') // ha già un passo dedicato
+})
+
+test('"assegna-restanti" compare solo alla prima notte', () => {
+  expect(passiNotte(['villico'], 2, NESSUN_GIOCATORE)).toEqual([])
 })
 
 test('mimo compare solo alla notte 1', () => {
@@ -43,6 +57,12 @@ test("rispetta l'ordine del regolamento tra le categorie", () => {
   expect(ordine).toEqual(['fattucchiera', 'veggente', 'strega'])
 })
 
+test("identifica-branco viene prima dei gesti segreti di Bardo/Gallo Mannaro (ordine libretto pag. 27)", () => {
+  const ruoli = ['lupo-mannaro', 'bardo', 'gallo-mannaro']
+  const ordine = passiNotte(ruoli, 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(ordine).toEqual(['identifica-branco', 'bardo', 'gallo-mannaro'])
+})
+
 test('cucciolo di lupo mannaro compare solo in identifica-branco, non ancora nel branco', () => {
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
   expect(ordine).toEqual(['identifica-branco'])
@@ -75,6 +95,12 @@ test('i passi individuali dei ruoli a potere passivo sono assegnabili come gli a
 test('un passo normale non ha assegnabile impostato a false', () => {
   const paladino = NIGHT_STEPS.find((s) => s.id === 'paladino')
   expect(paladino.assegnabile).not.toBe(false)
+})
+
+test('Cartomante, Inquisitore, Medium e Veggente Mannaro sono passi di tipo azione (hanno un componente interattivo)', () => {
+  for (const id of ['cartomante', 'inquisitore', 'medium', 'veggente-mannaro']) {
+    expect(NIGHT_STEPS.find((s) => s.id === id).tipo).toBe('azione')
+  }
 })
 
 test('salta un passo di ruolo il cui unico titolare è morto e il ruolo è già stato assegnato del tutto', () => {

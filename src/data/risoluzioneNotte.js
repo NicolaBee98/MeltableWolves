@@ -1,5 +1,13 @@
 import { ROLES } from './roles'
 
+// applica una mappa {id: patch} (come quelle ritornate da risolviLegami/
+// risolviCortigiana) a una lista di giocatori, senza richiamare
+// aggiornaGiocatore per ogni voce: usata dove serve un unico aggiornamento
+// di stato atomico invece di una serie di setState separati.
+export function applicaPatchMap(giocatori, patchMap) {
+  return giocatori.map((g) => (patchMap[g.id] ? { ...g, ...patchMap[g.id] } : g))
+}
+
 export function risolviLegami(giocatori) {
   const patch = {}
 

@@ -19,6 +19,15 @@ export function Votazione({
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
   const [daConfermare, setDaConfermare] = useState(null)
+  // lo Spilungone non può essere messo al rogo (pag. 21): si rivela e basta,
+  // niente vittima. Tracciato a parte perché non passa mai da onRogo.
+  // ponytail: questo stato locale non si resetta tra un giorno e l'altro
+  // (a differenza di voti/fase, che vivono nell'hook useVotazione): se lo
+  // stesso Spilungone venisse designato una seconda volta in una notte
+  // successiva, l'esito resterebbe comunque corretto (nessuna vittima) ma
+  // salterebbe il passo di conferma. Da rivedere se capita davvero in una
+  // partita reale.
+  const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
 
   if (fase === 'esito') {
     // l'esito si calcola sui candidati congelati al momento di "Vai all'esito",
@@ -26,10 +35,16 @@ export function Votazione({
     // cambia il pool e può svuotare la lista dei designati (vedi bug: rogo
     // che porta a uno spareggio senza nessuno indicato)
     const { vincitori: designati } = risultatoVotazione(voti, candidatiEsito)
-    const morteConfermata = designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false)
+    const morteConfermata =
+      designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) || spilungoneRivelatoId !== null
 
     function confermaMorte(id) {
-      onRogo(id)
+      const target = giocatori.find((g) => g.id === id)
+      if (target?.ruoloSlug === 'spilungone') {
+        setSpilungoneRivelatoId(id)
+      } else {
+        onRogo(id)
+      }
       setDaConfermare(null)
     }
 
@@ -48,26 +63,43 @@ export function Votazione({
       )
     }
 
+    function renderEsitoDesignato(id) {
+      if (spilungoneRivelatoId === id) {
+        const nome = giocatori.find((g) => g.id === id)?.nome
+        return (
+          <p>
+            {nome} rivela la propria carta: è lo Spilungone, troppo alto per il rogo. La notte cala senza
+            vittime.
+          </p>
+        )
+      }
+      if (daConfermare === id) return renderConferma(id)
+      if (!morteConfermata) {
+        return (
+          <button type="button" onClick={() => setDaConfermare(id)}>
+            Dichiara morte sul rogo
+          </button>
+        )
+      }
+      return null
+    }
+
     return (
       <section className="votazione votazione--esito">
         {designati.length === 1 ? (
           <div className="votazione__esito">
             <p>Vittima designata: {giocatori.find((g) => g.id === designati[0])?.nome}</p>
-            {daConfermare === designati[0]
-              ? renderConferma(designati[0])
-              : !morteConfermata && (
-                  <button type="button" onClick={() => setDaConfermare(designati[0])}>
-                    Dichiara morte sul rogo
-                  </button>
-                )}
+            {renderEsitoDesignato(designati[0])}
           </div>
         ) : (
           <div className="votazione__spareggio">
             <p>Spareggio tra: {designati.map((id) => giocatori.find((g) => g.id === id)?.nome).join(', ')}</p>
             <TimerSpareggio />
-            {!morteConfermata &&
-              (daConfermare ? (
-                renderConferma(daConfermare)
+            {spilungoneRivelatoId !== null ? (
+              renderEsitoDesignato(spilungoneRivelatoId)
+            ) : !morteConfermata ? (
+              daConfermare ? (
+                renderEsitoDesignato(daConfermare)
               ) : (
                 <div className="scelta-giocatore__chips" role="group" aria-label="Chi muore nello spareggio">
                   {designati.map((id) => (
@@ -76,7 +108,8 @@ export function Votazione({
                     </button>
                   ))}
                 </div>
-              ))}
+              )
+            ) : null}
           </div>
         )}
         {/* una volta confermata la morte, il voto del giorno è chiuso: niente

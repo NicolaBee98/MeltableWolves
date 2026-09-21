@@ -122,6 +122,53 @@ test('aggiornaGiocatore(vivo:false) fa morire di crepacuore anche il partner inn
   expect(marcoDopo).toMatchObject({ vivo: false, causaMorte: 'crepacuore' })
 })
 
+test('aggiornaGiocatore(vivo:false) fa ereditare subito il ruolo del maestro morto (Apprendista), anche se muore di rogo', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Sara')
+    result.current.addGiocatore('Marco')
+  })
+  const [sara, marco] = result.current.giocatori
+
+  act(() => {
+    result.current.aggiornaGiocatore(sara.id, {
+      ruoloSlug: 'apprendista',
+      legame: { tipo: 'apprendista', targetId: marco.id },
+    })
+    result.current.aggiornaGiocatore(marco.id, { ruoloSlug: 'veggente' })
+  })
+
+  act(() => {
+    result.current.aggiornaGiocatore(marco.id, { vivo: false, causaMorte: 'rogo' })
+  })
+
+  const saraDopo = result.current.giocatori.find((g) => g.id === sara.id)
+  expect(saraDopo).toMatchObject({ ruoloSlug: 'veggente', legame: null })
+})
+
+test('aggiornaGiocatore(vivo:false) rimuove "accecato" dal Veggente quando muore il Polpo Mannaro', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Elena')
+    result.current.addGiocatore('Polpo')
+  })
+  const [veggente, polpo] = result.current.giocatori
+
+  act(() => {
+    result.current.aggiornaGiocatore(veggente.id, { ruoloSlug: 'veggente', condizioni: ['accecato'] })
+    result.current.aggiornaGiocatore(polpo.id, { ruoloSlug: 'polpo-mannaro' })
+  })
+
+  act(() => {
+    result.current.aggiornaGiocatore(polpo.id, { vivo: false, causaMorte: 'rogo' })
+  })
+
+  const veggenteDopo = result.current.giocatori.find((g) => g.id === veggente.id)
+  expect(veggenteDopo.condizioni).not.toContain('accecato')
+})
+
 test('aggiornaGiocatore può assegnare il ruolo a un giocatore già esistente', () => {
   const { result } = renderHook(() => usePartita())
 
