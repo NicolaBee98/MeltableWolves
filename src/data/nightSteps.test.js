@@ -1,4 +1,4 @@
-import { NIGHT_STEPS, passiNotte, notteBloccata, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, notteBloccata, ruoliAttivi, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
@@ -147,4 +147,21 @@ test('senza la notte bloccata i passi "azione" tornano regolarmente', () => {
   expect(passiNotte(['veggente'], 3, giocatori, { veggente: 1 })).toContainEqual(
     expect.objectContaining({ id: 'veggente' }),
   )
+})
+
+test('ruoliAttivi include i ruoli del mazzo e quelli che un giocatore ha assunto pur non essendo nel mazzo (Ladro)', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] }]
+  expect(ruoliAttivi(['ladro'], giocatori)).toEqual(['ladro', 'veggente'])
+})
+
+test('ruoliAttivi non duplica un ruolo già nel mazzo', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] }]
+  expect(ruoliAttivi(['veggente'], giocatori)).toEqual(['veggente'])
+})
+
+test('con quel ruolo esteso, il passo notturno del Veggente adottato dal Ladro compare davvero', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] }]
+  const attivi = ruoliAttivi(['ladro'], giocatori)
+  const passi = passiNotte(attivi, 1, giocatori, { ladro: 1 }).map((p) => p.id)
+  expect(passi).toContain('veggente')
 })
