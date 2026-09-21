@@ -43,9 +43,14 @@ test("rispetta l'ordine del regolamento tra le categorie", () => {
   expect(ordine).toEqual(['fattucchiera', 'veggente', 'strega'])
 })
 
-test('cucciolo di lupo mannaro compare nel promemoria potere-passivo e in identifica-branco, non ancora nel branco', () => {
+test('cucciolo di lupo mannaro compare solo in identifica-branco, non ancora nel branco', () => {
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
-  expect(ordine).toEqual(['potere-passivo', 'identifica-branco'])
+  expect(ordine).toEqual(['identifica-branco'])
+})
+
+test('i ruoli con potere passivo rimasti (es. eremita) hanno un passo individuale assegnabile', () => {
+  const passi = passiNotte(['eremita'], 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(passi).toContain('eremita')
 })
 
 test('il passo "innamorati" compare solo se un giocatore ha la condizione innamorato', () => {
@@ -60,11 +65,11 @@ test('il passo "innamorati" compare solo se un giocatore ha la condizione innamo
   expect(passiNotte(['villico'], 1, giocatoriConCondizione).map((p) => p.id)).toContain('innamorati')
 })
 
-test('i passi di solo promemoria non sono assegnabili', () => {
-  const potere = NIGHT_STEPS.find((s) => s.id === 'potere-passivo')
-  const gesti = NIGHT_STEPS.find((s) => s.id === 'gesti-segreti')
-  expect(potere.assegnabile).toBe(false)
-  expect(gesti.assegnabile).toBe(false)
+test('i passi individuali dei ruoli a potere passivo sono assegnabili come gli altri', () => {
+  const eremita = NIGHT_STEPS.find((s) => s.id === 'eremita')
+  const bardo = NIGHT_STEPS.find((s) => s.id === 'bardo')
+  expect(eremita.assegnabile).not.toBe(false)
+  expect(bardo.assegnabile).not.toBe(false)
 })
 
 test('un passo normale non ha assegnabile impostato a false', () => {
@@ -89,7 +94,7 @@ test('mostra ancora il passo se il titolare è vivo anche a mazzo già completo'
   expect(passiNotte(['veggente'], 2, giocatori, { veggente: 1 }).map((p) => p.id)).toContain('veggente')
 })
 
-test('i passi di solo promemoria restano anche se nessun giocatore ha mai quel ruolo assegnato', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] }]
-  expect(passiNotte(['eremita'], 1, giocatori, {}).map((p) => p.id)).toContain('potere-passivo')
+test('il passo individuale di un ruolo a potere passivo sparisce una volta assegnato e morto il titolare', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'eremita', vivo: false, condizioni: [] }]
+  expect(passiNotte(['eremita'], 2, giocatori, { eremita: 1 }).map((p) => p.id)).not.toContain('eremita')
 })

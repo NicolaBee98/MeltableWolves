@@ -25,5 +25,13 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
     segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, POTERE)
   }
 
-  return <SceltaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={salta} etichetta="Il branco sbrana" />
+  return (
+    <SceltaGiocatore
+      candidati={vivi}
+      onConferma={confermaScelta}
+      onSalta={salta}
+      etichetta="Il branco sbrana"
+      mostraSalta={false}
+    />
+  )
 }

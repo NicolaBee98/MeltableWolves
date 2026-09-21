@@ -1,21 +1,44 @@
 import { useState } from 'react'
 import { ROLES } from '../../data/roles'
+import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
 
-export function AssegnaRuolo({ ruoli, giocatori, aggiornaGiocatore }) {
-  const opzioni = ruoli.map((slug) => ROLES.find((r) => r.slug === slug)).filter(Boolean)
+export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCambiaSelezioni }) {
+  const [avviso, setAvviso] = useState(null)
+  const opzioni = ruoliAssegnabili(ruoli, giocatori, quantita)
+    .map((slug) => ROLES.find((r) => r.slug === slug))
+    .filter(Boolean)
   const [selezionato, setSelezionato] = useState(opzioni[0]?.slug ?? '')
   // se la variante scelta esaurisce la quantità nel mazzo, "opzioni" si
   // restringe: senza questo fallback il narratore potrebbe continuare ad
   // assegnare una variante già esaurita (rimasta selezionata da uno stato non aggiornato)
   const ruoloScelto = opzioni.some((r) => r.slug === selezionato) ? selezionato : opzioni[0]?.slug ?? ''
-  const candidati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
 
   if (opzioni.length === 0) return null
 
-  function assegna(giocatoreId) {
-    const giocatore = giocatori.find((g) => g.id === giocatoreId)
-    const storiaRuoli = giocatore?.storiaRuoli ?? []
-    aggiornaGiocatore(giocatoreId, { ruoloSlug: ruoloScelto, storiaRuoli: [...storiaRuoli, ruoloScelto] })
+  const capacita = (quantita[ruoloScelto] ?? 1) - contaAssegnati(giocatori, ruoloScelto)
+  const pendenti = selezioni[ruoloScelto] ?? []
+  const tuttiIPendenti = Object.values(selezioni).flat()
+  const candidati = giocatori.filter(
+    (g) => g.vivo && !g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)),
+  )
+
+  function cambiaVariante(slug) {
+    setSelezionato(slug)
+    setAvviso(null)
+  }
+
+  function toggle(giocatoreId) {
+    if (pendenti.includes(giocatoreId)) {
+      onCambiaSelezioni({ ...selezioni, [ruoloScelto]: pendenti.filter((id) => id !== giocatoreId) })
+      setAvviso(null)
+      return
+    }
+    if (pendenti.length >= capacita) {
+      setAvviso(`Puoi selezionare al massimo ${capacita} ${capacita === 1 ? 'giocatore' : 'giocatori'} per questo ruolo.`)
+      return
+    }
+    onCambiaSelezioni({ ...selezioni, [ruoloScelto]: [...pendenti, giocatoreId] })
+    setAvviso(null)
   }
 
   return (
@@ -23,7 +46,7 @@ export function AssegnaRuolo({ ruoli, giocatori, aggiornaGiocatore }) {
       {opzioni.length > 1 && (
         <label>
           Che ruolo mostra la carta?
-          <select value={ruoloScelto} onChange={(event) => setSelezionato(event.target.value)}>
+          <select value={ruoloScelto} onChange={(event) => cambiaVariante(event.target.value)}>
             {opzioni.map((ruolo) => (
               <option key={ruolo.slug} value={ruolo.slug}>
                 {ruolo.nome}
@@ -32,19 +55,26 @@ export function AssegnaRuolo({ ruoli, giocatori, aggiornaGiocatore }) {
           </select>
         </label>
       )}
-      <p>Chi ha questa carta? Clicca per assegnare.</p>
+      <p>
+        Chi ha questa carta? Seleziona {capacita - pendenti.length} {capacita - pendenti.length === 1 ? 'giocatore' : 'giocatori'} in più, poi premi Avanti.
+      </p>
+      {avviso && <p className="assegna-ruolo__avviso">⚠️ {avviso}</p>}
       {candidati.length === 0 ? (
         <p>Nessun giocatore disponibile da assegnare.</p>
       ) : (
-        <ul>
+        <div className="scelta-giocatore__chips" role="group" aria-label="Chi ha questa carta">
           {candidati.map((g) => (
-            <li key={g.id}>
-              <button type="button" onClick={() => assegna(g.id)}>
-                {g.nome}
-              </button>
-            </li>
+            <button
+              key={g.id}
+              type="button"
+              className="chip"
+              aria-pressed={pendenti.includes(g.id)}
+              onClick={() => toggle(g.id)}
+            >
+              {g.nome}
+            </button>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

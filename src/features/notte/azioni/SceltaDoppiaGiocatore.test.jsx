@@ -8,27 +8,20 @@ const candidati = [
   { id: '3', nome: 'Luca' },
 ]
 
-test('il pulsante Conferma è disabilitato finché non sono selezionati due bersagli', async () => {
-  const user = userEvent.setup()
+test('non mostra il pulsante Salta: Pifferaio e Sacerdote non sono opzionali', () => {
   render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli due" />)
-
-  expect(screen.getByRole('button', { name: 'Conferma' })).toBeDisabled()
-
-  await user.click(screen.getByRole('button', { name: 'Anna' }))
-  expect(screen.getByRole('button', { name: 'Conferma' })).toBeDisabled()
-
-  await user.click(screen.getByRole('button', { name: 'Marco' }))
-  expect(screen.getByRole('button', { name: 'Conferma' })).not.toBeDisabled()
+  expect(screen.queryByRole('button', { name: 'Salta' })).not.toBeInTheDocument()
 })
 
-test('conferma chiama onConferma con i due id selezionati', async () => {
+test('selezionare il secondo bersaglio chiama subito onConferma con entrambi gli id (nessun passo di conferma separato)', async () => {
   const user = userEvent.setup()
   const onConferma = vi.fn()
   render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={onConferma} onSalta={() => {}} etichetta="Scegli due" />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(onConferma).not.toHaveBeenCalled()
+
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onConferma).toHaveBeenCalledWith('1', '2')
 })

@@ -19,7 +19,6 @@ test("resuscita il bersaglio morto e marca il potere come usato sull'attore", as
   )
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: true, condizioni: ['resuscitato'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['guaritore-resuscita'] })

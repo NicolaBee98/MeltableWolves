@@ -21,7 +21,6 @@ test('conferma applica la condizione al bersaglio scelto e marca il potere usato
   )
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['unto'] })
 })
@@ -76,30 +75,24 @@ test('confermare marca il potere come usato per l\'attore', async () => {
   )
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: ['untore'] })
 })
 
-test('Salta marca il potere come usato senza applicare alcuna condizione', async () => {
-  const user = userEvent.setup()
+test('non mostra il pulsante Salta: questi poteri non sono opzionali', () => {
   const conUntore = [
     { id: '1', nome: 'Piero', ruoloSlug: 'untore', vivo: true, condizioni: [], note: '', usiNotte: [] },
     giocatori[1],
   ]
-  const aggiornaGiocatore = vi.fn()
   render(
     <AzioneCondizioneSingola
       giocatori={conUntore}
-      aggiornaGiocatore={aggiornaGiocatore}
+      aggiornaGiocatore={() => {}}
       condizione="unto"
       etichetta="Chi ungere"
       ruoloSlugAttore="untore"
     />,
   )
 
-  await user.click(screen.getByRole('button', { name: 'Salta' }))
-
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: ['untore'] })
-  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.anything())
+  expect(screen.queryByRole('button', { name: 'Salta' })).not.toBeInTheDocument()
 })

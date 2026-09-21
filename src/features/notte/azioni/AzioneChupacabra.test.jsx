@@ -9,7 +9,6 @@ test('uccide un bersaglio di fazione lupi', async () => {
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
 })
@@ -34,7 +33,6 @@ test('non ha effetto su un bersaglio non-lupo se ci sono ancora lupi vivi', asyn
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })
@@ -49,7 +47,6 @@ test('uccide chiunque se non ci sono più lupi vivi', async () => {
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
 })

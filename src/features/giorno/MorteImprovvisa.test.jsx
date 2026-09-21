@@ -29,7 +29,7 @@ test('confermare una scelta chiama onDichiara e chiude il popup', async () => {
   render(<MorteImprovvisa giocatori={giocatori} onDichiara={onDichiara} />)
 
   await user.click(screen.getByRole('button', { name: /morte improvvisa/i }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(onDichiara).toHaveBeenCalledWith('1')
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

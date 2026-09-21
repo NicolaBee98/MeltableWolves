@@ -27,7 +27,7 @@ test('dichiarare una morte improvvisa dal popup chiama aggiornaGiocatore con cau
   const { aggiornaGiocatore } = setup()
 
   await user.click(screen.getByRole('button', { name: /morte improvvisa/i }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
 })

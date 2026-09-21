@@ -132,35 +132,34 @@ test('mostra AssegnaRuolo per un passo con un ruolo non ancora assegnato', () =>
   expect(screen.getByRole('button', { name: 'Steve' })).toBeInTheDocument()
 })
 
-test('assegnare il ruolo tramite AssegnaRuolo fa comparire subito la selezione bersaglio', async () => {
+test('selezionare un giocatore per un ruolo e premere Avanti lo assegna (commit differito)', async () => {
   const user = userEvent.setup()
-  const giocatori = [{ id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [], poteriUsati: [] }]
-  const aggiornaGiocatore = vi.fn((id, patch) => {
-    giocatori[0] = { ...giocatori[0], ...patch }
-  })
-  const { rerender } = render(
+  const giocatori = [
+    { id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: undefined, vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
     <NightSequencerConNotte
-      ruoliSelezionati={['paladino']}
+      ruoliSelezionati={['paladino', 'veggente']}
       giocatori={giocatori}
       aggiornaGiocatore={aggiornaGiocatore}
-      quantita={{ paladino: 1 }}
+      quantita={{ paladino: 1, veggente: 1 }}
     />,
   )
+
+  // prima di selezionare nessuno, "Avanti" è bloccato
+  expect(screen.getByRole('button', { name: 'Avanti' })).toBeDisabled()
 
   await user.click(screen.getByRole('button', { name: 'Steve' }))
-  rerender(
-    <NightSequencerConNotte
-      ruoliSelezionati={['paladino']}
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
-      quantita={{ paladino: 1 }}
-    />,
-  )
+  expect(screen.getByRole('button', { name: 'Avanti' })).not.toBeDisabled()
 
-  expect(screen.getByRole('button', { name: 'Steve' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'paladino', storiaRuoli: ['paladino'] })
 })
 
-test('non mostra AssegnaRuolo per i passi di solo promemoria (potere-passivo)', () => {
+test('un ruolo a potere passivo (es. eremita) è ora assegnabile come un ruolo qualunque', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: undefined, vivo: true, condizioni: [] }]
   render(
     <NightSequencerConNotte
@@ -170,7 +169,7 @@ test('non mostra AssegnaRuolo per i passi di solo promemoria (potere-passivo)', 
       quantita={{ eremita: 1 }}
     />,
   )
-  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
 test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
@@ -220,32 +219,49 @@ test('non propone di assegnare ruoli del branco non presenti nel mazzo, e non mo
   )
 
   expect(screen.queryByText('Nonna')).not.toBeInTheDocument()
-  expect(screen.queryByText(/ruolo non ancora assegnato/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/seleziona ancora/i)).not.toBeInTheDocument()
 })
 
-test('mostra un avviso non bloccante se un ruolo del mazzo non è ancora stato assegnato', () => {
+test('blocca "Avanti" e mostra un avviso se un ruolo del mazzo non è ancora stato assegnato (e ci sono candidati)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: undefined, vivo: true, condizioni: [] },
+  ]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino', 'veggente']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ paladino: 1, veggente: 1 }}
+    />,
+  )
+  expect(screen.getByText(/seleziona ancora/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Avanti' })).toBeDisabled()
+})
+
+test('non blocca "Notte successiva" se non ci sono abbastanza giocatori per completare l\'assegnazione', async () => {
+  const user = userEvent.setup()
+  // il mazzo chiede 2 Lupi Mannari ma c'è un solo giocatore senza ruolo:
+  // è impossibile completare l'assegnazione, non deve restare bloccato per sempre
   const giocatori = [{ id: '1', nome: 'Steve', ruoloSlug: undefined, vivo: true, condizioni: [] }]
   render(
     <NightSequencerConNotte
-      ruoliSelezionati={['paladino']}
+      ruoliSelezionati={['lupo-mannaro']}
       giocatori={giocatori}
       aggiornaGiocatore={() => {}}
-      quantita={{ paladino: 1 }}
+      quantita={{ 'lupo-mannaro': 2 }}
     />,
   )
-  expect(screen.getByText(/ruolo non ancora assegnato/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Notte successiva' })).not.toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  // il lupo mannaro non identificato resta tale: nella notte 2 non c'è più
+  // nessun passo da mostrare (nessun titolare, nulla da assegnare)
+  expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
-test('mostra il pulsante Morte Improvvisa quando viene passato onMorteImprovvisa', () => {
-  render(
-    <NightSequencerConNotte
-      ruoliSelezionati={['mimo']}
-      giocatori={[]}
-      aggiornaGiocatore={() => {}}
-      onMorteImprovvisa={() => {}}
-    />,
-  )
-  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+test('non mostra mai il pulsante Morte Improvvisa: di notte non si può dichiarare', () => {
+  render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={[]} aggiornaGiocatore={() => {}} />)
+  expect(screen.queryByRole('button', { name: /morte improvvisa/i })).not.toBeInTheDocument()
 })
 
 test('"Indietro" ripristina lo stato dei giocatori all\'ingresso del passo precedente, riabilitando l\'azione già fatta', async () => {
@@ -270,7 +286,6 @@ test('"Indietro" ripristina lo stato dei giocatori all\'ingresso del passo prece
   const { rerender } = render(<NightSequencerConNotte {...props()} />)
 
   await user.click(screen.getByRole('button', { name: 'Pietro' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
   rerender(<NightSequencerConNotte {...props()} />)
   expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
 

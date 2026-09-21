@@ -63,15 +63,15 @@ test('usatoStanotte diventa true dopo segnaUsoStanotte sullo stesso array aggior
   expect(usatoStanotte(giocatori, ['veggente'], 'veggente-indagine')).toBe(true)
 })
 
-test('applicaCrepacuore uccide anche il partner innamorato ancora vivo', () => {
+test('applicaCrepacuore uccide anche il partner innamorato ancora vivo, ereditando il round del lutto scatenante', () => {
   const giocatori = [
-    { id: '1', nome: 'Anna', vivo: false, condizioni: ['innamorato'] },
+    { id: '1', nome: 'Anna', vivo: false, condizioni: ['innamorato'], mortoNotte: 2 },
     { id: '2', nome: 'Marco', vivo: true, condizioni: ['innamorato'] },
     { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
   ]
   const risultato = applicaCrepacuore(giocatori, '1')
 
-  expect(risultato.find((g) => g.id === '2')).toMatchObject({ vivo: false, causaMorte: 'crepacuore' })
+  expect(risultato.find((g) => g.id === '2')).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoNotte: 2 })
   expect(risultato.find((g) => g.id === '3')).toMatchObject({ vivo: true })
 })
 

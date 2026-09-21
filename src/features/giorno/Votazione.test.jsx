@@ -144,3 +144,18 @@ test("in fase esito è sempre presente l'icona Morte improvvisa", () => {
   setup({ voti: { 1: 2 }, fase: 'esito' })
   expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
 })
+
+test("in fase esito, una volta che la morte è confermata, 'Torna al voto' non c'è più (niente doppio rogo lo stesso giorno)", () => {
+  const giocatoriDopoRogo = [
+    { id: '1', nome: 'Anna', vivo: false },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito' })
+
+  expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
+})
+
+test("in fase voto è già presente l'icona Morte improvvisa (non solo in fase esito)", () => {
+  setup()
+  expect(screen.getByRole('button', { name: /morte improvvisa/i })).toBeInTheDocument()
+})
