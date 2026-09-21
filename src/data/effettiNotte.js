@@ -1,3 +1,69 @@
+import { ROLES } from './roles'
+import { vicinoPiuVicinoChe } from './vicinanza'
+
+function fazioneDi(giocatore) {
+  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
+}
+
+// Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
+// direttamente dai lupi di notte (libretto pag. 12, 12, 18): vengono
+// esclusi anche dai candidati in AzioneBrancoLupi.jsx, questo è un
+// controllo difensivo nel resolver condiviso.
+const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
+
+// Applica il morso del branco a un bersaglio, comprese le reazioni
+// speciali di alcuni ruoli quando vengono sbranati. Ritorna una mappa
+// {id: patch} da applicare con aggiornaGiocatore, eventualmente vuota se il
+// bersaglio è immune o protetto.
+export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco) {
+  const target = giocatori.find((g) => g.id === targetId)
+  if (!target || RUOLI_IMMUNI_AL_BRANCO.includes(target.ruoloSlug)) return {}
+
+  // Mezzosangue: non muore, diventa lupo mannaro (pag. 18)
+  if (target.ruoloSlug === 'mezzosangue') {
+    return {
+      [target.id]: {
+        ruoloSlug: 'lupo-mannaro',
+        storiaRuoli: [...(target.storiaRuoli ?? []), 'lupo-mannaro'],
+      },
+    }
+  }
+
+  const patchTarget = uccidiPatch(target, round)
+  if (!patchTarget) return {} // protetto: il morso non ha effetto, niente reazioni
+
+  const patches = { [target.id]: patchTarget }
+
+  // Berserker: uccide il lupo vivo più vicino a sé (pag. 10)
+  if (target.ruoloSlug === 'berserker') {
+    const lupo = vicinoPiuVicinoChe(giocatori, target.id, (g) => g.vivo && fazioneDi(g) === 'lupi')
+    if (lupo) {
+      const patchLupo = uccidiPatch(lupo, round)
+      if (patchLupo) patches[lupo.id] = patchLupo
+    }
+  }
+
+  // Ubriaco: l'alcol nel sangue stordisce il branco la notte successiva (pag. 22)
+  if (target.ruoloSlug === 'ubriaco') {
+    for (const g of giocatori) {
+      if (ruoliBranco.includes(g.ruoloSlug) && g.vivo) {
+        patches[g.id] = { brancoStorditoFinoA: round + 1 }
+      }
+    }
+  }
+
+  // Cucciolo di Lupo Mannaro: il branco sbrana due vittime per vendetta (pag. 13)
+  if (target.ruoloSlug === 'cucciolo-di-lupo-mannaro') {
+    for (const g of giocatori) {
+      if (ruoliBranco.includes(g.ruoloSlug) && g.vivo && g.id !== target.id) {
+        patches[g.id] = { vendettaCucciolo: true }
+      }
+    }
+  }
+
+  return patches
+}
+
 export function aggiungiCondizionePatch(giocatore, condizione) {
   if (giocatore.condizioni.includes(condizione)) return null
   return { condizioni: [...giocatore.condizioni, condizione] }
@@ -8,9 +74,9 @@ export function uccidiPatch(giocatore, round, { ignoraProtezione = false } = {})
   return { vivo: false, causaMorte: 'notte', mortoNotte: round }
 }
 
-export function resuscitaPatch(giocatore) {
+export function resuscitaPatch(giocatore, round) {
   if (giocatore.vivo) return null
-  return { vivo: true, condizioni: [...giocatore.condizioni, 'resuscitato'] }
+  return { vivo: true, condizioni: [...giocatore.condizioni, 'resuscitato'], resuscitatoNotte: round }
 }
 
 export function usatoStanotte(giocatori, ruoli, potereSlug) {
@@ -37,6 +103,29 @@ export function applicaCrepacuore(giocatori, idAppenaMorto) {
   return giocatori.map((g) =>
     g.id !== idAppenaMorto && g.vivo && g.condizioni.includes('innamorato')
       ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.mortoNotte }
+      : g,
+  )
+}
+
+// "unto" (Untore) e "trasformato" (Maga) durano fino al calar della notte
+// successiva a quella in cui sono stati inflitti (pag. 17, 22): ritorna solo
+// i giocatori che hanno ancora una di queste condizioni, con la condizione
+// già ripulita, pronti per essere passati a aggiornaGiocatore uno a uno.
+export function daRipulireCambioNotte(giocatori) {
+  return giocatori
+    .filter((g) => (g.condizioni ?? []).some((c) => c === 'unto' || c === 'trasformato'))
+    .map((g) => ({ id: g.id, condizioni: g.condizioni.filter((c) => c !== 'unto' && c !== 'trasformato') }))
+}
+
+// il Veggente accecato dal Polpo Mannaro torna a vedere normalmente non
+// appena il Polpo muore (pag. 20: "fino alla morte del Polpo")
+export function rimuoviAccecamentoSeMortoPolpo(giocatori, idAppenaMorto) {
+  const morto = giocatori.find((g) => g.id === idAppenaMorto)
+  if (morto?.ruoloSlug !== 'polpo-mannaro') return giocatori
+
+  return giocatori.map((g) =>
+    (g.condizioni ?? []).includes('accecato')
+      ? { ...g, condizioni: g.condizioni.filter((c) => c !== 'accecato') }
       : g,
   )
 }

@@ -5,7 +5,12 @@ import {
   usatoStanotte,
   segnaUsoStanotte,
   applicaCrepacuore,
+  rimuoviAccecamentoSeMortoPolpo,
+  risolviAttaccoBranco,
+  daRipulireCambioNotte,
 } from './effettiNotte'
+
+const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
 
 test('aggiungiCondizionePatch aggiunge la condizione se non presente', () => {
   const giocatore = { condizioni: [] }
@@ -25,12 +30,16 @@ test('uccidiPatch ritorna null se il giocatore è protetto', () => {
   expect(uccidiPatch({ condizioni: ['protetto'] }, 3)).toBeNull()
 })
 
-test('resuscitaPatch riporta in vita un giocatore morto', () => {
-  expect(resuscitaPatch({ vivo: false, condizioni: [] })).toEqual({ vivo: true, condizioni: ['resuscitato'] })
+test('resuscitaPatch riporta in vita un giocatore morto e marca la notte della resurrezione', () => {
+  expect(resuscitaPatch({ vivo: false, condizioni: [] }, 3)).toEqual({
+    vivo: true,
+    condizioni: ['resuscitato'],
+    resuscitatoNotte: 3,
+  })
 })
 
 test('resuscitaPatch ritorna null se il giocatore è già vivo', () => {
-  expect(resuscitaPatch({ vivo: true, condizioni: [] })).toBeNull()
+  expect(resuscitaPatch({ vivo: true, condizioni: [] }, 3)).toBeNull()
 })
 
 test('uccidiPatch con ignoraProtezione uccide anche un giocatore protetto (es. pozione mortale della Strega)', () => {
@@ -81,4 +90,92 @@ test('applicaCrepacuore non fa nulla se il morto non è innamorato', () => {
     { id: '2', nome: 'Marco', vivo: true, condizioni: ['innamorato'] },
   ]
   expect(applicaCrepacuore(giocatori, '1')).toBe(giocatori)
+})
+
+test('daRipulireCambioNotte rimuove "unto" e "trasformato" dai giocatori che le hanno', () => {
+  const giocatori = [
+    { id: '1', condizioni: ['unto'] },
+    { id: '2', condizioni: ['trasformato', 'protetto'] },
+    { id: '3', condizioni: ['protetto'] },
+  ]
+  expect(daRipulireCambioNotte(giocatori)).toEqual([
+    { id: '1', condizioni: [] },
+    { id: '2', condizioni: ['protetto'] },
+  ])
+})
+
+test('rimuoviAccecamentoSeMortoPolpo rimuove "accecato" dal Veggente quando il Polpo Mannaro muore', () => {
+  const giocatori = [
+    { id: '1', nome: 'Elena', ruoloSlug: 'veggente', vivo: true, condizioni: ['accecato'] },
+    { id: '2', nome: 'Polpo', ruoloSlug: 'polpo-mannaro', vivo: false, condizioni: [] },
+  ]
+  const risultato = rimuoviAccecamentoSeMortoPolpo(giocatori, '2')
+  expect(risultato.find((g) => g.id === '1').condizioni).not.toContain('accecato')
+})
+
+test('rimuoviAccecamentoSeMortoPolpo non fa nulla se il morto non è il Polpo Mannaro', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'veggente', vivo: true, condizioni: ['accecato'] }]
+  expect(rimuoviAccecamentoSeMortoPolpo(giocatori, '1')).toBe(giocatori)
+})
+
+test('risolviAttaccoBranco: la Cortigiana è immune al bersaglio diretto dei lupi', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'cortigiana', vivo: true, condizioni: [] }]
+  expect(risolviAttaccoBranco(giocatori, '1', 2, RUOLI_BRANCO)).toEqual({})
+})
+
+test('risolviAttaccoBranco: il Nano è immune ai lupi di notte', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'nano', vivo: true, condizioni: [] }]
+  expect(risolviAttaccoBranco(giocatori, '1', 2, RUOLI_BRANCO)).toEqual({})
+})
+
+test('risolviAttaccoBranco: il Criceto Malvagio è immune ai lupi di notte', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [] }]
+  expect(risolviAttaccoBranco(giocatori, '1', 2, RUOLI_BRANCO)).toEqual({})
+})
+
+test('risolviAttaccoBranco: il Mezzosangue sbranato diventa Lupo Mannaro invece di morire', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'mezzosangue', vivo: true, condizioni: [], storiaRuoli: ['mezzosangue'] }]
+  const patch = risolviAttaccoBranco(giocatori, '1', 2, RUOLI_BRANCO)
+  expect(patch['1']).toMatchObject({ ruoloSlug: 'lupo-mannaro' })
+  expect(patch['1'].storiaRuoli).toContain('lupo-mannaro')
+})
+
+test('risolviAttaccoBranco: il Berserker sbranato uccide il lupo vivo più vicino a sé', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO)
+  expect(patch['2']).toMatchObject({ vivo: false })
+  expect(patch['3']).toMatchObject({ vivo: false, causaMorte: 'notte', mortoNotte: 4 })
+})
+
+test('risolviAttaccoBranco: se non ci sono lupi vivi vicini, il Berserker muore senza altre conseguenze', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'berserker', vivo: true, condizioni: [] }]
+  const patch = risolviAttaccoBranco(giocatori, '1', 4, RUOLI_BRANCO)
+  expect(Object.keys(patch)).toEqual(['1'])
+})
+
+test("risolviAttaccoBranco: l'Ubriaco sbranato stordisce il branco la notte successiva", () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'ubriaco', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviAttaccoBranco(giocatori, '1', 3, RUOLI_BRANCO)
+  expect(patch['2']).toEqual({ brancoStorditoFinoA: 4 })
+})
+
+test('risolviAttaccoBranco: il Cucciolo ucciso fa scattare la vendetta doppia sul branco', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviAttaccoBranco(giocatori, '1', 3, RUOLI_BRANCO)
+  expect(patch['2']).toEqual({ vendettaCucciolo: true })
+})
+
+test('risolviAttaccoBranco: un bersaglio protetto non muore e non genera reazioni', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'ubriaco', vivo: true, condizioni: ['protetto'] }]
+  expect(risolviAttaccoBranco(giocatori, '1', 3, RUOLI_BRANCO)).toEqual({})
 })

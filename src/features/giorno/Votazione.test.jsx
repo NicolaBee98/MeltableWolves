@@ -85,6 +85,46 @@ test('in fase esito la conferma del rogo si può annullare senza dichiarare la m
   expect(screen.getByRole('button', { name: 'Dichiara morte sul rogo' })).toBeInTheDocument()
 })
 
+test('lo Spilungone designato al rogo si rivela e non muore', async () => {
+  const user = userEvent.setup()
+  const giocatoriConSpilungone = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'spilungone', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const { onRogo, onProsegui } = setup({ giocatori: giocatoriConSpilungone, voti: { 1: 2 }, fase: 'esito' })
+
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
+
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
+
+  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).not.toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  expect(onProsegui).toHaveBeenCalled()
+})
+
+test('lo Spilungone scelto nello spareggio si rivela e non muore', async () => {
+  const user = userEvent.setup()
+  const giocatoriConSpilungone = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'spilungone', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const { onRogo } = setup({
+    giocatori: giocatoriConSpilungone,
+    voti: { 1: 2, 2: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1', '2'],
+  })
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
+
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
+})
+
 test("il calcolo dell'esito usa i candidati congelati, non i giocatori vivi correnti (evita lo spareggio fantasma dopo il rogo)", () => {
   const giocatoriDopoRogo = [
     { id: '1', nome: 'Anna', vivo: false },

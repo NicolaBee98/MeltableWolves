@@ -3,7 +3,7 @@ import { passiNotte } from '../../data/nightSteps'
 import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
-import { risolviLegami, risolviCortigiana } from '../../data/risoluzioneNotte'
+import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
 
 export function NightSequencer({
@@ -154,7 +154,11 @@ export function NightSequencer({
       }
     })
 
-    const patchRisoluzione = { ...risolviLegami(giocatoriConRuoli), ...risolviCortigiana(giocatoriConRuoli) }
+    // risolviLegami (Apprendista/Cavaliere/Figlia dei Lupi) è ora applicata
+    // in modo generico da usePartita a ogni morte, notte o rogo che sia:
+    // qui resta solo risolviCortigiana, che dipende specificamente
+    // dall'esito della caccia di QUESTA notte.
+    const patchRisoluzione = risolviCortigiana(giocatoriConRuoli)
     for (const [id, patch] of Object.entries(patchRisoluzione)) {
       aggiornaGiocatore(id, patch)
     }

@@ -1,11 +1,12 @@
 import { ruoliAssegnabili } from './assegnazione'
+import { ROLES } from './roles'
 
 export const RUOLI_BRANCO_LUPI = [
   'cucciolo-di-lupo-mannaro', 'lupo-mannaro', 'lupo-mannaro-capobranco',
   'lupo-mannaro-progenitore', 'nonna',
 ]
 
-export const NIGHT_STEPS = [
+const STEPS_CON_RUOLO_DEDICATO = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
@@ -15,8 +16,6 @@ export const NIGHT_STEPS = [
   { id: 'pastore', titolo: 'Pastore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['pastore'] },
   { id: 'polpo-mannaro', titolo: 'Polpo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['polpo-mannaro'] },
   { id: 'ubriaco', titolo: 'Ubriaco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ubriaco'] },
-  { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
-  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   {
     id: 'identifica-branco',
     titolo: 'Il branco si riconosce',
@@ -24,6 +23,8 @@ export const NIGHT_STEPS = [
     primaNotteSolo: true,
     ruoli: RUOLI_BRANCO_LUPI,
   },
+  { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
+  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
   { id: 'cavaliere', titolo: 'Cavaliere', tipo: 'azione', primaNotteSolo: true, ruoli: ['cavaliere'] },
   { id: 'figlia-dei-lupi', titolo: 'Figlia dei Lupi', tipo: 'azione', primaNotteSolo: true, ruoli: ['figlia-dei-lupi'] },
@@ -41,11 +42,11 @@ export const NIGHT_STEPS = [
   { id: 'paladino', titolo: 'Paladino', tipo: 'azione', primaNotteSolo: false, ruoli: ['paladino'] },
   { id: 'pifferaio', titolo: 'Pifferaio', tipo: 'azione', primaNotteSolo: false, ruoli: ['pifferaio'] },
   { id: 'untore', titolo: 'Untore', tipo: 'azione', primaNotteSolo: false, ruoli: ['untore'] },
-  { id: 'cartomante', titolo: 'Cartomante', tipo: 'informativo', primaNotteSolo: false, ruoli: ['cartomante'] },
-  { id: 'inquisitore', titolo: 'Inquisitore', tipo: 'informativo', primaNotteSolo: false, ruoli: ['inquisitore'] },
-  { id: 'medium', titolo: 'Medium', tipo: 'informativo', primaNotteSolo: false, ruoli: ['medium'] },
+  { id: 'cartomante', titolo: 'Cartomante', tipo: 'azione', primaNotteSolo: false, ruoli: ['cartomante'] },
+  { id: 'inquisitore', titolo: 'Inquisitore', tipo: 'azione', primaNotteSolo: false, ruoli: ['inquisitore'] },
+  { id: 'medium', titolo: 'Medium', tipo: 'azione', primaNotteSolo: false, ruoli: ['medium'] },
   { id: 'veggente', titolo: 'Veggente', tipo: 'azione', primaNotteSolo: false, ruoli: ['veggente'] },
-  { id: 'veggente-mannaro', titolo: 'Veggente Mannaro', tipo: 'informativo', primaNotteSolo: false, ruoli: ['veggente-mannaro'] },
+  { id: 'veggente-mannaro', titolo: 'Veggente Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['veggente-mannaro'] },
   { id: 'guaritore', titolo: 'Guaritore', tipo: 'azione', primaNotteSolo: false, ruoli: ['guaritore'] },
   { id: 'sciacallo-mannaro', titolo: 'Sciacallo Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['sciacallo-mannaro'] },
 
@@ -63,6 +64,44 @@ export const NIGHT_STEPS = [
   },
   { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
   { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato' },
+]
+
+// Ruoli come Villico, Spilungone, Boia, Ambasciatore, ... non hanno nessuna
+// azione o riconoscimento notturno, quindi altrimenti non comparirebbero mai
+// in nessun passo: non avrebbero mai occasione di essere assegnati a un
+// giocatore. Questo passo raccoglie tutti i ruoli del mazzo che non sono
+// già coperti da uno step dedicato, e li rende assegnabili come gli altri
+// entro la fine della prima notte. Il Fantasma Onnisciente è l'unica
+// eccezione voluta: per regolamento (pag. 13) la sua carta non va
+// distribuita all'inizio, va al primo giocatore che muore (non gestito da
+// questa app: va assegnato a mano dal narratore quando succede).
+const RUOLI_CON_STEP_DEDICATO = new Set(STEPS_CON_RUOLO_DEDICATO.flatMap((s) => s.ruoli ?? []))
+const RUOLI_SENZA_STEP_DEDICATO = ROLES.map((r) => r.slug).filter(
+  (slug) => slug !== 'fantasma-onnisciente' && !RUOLI_CON_STEP_DEDICATO.has(slug),
+)
+
+const PASSO_ASSEGNA_RESTANTI = {
+  id: 'assegna-restanti',
+  titolo: 'Assegna i ruoli rimanenti',
+  tipo: 'informativo',
+  primaNotteSolo: true,
+  ruoli: RUOLI_SENZA_STEP_DEDICATO,
+}
+
+// va inserito subito dopo l'ultimo passo "solo prima notte" e prima di
+// qualunque azione "ogni notte": i ruoli senza passo dedicato (a partire
+// dal Villico) devono essere già assegnati quando le azioni che dipendono
+// dal ruolo del bersaglio (es. il branco che sbrana) iniziano a chiamare
+// giocatori per nome
+const indiceUltimoPassoPrimaNotte = STEPS_CON_RUOLO_DEDICATO.reduce(
+  (ultimo, step, indice) => (step.primaNotteSolo ? indice : ultimo),
+  -1,
+)
+
+export const NIGHT_STEPS = [
+  ...STEPS_CON_RUOLO_DEDICATO.slice(0, indiceUltimoPassoPrimaNotte + 1),
+  PASSO_ASSEGNA_RESTANTI,
+  ...STEPS_CON_RUOLO_DEDICATO.slice(indiceUltimoPassoPrimaNotte + 1),
 ]
 
 export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {

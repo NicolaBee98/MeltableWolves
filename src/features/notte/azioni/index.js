@@ -8,6 +8,8 @@ import { AzioneLegame } from './AzioneLegame'
 import { AzioneCortigiana } from './AzioneCortigiana'
 import { AzioneAddolorata } from './AzioneAddolorata'
 import { AzioneIndagine } from './AzioneIndagine'
+import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
+import { AzioneInquisitore } from './AzioneInquisitore'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
 export const AZIONI_NOTTURNE = {
@@ -46,4 +48,17 @@ export const AZIONI_NOTTURNE = {
   cortigiana: { Componente: AzioneCortigiana, props: {} },
   addolorata: { Componente: AzioneAddolorata, props: {} },
   veggente: { Componente: AzioneIndagine, props: {} },
+  'veggente-mannaro': {
+    Componente: AzioneIndagine,
+    props: { ruoloSlugAttore: 'veggente-mannaro', etichettaAttore: 'Veggente Mannaro' },
+  },
+  cartomante: {
+    Componente: AzioneRivelaRuolo,
+    props: { ruoloSlugAttore: 'cartomante', etichettaAttore: 'Cartomante', bersaglio: 'vivo' },
+  },
+  medium: {
+    Componente: AzioneRivelaRuolo,
+    props: { ruoloSlugAttore: 'medium', etichettaAttore: 'Medium', bersaglio: 'morto' },
+  },
+  inquisitore: { Componente: AzioneInquisitore, props: {} },
 }

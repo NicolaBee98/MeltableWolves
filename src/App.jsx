@@ -11,6 +11,7 @@ import { useVotazione } from './state/useVotazione'
 import { useNotte } from './state/useNotte'
 import { useLog } from './state/useLog'
 import { useFaseApp } from './state/useFaseApp'
+import { daRipulireCambioNotte } from './data/effettiNotte'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
@@ -24,6 +25,7 @@ export default function App() {
   const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
 
   function proseguiAllaNotte() {
+    daRipulireCambioNotte(giocatori).forEach(({ id, condizioni }) => aggiornaGiocatore(id, { condizioni }))
     ricominciaVotazione()
     setFaseApp('notte')
   }

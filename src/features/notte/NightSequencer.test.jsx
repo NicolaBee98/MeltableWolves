@@ -12,9 +12,16 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-test('senza ruoli con azione notturna mostra un messaggio', () => {
-  render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={[]} aggiornaGiocatore={() => {}} />)
+test('senza alcun ruolo selezionato mostra un messaggio', () => {
+  render(<NightSequencerConNotte ruoliSelezionati={[]} giocatori={[]} aggiornaGiocatore={() => {}} />)
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
+})
+
+test('un mazzo di solo Villico mostra comunque il passo per assegnarlo ai giocatori', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
+  render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  expect(screen.getByRole('heading', { name: /assegna i ruoli rimanenti/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
 test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
@@ -85,19 +92,10 @@ test('"Notte successiva" rimuove le condizioni protetto e inibito da tutti i gio
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['unto'] })
 })
 
-test('"Notte successiva" applica le conseguenze dei legami (apprendista eredita il ruolo del maestro)', async () => {
-  const user = userEvent.setup()
-  const giocatori = [
-    { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
-    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
-  ]
-  const aggiornaGiocatore = vi.fn()
-  render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
-
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
-
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', legame: null })
-})
+// Le conseguenze dei legami (Apprendista/Cavaliere/Figlia dei Lupi) non si
+// risolvono più qui a fine notte, ma subito alla morte del bersaglio,
+// tramite l'hook generico di usePartita (vedi usePartita.test.js): così
+// funzionano anche se il bersaglio muore al rogo, non solo di notte.
 
 test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
   const giocatori = [
