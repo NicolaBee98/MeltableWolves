@@ -201,7 +201,7 @@ export function Votazione({
           giocatori={giocatori}
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
-          contesto="giorno"
+          contesto="esito"
           onMorteImprovvisa={onMorteImprovvisa}
           onRivelazione={onRivelazione}
           onBoiaGiustizia={onBoiaGiustizia}
@@ -245,7 +245,7 @@ export function Votazione({
         giocatori={giocatori}
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
-        contesto="giorno"
+        contesto="voto"
         onMorteImprovvisa={onMorteImprovvisa}
         onRivelazione={onRivelazione}
         onBoiaGiustizia={onBoiaGiustizia}

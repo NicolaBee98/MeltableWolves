@@ -20,6 +20,12 @@ export function AlbaPanel({
   )
   const annunci = annunciAlba(giocatori, round)
   const vittoria = condizioniVittoria(giocatori)
+  // copre sia "non è mai stato eletto" (pag. 11: si elegge all'alba del
+  // primo giorno) sia "il Borgomastro in carica è morto": in entrambi i
+  // casi nessun giocatore vivo ha il titolo, e serve eleggerne uno tramite
+  // "Eventi speciali"
+  const borgomastroDaEleggere =
+    ruoliSelezionati.includes('borgomastro') && !giocatori.some((g) => g.eBorgomastro && g.vivo)
 
   // assegna l'identità di un ruolo a rivelazione diurna solo quando si
   // rivela davvero (vedi nightSteps.js), non preventivamente a inizio partita
@@ -64,6 +70,11 @@ export function AlbaPanel({
             <li key={testo}>🏆 {testo}</li>
           ))}
         </ul>
+      )}
+      {borgomastroDaEleggere && (
+        <p className="alba-panel__promemoria">
+          ⚠️ Il villaggio deve eleggere un Borgomastro (menu "Eventi speciali").
+        </p>
       )}
       <button type="button" onClick={onVaiAlVoto}>
         Vai al voto

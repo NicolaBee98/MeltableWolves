@@ -142,13 +142,8 @@ export function notteBloccata(giocatori, round) {
 }
 
 export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
-  const bloccata = notteBloccata(giocatori, round)
-
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
-    // "l'effetto non si applica ai poteri passivi": solo i passi 'azione'
-    // (poteri attivi) vengono soppressi, non l'identificazione dei ruoli
-    if (bloccata && step.tipo === 'azione') return false
 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))
