@@ -4,7 +4,7 @@ import { EventiSpeciali } from '../giorno/EventiSpeciali'
 
 // solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
-const CAUSE_MORTE_NOTTURNE = ['notte', 'crepacuore']
+const CAUSE_MORTE_NOTTURNE = ['notte', 'crepacuore', 'sacrificio']
 
 export function AlbaPanel({
   giocatori,

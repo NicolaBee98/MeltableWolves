@@ -40,10 +40,16 @@ test('pausa ferma il conto alla rovescia', () => {
   expect(screen.getByText('00:58')).toBeInTheDocument()
 })
 
-test('cambiare la durata e azzerare aggiorna il tempo rimanente', () => {
-  render(<TimerSpareggio />)
+test('la durata arriva dalle impostazioni (durataSecondi), non da un input nella UI di gioco', () => {
+  render(<TimerSpareggio durataSecondi={30} />)
 
-  fireEvent.change(screen.getByLabelText('Durata (secondi)'), { target: { value: '30' } })
+  expect(screen.getByText('00:30')).toBeInTheDocument()
+  expect(screen.queryByLabelText('Durata (secondi)')).not.toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Avvia' }))
+  act(() => {
+    vi.advanceTimersByTime(5000)
+  })
   fireEvent.click(screen.getByRole('button', { name: 'Azzera' }))
 
   expect(screen.getByText('00:30')).toBeInTheDocument()

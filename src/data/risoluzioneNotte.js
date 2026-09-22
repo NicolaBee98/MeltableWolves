@@ -21,10 +21,16 @@ export function risolviLegami(giocatori) {
     }
 
     if (attore.legame.tipo === 'cavaliere') {
-      if (target.causaMorte === 'notte') {
-        patch[target.id] = { vivo: true }
+      // "Se questa persona viene sbranata di notte il Cavaliere muore al suo
+      // posto; se invece viene messa al rogo di giorno il Cavaliere rivela
+      // la propria carta immolandosi al suo posto" (pag. 11): in entrambi i
+      // casi il bersaglio sopravvive. causaMorte del bersaglio va ripulita,
+      // altrimenti resterebbe segnato come "morto al rogo" pur essendo vivo
+      // (es. per l'Addolorata, che cerca la vittima del rogo tramite quel campo).
+      if (target.causaMorte === 'notte' || target.causaMorte === 'rogo') {
+        patch[target.id] = { vivo: true, causaMorte: undefined }
       }
-      patch[attore.id] = { vivo: false, legame: null }
+      patch[attore.id] = { vivo: false, causaMorte: 'sacrificio', mortoNotte: target.mortoNotte, legame: null }
     }
 
     if (attore.legame.tipo === 'figlia-dei-lupi') {

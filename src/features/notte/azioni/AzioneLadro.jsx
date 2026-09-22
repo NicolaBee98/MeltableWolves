@@ -6,52 +6,104 @@ function nomeRuolo(slug) {
 
 const POTERE = 'ladro-scelta'
 
-export function AzioneLadro({ giocatori, aggiornaGiocatore, scartoLadro = [] }) {
+// Il mazzo fisico ha due carte in più quando c'è il Ladro (pag. 15): quali
+// due ruoli siano non si decide componendo il mazzo, ma qui, quando tocca al
+// Ladro guardarle. Le due carte candidate si tengono sul giocatore stesso
+// (non in uno stato locale del componente) così sopravvivono a "Indietro" e
+// a un refresh come qualunque altra scelta di notte.
+export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [], quantita = {}, onCambiaQuantita = () => {} }) {
   const ladro = giocatori.find((g) => g.ruoloSlug === 'ladro')
-  const [carta1, carta2] = scartoLadro
   const usato = (ladro?.poteriUsati ?? []).includes(POTERE)
-  // "se le due carte rappresentano entrambe Lupi Mannari è necessario
-  // scambiare la propria carta" (pag. 15): niente opzione "resta Villico"
-  const entrambiLupi =
-    Boolean(carta1) &&
-    Boolean(carta2) &&
-    [carta1, carta2].every((slug) => ROLES.find((r) => r.slug === slug)?.fazione === 'lupi')
+  const opzioni = ruoliSelezionati.filter((slug) => slug !== 'ladro')
+  const [carta1, carta2] = ladro?.scartoLadro ?? []
 
   if (usato) {
     return <p>Il Ladro ha già scelto.</p>
   }
 
-  if (!carta1 || !carta2) {
-    return <p>Imposta le due carte di scarto del Ladro nella composizione del mazzo prima di iniziare la notte.</p>
+  if (!ladro) return null
+
+  const entrambiLupi =
+    Boolean(carta1) &&
+    Boolean(carta2) &&
+    [carta1, carta2].every((slug) => ROLES.find((r) => r.slug === slug)?.fazione === 'lupi')
+
+  function impostaCarta(indice, slug) {
+    const scarto = [carta1, carta2]
+    scarto[indice] = slug || undefined
+    aggiornaGiocatore(ladro.id, { scartoLadro: scarto })
+  }
+
+  // la carta non presa dal Ladro resta fuori dal mazzo per il resto della
+  // partita (pag. 15): se il Ladro sceglie una delle due, l'altra si scarta;
+  // se resta Villico, si scartano entrambe
+  function scartaCarta(slug) {
+    if (!slug) return
+    onCambiaQuantita(slug, Math.max(0, (quantita[slug] ?? 1) - 1))
   }
 
   function scegli(ruoloSlug) {
-    if (!ladro) return
     aggiornaGiocatore(ladro.id, {
       ruoloSlug,
       storiaRuoli: [...(ladro.storiaRuoli ?? []), ruoloSlug],
       poteriUsati: [...(ladro.poteriUsati ?? []), POTERE],
     })
+    if (ruoloSlug === carta1 || ruoloSlug === carta2) {
+      scartaCarta(ruoloSlug === carta1 ? carta2 : carta1)
+    } else {
+      scartaCarta(carta1)
+      scartaCarta(carta2)
+    }
   }
 
   return (
     <div className="azione-ladro">
-      <p>
-        Il Ladro guarda le due carte rimaste: {nomeRuolo(carta1)} e {nomeRuolo(carta2)}.
-      </p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Cosa sceglie il Ladro">
-        <button type="button" className="chip" onClick={() => scegli(carta1)}>
-          {nomeRuolo(carta1)}
-        </button>
-        <button type="button" className="chip" onClick={() => scegli(carta2)}>
-          {nomeRuolo(carta2)}
-        </button>
-        {!entrambiLupi && (
-          <button type="button" className="chip" onClick={() => scegli('villico')}>
-            Resta Villico
-          </button>
-        )}
+      <p>Quali due carte sono rimaste fuori dal mazzo, tra quelle non assegnate a nessuno?</p>
+      <div className="azione-ladro__scarto">
+        <label>
+          Prima carta
+          <select value={carta1 ?? ''} onChange={(e) => impostaCarta(0, e.target.value)}>
+            <option value="">— scegli —</option>
+            {opzioni.map((slug) => (
+              <option key={slug} value={slug}>
+                {nomeRuolo(slug)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Seconda carta
+          <select value={carta2 ?? ''} onChange={(e) => impostaCarta(1, e.target.value)}>
+            <option value="">— scegli —</option>
+            {opzioni.map((slug) => (
+              <option key={slug} value={slug}>
+                {nomeRuolo(slug)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
+
+      {carta1 && carta2 && (
+        <>
+          <p>
+            Il Ladro guarda le due carte rimaste: {nomeRuolo(carta1)} e {nomeRuolo(carta2)}.
+          </p>
+          <div className="scelta-giocatore__chips" role="group" aria-label="Cosa sceglie il Ladro">
+            <button type="button" className="chip" onClick={() => scegli(carta1)}>
+              {nomeRuolo(carta1)}
+            </button>
+            <button type="button" className="chip" onClick={() => scegli(carta2)}>
+              {nomeRuolo(carta2)}
+            </button>
+            {!entrambiLupi && (
+              <button type="button" className="chip" onClick={() => scegli('villico')}>
+                Resta Villico
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

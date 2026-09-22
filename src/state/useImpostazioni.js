@@ -1,24 +1,75 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'meltable-wolves-impostazioni'
+const STORAGE_KEY_VARIANTI = 'meltable-wolves-varianti-faccia'
+const STORAGE_KEY_NOME_RUOLO = 'meltable-wolves-mostra-nome-ruolo'
+const STORAGE_KEY_DURATA_TIMER = 'meltable-wolves-durata-timer'
 // nascosti di default: in una sala stretta altri giocatori potrebbero
 // sbirciare lo schermo del narratore e vedere i ruoli a colpo d'occhio
 const DEFAULT_MOSTRA_RUOLI = false
+const DEFAULT_VARIANTI_FACCIA = true
+const DEFAULT_MOSTRA_NOME_RUOLO = false
+const DEFAULT_DURATA_TIMER = 60
 
-function loadMostraRuoli() {
+function loadBooleano(key, default_) {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'true'
+    const raw = localStorage.getItem(key)
+    return raw === null ? default_ : raw === 'true'
   } catch {
-    return DEFAULT_MOSTRA_RUOLI
+    return default_
+  }
+}
+
+function loadDurataTimer() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DURATA_TIMER)
+    const numero = Number(raw)
+    return raw !== null && numero > 0 ? numero : DEFAULT_DURATA_TIMER
+  } catch {
+    return DEFAULT_DURATA_TIMER
   }
 }
 
 export function useImpostazioni() {
-  const [mostraRuoliInVotazione, setMostraRuoliInVotazione] = useState(loadMostraRuoli)
+  const [mostraRuoliInVotazione, setMostraRuoliInVotazione] = useState(() =>
+    loadBooleano(STORAGE_KEY, DEFAULT_MOSTRA_RUOLI),
+  )
+  // varianti di faccia per Villico/Lupo Mannaro (vedi assetRuoli.js): alcuni
+  // narratori preferiscono la stessa faccia per tutti, per non dare
+  // involontariamente indizi visivi ai giocatori che sbirciano lo schermo
+  const [variantiFaccia, setVariantiFaccia] = useState(() => loadBooleano(STORAGE_KEY_VARIANTI, DEFAULT_VARIANTI_FACCIA))
+  // mostra il nome del ruolo tra parentesi accanto al nome del giocatore,
+  // oltre all'icona (che da sola può essere ambigua a colpo d'occhio)
+  const [mostraNomeRuolo, setMostraNomeRuolo] = useState(() =>
+    loadBooleano(STORAGE_KEY_NOME_RUOLO, DEFAULT_MOSTRA_NOME_RUOLO),
+  )
+  // durata di default del timer per l'arringa difensiva allo spareggio
+  const [durataTimer, setDurataTimer] = useState(loadDurataTimer)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(mostraRuoliInVotazione))
   }, [mostraRuoliInVotazione])
 
-  return { mostraRuoliInVotazione, setMostraRuoliInVotazione }
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_VARIANTI, String(variantiFaccia))
+  }, [variantiFaccia])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_NOME_RUOLO, String(mostraNomeRuolo))
+  }, [mostraNomeRuolo])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_DURATA_TIMER, String(durataTimer))
+  }, [durataTimer])
+
+  return {
+    mostraRuoliInVotazione,
+    setMostraRuoliInVotazione,
+    variantiFaccia,
+    setVariantiFaccia,
+    mostraNomeRuolo,
+    setMostraNomeRuolo,
+    durataTimer,
+    setDurataTimer,
+  }
 }

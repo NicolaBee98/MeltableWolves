@@ -2,21 +2,36 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneLadro } from './AzioneLadro'
 
-test('senza le due carte di scarto impostate mostra un avviso e nessuna scelta', () => {
+test('chiede le due carte di scarto tra i ruoli del mazzo, non ancora la scelta del Ladro', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [] }]
-  render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} scartoLadro={[]} />)
-  expect(screen.getByText(/imposta le due carte di scarto/i)).toBeInTheDocument()
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+    />,
+  )
+  expect(screen.getByText(/quali due carte sono rimaste fuori/i)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Resta Villico' })).not.toBeInTheDocument()
+  const [select1] = screen.getAllByRole('combobox')
+  const opzioni = Array.from(select1.options).map((o) => o.value)
+  expect(opzioni).toContain('veggente')
+  expect(opzioni).not.toContain('ladro') // il ladro non scarta se stesso
 })
 
-test('propone le due carte di scarto e "Resta Villico" se non sono entrambe lupi', async () => {
+test('impostate le due carte, propone la scelta del Ladro e "Resta Villico" se non sono entrambe lupi', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
-  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'] }]
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+  ]
   render(
     <AzioneLadro
       giocatori={giocatori}
       aggiornaGiocatore={aggiornaGiocatore}
-      scartoLadro={['veggente', 'paladino']}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
     />,
   )
 
@@ -33,13 +48,60 @@ test('propone le due carte di scarto e "Resta Villico" se non sono entrambe lupi
   })
 })
 
-test('se entrambe le carte sono Lupi Mannari non propone "Resta Villico" (scambio obbligato)', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [] }]
+test('scegliendo una delle due carte, la carta non scelta viene tolta dal mazzo (quantita -1)', async () => {
+  const user = userEvent.setup()
+  const onCambiaQuantita = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], scartoLadro: ['veggente', 'paladino'] },
+  ]
   render(
     <AzioneLadro
       giocatori={giocatori}
       aggiornaGiocatore={() => {}}
-      scartoLadro={['lupo-mannaro', 'lupo-mannaro-capobranco']}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+      onCambiaQuantita={onCambiaQuantita}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+
+  expect(onCambiaQuantita).toHaveBeenCalledWith('paladino', 0)
+  expect(onCambiaQuantita).not.toHaveBeenCalledWith('veggente', expect.anything())
+})
+
+test('restando Villico, entrambe le carte vengono tolte dal mazzo', async () => {
+  const user = userEvent.setup()
+  const onCambiaQuantita = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], scartoLadro: ['veggente', 'paladino'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+      onCambiaQuantita={onCambiaQuantita}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Resta Villico' }))
+
+  expect(onCambiaQuantita).toHaveBeenCalledWith('veggente', 0)
+  expect(onCambiaQuantita).toHaveBeenCalledWith('paladino', 0)
+})
+
+test('se entrambe le carte sono Lupi Mannari non propone "Resta Villico" (scambio obbligato)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], scartoLadro: ['lupo-mannaro', 'lupo-mannaro-capobranco'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'lupo-mannaro', 'lupo-mannaro-capobranco']}
+      quantita={{ ladro: 1, 'lupo-mannaro': 2, 'lupo-mannaro-capobranco': 1 }}
     />,
   )
   expect(screen.queryByRole('button', { name: 'Resta Villico' })).not.toBeInTheDocument()
@@ -47,6 +109,6 @@ test('se entrambe le carte sono Lupi Mannari non propone "Resta Villico" (scambi
 
 test('con il potere già usato mostra solo il messaggio', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: ['ladro-scelta'] }]
-  render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} scartoLadro={['veggente', 'paladino']} />)
+  render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
   expect(screen.getByText(/il ladro ha già scelto/i)).toBeInTheDocument()
 })

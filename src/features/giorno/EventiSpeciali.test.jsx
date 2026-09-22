@@ -76,19 +76,25 @@ test('Il Boia giustizia compare solo quando il Boia è già assegnato, vivo e no
   expect(onBoiaGiustizia).toHaveBeenCalledWith('2')
 })
 
-test("L'Alchimista esplode compare solo dopo la sua morte al rogo", async () => {
+test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina con sé, sempre tra i vivi", async () => {
   const user = userEvent.setup()
   const giocatori = [
-    { id: '1', nome: 'Ivo', ruoloSlug: 'alchimista', vivo: false, causaMorte: 'rogo', poteriUsati: [] },
+    { id: '1', nome: 'Ivo', vivo: true },
     { id: '2', nome: 'Anna', vivo: true },
   ]
-  const { onAlchimistaEsplode } = setup({ giocatori })
+  const { onAlchimistaEsplode } = setup({ giocatori, ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 } })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: "L'Alchimista esplode" }))
+  expect(screen.getByText("Chi è l'Alchimista")).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  expect(screen.getByText("Chi trascina con sé l'Alchimista")).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Ivo' })).not.toBeInTheDocument() // non può trascinare sé stesso
+
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(onAlchimistaEsplode).toHaveBeenCalledWith('2')
+  expect(onAlchimistaEsplode).toHaveBeenCalledWith('1', '2')
 })
 
 test('Il Bardo salta la notte è proposto solo in esito (dopo un rogo) e richiede conferma esplicita', async () => {

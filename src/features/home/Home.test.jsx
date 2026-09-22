@@ -10,10 +10,8 @@ test('mostra i tre pulsanti principali e l\'icona impostazioni', () => {
   expect(screen.getByRole('button', { name: 'Impostazioni' })).toBeInTheDocument()
 })
 
-test('Regolamento, Mazzo e Impostazioni sono disabilitati (non ancora implementati)', () => {
+test('Impostazioni è disabilitata (non ancora implementata)', () => {
   render(<Home onNuovaPartita={() => {}} />)
-  expect(screen.getByRole('button', { name: 'Regolamento' })).toBeDisabled()
-  expect(screen.getByRole('button', { name: 'Mazzo' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Impostazioni' })).toBeDisabled()
 })
 
@@ -23,4 +21,15 @@ test('cliccare Nuova Partita chiama onNuovaPartita', async () => {
   render(<Home onNuovaPartita={onNuovaPartita} />)
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   expect(onNuovaPartita).toHaveBeenCalled()
+})
+
+test('cliccare Regolamento e Mazzo chiama i rispettivi handler', async () => {
+  const user = userEvent.setup()
+  const onApriLibretto = vi.fn()
+  const onApriMazzo = vi.fn()
+  render(<Home onNuovaPartita={() => {}} onApriLibretto={onApriLibretto} onApriMazzo={onApriMazzo} />)
+  await user.click(screen.getByRole('button', { name: 'Regolamento' }))
+  await user.click(screen.getByRole('button', { name: 'Mazzo' }))
+  expect(onApriLibretto).toHaveBeenCalled()
+  expect(onApriMazzo).toHaveBeenCalled()
 })

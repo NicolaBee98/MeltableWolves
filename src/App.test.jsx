@@ -55,22 +55,21 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
 })
 
-test("l'icona Registro e impostazioni apre il popup con log e impostazioni", async () => {
+test("l'icona Registro e impostazioni apre il popup, di default sulle impostazioni", async () => {
   const user = userEvent.setup()
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
 
-  expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
-
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Log partita' }))
+  expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
 })
 
-test('Nuova Partita dalle Impostazioni riporta alla Home e azzera lo stato della partita', async () => {
+test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home e azzera lo stato della partita', async () => {
   const user = userEvent.setup()
-  vi.spyOn(window, 'confirm').mockReturnValue(true)
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
@@ -80,8 +79,8 @@ test('Nuova Partita dalle Impostazioni riporta alla Home e azzera lo stato della
   expect(screen.getByText('Anna')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, ricomincia' }))
 
   expect(screen.queryByRole('heading', { name: /nel mazzo/i })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
@@ -92,6 +91,4 @@ test('Nuova Partita dalle Impostazioni riporta alla Home e azzera lo stato della
 
   await user.click(screen.getByRole('button', { name: 'Continua' }))
   expect(screen.queryByText('Anna')).not.toBeInTheDocument()
-
-  window.confirm.mockRestore()
 })

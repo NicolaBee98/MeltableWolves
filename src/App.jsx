@@ -1,5 +1,7 @@
 import { Home } from './features/home/Home'
 import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
+import { MazzoGalleria } from './features/mazzo/MazzoGalleria'
+import { Libretto } from './features/libretto/Libretto'
 import { PlayerTracker } from './features/players/PlayerTracker'
 import { NightSequencer } from './features/notte/NightSequencer'
 import { AlbaPanel } from './features/alba/AlbaPanel'
@@ -17,13 +19,22 @@ import { ruoliAttivi } from './data/nightSteps'
 
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
-  const { quantita, setQuantita, resetMazzo, ruoliInMazzo, scartoLadro, setScartoLadro } = useMazzo()
+  const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
   const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, impostaGiocatori } = usePartita()
   const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
     useVotazione()
   const notte = useNotte()
   const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round)
-  const { mostraRuoliInVotazione, setMostraRuoliInVotazione } = useImpostazioni()
+  const {
+    mostraRuoliInVotazione,
+    setMostraRuoliInVotazione,
+    variantiFaccia,
+    setVariantiFaccia,
+    mostraNomeRuolo,
+    setMostraNomeRuolo,
+    durataTimer,
+    setDurataTimer,
+  } = useImpostazioni()
 
   const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
   const ruoliSelezionati = ruoliAttivi(
@@ -47,31 +58,42 @@ export default function App() {
   }
 
   return (
-    <main className={`app${faseApp === 'home' ? ' app--home' : ''}`}>
+    <main className={`app${faseApp === 'home' ? ' app--home' : ''}`} data-fase={faseApp}>
       <h1 className="app__titolo">
         <span className="app__titolo-meltable">Meltable</span>
         <span className="app__titolo-wolves">Wolves</span>
       </h1>
 
-      {faseApp !== 'home' && (
+      {faseApp !== 'home' && faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
         <LogImpostazioniPopup
           eventi={eventi}
           onNuovaPartita={nuovaPartita}
           mostraRuoliInVotazione={mostraRuoliInVotazione}
           onCambiaMostraRuoliInVotazione={setMostraRuoliInVotazione}
+          variantiFaccia={variantiFaccia}
+          onCambiaVariantiFaccia={setVariantiFaccia}
+          mostraNomeRuolo={mostraNomeRuolo}
+          onCambiaMostraNomeRuolo={setMostraNomeRuolo}
+          durataTimer={durataTimer}
+          onCambiaDurataTimer={setDurataTimer}
         />
       )}
 
-      {faseApp === 'home' && <Home onNuovaPartita={() => setFaseApp('mazzo')} />}
+      {faseApp === 'home' && (
+        <Home
+          onNuovaPartita={() => setFaseApp('mazzo')}
+          onApriLibretto={() => setFaseApp('libretto')}
+          onApriMazzo={() => setFaseApp('mazzo-galleria')}
+        />
+      )}
+
+      {faseApp === 'mazzo-galleria' && <MazzoGalleria onTornaAllaHome={() => setFaseApp('home')} />}
+
+      {faseApp === 'libretto' && <Libretto onTornaAllaHome={() => setFaseApp('home')} />}
 
       {faseApp === 'mazzo' && (
         <section>
-          <MazzoBuilder
-            quantita={quantita}
-            setQuantita={setQuantita}
-            scartoLadro={scartoLadro}
-            setScartoLadro={setScartoLadro}
-          />
+          <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
           <button type="button" onClick={() => setFaseApp('giocatori')}>
             Continua
           </button>
@@ -86,7 +108,7 @@ export default function App() {
               ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo.
             </p>
           )}
-          <button type="button" onClick={() => setFaseApp('notte')}>
+          <button type="button" className="giocatori-fase__prosegui" onClick={() => setFaseApp('notte')}>
             Inizia la notte
           </button>
         </section>
@@ -99,7 +121,7 @@ export default function App() {
           aggiornaGiocatore={aggiornaGiocatore}
           impostaGiocatori={impostaGiocatori}
           quantita={quantita}
-          scartoLadro={scartoLadro}
+          onCambiaQuantita={setQuantita}
           registraEvento={aggiungiEvento}
           round={notte.round}
           stepIndex={notte.stepIndex}
@@ -139,6 +161,9 @@ export default function App() {
           round={notte.round}
           onProsegui={proseguiAllaNotte}
           mostraRuoli={mostraRuoliInVotazione}
+          variantiFaccia={variantiFaccia}
+          mostraNomeRuolo={mostraNomeRuolo}
+          durataTimer={durataTimer}
         />
       )}
     </main>

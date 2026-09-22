@@ -40,5 +40,9 @@ export function annunciAlba(giocatori, round) {
     annunci.push(`${g.nome} è stato trasformato in maiale dalla Maga.`)
   }
 
+  for (const g of giocatori.filter((g) => g.causaMorte === 'sacrificio' && g.mortoNotte === round)) {
+    annunci.push(`${g.nome} si è rivelato: è il Cavaliere, e si è immolato al posto della vittima.`)
+  }
+
   return annunci
 }

@@ -28,3 +28,19 @@ test('il flag persiste in localStorage tra due montaggi', () => {
   const { result: result2 } = renderHook(() => useImpostazioni())
   expect(result2.current.mostraRuoliInVotazione).toBe(true)
 })
+
+test('variantiFaccia è true di default e mostraNomeRuolo false di default, entrambi persistono', () => {
+  const { result, unmount } = renderHook(() => useImpostazioni())
+  expect(result.current.variantiFaccia).toBe(true)
+  expect(result.current.mostraNomeRuolo).toBe(false)
+
+  act(() => {
+    result.current.setVariantiFaccia(false)
+    result.current.setMostraNomeRuolo(true)
+  })
+  unmount()
+
+  const { result: result2 } = renderHook(() => useImpostazioni())
+  expect(result2.current.variantiFaccia).toBe(false)
+  expect(result2.current.mostraNomeRuolo).toBe(true)
+})

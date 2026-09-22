@@ -4,51 +4,69 @@ import { CONDIZIONI } from '../../data/conditions'
 import { ROLES } from '../../data/roles'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
-
-// emoji per ogni condizione attiva (significato completo in src/data/conditions.js)
-const ICONE_CONDIZIONE = {
-  accecato: '🙈',
-  inibito: '🚫',
-  innamorato: '❤️',
-  ipnotizzato: '🌀',
-  maledetto: '💀',
-  trasformato: '🐷',
-  'morto-sul-colpo': '⚡',
-  protetto: '🛡️',
-  resuscitato: '✨',
-  unto: '🤐', // non può dire "sì" né "no"
-}
-
-// icona per fazione del ruolo, invece di 51 icone diverse una per ruolo
-const ICONE_FAZIONE = {
-  villaggio: '🧑‍🌾',
-  lupi: '🐺',
-  indipendente: '🃏',
-  sconosciuto: '❓',
-}
+import { RuoloIcona } from '../../components/RuoloIcona'
+import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
 
 function BadgeCondizioni({ condizioni = [] }) {
   return condizioni.map((slug) => {
-    const icona = ICONE_CONDIZIONE[slug]
-    if (!icona) return null
     const nome = CONDIZIONI.find((c) => c.slug === slug)?.nome ?? slug
     return (
-      <span key={slug} role="img" aria-label={nome} title={nome}>
-        {icona}
-      </span>
+      <img key={slug} src={condizionePath(slug)} alt={nome} title={nome} className="votazione__icona-condizione" />
     )
   })
 }
 
-function BadgeRuolo({ ruoloSlug }) {
-  if (!ruoloSlug) return null
+// mostra la faccia del ruolo (invece di un'icona di fazione generica): ha
+// senso solo perché già protetto da mostraRuoli, quindi il narratore l'ha
+// scelto di proposito per la sua partita
+// senza ruoloSlug il giocatore è probabilmente uno dei ruoli a rivelazione
+// diurna non ancora rivelati (RUOLI_RIVELAZIONE_GIORNO): mostra comunque il
+// punto interrogativo invece di sparire, per segnalare "identità non nota
+// ancora" e non "nessuna informazione qui"
+function BadgeRuolo({ ruoloSlug, variante }) {
   const ruolo = ROLES.find((r) => r.slug === ruoloSlug)
-  if (!ruolo) return null
-  const icona = ICONE_FAZIONE[ruolo.fazione] ?? '❔'
   return (
-    <span role="img" aria-label={ruolo.nome} title={ruolo.nome}>
-      {icona}
-    </span>
+    <RuoloIcona
+      slug={ruoloSlug}
+      variante={variante}
+      size={24}
+      className="votazione__icona-ruolo"
+      alt={ruolo?.nome ?? 'Ruolo non ancora rivelato'}
+    />
+  )
+}
+
+function nomeRuoloTraParentesi(ruoloSlug) {
+  const ruolo = ROLES.find((r) => r.slug === ruoloSlug)
+  return ruolo ? ` (${ruolo.nome})` : ''
+}
+
+// elenco di tutti i morti della partita (non solo di questo giorno/notte),
+// per tenerne traccia durante le votazioni successive
+function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo }) {
+  const morti = giocatori.filter((g) => !g.vivo)
+  if (morti.length === 0) return null
+
+  return (
+    <div className="votazione__morti">
+      <h3>Morti</h3>
+      <ul>
+        {morti.map((g) => (
+          <li key={g.id}>
+            {mostraRuoli && (
+              <BadgeRuolo
+                ruoloSlug={g.ruoloSlug}
+                variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
+              />
+            )}
+            <span>
+              {g.nome}
+              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
@@ -74,9 +92,11 @@ export function Votazione({
   ruoliSelezionati,
   quantita,
   onProsegui,
+  variantiFaccia = true,
+  mostraNomeRuolo = false,
+  durataTimer = 60,
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
-  const [daConfermare, setDaConfermare] = useState(null)
   // Spilungone e L'Antico non muoiono mai al primo rogo: si rivelano e
   // basta (pag. 16, 21). Tracciati a parte perché non passano mai da onRogo.
   // ponytail: questo stato locale non si resetta tra un giorno e l'altro
@@ -99,6 +119,9 @@ export function Votazione({
       spilungoneRivelatoId !== null ||
       anticoRivelatoId !== null
 
+    // un solo click: la scelta del bersaglio (candidato singolo o chip dello
+    // spareggio) è già di per sé una decisione inequivocabile, una conferma
+    // successiva sarebbe un secondo click ridondante
     function confermaMorte(id) {
       const target = giocatori.find((g) => g.id === id)
       if (target?.ruoloSlug === 'spilungone') {
@@ -109,22 +132,6 @@ export function Votazione({
       } else {
         onRogo(id)
       }
-      setDaConfermare(null)
-    }
-
-    function renderConferma(id) {
-      const nome = giocatori.find((g) => g.id === id)?.nome
-      return (
-        <div className="votazione__conferma">
-          <p>Confermi che {nome} è morto?</p>
-          <button type="button" onClick={() => confermaMorte(id)}>
-            Sì, è morto
-          </button>
-          <button type="button" onClick={() => setDaConfermare(null)}>
-            Annulla
-          </button>
-        </div>
-      )
     }
 
     function renderEsitoDesignato(id) {
@@ -146,10 +153,9 @@ export function Votazione({
           </p>
         )
       }
-      if (daConfermare === id) return renderConferma(id)
       if (!morteConfermata) {
         return (
-          <button type="button" onClick={() => setDaConfermare(id)}>
+          <button type="button" onClick={() => confermaMorte(id)}>
             Dichiara morte sul rogo
           </button>
         )
@@ -167,23 +173,23 @@ export function Votazione({
         ) : (
           <div className="votazione__spareggio">
             <p>Spareggio tra: {designati.map((id) => giocatori.find((g) => g.id === id)?.nome).join(', ')}</p>
-            <TimerSpareggio />
+            <div className="votazione__timer-box">
+              <TimerSpareggio durataSecondi={durataTimer} />
+            </div>
             {spilungoneRivelatoId !== null ? (
               renderEsitoDesignato(spilungoneRivelatoId)
             ) : anticoRivelatoId !== null ? (
               renderEsitoDesignato(anticoRivelatoId)
             ) : !morteConfermata ? (
-              daConfermare ? (
-                renderEsitoDesignato(daConfermare)
-              ) : (
+              <div className="votazione__scelta-box">
                 <div className="scelta-giocatore__chips" role="group" aria-label="Chi muore nello spareggio">
                   {designati.map((id) => (
-                    <button key={id} type="button" className="chip" onClick={() => setDaConfermare(id)}>
+                    <button key={id} type="button" className="chip" onClick={() => confermaMorte(id)}>
                       {giocatori.find((g) => g.id === id)?.nome}
                     </button>
                   ))}
                 </div>
-              )
+              </div>
             ) : null}
           </div>
         )}
@@ -194,9 +200,11 @@ export function Votazione({
             Torna al voto
           </button>
         )}
-        <button type="button" onClick={onProsegui} disabled={!morteConfermata}>
-          Prosegui alla notte
-        </button>
+        {morteConfermata && (
+          <button type="button" onClick={onProsegui}>
+            È notte nel villaggio
+          </button>
+        )}
         <EventiSpeciali
           giocatori={giocatori}
           ruoliSelezionati={ruoliSelezionati}
@@ -209,6 +217,12 @@ export function Votazione({
           onBardoSaltaNotte={onBardoSaltaNotte}
           onElezioneBorgomastro={onElezioneBorgomastro}
         />
+        <SezioneMorti
+          giocatori={giocatori}
+          mostraRuoli={mostraRuoli}
+          variantiFaccia={variantiFaccia}
+          mostraNomeRuolo={mostraNomeRuolo}
+        />
       </section>
     )
   }
@@ -220,10 +234,18 @@ export function Votazione({
       <ul>
         {vivi.map((g) => (
           <li key={g.id}>
-            <span>{g.nome}</span>
+            {mostraRuoli && (
+              <BadgeRuolo
+                ruoloSlug={g.ruoloSlug}
+                variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
+              />
+            )}
+            <span className="votazione__nome">
+              {g.nome}
+              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
+            </span>
             <BadgeCondizioni condizioni={g.condizioni} />
-            {mostraRuoli && <BadgeRuolo ruoloSlug={g.ruoloSlug} />}
-            <span>{voti[g.id] ?? 0} voti</span>
+            <span className="votazione__voti">{voti[g.id] ?? 0} voti</span>
             <button type="button" onClick={() => decrementaVoto(g.id)}>
               -1
             </button>
@@ -252,6 +274,12 @@ export function Votazione({
         onAlchimistaEsplode={onAlchimistaEsplode}
         onBardoSaltaNotte={onBardoSaltaNotte}
         onElezioneBorgomastro={onElezioneBorgomastro}
+      />
+      <SezioneMorti
+        giocatori={giocatori}
+        mostraRuoli={mostraRuoli}
+        variantiFaccia={variantiFaccia}
+        mostraNomeRuolo={mostraNomeRuolo}
       />
     </section>
   )

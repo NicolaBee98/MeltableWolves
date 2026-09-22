@@ -17,11 +17,45 @@ test('senza alcun ruolo selezionato mostra un messaggio', () => {
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
-test('un mazzo di solo Villico mostra comunque il passo per assegnarlo ai giocatori', () => {
+test('un mazzo di solo Villico mostra comunque il passo, ma senza chiedere di selezionarlo a mano', async () => {
+  const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
-  render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+  )
   expect(screen.getByRole('heading', { name: /assegna i ruoli rimanenti/i })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
+})
+
+test('assegna comunque il Villico a fine notte anche quando "assegna i ruoli rimanenti" non compare mai (mazzo senza villico esplicito)', async () => {
+  // scenario del bug: un mazzo di soli ruoli con passo dedicato (qui solo
+  // Mimo) più più giocatori di quanti ruoli espliciti — "villico" non è mai
+  // in ruoliSelezionati, quindi il passo "assegna-restanti" non esiste, ma i
+  // giocatori avanzati devono comunque ricevere un ruolo a fine notte
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Elena', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte ruoliSelezionati={['mimo', 'veggente']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+  )
+
+  expect(screen.queryByRole('heading', { name: /assegna i ruoli rimanenti/i })).not.toBeInTheDocument()
+
+  while (screen.queryByRole('button', { name: 'Avanti' })) {
+    await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  }
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
 })
 
 test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
@@ -262,7 +296,7 @@ test('non mostra mai il pulsante Morte Improvvisa: di notte non si può dichiara
   expect(screen.queryByRole('button', { name: /morte improvvisa/i })).not.toBeInTheDocument()
 })
 
-test('"Indietro" ripristina lo stato dei giocatori all\'ingresso del passo precedente, riabilitando l\'azione già fatta', async () => {
+test('"Indietro" durante un\'azione già compiuta la annulla restando sullo stesso passo (es. il branco dopo aver sbranato)', async () => {
   const user = userEvent.setup()
   let giocatori = [
     { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: [] },
@@ -286,15 +320,55 @@ test('"Indietro" ripristina lo stato dei giocatori all\'ingresso del passo prece
   await user.click(screen.getByRole('button', { name: 'Pietro' }))
   rerender(<NightSequencerConNotte {...props()} />)
   expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
+  expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+
+  const ripristinati = impostaGiocatori.mock.calls[0][0]
+  expect(ripristinati.find((g) => g.id === '1').condizioni).not.toContain('protetto')
+  // resta sul passo del Paladino: non è saltato al passo precedente
+  expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
+})
+
+test('"Indietro" senza azione sul passo corrente torna al passo precedente mostrando la sua azione già fatta; solo un secondo "Indietro" la annulla', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+  ]
+  const impostaGiocatori = vi.fn((nuovi) => {
+    giocatori = nuovi
+  })
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const props = () => ({
+    ruoliSelezionati: ['paladino', 'veggente'],
+    giocatori,
+    aggiornaGiocatore,
+    impostaGiocatori,
+  })
+
+  const { rerender } = render(<NightSequencerConNotte {...props()} />)
+
+  await user.click(screen.getByRole('button', { name: 'Pietro' }))
+  rerender(<NightSequencerConNotte {...props()} />)
 
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   rerender(<NightSequencerConNotte {...props()} />)
   expect(screen.getByRole('heading', { name: /veggente/i })).toBeInTheDocument()
 
+  // primo Indietro: torna al passo del Paladino, protetto ancora presente
   await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+  expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
+  expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
 
-  const ripristinati = impostaGiocatori.mock.calls[0][0]
-  expect(ripristinati.find((g) => g.id === '1').condizioni).not.toContain('protetto')
+  // secondo Indietro: ora annulla anche l'azione del Paladino
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+  expect(giocatori.find((g) => g.id === '1').condizioni).not.toContain('protetto')
 })
 
 test('"Notte successiva" chiama onNotteConclusa', async () => {

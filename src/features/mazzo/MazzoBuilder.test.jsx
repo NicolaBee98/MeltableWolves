@@ -97,28 +97,14 @@ test('il conteggio "Nel mazzo" somma tutte le quantità', () => {
   expect(screen.getByText('Nel mazzo (3)')).toBeInTheDocument()
 })
 
-test('senza il Ladro nel mazzo non mostra la sezione delle carte di scarto', () => {
+test('senza il Ladro nel mazzo non mostra la nota sulle carte extra', () => {
   setup({ quantita: { villico: 2 } })
-  expect(screen.queryByText(/carte di scarto per il ladro/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/due carte in più/i)).not.toBeInTheDocument()
 })
 
-test('con il Ladro nel mazzo mostra due selettori per le carte di scarto, che non contano nel totale', async () => {
-  const user = userEvent.setup()
-  const setScartoLadro = vi.fn()
-  setup({ quantita: { ladro: 1, villico: 2 }, scartoLadro: [], setScartoLadro })
-
-  expect(screen.getByText(/carte di scarto per il ladro/i)).toBeInTheDocument()
+test('con il Ladro nel mazzo mostra la nota sulle due carte extra (si scelgono la prima notte, non qui)', () => {
+  setup({ quantita: { ladro: 1, villico: 2 } })
+  expect(screen.getByText(/due carte in più/i)).toBeInTheDocument()
   expect(screen.getByText('Nel mazzo (3)')).toBeInTheDocument()
-
-  const [select1] = screen.getAllByRole('combobox')
-  await user.selectOptions(select1, 'veggente')
-
-  expect(setScartoLadro).toHaveBeenCalledWith(0, 'veggente')
-})
-
-test('lo scarto non propone un ruolo a copia unica già usato nel mazzo reale', () => {
-  setup({ quantita: { ladro: 1, paladino: 1 }, scartoLadro: [] })
-  const [select1] = screen.getAllByRole('combobox')
-  const opzioni = Array.from(select1.options).map((o) => o.value)
-  expect(opzioni).not.toContain('paladino')
+  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 })

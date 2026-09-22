@@ -27,21 +27,15 @@ test('boiaDisponibile è vero solo se il Boia è assegnato, vivo e non ha ancora
   expect(boiaDisponibile([{ id: '1', ruoloSlug: 'boia', vivo: true, poteriUsati: ['boia-giustizia'] }])).toBe(false)
 })
 
-test("alchimistaDisponibile è vero solo se morto al rogo e non ha ancora usato il potere", () => {
-  expect(alchimistaDisponibile([])).toBe(false)
+test('alchimistaDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
+  expect(alchimistaDisponibile([], [], {})).toBe(false)
+  expect(alchimistaDisponibile(['alchimista'], [], { alchimista: 1 })).toBe(true)
   expect(
-    alchimistaDisponibile([{ id: '1', ruoloSlug: 'alchimista', vivo: false, causaMorte: 'rogo', poteriUsati: [] }]),
-  ).toBe(true)
-  expect(
-    alchimistaDisponibile([{ id: '1', ruoloSlug: 'alchimista', vivo: true, causaMorte: null, poteriUsati: [] }]),
-  ).toBe(false)
-  expect(
-    alchimistaDisponibile([{ id: '1', ruoloSlug: 'alchimista', vivo: false, causaMorte: 'notte', poteriUsati: [] }]),
-  ).toBe(false)
-  expect(
-    alchimistaDisponibile([
-      { id: '1', ruoloSlug: 'alchimista', vivo: false, causaMorte: 'rogo', poteriUsati: ['alchimista-esplosione'] },
-    ]),
+    alchimistaDisponibile(
+      ['alchimista'],
+      [{ id: '1', ruoloSlug: 'alchimista', storiaRuoli: ['alchimista'] }],
+      { alchimista: 1 },
+    ),
   ).toBe(false)
 })
 
