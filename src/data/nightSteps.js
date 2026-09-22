@@ -6,10 +6,27 @@ export const RUOLI_BRANCO_LUPI = [
   'lupo-mannaro-progenitore', 'nonna',
 ]
 
+// Il Villico non ha alcuna azione o caratteristica da tracciare (pag. 5): non
+// ha senso chiedere al narratore di individuarlo carta per carta come gli
+// altri ruoli "senza step dedicato" (Ambasciatore, Berserker...). Resta
+// nell'elenco assegnabile (così il passo "assegna i ruoli rimanenti" esiste
+// ancora finché ci sono Villici da piazzare) ma va escluso dalla selezione
+// manuale: chi resta senza ruolo a fine passo diventa Villico in automatico
+// (vedi NightSequencer).
+export const RUOLI_NON_ASSEGNABILI_MANUALMENTE = ['villico']
+
 const STEPS_CON_RUOLO_DEDICATO = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
+  // Cucciolo, Capobranco e Progenitore vanno identificati singolarmente qui,
+  // insieme agli altri poteri passivi (pag. 27): così quando più avanti il
+  // branco si riconosce collettivamente questi tre sono già assegnati e non
+  // ricompaiono tra le carte da smistare, mentre restano da assegnare solo i
+  // lupi "generici" e la Nonna.
+  { id: 'cucciolo-di-lupo-mannaro', titolo: 'Cucciolo di Lupo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['cucciolo-di-lupo-mannaro'] },
+  { id: 'lupo-mannaro-capobranco', titolo: 'Lupo Mannaro Capobranco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-capobranco'] },
+  { id: 'lupo-mannaro-progenitore', titolo: 'Lupo Mannaro Progenitore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-progenitore'] },
   { id: 'criceto-malvagio', titolo: 'Criceto Malvagio', tipo: 'informativo', primaNotteSolo: true, ruoli: ['criceto-malvagio'] },
   { id: 'eremita', titolo: 'Eremita', tipo: 'informativo', primaNotteSolo: true, ruoli: ['eremita'] },
   { id: 'nano', titolo: 'Nano', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nano'] },

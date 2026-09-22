@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ROLES } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
+import { RuoloIllustrazione } from '../../components/RuoloIcona'
 
 export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCambiaSelezioni }) {
   const [avviso, setAvviso] = useState(null)
@@ -43,6 +44,7 @@ export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCam
 
   return (
     <div className="assegna-ruolo">
+      <RuoloIllustrazione slug={ruoloScelto} className="assegna-ruolo__illustrazione" />
       {opzioni.length > 1 && (
         <label>
           Che ruolo mostra la carta?

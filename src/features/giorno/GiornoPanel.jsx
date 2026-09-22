@@ -16,6 +16,9 @@ export function GiornoPanel({
   round,
   onProsegui,
   mostraRuoli,
+  variantiFaccia,
+  mostraNomeRuolo,
+  durataTimer,
 }) {
   function dichiaraRogo(id) {
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'rogo', mortoNotte: round })
@@ -49,13 +52,18 @@ export function GiornoPanel({
     aggiornaGiocatore(vittimaId, { vivo: false, causaMorte: 'colpo' })
   }
 
-  function dichiaraAlchimistaEsplode(vittimaId) {
-    const alchimista = giocatori.find((g) => g.ruoloSlug === 'alchimista')
-    if (alchimista) {
-      aggiornaGiocatore(alchimista.id, {
-        poteriUsati: [...(alchimista.poteriUsati ?? []), 'alchimista-esplosione'],
-      })
-    }
+  // l'Alchimista si rivela ed esplode nel momento stesso in cui viene messo
+  // al rogo (pag. 5): questo evento dichiara la sua morte per rogo, non un
+  // "Dichiara morte sul rogo" separato in Votazione
+  function dichiaraAlchimistaEsplode(alchimistaId, vittimaId) {
+    const alchimista = giocatori.find((g) => g.id === alchimistaId)
+    aggiornaGiocatore(alchimistaId, {
+      ruoloSlug: 'alchimista',
+      storiaRuoli: [...(alchimista?.storiaRuoli ?? []), 'alchimista'],
+      vivo: false,
+      causaMorte: 'rogo',
+      poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],
+    })
     aggiornaGiocatore(vittimaId, { vivo: false, causaMorte: 'colpo' })
   }
 
@@ -97,6 +105,9 @@ export function GiornoPanel({
         quantita={quantita}
         onProsegui={onProsegui}
         mostraRuoli={mostraRuoli}
+        variantiFaccia={variantiFaccia}
+        mostraNomeRuolo={mostraNomeRuolo}
+        durataTimer={durataTimer}
       />
     </section>
   )

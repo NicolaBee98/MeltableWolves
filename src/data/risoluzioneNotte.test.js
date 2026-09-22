@@ -9,24 +9,34 @@ test('apprendista eredita il ruolo del maestro quando muore', () => {
   expect(patch['1']).toEqual({ ruoloSlug: 'veggente', legame: null })
 })
 
-test('cavaliere muore al posto del bersaglio se ucciso di notte', () => {
+test('cavaliere muore al posto del bersaglio se sbranato di notte', () => {
   const giocatori = [
     { id: '1', nome: 'Luca', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
-    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 3 },
   ]
   const patch = risolviLegami(giocatori)
-  expect(patch['2']).toEqual({ vivo: true })
-  expect(patch['1']).toEqual({ vivo: false, legame: null })
+  expect(patch['2']).toEqual({ vivo: true, causaMorte: undefined })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: 3, legame: null })
 })
 
-test('cavaliere si immola se il bersaglio muore senza essere sbranato di notte', () => {
+test('cavaliere si rivela e si immola al posto del bersaglio anche se questo viene messo al rogo', () => {
   const giocatori = [
     { id: '1', nome: 'Luca', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
-    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2 },
+  ]
+  const patch = risolviLegami(giocatori)
+  expect(patch['2']).toEqual({ vivo: true, causaMorte: undefined })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: 2, legame: null })
+})
+
+test('cavaliere si immola comunque se il bersaglio muore per un\'altra causa (es. morte sul colpo)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Luca', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'colpo' },
   ]
   const patch = risolviLegami(giocatori)
   expect(patch['2']).toBeUndefined()
-  expect(patch['1']).toEqual({ vivo: false, legame: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined, legame: null })
 })
 
 test('figlia dei lupi diventa lupo mannaro quando il genitore muore', () => {

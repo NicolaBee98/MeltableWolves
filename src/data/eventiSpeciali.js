@@ -1,6 +1,15 @@
 import { ruoliAssegnabili } from './assegnazione'
 import { RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 
+// L'Alchimista si rivela solo quando viene messo al rogo (pag. 5): la sua
+// identità non è mai assegnata prima. Disponibile finché il mazzo lo prevede
+// e nessuno l'ha già usato una volta (ruoliAssegnabili conta su storiaRuoli,
+// mai sottratto, quindi resta "assegnato" per sempre dopo il primo uso).
+export function alchimistaDisponibile(ruoliSelezionati, giocatori, quantita) {
+  if (!ruoliSelezionati.includes('alchimista')) return false
+  return ruoliAssegnabili(['alchimista'], giocatori, quantita).length > 0
+}
+
 // Ruoli assegnabili tramite l'evento generico "Rivelazione personaggio":
 // tutti i ruoli a rivelazione diurna tranne il Borgomastro, che non è
 // un'identità ma un titolo elettivo che si affianca al ruolo già posseduto
@@ -15,16 +24,6 @@ export function ruoliRivelabili(ruoliSelezionati, giocatori, quantita) {
 export function boiaDisponibile(giocatori) {
   const boia = giocatori.find((g) => g.ruoloSlug === 'boia' && g.vivo)
   return Boolean(boia) && !(boia.poteriUsati ?? []).includes('boia-giustizia')
-}
-
-export function alchimistaDisponibile(giocatori) {
-  const alchimista = giocatori.find((g) => g.ruoloSlug === 'alchimista')
-  return (
-    Boolean(alchimista) &&
-    !alchimista.vivo &&
-    alchimista.causaMorte === 'rogo' &&
-    !(alchimista.poteriUsati ?? []).includes('alchimista-esplosione')
-  )
 }
 
 export function bardoDisponibile(giocatori) {

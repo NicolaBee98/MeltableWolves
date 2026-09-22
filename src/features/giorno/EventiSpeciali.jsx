@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
+import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
 import { ROLES } from '../../data/roles'
 import {
   ruoliRivelabili,
@@ -40,6 +41,7 @@ export function EventiSpeciali({
 }) {
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
+  const [alchimistaId, setAlchimistaId] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
 
@@ -48,7 +50,7 @@ export function EventiSpeciali({
   const mostraMorteImprovvisa = inGiorno
   const mostraRivelazione = rivelabili.length > 0
   const mostraBoia = inGiorno && boiaDisponibile(giocatori)
-  const mostraAlchimista = inGiorno && alchimistaDisponibile(giocatori)
+  const mostraAlchimista = inGiorno && alchimistaDisponibile(ruoliSelezionati, giocatori, quantita)
   const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
   const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati)
@@ -65,6 +67,7 @@ export function EventiSpeciali({
   function chiudi() {
     setEvento(null)
     setRuoloRivelazione(null)
+    setAlchimistaId(null)
   }
 
   if (nessunEvento) return null
@@ -141,6 +144,7 @@ export function EventiSpeciali({
                 <div className="scelta-giocatore__chips" role="group" aria-label="Che ruolo si rivela">
                   {rivelabili.map((slug) => (
                     <button key={slug} type="button" className="chip" onClick={() => setRuoloRivelazione(slug)}>
+                      <RuoloIcona slug={slug} size={22} />
                       {nomeRuolo(slug)}
                     </button>
                   ))}
@@ -150,15 +154,18 @@ export function EventiSpeciali({
                 </button>
               </>
             ) : (
-              <SceltaGiocatore
-                candidati={nonAssegnati}
-                onConferma={(id) => {
-                  onRivelazione(ruoloRivelazione, id)
-                  chiudi()
-                }}
-                onSalta={() => setRuoloRivelazione(null)}
-                etichetta={`Chi è ${nomeRuolo(ruoloRivelazione)}?`}
-              />
+              <>
+                <RuoloIllustrazione slug={ruoloRivelazione} className="eventi-speciali__illustrazione" />
+                <SceltaGiocatore
+                  candidati={nonAssegnati}
+                  onConferma={(id) => {
+                    onRivelazione(ruoloRivelazione, id)
+                    chiudi()
+                  }}
+                  onSalta={() => setRuoloRivelazione(null)}
+                  etichetta={`Chi è ${nomeRuolo(ruoloRivelazione)}?`}
+                />
+              </>
             ))}
 
           {evento === 'boia' && (
@@ -174,18 +181,27 @@ export function EventiSpeciali({
             />
           )}
 
-          {evento === 'alchimista' && (
-            <SceltaGiocatore
-              candidati={vivi}
-              onConferma={(id) => {
-                onAlchimistaEsplode(id)
-                chiudi()
-              }}
-              onSalta={chiudi}
-              etichetta="Chi trascina con sé l'Alchimista"
-              mostraSalta={false}
-            />
-          )}
+          {evento === 'alchimista' &&
+            (!alchimistaId ? (
+              <SceltaGiocatore
+                candidati={vivi}
+                onConferma={setAlchimistaId}
+                onSalta={chiudi}
+                etichetta="Chi è l'Alchimista"
+                mostraSalta={false}
+              />
+            ) : (
+              <SceltaGiocatore
+                candidati={vivi.filter((g) => g.id !== alchimistaId)}
+                onConferma={(id) => {
+                  onAlchimistaEsplode(alchimistaId, id)
+                  chiudi()
+                }}
+                onSalta={chiudi}
+                etichetta="Chi trascina con sé l'Alchimista"
+                mostraSalta={false}
+              />
+            ))}
 
           {evento === 'bardo' && (
             <div className="eventi-speciali__conferma">

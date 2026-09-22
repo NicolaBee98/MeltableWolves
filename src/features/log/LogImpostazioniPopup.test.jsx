@@ -7,14 +7,15 @@ test('il popup è chiuso di default', () => {
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 })
 
-test("cliccando l'icona si apre il popup, di default sulla tab Log partita", async () => {
+test("cliccando l'icona si apre il popup, di default sulla tab Impostazioni partita", async () => {
   const user = userEvent.setup()
   render(<LogImpostazioniPopup eventi={[]} />)
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
 
   expect(screen.getByRole('dialog')).toBeInTheDocument()
-  expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
+  expect(screen.queryByText(/nessun evento registrato/i)).not.toBeInTheDocument()
 })
 
 test('mostra gli eventi nella tab Log partita', async () => {
@@ -22,49 +23,37 @@ test('mostra gli eventi nella tab Log partita', async () => {
   render(<LogImpostazioniPopup eventi={[{ round: 1, messaggio: 'Anna è morto/a' }]} />)
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  await user.click(screen.getByRole('button', { name: 'Log partita' }))
 
   expect(screen.getByText(/anna è morto\/a/i)).toBeInTheDocument()
 })
 
-test('la tab Impostazioni partita mostra il pulsante Nuova Partita e nasconde il log', async () => {
-  const user = userEvent.setup()
-  render(<LogImpostazioniPopup eventi={[]} onNuovaPartita={vi.fn()} />)
-
-  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
-
-  expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
-  expect(screen.queryByText(/nessun evento registrato/i)).not.toBeInTheDocument()
-})
-
-test('Nuova Partita chiede conferma e non fa nulla se annullata', async () => {
+test('Nuova Partita chiede conferma con una UI coerente (non window.confirm) e non fa nulla se annullata', async () => {
   const user = userEvent.setup()
   const onNuovaPartita = vi.fn()
-  vi.spyOn(window, 'confirm').mockReturnValue(false)
   render(<LogImpostazioniPopup eventi={[]} onNuovaPartita={onNuovaPartita} />)
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+
+  expect(screen.getByText(/iniziare una nuova partita/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Annulla' }))
 
   expect(onNuovaPartita).not.toHaveBeenCalled()
   expect(screen.getByRole('dialog')).toBeInTheDocument()
-  window.confirm.mockRestore()
 })
 
-test('Nuova Partita chiama onNuovaPartita e chiude il popup se confermata', async () => {
+test('Nuova Partita, confermata, chiama onNuovaPartita e chiude il popup', async () => {
   const user = userEvent.setup()
   const onNuovaPartita = vi.fn()
-  vi.spyOn(window, 'confirm').mockReturnValue(true)
   render(<LogImpostazioniPopup eventi={[]} onNuovaPartita={onNuovaPartita} />)
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, ricomincia' }))
 
   expect(onNuovaPartita).toHaveBeenCalled()
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  window.confirm.mockRestore()
 })
 
 test('la tab Impostazioni partita mostra il checkbox per i ruoli in votazione, coerente col flag ricevuto', async () => {
@@ -72,7 +61,6 @@ test('la tab Impostazioni partita mostra il checkbox per i ruoli in votazione, c
   render(<LogImpostazioniPopup eventi={[]} mostraRuoliInVotazione={false} onCambiaMostraRuoliInVotazione={vi.fn()} />)
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
 
   expect(screen.getByRole('checkbox', { name: /mostra i ruoli durante la votazione/i })).not.toBeChecked()
 })
@@ -89,13 +77,38 @@ test('attivare il checkbox dei ruoli chiama onCambiaMostraRuoliInVotazione con t
   )
 
   await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Impostazioni partita' }))
   await user.click(screen.getByRole('checkbox', { name: /mostra i ruoli durante la votazione/i }))
 
   expect(onCambiaMostraRuoliInVotazione).toHaveBeenCalledWith(true)
 })
 
-test('il pulsante Chiudi chiude il popup', async () => {
+test('mostra il checkbox delle varianti di icona, coerente col flag ricevuto, e lo aggiorna al click', async () => {
+  const user = userEvent.setup()
+  const onCambiaVariantiFaccia = vi.fn()
+  render(<LogImpostazioniPopup eventi={[]} variantiFaccia={true} onCambiaVariantiFaccia={onCambiaVariantiFaccia} />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  const checkbox = screen.getByRole('checkbox', { name: /varianti di icona/i })
+  expect(checkbox).toBeChecked()
+
+  await user.click(checkbox)
+  expect(onCambiaVariantiFaccia).toHaveBeenCalledWith(false)
+})
+
+test('mostra il checkbox per il nome del ruolo tra parentesi, coerente col flag ricevuto, e lo aggiorna al click', async () => {
+  const user = userEvent.setup()
+  const onCambiaMostraNomeRuolo = vi.fn()
+  render(<LogImpostazioniPopup eventi={[]} mostraNomeRuolo={false} onCambiaMostraNomeRuolo={onCambiaMostraNomeRuolo} />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  const checkbox = screen.getByRole('checkbox', { name: /nome del ruolo tra parentesi/i })
+  expect(checkbox).not.toBeChecked()
+
+  await user.click(checkbox)
+  expect(onCambiaMostraNomeRuolo).toHaveBeenCalledWith(true)
+})
+
+test('la X in alto a destra chiude il popup', async () => {
   const user = userEvent.setup()
   render(<LogImpostazioniPopup eventi={[]} />)
 

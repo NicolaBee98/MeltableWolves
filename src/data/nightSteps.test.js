@@ -1,4 +1,5 @@
 import { NIGHT_STEPS, passiNotte, notteBloccata, ruoliAttivi, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
+import { ruoliAssegnabili } from './assegnazione'
 
 const NESSUN_GIOCATORE = []
 
@@ -65,9 +66,57 @@ test("identifica-branco viene prima dei gesti segreti di Bardo/Gallo Mannaro (or
   expect(ordine).toEqual(['identifica-branco', 'bardo', 'gallo-mannaro'])
 })
 
-test('cucciolo di lupo mannaro compare solo in identifica-branco, non ancora nel branco', () => {
+test('cucciolo di lupo mannaro ha un passo dedicato tra i poteri passivi, prima che il branco si riconosca collettivamente', () => {
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
-  expect(ordine).toEqual(['identifica-branco'])
+  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'identifica-branco'])
+})
+
+test('capobranco e progenitore hanno anch\'essi un passo dedicato prima che il branco si riconosca', () => {
+  const ordine = passiNotte(
+    ['lupo-mannaro-capobranco', 'lupo-mannaro-progenitore'],
+    1,
+    NESSUN_GIOCATORE,
+  ).map((p) => p.id)
+  expect(ordine).toEqual(['lupo-mannaro-capobranco', 'lupo-mannaro-progenitore', 'identifica-branco'])
+})
+
+test('una volta che cucciolo e capobranco sono già assegnati, i loro passi individuali restano (titolare vivo) accanto a "il branco si riconosce"', () => {
+  const giocatori = [
+    {
+      id: '1',
+      nome: 'Sara',
+      ruoloSlug: 'cucciolo-di-lupo-mannaro',
+      vivo: true,
+      condizioni: [],
+      storiaRuoli: ['cucciolo-di-lupo-mannaro'],
+    },
+    {
+      id: '2',
+      nome: 'Marco',
+      ruoloSlug: 'lupo-mannaro-capobranco',
+      vivo: true,
+      condizioni: [],
+      storiaRuoli: ['lupo-mannaro-capobranco'],
+    },
+  ]
+  const ordine = passiNotte(
+    ['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro'],
+    1,
+    giocatori,
+    { 'lupo-mannaro': 1 },
+  ).map((p) => p.id)
+  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'identifica-branco', 'branco-lupi'])
+
+  // il passo "il branco si riconosce" non ripropone più cucciolo/capobranco
+  // tra le carte da assegnare: restano solo i lupi generici
+  const mazzo = ['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro']
+  const identificaBranco = NIGHT_STEPS.find((s) => s.id === 'identifica-branco')
+  const assegnabili = ruoliAssegnabili(
+    identificaBranco.ruoli.filter((slug) => mazzo.includes(slug)),
+    giocatori,
+    { 'lupo-mannaro': 1 },
+  )
+  expect(assegnabili).toEqual(['lupo-mannaro'])
 })
 
 test('i ruoli con potere passivo rimasti (es. eremita) hanno un passo individuale assegnabile', () => {

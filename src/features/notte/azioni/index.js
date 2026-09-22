@@ -11,6 +11,7 @@ import { AzioneIndagine } from './AzioneIndagine'
 import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
 import { AzioneInquisitore } from './AzioneInquisitore'
 import { AzioneLadro } from './AzioneLadro'
+import { AzioneMimo } from './AzioneMimo'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
 export const AZIONI_NOTTURNE = {
@@ -46,11 +47,11 @@ export const AZIONI_NOTTURNE = {
   apprendista: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
   cavaliere: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
   'figlia-dei-lupi': { Componente: AzioneLegame, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },
-  // il Mimo non ha reazioni alla morte del bersaglio (a differenza di
-  // apprendista/cavaliere/figlia dei lupi): risolviLegami ignora il tipo
-  // 'mimo', il legame resta per tutta la partita. Il "risveglio insieme al
-  // ruolo imitato" è puramente di presentazione, vedi NightSequencer.jsx
-  mimo: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'mimo', tipoLegame: 'mimo', etichetta: 'Chi imitare' } },
+  // il Mimo assume letteralmente il ruoloSlug del bersaglio (vedi
+  // AzioneMimo.jsx): niente reazione a parte alla sua morte, risolviLegami
+  // ignora il tipo 'mimo', il legame resta per tutta la partita solo per
+  // ricordare chi stava imitando.
+  mimo: { Componente: AzioneMimo, props: {} },
   cortigiana: { Componente: AzioneCortigiana, props: {} },
   addolorata: { Componente: AzioneAddolorata, props: {} },
   veggente: { Componente: AzioneIndagine, props: {} },
@@ -67,7 +68,5 @@ export const AZIONI_NOTTURNE = {
     props: { ruoloSlugAttore: 'medium', etichettaAttore: 'Medium', bersaglio: 'morto' },
   },
   inquisitore: { Componente: AzioneInquisitore, props: {} },
-  // riceve anche scartoLadro da NightSequencer (non è uno degli ruoli/round
-  // "standard" passati a ogni azione, ma NightSequencer lo inoltra a tutte)
   ladro: { Componente: AzioneLadro, props: {} },
 }

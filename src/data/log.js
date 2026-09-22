@@ -1,4 +1,10 @@
-const ETICHETTA_CAUSA = { notte: ' di notte', rogo: ' al rogo', colpo: ' sul colpo', crepacuore: ' di crepacuore' }
+const ETICHETTA_CAUSA = {
+  notte: ' di notte',
+  rogo: ' al rogo',
+  colpo: ' sul colpo',
+  crepacuore: ' di crepacuore',
+  sacrificio: ': il Cavaliere si è rivelato e immolato al posto della vittima',
+}
 
 export function rilevaEventi(precedenti, correnti, round) {
   const eventi = []

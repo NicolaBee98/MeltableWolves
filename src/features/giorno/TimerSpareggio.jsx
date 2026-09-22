@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
-export function TimerSpareggio() {
-  const [durata, setDurata] = useState(60)
-  const [rimanente, setRimanente] = useState(60)
+// la durata si imposta nelle impostazioni di partita, non qui (vedi
+// LogImpostazioniPopup): questo componente si limita ad avviarla/fermarla
+export function TimerSpareggio({ durataSecondi = 60 }) {
+  const [rimanente, setRimanente] = useState(durataSecondi)
   const [attivo, setAttivo] = useState(false)
   const intervalRef = useRef(null)
 
@@ -21,7 +22,7 @@ export function TimerSpareggio() {
   }, [attivo])
 
   function avvia() {
-    setRimanente(durata)
+    setRimanente(durataSecondi)
     setAttivo(true)
   }
 
@@ -31,7 +32,7 @@ export function TimerSpareggio() {
 
   function azzera() {
     setAttivo(false)
-    setRimanente(durata)
+    setRimanente(durataSecondi)
   }
 
   const minuti = Math.floor(rimanente / 60)
@@ -40,15 +41,6 @@ export function TimerSpareggio() {
 
   return (
     <div className="timer-spareggio">
-      <label htmlFor="durata-timer">Durata (secondi)</label>
-      <input
-        id="durata-timer"
-        type="number"
-        min="1"
-        value={durata}
-        onChange={(event) => setDurata(Number(event.target.value))}
-        disabled={attivo}
-      />
       <p>{tempoFormattato}</p>
       <button type="button" onClick={avvia}>
         Avvia

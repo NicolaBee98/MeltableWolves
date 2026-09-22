@@ -36,11 +36,22 @@ function setup(overrides = {}) {
   return props
 }
 
-test('in fase voto mostra un pulsante per ogni giocatore vivo, non per i morti', () => {
+test('in fase voto mostra un pulsante per ogni giocatore vivo, non per i morti (che compaiono invece nella sezione Morti)', () => {
   setup()
   expect(screen.getByText('Anna')).toBeInTheDocument()
   expect(screen.getByText('Marco')).toBeInTheDocument()
-  expect(screen.queryByText('Luca')).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Luca' })).not.toBeInTheDocument()
+})
+
+test('la sezione Morti elenca tutti i giocatori morti della partita', () => {
+  setup()
+  expect(screen.getByRole('heading', { name: 'Morti' })).toBeInTheDocument()
+  expect(screen.getByText('Luca')).toBeInTheDocument()
+})
+
+test('senza morti non mostra la sezione Morti', () => {
+  setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: true }] })
+  expect(screen.queryByRole('heading', { name: 'Morti' })).not.toBeInTheDocument()
 })
 
 test("+1 chiama incrementaVoto con l'id del giocatore", async () => {
@@ -69,28 +80,13 @@ test("con un massimo di voti il pulsante per andare all'esito chiama vaiAEsito c
   expect(vaiAEsito).toHaveBeenCalledWith(['1', '2'])
 })
 
-test('in fase esito con un solo massimo mostra la vittima designata; conferma e dichiara il rogo', async () => {
+test('in fase esito con un solo massimo mostra la vittima designata; un click dichiara il rogo (nessuna conferma ridondante)', async () => {
   const user = userEvent.setup()
   const { onRogo } = setup({ voti: { 1: 2 }, fase: 'esito' })
   expect(screen.getByText(/vittima designata: anna/i)).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
-  expect(screen.getByText(/confermi che anna è morto/i)).toBeInTheDocument()
-  expect(onRogo).not.toHaveBeenCalled()
-
-  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
   expect(onRogo).toHaveBeenCalledWith('1')
-})
-
-test('in fase esito la conferma del rogo si può annullare senza dichiarare la morte', async () => {
-  const user = userEvent.setup()
-  const { onRogo } = setup({ voti: { 1: 2 }, fase: 'esito' })
-
-  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
-  await user.click(screen.getByRole('button', { name: 'Annulla' }))
-
-  expect(onRogo).not.toHaveBeenCalled()
-  expect(screen.getByRole('button', { name: 'Dichiara morte sul rogo' })).toBeInTheDocument()
 })
 
 test('lo Spilungone designato al rogo si rivela e non muore', async () => {
@@ -102,14 +98,13 @@ test('lo Spilungone designato al rogo si rivela e non muore', async () => {
   const { onRogo, onProsegui } = setup({ giocatori: giocatoriConSpilungone, voti: { 1: 2 }, fase: 'esito' })
 
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
-  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
 
   expect(onRogo).not.toHaveBeenCalled()
   expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
 
-  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).not.toBeDisabled()
-  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  const prosegui = screen.getByRole('button', { name: "È notte nel villaggio" })
+  await user.click(prosegui)
   expect(onProsegui).toHaveBeenCalled()
 })
 
@@ -127,7 +122,6 @@ test('lo Spilungone scelto nello spareggio si rivela e non muore', async () => {
   })
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
 
   expect(onRogo).not.toHaveBeenCalled()
   expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
@@ -146,15 +140,14 @@ test("L'Antico designato al rogo si rivela, sopravvive e chiama onAnticoRivelazi
   })
 
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
-  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
 
   expect(onRogo).not.toHaveBeenCalled()
   expect(onAnticoRivelazione).toHaveBeenCalledWith('1')
   expect(screen.getByText(/anna rivela la propria carta: è l'antico/i)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Torna al voto' })).not.toBeInTheDocument()
 
-  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).not.toBeDisabled()
-  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  const prosegui = screen.getByRole('button', { name: "È notte nel villaggio" })
+  await user.click(prosegui)
   expect(onProsegui).toHaveBeenCalled()
 })
 
@@ -170,12 +163,12 @@ test("il calcolo dell'esito usa i candidati congelati, non i giocatori vivi corr
   expect(screen.queryByText(/spareggio/i)).not.toBeInTheDocument()
 })
 
-test('in fase esito, prima della conferma, "Prosegui alla notte" è disabilitato', () => {
+test('in fase esito, prima della conferma, "È notte nel villaggio" non compare ancora', () => {
   setup({ voti: { 1: 2 }, fase: 'esito' })
-  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).toBeDisabled()
+  expect(screen.queryByRole('button', { name: "È notte nel villaggio" })).not.toBeInTheDocument()
 })
 
-test('in fase esito, dopo la conferma del rogo, "Prosegui alla notte" si abilita', async () => {
+test('in fase esito, dopo la conferma del rogo, compare "È notte nel villaggio"', async () => {
   const user = userEvent.setup()
   const giocatoriDopoRogo = [
     { id: '1', nome: 'Anna', vivo: false },
@@ -183,8 +176,8 @@ test('in fase esito, dopo la conferma del rogo, "Prosegui alla notte" si abilita
   ]
   const { onProsegui } = setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito' })
 
-  expect(screen.getByRole('button', { name: 'Prosegui alla notte' })).not.toBeDisabled()
-  await user.click(screen.getByRole('button', { name: 'Prosegui alla notte' }))
+  const prosegui = screen.getByRole('button', { name: "È notte nel villaggio" })
+  await user.click(prosegui)
   expect(onProsegui).toHaveBeenCalled()
 })
 
@@ -195,14 +188,11 @@ test('in fase esito con più massimi mostra lo spareggio con le chip dei candida
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
-test('in fase esito, selezionare chi muore nello spareggio e confermare dichiara il rogo su quel giocatore', async () => {
+test('in fase esito, selezionare chi muore nello spareggio dichiara subito il rogo su quel giocatore', async () => {
   const user = userEvent.setup()
   const { onRogo } = setup({ voti: { 1: 2, 2: 2 }, fase: 'esito' })
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  expect(screen.getByText(/confermi che marco è morto/i)).toBeInTheDocument()
-
-  await user.click(screen.getByRole('button', { name: 'Sì, è morto' }))
   expect(onRogo).toHaveBeenCalledWith('2')
 })
 
@@ -264,8 +254,8 @@ test('con mostraRuoli attivo mostra icona di ruolo per il giocatore con ruoloSlu
   expect(screen.getByRole('img', { name: 'Lupo Mannaro' })).toBeInTheDocument()
 })
 
-test('con mostraRuoli attivo ma ruoloSlug non assegnato non mostra nessuna icona di ruolo', () => {
+test('con mostraRuoli attivo ma ruoloSlug non assegnato mostra il punto interrogativo (ruolo a rivelazione diurna non ancora rivelato)', () => {
   const giocatoriSenzaRuolo = [{ id: '1', nome: 'Anna', vivo: true }]
   setup({ giocatori: giocatoriSenzaRuolo, mostraRuoli: true })
-  expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  expect(screen.getByRole('img', { name: 'Ruolo non ancora rivelato' })).toBeInTheDocument()
 })
