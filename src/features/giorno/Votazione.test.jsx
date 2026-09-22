@@ -108,6 +108,43 @@ test('lo Spilungone designato al rogo si rivela e non muore', async () => {
   expect(onProsegui).toHaveBeenCalled()
 })
 
+test('un designato di ruolo ancora ignoto può rivelarsi Spilungone o L\'Antico al momento del rogo, senza doverlo assegnare prima da Eventi speciali', async () => {
+  const user = userEvent.setup()
+  const giocatoriSenzaRuoloNoto = [
+    { id: '1', nome: 'Anna', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const { onRogo, onRivelazione } = setup({
+    giocatori: giocatoriSenzaRuoloNoto,
+    voti: { 1: 2 },
+    fase: 'esito',
+    ruoliSelezionati: ['spilungone', 'lantico'],
+    quantita: { spilungone: 1, lantico: 1 },
+  })
+
+  expect(screen.getByRole('button', { name: 'Si rivela: è lo Spilungone' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: "Si rivela: è L'Antico" }))
+
+  expect(onRivelazione).toHaveBeenCalledWith('lantico', '1')
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(screen.getByText(/anna rivela la propria carta: è l'antico/i)).toBeInTheDocument()
+})
+
+test('non propone la rivelazione di Spilungone/L\'Antico se il designato ha già un ruolo noto diverso', () => {
+  const giocatoriConRuoloNoto = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({
+    giocatori: giocatoriConRuoloNoto,
+    voti: { 1: 2 },
+    fase: 'esito',
+    ruoliSelezionati: ['spilungone'],
+    quantita: { spilungone: 1 },
+  })
+  expect(screen.queryByRole('button', { name: 'Si rivela: è lo Spilungone' })).not.toBeInTheDocument()
+})
+
 test('lo Spilungone scelto nello spareggio si rivela e non muore', async () => {
   const user = userEvent.setup()
   const giocatoriConSpilungone = [

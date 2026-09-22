@@ -108,6 +108,16 @@ test('non mostra la selezione bersaglio se il titolare del ruolo è morto', () =
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 })
 
+test('Guaritore e Sciacallo Mannaro mostrano la selezione bersaglio anche se il titolare è morto (agiscono "anche da morti")', () => {
+  const giocatori = [
+    { id: '1', nome: 'Pietro', ruoloSlug: 'guaritore', vivo: false, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['guaritore']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
 test('non mostra alcuna selezione bersaglio per ruoli senza automazione (5c)', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], note: '' }]
   render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)

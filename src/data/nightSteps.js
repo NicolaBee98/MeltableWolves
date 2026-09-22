@@ -64,8 +64,12 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'medium', titolo: 'Medium', tipo: 'azione', primaNotteSolo: false, ruoli: ['medium'] },
   { id: 'veggente', titolo: 'Veggente', tipo: 'azione', primaNotteSolo: false, ruoli: ['veggente'] },
   { id: 'veggente-mannaro', titolo: 'Veggente Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['veggente-mannaro'] },
-  { id: 'guaritore', titolo: 'Guaritore', tipo: 'azione', primaNotteSolo: false, ruoli: ['guaritore'] },
-  { id: 'sciacallo-mannaro', titolo: 'Sciacallo Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['sciacallo-mannaro'] },
+  // "può utilizzare questo potere soltanto una volta per partita, sia da
+  // vivo che da morto" / "anche se lui stesso è morto" (pag. 21, 22): a
+  // differenza di ogni altro ruolo, il passo va mostrato anche se il
+  // titolare non è più vivo (vedi puoAgireDaMorto in NightSequencer)
+  { id: 'guaritore', titolo: 'Guaritore', tipo: 'azione', primaNotteSolo: false, ruoli: ['guaritore'], puoAgireDaMorto: true },
+  { id: 'sciacallo-mannaro', titolo: 'Sciacallo Mannaro', tipo: 'azione', primaNotteSolo: false, ruoli: ['sciacallo-mannaro'], puoAgireDaMorto: true },
 
   // --- Ogni notte, poteri mortali, per ultimi (pag. 28) ---
   { id: 'strega', titolo: 'Strega', tipo: 'azione', primaNotteSolo: false, ruoli: ['strega'] },
@@ -169,8 +173,10 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
     return step.ruoli.some((slug) => {
       if (!ruoliSelezionati.includes(slug)) return false
       const daAssegnare = step.assegnabile !== false && ruoliAssegnabili([slug], giocatori, quantita).length > 0
-      const titolareVivo = giocatori.some((g) => g.ruoloSlug === slug && g.vivo)
-      return daAssegnare || titolareVivo
+      // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (pag. 21,
+      // 22): per loro basta che il titolare esista, vivo o no
+      const titolare = giocatori.some((g) => g.ruoloSlug === slug && (step.puoAgireDaMorto || g.vivo))
+      return daAssegnare || titolare
     })
   })
 }

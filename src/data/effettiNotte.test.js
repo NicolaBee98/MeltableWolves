@@ -9,6 +9,7 @@ import {
   risolviAttaccoBranco,
   daRipulireCambioNotte,
   maturaCucciolo,
+  attivaVendettaCucciolo,
 } from './effettiNotte'
 
 const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
@@ -179,13 +180,31 @@ test("risolviAttaccoBranco: l'Ubriaco sbranato stordisce il branco la notte succ
   expect(patch['2']).toEqual({ brancoStorditoFinoA: 4 })
 })
 
-test('risolviAttaccoBranco: il Cucciolo ucciso fa scattare la vendetta doppia sul branco', () => {
+test('risolviAttaccoBranco: il Cucciolo sbranato dal branco muore normalmente (la vendetta scatta altrove, vedi attivaVendettaCucciolo)', () => {
   const giocatori = [
     { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
     { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
   ]
   const patch = risolviAttaccoBranco(giocatori, '1', 3, RUOLI_BRANCO)
-  expect(patch['2']).toEqual({ vendettaCucciolo: true })
+  expect(patch['1']).toMatchObject({ vivo: false })
+  expect(patch['2']).toBeUndefined()
+})
+
+test('attivaVendettaCucciolo fa scattare la vendetta sul branco anche se il Cucciolo muore per un\'altra causa (rogo, Strega, Chupacabra)', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: false, condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const risultato = attivaVendettaCucciolo(giocatori, '1', RUOLI_BRANCO)
+  expect(risultato.find((g) => g.id === '2').vendettaCucciolo).toBe(true)
+})
+
+test('attivaVendettaCucciolo non fa nulla se il morto non è il Cucciolo', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  expect(attivaVendettaCucciolo(giocatori, '1', RUOLI_BRANCO)).toBe(giocatori)
 })
 
 test('risolviAttaccoBranco: un bersaglio protetto non muore e non genera reazioni', () => {

@@ -48,32 +48,58 @@ test('la Rivelazione personaggio propone solo i ruoli a scoperta diurna nel mazz
     { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' },
     { id: '2', nome: 'Marco', vivo: true, ruoloSlug: undefined },
   ]
-  const { onRivelazione } = setup({ giocatori, ruoliSelezionati: ['boia', 'villico'], quantita: { boia: 1, villico: 1 } })
+  const { onRivelazione } = setup({
+    giocatori,
+    ruoliSelezionati: ['innocente', 'villico'],
+    quantita: { innocente: 1, villico: 1 },
+  })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
-  expect(screen.getByRole('button', { name: 'Boia' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Innocente' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Boia' }))
+  await user.click(screen.getByRole('button', { name: 'Innocente' }))
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument() // ha già un ruolo noto
   await user.click(screen.getByRole('button', { name: 'Marco' }))
 
-  expect(onRivelazione).toHaveBeenCalledWith('boia', '2')
+  expect(onRivelazione).toHaveBeenCalledWith('innocente', '2')
 })
 
-test('Il Boia giustizia compare solo quando il Boia è già assegnato, vivo e non ha ancora usato il potere', async () => {
+test("la Rivelazione personaggio non propone Boia/Alchimista: si rivelano solo dal loro evento dedicato", async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true }]
+  setup({
+    giocatori,
+    ruoliSelezionati: ['boia', 'alchimista', 'innocente'],
+    quantita: { boia: 1, alchimista: 1, innocente: 1 },
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
+
+  expect(screen.queryByRole('button', { name: 'Boia' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Alchimista' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Innocente' })).toBeInTheDocument()
+})
+
+test('Il Boia giustizia chiede prima chi è il Boia, poi chi giustizia, senza bisogno di una rivelazione preventiva', async () => {
   const user = userEvent.setup()
   const giocatori = [
-    { id: '1', nome: 'Ivo', ruoloSlug: 'boia', vivo: true, poteriUsati: [] },
+    { id: '1', nome: 'Ivo', vivo: true },
     { id: '2', nome: 'Anna', vivo: true },
   ]
-  const { onBoiaGiustizia } = setup({ giocatori })
+  const { onBoiaGiustizia } = setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
+  expect(screen.getByText('Chi è il Boia')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  expect(screen.getByText('Chi giustizia il Boia')).toBeInTheDocument()
+
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(onBoiaGiustizia).toHaveBeenCalledWith('2')
+  expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '2')
 })
 
 test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina con sé, sempre tra i vivi", async () => {

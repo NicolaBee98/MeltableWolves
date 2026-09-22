@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo } from '../data/effettiNotte'
+import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo, attivaVendettaCucciolo } from '../data/effettiNotte'
 import { risolviLegami, applicaPatchMap } from '../data/risoluzioneNotte'
+import { RUOLI_BRANCO_LUPI } from '../data/nightSteps'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
 
@@ -52,6 +53,7 @@ export function usePartita() {
         aggiornati = applicaCrepacuore(aggiornati, id)
         aggiornati = rimuoviAccecamentoSeMortoPolpo(aggiornati, id)
         aggiornati = maturaCucciolo(aggiornati, id)
+        aggiornati = attivaVendettaCucciolo(aggiornati, id, RUOLI_BRANCO_LUPI)
         aggiornati = applicaPatchMap(aggiornati, risolviLegami(aggiornati))
       }
       return aggiornati

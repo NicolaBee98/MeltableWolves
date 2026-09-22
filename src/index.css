@@ -772,6 +772,12 @@ legend {
   text-align: center;
 }
 
+.votazione__designato-azioni {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .votazione--esito > button {
   width: 100%;
   margin-bottom: 0.6rem;
