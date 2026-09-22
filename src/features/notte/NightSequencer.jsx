@@ -149,8 +149,13 @@ export function NightSequencer({
       : []
 
   const azione = AZIONI_NOTTURNE[step.id]
-  const qualcunoVivo = giocatoriCoinvolti.some((g) => g.vivo)
-  const mostraAzione = step.tipo === 'azione' && azione && qualcunoVivo
+  // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (vedi
+  // puoAgireDaMorto in nightSteps.js): per loro basta che il ruolo sia
+  // assegnato a qualcuno, vivo o no
+  const qualcunoCoinvolto = step.puoAgireDaMorto
+    ? giocatoriCoinvolti.length > 0
+    : giocatoriCoinvolti.some((g) => g.vivo)
+  const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto
 
   const capacitaPendente = ruoliPendenti.reduce(
     (somma, slug) => somma + ((quantita[slug] ?? 1) - contaAssegnati(giocatori, slug)),

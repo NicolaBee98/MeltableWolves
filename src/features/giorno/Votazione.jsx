@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
 import { CONDIZIONI } from '../../data/conditions'
 import { ROLES } from '../../data/roles'
+import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
 import { RuoloIcona } from '../../components/RuoloIcona'
@@ -89,8 +90,8 @@ export function Votazione({
   onAlchimistaEsplode,
   onBardoSaltaNotte,
   onElezioneBorgomastro,
-  ruoliSelezionati,
-  quantita,
+  ruoliSelezionati = [],
+  quantita = {},
   onProsegui,
   variantiFaccia = true,
   mostraNomeRuolo = false,
@@ -119,6 +120,17 @@ export function Votazione({
       spilungoneRivelatoId !== null ||
       anticoRivelatoId !== null
 
+    // Spilungone e L'Antico sono ruoli a rivelazione diurna (pag. 13): la
+    // loro identità non è quasi mai già nota all'app quando arrivano al
+    // rogo (si rivelano proprio in quel momento, non prima). Se il mazzo li
+    // prevede e nessuno li ha ancora assunti, il narratore deve poterli
+    // rivelare qui invece di doverli assegnare in anticipo da "Eventi
+    // speciali" (altrimenti morirebbero come un designato qualsiasi).
+    const spilungoneRivelabileOra =
+      ruoliSelezionati?.includes('spilungone') && ruoliAssegnabili(['spilungone'], giocatori, quantita).length > 0
+    const lanticoRivelabileOra =
+      ruoliSelezionati?.includes('lantico') && ruoliAssegnabili(['lantico'], giocatori, quantita).length > 0
+
     // un solo click: la scelta del bersaglio (candidato singolo o chip dello
     // spareggio) è già di per sé una decisione inequivocabile, una conferma
     // successiva sarebbe un secondo click ridondante
@@ -131,6 +143,19 @@ export function Votazione({
         setAnticoRivelatoId(id)
       } else {
         onRogo(id)
+      }
+    }
+
+    // come sopra, ma per un ruolo non ancora assegnato in app: lo rivela
+    // (registrandolo come qualunque altra rivelazione diurna) e applica
+    // subito lo stesso esito speciale
+    function rivelaEDesigna(id, ruoloSlug) {
+      onRivelazione(ruoloSlug, id)
+      if (ruoloSlug === 'spilungone') {
+        setSpilungoneRivelatoId(id)
+      } else {
+        onAnticoRivelazione(id)
+        setAnticoRivelatoId(id)
       }
     }
 
@@ -154,10 +179,25 @@ export function Votazione({
         )
       }
       if (!morteConfermata) {
+        const target = giocatori.find((g) => g.id === id)
+        const puoEssereSpilungone = spilungoneRivelabileOra && !target?.ruoloSlug
+        const puoEssereLantico = lanticoRivelabileOra && !target?.ruoloSlug
         return (
-          <button type="button" onClick={() => confermaMorte(id)}>
-            Dichiara morte sul rogo
-          </button>
+          <div className="votazione__designato-azioni">
+            <button type="button" onClick={() => confermaMorte(id)}>
+              Dichiara morte sul rogo
+            </button>
+            {puoEssereSpilungone && (
+              <button type="button" onClick={() => rivelaEDesigna(id, 'spilungone')}>
+                Si rivela: è lo Spilungone
+              </button>
+            )}
+            {puoEssereLantico && (
+              <button type="button" onClick={() => rivelaEDesigna(id, 'lantico')}>
+                Si rivela: è L'Antico
+              </button>
+            )}
+          </div>
         )
       }
       return null

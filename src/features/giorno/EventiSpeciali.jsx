@@ -42,6 +42,7 @@ export function EventiSpeciali({
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
   const [alchimistaId, setAlchimistaId] = useState(null)
+  const [boiaId, setBoiaId] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
 
@@ -49,7 +50,7 @@ export function EventiSpeciali({
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
   const mostraMorteImprovvisa = inGiorno
   const mostraRivelazione = rivelabili.length > 0
-  const mostraBoia = inGiorno && boiaDisponibile(giocatori)
+  const mostraBoia = inGiorno && boiaDisponibile(ruoliSelezionati, giocatori, quantita)
   const mostraAlchimista = inGiorno && alchimistaDisponibile(ruoliSelezionati, giocatori, quantita)
   const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
@@ -68,6 +69,7 @@ export function EventiSpeciali({
     setEvento(null)
     setRuoloRivelazione(null)
     setAlchimistaId(null)
+    setBoiaId(null)
   }
 
   if (nessunEvento) return null
@@ -168,18 +170,27 @@ export function EventiSpeciali({
               </>
             ))}
 
-          {evento === 'boia' && (
-            <SceltaGiocatore
-              candidati={vivi}
-              onConferma={(id) => {
-                onBoiaGiustizia(id)
-                chiudi()
-              }}
-              onSalta={chiudi}
-              etichetta="Chi giustizia il Boia"
-              mostraSalta={false}
-            />
-          )}
+          {evento === 'boia' &&
+            (!boiaId ? (
+              <SceltaGiocatore
+                candidati={vivi}
+                onConferma={setBoiaId}
+                onSalta={chiudi}
+                etichetta="Chi è il Boia"
+                mostraSalta={false}
+              />
+            ) : (
+              <SceltaGiocatore
+                candidati={vivi}
+                onConferma={(id) => {
+                  onBoiaGiustizia(boiaId, id)
+                  chiudi()
+                }}
+                onSalta={chiudi}
+                etichetta="Chi giustizia il Boia"
+                mostraSalta={false}
+              />
+            ))}
 
           {evento === 'alchimista' &&
             (!alchimistaId ? (

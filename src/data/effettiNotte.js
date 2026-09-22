@@ -52,16 +52,26 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco) {
     }
   }
 
-  // Cucciolo di Lupo Mannaro: il branco sbrana due vittime per vendetta (pag. 13)
-  if (target.ruoloSlug === 'cucciolo-di-lupo-mannaro') {
-    for (const g of giocatori) {
-      if (ruoliBranco.includes(g.ruoloSlug) && g.vivo && g.id !== target.id) {
-        patches[g.id] = { vendettaCucciolo: true }
-      }
-    }
-  }
+  // Cucciolo di Lupo Mannaro morso dal branco: vedi attivaVendettaCucciolo,
+  // che copre anche questo caso (si applica a ogni morte del Cucciolo,
+  // qualunque sia la causa, non solo il morso del branco)
 
   return patches
+}
+
+// "Se viene ucciso, i lupi mannari sbranano due persone in una notte per
+// vendetta" (pag. 13): il regolamento non limita la causa della morte del
+// Cucciolo al morso del branco (a differenza di Berserker/Ubriaco, che
+// reagiscono solo se sbranati), quindi va agganciata alla morte generica
+// (rogo, Strega, Chupacabra inclusi), non solo alla risoluzione dell'attacco
+// notturno del branco.
+export function attivaVendettaCucciolo(giocatori, idAppenaMorto, ruoliBranco) {
+  const morto = giocatori.find((g) => g.id === idAppenaMorto)
+  if (morto?.ruoloSlug !== 'cucciolo-di-lupo-mannaro') return giocatori
+
+  return giocatori.map((g) =>
+    ruoliBranco.includes(g.ruoloSlug) && g.vivo && g.id !== idAppenaMorto ? { ...g, vendettaCucciolo: true } : g,
+  )
 }
 
 export function aggiungiCondizionePatch(giocatore, condizione) {

@@ -46,9 +46,14 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { ruoloSlug, storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug] })
   }
 
-  function dichiaraBoiaGiustizia(vittimaId) {
-    const boia = giocatori.find((g) => g.ruoloSlug === 'boia' && g.vivo)
-    if (boia) aggiornaGiocatore(boia.id, { poteriUsati: [...(boia.poteriUsati ?? []), 'boia-giustizia'] })
+  // il Boia si rivela solo giustiziando (pag. 8): stessa logica dell'Alchimista
+  function dichiaraBoiaGiustizia(boiaId, vittimaId) {
+    const boia = giocatori.find((g) => g.id === boiaId)
+    aggiornaGiocatore(boiaId, {
+      ruoloSlug: 'boia',
+      storiaRuoli: [...(boia?.storiaRuoli ?? []), 'boia'],
+      poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
+    })
     aggiornaGiocatore(vittimaId, { vivo: false, causaMorte: 'colpo' })
   }
 

@@ -8,23 +8,33 @@ import {
 } from './eventiSpeciali'
 
 test('ruoliRivelabili propone i ruoli a rivelazione diurna presenti nel mazzo e non ancora assegnati', () => {
-  expect(ruoliRivelabili(['boia', 'spilungone'], [], { boia: 1, spilungone: 1 })).toEqual(['boia', 'spilungone'])
+  expect(ruoliRivelabili(['innocente', 'spilungone'], [], { innocente: 1, spilungone: 1 })).toEqual([
+    'spilungone',
+    'innocente',
+  ])
 })
 
 test('ruoliRivelabili esclude il Borgomastro (ha il suo evento dedicato)', () => {
   expect(ruoliRivelabili(['borgomastro'], [], { borgomastro: 1 })).toEqual([])
 })
 
-test('ruoliRivelabili esclude un ruolo già assegnato del tutto', () => {
-  const giocatori = [{ id: '1', ruoloSlug: 'boia', storiaRuoli: ['boia'] }]
-  expect(ruoliRivelabili(['boia'], giocatori, { boia: 1 })).toEqual([])
+test('ruoliRivelabili esclude Alchimista e Boia (si rivelano solo usando il potere, hanno un evento dedicato)', () => {
+  expect(ruoliRivelabili(['boia', 'alchimista', 'spilungone'], [], { boia: 1, alchimista: 1, spilungone: 1 })).toEqual([
+    'spilungone',
+  ])
 })
 
-test('boiaDisponibile è vero solo se il Boia è assegnato, vivo e non ha ancora usato il potere', () => {
-  expect(boiaDisponibile([])).toBe(false)
-  expect(boiaDisponibile([{ id: '1', ruoloSlug: 'boia', vivo: true, poteriUsati: [] }])).toBe(true)
-  expect(boiaDisponibile([{ id: '1', ruoloSlug: 'boia', vivo: false, poteriUsati: [] }])).toBe(false)
-  expect(boiaDisponibile([{ id: '1', ruoloSlug: 'boia', vivo: true, poteriUsati: ['boia-giustizia'] }])).toBe(false)
+test('ruoliRivelabili esclude un ruolo già assegnato del tutto', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'innocente', storiaRuoli: ['innocente'] }]
+  expect(ruoliRivelabili(['innocente'], giocatori, { innocente: 1 })).toEqual([])
+})
+
+test('boiaDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
+  expect(boiaDisponibile([], [], {})).toBe(false)
+  expect(boiaDisponibile(['boia'], [], { boia: 1 })).toBe(true)
+  expect(
+    boiaDisponibile(['boia'], [{ id: '1', ruoloSlug: 'boia', storiaRuoli: ['boia'] }], { boia: 1 }),
+  ).toBe(false)
 })
 
 test('alchimistaDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
