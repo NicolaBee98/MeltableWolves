@@ -7,7 +7,7 @@ function setup(overrides = {}) {
     giocatori: [],
     ruoliSelezionati: [],
     quantita: {},
-    contesto: 'giorno',
+    contesto: 'esito',
     onMorteImprovvisa: vi.fn(),
     onRivelazione: vi.fn(),
     onBoiaGiustizia: vi.fn(),
@@ -26,12 +26,12 @@ test('senza nessun evento disponibile non mostra nulla (contesto alba, mazzo sen
   expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
-test('in contesto giorno la Morte improvvisa resta sempre disponibile anche a mazzo vuoto', () => {
-  setup()
+test('in voto/esito la Morte improvvisa resta sempre disponibile anche a mazzo vuoto', () => {
+  setup({ contesto: 'voto' })
   expect(screen.getByRole('button', { name: /eventi speciali/i })).toBeInTheDocument()
 })
 
-test('in contesto giorno la Morte improvvisa è sempre proposta', async () => {
+test('in voto/esito la Morte improvvisa è sempre proposta', async () => {
   const user = userEvent.setup()
   const { onMorteImprovvisa } = setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: true }] })
 
@@ -91,10 +91,10 @@ test("L'Alchimista esplode compare solo dopo la sua morte al rogo", async () => 
   expect(onAlchimistaEsplode).toHaveBeenCalledWith('2')
 })
 
-test('Il Bardo salta la notte è proposto in contesto giorno e richiede conferma esplicita', async () => {
+test('Il Bardo salta la notte è proposto solo in esito (dopo un rogo) e richiede conferma esplicita', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Ivo', ruoloSlug: 'bardo', vivo: true, poteriUsati: [] }]
-  const { onBardoSaltaNotte } = setup({ giocatori })
+  const { onBardoSaltaNotte } = setup({ giocatori, contesto: 'esito' })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Il Bardo salta la notte' }))
@@ -104,10 +104,19 @@ test('Il Bardo salta la notte è proposto in contesto giorno e richiede conferma
   expect(onBardoSaltaNotte).toHaveBeenCalled()
 })
 
+test('Il Bardo salta la notte NON è proposto durante il voto, prima di un rogo (nessuna via d\'uscita verso la notte)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Ivo', ruoloSlug: 'bardo', vivo: true, poteriUsati: [] }]
+  setup({ giocatori, contesto: 'voto' })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'Il Bardo salta la notte' })).not.toBeInTheDocument()
+})
+
 test('Il Gallo Mannaro salta il giorno è proposto solo in contesto alba', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Ivo', ruoloSlug: 'gallo-mannaro', vivo: true, poteriUsati: [] }]
-  setup({ giocatori, contesto: 'giorno' })
+  setup({ giocatori, contesto: 'esito' })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   expect(screen.queryByRole('button', { name: 'Il Gallo Mannaro salta il giorno' })).not.toBeInTheDocument()
 

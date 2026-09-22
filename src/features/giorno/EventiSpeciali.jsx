@@ -20,8 +20,11 @@ function nomeRuolo(slug) {
 // (assegna l'identità solo quando il giocatore si rivela davvero, non
 // prima — vedi nightSteps.js), ed eventi specifici di alcuni ruoli.
 // `contesto` filtra quali eventi ha senso proporre: 'alba' (elezione del
-// Borgomastro, gesto del Gallo Mannaro) o 'giorno' (tutto il resto, che
-// richiede il rogo/voto già in corso).
+// Borgomastro, gesto del Gallo Mannaro), 'voto' o 'esito' (il resto della
+// votazione). Il Bardo è ristretto a 'esito' perché agisce "dopo un rogo"
+// (pag. 10): usarlo prima, durante il voto, lascerebbe il narratore senza
+// modo di arrivare alla notte (nessun rogo confermato = nessun "Prosegui
+// alla notte" disponibile).
 export function EventiSpeciali({
   giocatori,
   ruoliSelezionati,
@@ -40,12 +43,13 @@ export function EventiSpeciali({
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
 
+  const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
-  const mostraMorteImprovvisa = contesto === 'giorno'
+  const mostraMorteImprovvisa = inGiorno
   const mostraRivelazione = rivelabili.length > 0
-  const mostraBoia = contesto === 'giorno' && boiaDisponibile(giocatori)
-  const mostraAlchimista = contesto === 'giorno' && alchimistaDisponibile(giocatori)
-  const mostraBardo = contesto === 'giorno' && bardoDisponibile(giocatori)
+  const mostraBoia = inGiorno && boiaDisponibile(giocatori)
+  const mostraAlchimista = inGiorno && alchimistaDisponibile(giocatori)
+  const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
   const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati)
 

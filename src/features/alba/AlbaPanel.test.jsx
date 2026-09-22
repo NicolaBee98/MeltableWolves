@@ -64,3 +64,26 @@ test('non mostra mai il pulsante Morte Improvvisa: di notte non si può dichiara
   render(<AlbaPanel giocatori={[]} round={1} onVaiAlVoto={() => {}} />)
   expect(screen.queryByRole('button', { name: /morte improvvisa/i })).not.toBeInTheDocument()
 })
+
+test('con il Borgomastro nel mazzo ma nessuno eletto, ricorda di eleggerlo', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' }]
+  render(<AlbaPanel giocatori={giocatori} round={1} ruoliSelezionati={['borgomastro']} onVaiAlVoto={() => {}} />)
+  expect(screen.getByText(/deve eleggere un borgomastro/i)).toBeInTheDocument()
+})
+
+test('con un Borgomastro vivo non mostra il promemoria', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', eBorgomastro: true }]
+  render(<AlbaPanel giocatori={giocatori} round={1} ruoliSelezionati={['borgomastro']} onVaiAlVoto={() => {}} />)
+  expect(screen.queryByText(/deve eleggere un borgomastro/i)).not.toBeInTheDocument()
+})
+
+test('se il Borgomastro eletto è morto, il promemoria riappare', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'villico', eBorgomastro: true }]
+  render(<AlbaPanel giocatori={giocatori} round={1} ruoliSelezionati={['borgomastro']} onVaiAlVoto={() => {}} />)
+  expect(screen.getByText(/deve eleggere un borgomastro/i)).toBeInTheDocument()
+})
+
+test('senza il Borgomastro nel mazzo non mostra mai il promemoria', () => {
+  render(<AlbaPanel giocatori={[]} round={1} ruoliSelezionati={['villico']} onVaiAlVoto={() => {}} />)
+  expect(screen.queryByText(/deve eleggere un borgomastro/i)).not.toBeInTheDocument()
+})

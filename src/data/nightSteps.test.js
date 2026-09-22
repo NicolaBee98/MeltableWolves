@@ -133,21 +133,6 @@ test('notteBloccata è vera se un giocatore ha notteBloccataFinoA uguale al roun
   expect(notteBloccata(giocatori, 4)).toBe(false)
 })
 
-test('con la notte bloccata (Maledetto/Bardo) nessun passo "azione" compare, ma i passi passivi restano', () => {
-  const giocatori = [
-    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], notteBloccataFinoA: 2 },
-    { id: '2', nome: 'Bruno', ruoloSlug: 'nano', vivo: true, condizioni: [] },
-  ]
-  const passi = passiNotte(['veggente', 'nano'], 2, giocatori, { veggente: 1, nano: 1 }).map((p) => p.id)
-  expect(passi).not.toContain('veggente') // azione, bloccato
-})
-
-test('senza la notte bloccata i passi "azione" tornano regolarmente', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], notteBloccataFinoA: 2 }]
-  expect(passiNotte(['veggente'], 3, giocatori, { veggente: 1 })).toContainEqual(
-    expect.objectContaining({ id: 'veggente' }),
-  )
-})
 
 test('ruoliAttivi include i ruoli del mazzo e quelli che un giocatore ha assunto pur non essendo nel mazzo (Ladro)', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] }]

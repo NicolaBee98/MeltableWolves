@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte } from '../../data/nightSteps'
+import { passiNotte, notteBloccata } from '../../data/nightSteps'
 import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
@@ -30,7 +30,12 @@ export function NightSequencer({
   indietro,
   nuovaNotte,
 }) {
-  const steps = passiNotte(ruoliSelezionati, round, giocatori, quantita)
+  // il Bardo (dopo un rogo) e la maledizione de L'Antico (pag. 10, 25) non
+  // sopprimono solo i poteri attivi: bloccano la notte intera. Niente
+  // passi, si passa dritti all'alba (che mostrerà correttamente "nessuno è
+  // morto questa notte", visto che nessun potere ha potuto agire)
+  const bloccata = notteBloccata(giocatori, round)
+  const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita)
   const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
 
   // cronologia degli stati dei giocatori: lo stato dei giocatori
@@ -60,6 +65,31 @@ export function NightSequencer({
       impostaGiocatori(precedente)
     }
     indietro()
+  }
+
+  if (bloccata) {
+    const bardo = giocatori.find((g) => g.notteBloccataFinoA === round && g.ruoloSlug === 'bardo')
+    const messaggio = bardo
+      ? 'Questa notte non si svolge per i poteri del Bardo.'
+      : 'Questa notte non si svolge: il villaggio è maledetto.'
+
+    function vaiAllAlba() {
+      for (const evento of annunciAlba(giocatori, round)) {
+        registraEvento(evento)
+      }
+      onNotteConclusa()
+      nuovaNotte()
+    }
+
+    return (
+      <section className="night-sequencer">
+        <p className="night-sequencer__notte">Notte {round}</p>
+        <p>{messaggio}</p>
+        <button type="button" onClick={vaiAllAlba}>
+          Vai all'alba
+        </button>
+      </section>
+    )
   }
 
   if (steps.length === 0) {

@@ -336,3 +336,33 @@ test('il Mimo non compare in un passo del ruolo che NON sta imitando', () => {
 
   expect(screen.getByRole('heading', { name: /^paladino \(elena\)$/i })).toBeInTheDocument()
 })
+
+test('con la notte bloccata dal Bardo mostra il suo avviso invece dei passi, e "Vai all\'alba" conclude la notte', async () => {
+  const user = userEvent.setup()
+  const onNotteConclusa = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'bardo', vivo: true, condizioni: [], notteBloccataFinoA: 1 },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+  ]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['bardo', 'veggente']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      onNotteConclusa={onNotteConclusa}
+    />,
+  )
+
+  expect(screen.getByText(/questa notte non si svolge per i poteri del bardo/i)).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: /veggente/i })).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
+  expect(onNotteConclusa).toHaveBeenCalled()
+})
+
+test("con la notte bloccata da L'Antico (non più Bardo) mostra l'avviso generico", () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], notteBloccataFinoA: 1 }]
+  render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByText(/il villaggio è maledetto/i)).toBeInTheDocument()
+})
