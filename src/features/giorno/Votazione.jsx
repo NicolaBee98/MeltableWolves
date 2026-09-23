@@ -64,6 +64,11 @@ function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo 
               {g.nome}
               {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
             </span>
+            {g.eFantasmaOnnisciente && (
+              <span className="votazione__icona-condizione" title="Fantasma Onnisciente">
+                👻
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -91,6 +96,7 @@ export function Votazione({
   onMorteUnzione,
   onBardoSaltaNotte,
   onElezioneBorgomastro,
+  onFantasmaOnnisciente,
   ruoliSelezionati = [],
   quantita = {},
   onProsegui,
@@ -258,6 +264,7 @@ export function Votazione({
           onAlchimistaEsplode={onAlchimistaEsplode}
           onBardoSaltaNotte={onBardoSaltaNotte}
           onElezioneBorgomastro={onElezioneBorgomastro}
+          onFantasmaOnnisciente={onFantasmaOnnisciente}
         />
         <SezioneMorti
           giocatori={giocatori}
@@ -322,6 +329,7 @@ export function Votazione({
         onAlchimistaEsplode={onAlchimistaEsplode}
         onBardoSaltaNotte={onBardoSaltaNotte}
         onElezioneBorgomastro={onElezioneBorgomastro}
+        onFantasmaOnnisciente={onFantasmaOnnisciente}
       />
       <SezioneMorti
         giocatori={giocatori}

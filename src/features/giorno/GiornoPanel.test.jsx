@@ -61,6 +61,22 @@ test('morte per unzione uccide l\'Unto e propaga la condizione ai vicini vivi', 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['unto'] })
 })
 
+test('assegnare il Fantasma Onnisciente a un morto chiama aggiornaGiocatore con eFantasmaOnnisciente:true', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [] }]
+  const { aggiornaGiocatore } = setup({
+    giocatori,
+    ruoliSelezionati: ['fantasma-onnisciente'],
+    candidatiEsito: ['1'],
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Assegna il Fantasma Onnisciente' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { eFantasmaOnnisciente: true })
+})
+
 test('dichiarare morte sul rogo (un solo click) chiama aggiornaGiocatore con causaMorte:rogo e la notte corrente', async () => {
   const user = userEvent.setup()
   const { aggiornaGiocatore } = setup()

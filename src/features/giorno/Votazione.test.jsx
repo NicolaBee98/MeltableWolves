@@ -280,6 +280,15 @@ test('senza condizioni non mostra nessuna icona di condizione', () => {
   expect(screen.queryByRole('img')).not.toBeInTheDocument()
 })
 
+test("mostra un'icona per il Fantasma Onnisciente nella sezione Morti", () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [], eFantasmaOnnisciente: true },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  setup({ giocatori })
+  expect(screen.getByTitle('Fantasma Onnisciente')).toBeInTheDocument()
+})
+
 test('mostra un\'icona per il Borgomastro, promemoria per il voto doppio', () => {
   const giocatori = [
     { id: '1', nome: 'Anna', vivo: true, condizioni: [], eBorgomastro: true },

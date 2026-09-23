@@ -40,6 +40,7 @@ export function EventiSpeciali({
   onBardoSaltaNotte,
   onGalloSaltaGiorno,
   onElezioneBorgomastro,
+  onFantasmaOnnisciente,
 }) {
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
@@ -48,6 +49,7 @@ export function EventiSpeciali({
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
+  const morti = giocatori.filter((g) => !g.vivo)
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
@@ -59,6 +61,13 @@ export function EventiSpeciali({
   const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
   const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati)
+  // carta unica, mai distribuita all'inizio: va consegnata al primo morto
+  // sul rogo (pag. 13), quindi solo finché nessuno la tiene già
+  const mostraFantasma =
+    inGiorno &&
+    ruoliSelezionati.includes('fantasma-onnisciente') &&
+    !giocatori.some((g) => g.eFantasmaOnnisciente) &&
+    morti.length > 0
 
   const nessunEvento =
     !mostraRivelazione &&
@@ -68,7 +77,8 @@ export function EventiSpeciali({
     !mostraUnzione &&
     !mostraBardo &&
     !mostraGallo &&
-    !mostraBorgomastro
+    !mostraBorgomastro &&
+    !mostraFantasma
 
   function chiudi() {
     setEvento(null)
@@ -126,6 +136,11 @@ export function EventiSpeciali({
               {mostraBorgomastro && (
                 <button type="button" onClick={() => setEvento('borgomastro')}>
                   Elezione Borgomastro
+                </button>
+              )}
+              {mostraFantasma && (
+                <button type="button" onClick={() => setEvento('fantasma')}>
+                  Assegna il Fantasma Onnisciente
                 </button>
               )}
               <button type="button" onClick={chiudi}>
@@ -288,6 +303,22 @@ export function EventiSpeciali({
               etichetta="Chi eleggete Borgomastro?"
               mostraSalta={false}
             />
+          )}
+
+          {evento === 'fantasma' && (
+            <>
+              <p>Il primo morto sul rogo riceve la carta del Fantasma Onnisciente.</p>
+              <SceltaGiocatore
+                candidati={morti}
+                onConferma={(id) => {
+                  onFantasmaOnnisciente(id)
+                  chiudi()
+                }}
+                onSalta={chiudi}
+                etichetta="Chi riceve la carta"
+                mostraSalta={false}
+              />
+            </>
           )}
         </div>
       )}
