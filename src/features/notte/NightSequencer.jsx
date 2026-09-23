@@ -260,8 +260,12 @@ export function NightSequencer({
       return
     }
     autoAssegnaVillici()
-    // nessuna selezione pendente a questo punto: niente da committere,
-    // "giocatori" riflette già lo stato corrente
+    // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
+    // appena lanciate da autoAssegnaVillici (setState funzionale) non si
+    // riflettono qui in modo sincrono. Va bene solo perché risolviCortigiana
+    // e la pulizia qui sotto non dipendono mai da un ruoloSlug appena
+    // diventato 'villico' — se in futuro dovessero, andrebbe ricalcolato
+    // esplicitamente chi è rimasto senza ruolo invece di riusare "giocatori".
     const giocatoriConRuoli = giocatori
 
     giocatoriConRuoli.forEach((g) => {
