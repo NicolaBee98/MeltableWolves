@@ -1,9 +1,5 @@
-import { ROLES } from './roles'
+import { fazioneDi } from './roles'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
-
-function fazioneDi(giocatore) {
-  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
-}
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
 // direttamente dai lupi di notte (libretto pag. 12, 12, 18): vengono
@@ -140,6 +136,22 @@ export function segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potereSlug
   giocatori
     .filter((g) => ruoli.includes(g.ruoloSlug))
     .forEach((g) => aggiornaGiocatore(g.id, { usiNotte: [...(g.usiNotte ?? []), potereSlug] }))
+}
+
+// Il Mimo assume letteralmente il ruoloSlug del bersaglio imitato (vedi
+// AzioneMimo.jsx): da quel momento DUE giocatori condividono lo stesso
+// ruoloSlug, ma il regolamento prevede una sola azione condivisa, non due
+// indipendenti. Le azioni che scrivono un dato specifico dell'attore (es.
+// l'esito di un'indagine) lo applicano quindi a TUTTI i giocatori con quel
+// ruoloSlug invece che al primo trovato: qualunque dei due l'app consulti
+// in seguito, i dati restano identici e coerenti. `patch` può essere un
+// oggetto fisso, o una funzione (giocatore) => patch quando il valore da
+// scrivere dipende da un campo che varia per persona (es. poteriUsati, che
+// può già contenere marcatori diversi da un ruolo precedente).
+export function aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlug, patch) {
+  giocatori
+    .filter((g) => g.ruoloSlug === ruoloSlug)
+    .forEach((g) => aggiornaGiocatore(g.id, typeof patch === 'function' ? patch(g) : patch))
 }
 
 // ponytail: assume una sola coppia di innamorati in gioco (nessun partnerId è

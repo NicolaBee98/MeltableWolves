@@ -1,9 +1,5 @@
-import { ROLES } from './roles'
+import { fazioneDi } from './roles'
 import { viciniVivi } from './vicinanza'
-
-function fazioneDi(giocatore) {
-  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
-}
 
 export function annunciAlba(giocatori, round) {
   const annunci = []

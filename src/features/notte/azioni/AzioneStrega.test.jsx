@@ -58,6 +58,11 @@ test('avvisa se la pozione vitale non ha effetto perché il bersaglio è già pr
   expect(screen.getByText(/non ha avuto alcun effetto/i)).toBeInTheDocument()
 })
 
+test('non mostra pulsanti "Salta" per le pozioni: sono entrambe facoltative senza bisogno di conferma', () => {
+  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  expect(screen.queryByRole('button', { name: /salta/i })).not.toBeInTheDocument()
+})
+
 test('nasconde la pozione già usata', () => {
   const giocatoriConPozioneUsata = [{ ...giocatori[0], poteriUsati: ['strega-pozione-vitale'] }, giocatori[1]]
   render(<AzioneStrega giocatori={giocatoriConPozioneUsata} aggiornaGiocatore={() => {}} />)

@@ -44,7 +44,13 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
         {poteriUsati.includes('strega-pozione-vitale') ? (
           <p>Pozione vitale già utilizzata.</p>
         ) : (
-          <SceltaGiocatore candidati={vivi} onConferma={usaPozioneVitale} onSalta={() => {}} etichetta="Chi proteggere" />
+          <SceltaGiocatore
+            candidati={vivi}
+            onConferma={usaPozioneVitale}
+            onSalta={() => {}}
+            etichetta="Chi proteggere"
+            mostraSalta={false}
+          />
         )}
       </div>
       <div>
@@ -53,7 +59,13 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
         {poteriUsati.includes('strega-pozione-mortale') ? (
           <p>Pozione mortale già utilizzata.</p>
         ) : (
-          <SceltaGiocatore candidati={vivi} onConferma={usaPozioneMortale} onSalta={() => {}} etichetta="Chi uccidere" />
+          <SceltaGiocatore
+            candidati={vivi}
+            onConferma={usaPozioneMortale}
+            onSalta={() => {}}
+            etichetta="Chi uccidere"
+            mostraSalta={false}
+          />
         )}
       </div>
     </div>

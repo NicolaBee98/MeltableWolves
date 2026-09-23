@@ -26,9 +26,6 @@ export function AzioneAddolorata({ giocatori, aggiornaGiocatore, round }) {
       <button type="button" onClick={scambia}>
         Scambia
       </button>
-      <button type="button" onClick={() => {}}>
-        Salta
-      </button>
     </div>
   )
 }

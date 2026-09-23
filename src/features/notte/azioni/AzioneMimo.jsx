@@ -1,10 +1,6 @@
-import { ROLES } from '../../../data/roles'
+import { nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-
-function nomeRuolo(slug) {
-  return ROLES.find((r) => r.slug === slug)?.nome ?? slug
-}
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il

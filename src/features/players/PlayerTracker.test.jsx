@@ -55,3 +55,31 @@ test('trascinare la maniglia di un giocatore su un altro chiama onRiordina col n
 
   expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0], giocatori[2]])
 })
+
+test('il pulsante ▼ sposta il giocatore giù di una posizione (funziona anche a tastiera/touch)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const onRiordina = vi.fn()
+  setup({ giocatori, onRiordina })
+
+  await user.click(screen.getByRole('button', { name: 'Sposta Anna giù' }))
+
+  expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0], giocatori[2]])
+})
+
+test('il pulsante ▲ del primo giocatore e il pulsante ▼ dell\'ultimo sono disabilitati', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  setup({ giocatori })
+
+  expect(screen.getByRole('button', { name: 'Sposta Anna su' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Sposta Marco giù' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Sposta Anna giù' })).not.toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Sposta Marco su' })).not.toBeDisabled()
+})

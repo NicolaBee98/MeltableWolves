@@ -1,6 +1,6 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { auraDi } from '../../../data/aura'
-import { usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 export function AzioneIndagine({
   giocatori,
@@ -38,11 +38,18 @@ export function AzioneIndagine({
       if (target) {
         const accecato = puoEssereAccecato && veggente.condizioni?.includes('accecato')
         const esito = accecato ? 'benevola' : auraDi(target.ruoloSlug)
-        const patch = { ultimaIndagine: { targetId, esito, notte: round } }
+        // ultimaIndagine è un dato del "ruolo", non del singolo corpo: va
+        // sincronizzato su ogni giocatore che condivide questo ruoloSlug
+        // (Mimo incluso, vedi aggiornaTuttiConRuolo). condizioni invece è
+        // sempre per-persona fisica: l'accecamento si applica solo
+        // all'attore che ha effettivamente indagato, senza toccare le
+        // condizioni altrui di un eventuale secondo attore con lo stesso ruolo.
+        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
+          ultimaIndagine: { targetId, esito, notte: round },
+        })
         if (puoEssereAccecato && !accecato && target.ruoloSlug === 'polpo-mannaro') {
-          patch.condizioni = [...(veggente.condizioni ?? []), 'accecato']
+          aggiornaGiocatore(veggente.id, { condizioni: [...(veggente.condizioni ?? []), 'accecato'] })
         }
-        aggiornaGiocatore(veggente.id, patch)
       }
     }
     segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)

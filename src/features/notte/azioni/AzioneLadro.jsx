@@ -1,9 +1,5 @@
-import { ROLES } from '../../../data/roles'
+import { ROLES, nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
-
-function nomeRuolo(slug) {
-  return ROLES.find((r) => r.slug === slug)?.nome ?? slug
-}
 
 const POTERE = 'ladro-scelta'
 
