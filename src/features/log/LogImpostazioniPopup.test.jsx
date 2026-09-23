@@ -108,6 +108,25 @@ test('mostra il checkbox per il nome del ruolo tra parentesi, coerente col flag 
   expect(onCambiaMostraNomeRuolo).toHaveBeenCalledWith(true)
 })
 
+test('mostra il checkbox per il promemoria dei ruoli morti, coerente col flag ricevuto, e lo aggiorna al click', async () => {
+  const user = userEvent.setup()
+  const onCambiaPromemoriaRuoliMorti = vi.fn()
+  render(
+    <LogImpostazioniPopup
+      eventi={[]}
+      promemoriaRuoliMorti={true}
+      onCambiaPromemoriaRuoliMorti={onCambiaPromemoriaRuoliMorti}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  const checkbox = screen.getByRole('checkbox', { name: /richiama di notte i ruoli morti/i })
+  expect(checkbox).toBeChecked()
+
+  await user.click(checkbox)
+  expect(onCambiaPromemoriaRuoliMorti).toHaveBeenCalledWith(false)
+})
+
 test('la X in alto a destra chiude il popup', async () => {
   const user = userEvent.setup()
   render(<LogImpostazioniPopup eventi={[]} />)

@@ -58,6 +58,23 @@ test('assegna comunque il Villico a fine notte anche quando "assegna i ruoli rim
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
 })
 
+test('non forza il Villico a fine notte se un altro ruolo del mazzo non è ancora stato assegnato a nessuno (es. Spilungone)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Elena', vivo: true, condizioni: [] }]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['villico', 'spilungone']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'villico' }))
+})
+
 test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], note: '' }]
   render(<NightSequencerConNotte ruoliSelezionati={['mimo', 'paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
@@ -116,6 +133,30 @@ test('Guaritore e Sciacallo Mannaro mostrano la selezione bersaglio anche se il 
   render(<NightSequencerConNotte ruoliSelezionati={['guaritore']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  expect(screen.getByText(/☠️ Pietro è morto\/a, ma agisce comunque/)).toBeInTheDocument()
+})
+
+test('con promemoriaRuoliMorti attivo, un ruolo morto con potere ricorrente mostra solo l\'avviso col teschio, niente azione vera', () => {
+  const giocatori = [{ id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: false, condizioni: [], poteriUsati: [] }]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['paladino']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      promemoriaRuoliMorti
+    />,
+  )
+
+  expect(screen.getByText(/☠️ chiama comunque pietro/i)).toBeInTheDocument()
+  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Notte successiva' })).toBeInTheDocument()
+})
+
+test('con promemoriaRuoliMorti disattivo (default), un ruolo morto con potere ricorrente non compare affatto', () => {
+  const giocatori = [{ id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: false, condizioni: [], poteriUsati: [] }]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
 test('non mostra alcuna selezione bersaglio per ruoli senza automazione (5c)', () => {
