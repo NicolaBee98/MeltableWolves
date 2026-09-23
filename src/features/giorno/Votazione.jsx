@@ -285,6 +285,11 @@ export function Votazione({
               {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
             </span>
             <BadgeCondizioni condizioni={g.condizioni} />
+            {g.eBorgomastro && (
+              <span className="votazione__icona-condizione" title="Borgomastro: il suo voto vale doppio">
+                👑
+              </span>
+            )}
             <span className="votazione__voti">{voti[g.id] ?? 0} voti</span>
             <button type="button" onClick={() => decrementaVoto(g.id)}>
               -1

@@ -8,11 +8,12 @@ export function AzioneIndagine({
   round,
   ruoloSlugAttore = 'veggente',
   etichettaAttore = 'Veggente',
+  bersaglio = 'vivo',
 }) {
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const veggente = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const candidati = giocatori.filter((g) => g.vivo && g.id !== veggente?.id)
+  const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
   // l'accecamento dal Polpo Mannaro (pag. 20) è specifico del Veggente, non
   // del Veggente Mannaro, che il libretto non menziona in quella voce
@@ -56,7 +57,7 @@ export function AzioneIndagine({
       candidati={candidati}
       onConferma={confermaScelta}
       onSalta={salta}
-      etichetta="Chi indagare"
+      etichetta={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}
       mostraSalta={false}
     />
   )

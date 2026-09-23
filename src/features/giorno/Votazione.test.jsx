@@ -279,6 +279,15 @@ test('senza condizioni non mostra nessuna icona di condizione', () => {
   expect(screen.queryByRole('img')).not.toBeInTheDocument()
 })
 
+test('mostra un\'icona per il Borgomastro, promemoria per il voto doppio', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [], eBorgomastro: true },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  setup({ giocatori })
+  expect(screen.getByTitle(/voto vale doppio/i)).toBeInTheDocument()
+})
+
 test('senza mostraRuoli (default) non mostra icona di ruolo anche se il giocatore ha un ruolo assegnato', () => {
   const giocatoriConRuolo = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' }]
   setup({ giocatori: giocatoriConRuolo })

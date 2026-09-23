@@ -5,6 +5,7 @@ const STORAGE_KEY_VARIANTI = 'meltable-wolves-varianti-faccia'
 const STORAGE_KEY_NOME_RUOLO = 'meltable-wolves-mostra-nome-ruolo'
 const STORAGE_KEY_DURATA_TIMER = 'meltable-wolves-durata-timer'
 const STORAGE_KEY_PROMEMORIA_MORTI = 'meltable-wolves-promemoria-ruoli-morti'
+const STORAGE_KEY_VARIANTE_MEDIUM = 'meltable-wolves-variante-medium'
 // nascosti di default: in una sala stretta altri giocatori potrebbero
 // sbirciare lo schermo del narratore e vedere i ruoli a colpo d'occhio
 const DEFAULT_MOSTRA_RUOLI = false
@@ -54,6 +55,9 @@ export function useImpostazioni() {
   const [promemoriaRuoliMorti, setPromemoriaRuoliMorti] = useState(() =>
     loadBooleano(STORAGE_KEY_PROMEMORIA_MORTI, DEFAULT_PROMEMORIA_MORTI),
   )
+  // variante del Medium (testoRegole in roles.js): percepisce solo l'aura
+  // benevola/malvagia del defunto invece del suo ruolo esatto
+  const [varianteMedium, setVarianteMedium] = useState(() => loadBooleano(STORAGE_KEY_VARIANTE_MEDIUM, false))
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(mostraRuoliInVotazione))
@@ -75,6 +79,10 @@ export function useImpostazioni() {
     localStorage.setItem(STORAGE_KEY_PROMEMORIA_MORTI, String(promemoriaRuoliMorti))
   }, [promemoriaRuoliMorti])
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_VARIANTE_MEDIUM, String(varianteMedium))
+  }, [varianteMedium])
+
   return {
     mostraRuoliInVotazione,
     setMostraRuoliInVotazione,
@@ -86,5 +94,7 @@ export function useImpostazioni() {
     setDurataTimer,
     promemoriaRuoliMorti,
     setPromemoriaRuoliMorti,
+    varianteMedium,
+    setVarianteMedium,
   }
 }
