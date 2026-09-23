@@ -5,10 +5,26 @@ import { RUOLI_BRANCO_LUPI } from '../data/nightSteps'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
 
+// normalizza i giocatori caricati da localStorage: dati salvati da uno
+// schema precedente (o modificati a mano) potrebbero non avere questi campi
+// array, e il resto del codice li usa sempre senza controllare (es.
+// `giocatore.condizioni.includes(...)`) — un solo punto di guardia qui
+// invece di sparsi `?? []` in ogni funzione che li legge
+function normalizzaGiocatore(giocatore) {
+  return {
+    ...giocatore,
+    condizioni: giocatore.condizioni ?? [],
+    poteriUsati: giocatore.poteriUsati ?? [],
+    usiNotte: giocatore.usiNotte ?? [],
+    storiaRuoli: giocatore.storiaRuoli ?? [],
+  }
+}
+
 function loadGiocatori() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
+    const giocatori = raw ? JSON.parse(raw) : []
+    return giocatori.map(normalizzaGiocatore)
   } catch {
     return []
   }

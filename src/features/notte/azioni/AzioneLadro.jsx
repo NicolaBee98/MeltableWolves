@@ -1,4 +1,5 @@
 import { ROLES } from '../../../data/roles'
+import { ruoliAssegnabili } from '../../../data/assegnazione'
 
 function nomeRuolo(slug) {
   return ROLES.find((r) => r.slug === slug)?.nome ?? slug
@@ -14,8 +15,18 @@ const POTERE = 'ladro-scelta'
 export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [], quantita = {}, onCambiaQuantita = () => {} }) {
   const ladro = giocatori.find((g) => g.ruoloSlug === 'ladro')
   const usato = (ladro?.poteriUsati ?? []).includes(POTERE)
-  const opzioni = ruoliSelezionati.filter((slug) => slug !== 'ladro')
   const [carta1, carta2] = ladro?.scartoLadro ?? []
+  // solo carte non ancora in mano a nessuno ("tra quelle non assegnate a
+  // nessuno", come dice il testo sotto): altrimenti si potrebbe scartare la
+  // carta di un giocatore che la tiene già fisicamente (es. il bersaglio del
+  // Mimo, assegnato un passo prima)
+  const disponibili = ruoliAssegnabili(
+    ruoliSelezionati.filter((slug) => slug !== 'ladro'),
+    giocatori,
+    quantita,
+  )
+  const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2)
+  const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1)
 
   if (usato) {
     return <p>Il Ladro ha già scelto.</p>
@@ -64,7 +75,7 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
           Prima carta
           <select value={carta1 ?? ''} onChange={(e) => impostaCarta(0, e.target.value)}>
             <option value="">— scegli —</option>
-            {opzioni.map((slug) => (
+            {opzioniPrimaCarta.map((slug) => (
               <option key={slug} value={slug}>
                 {nomeRuolo(slug)}
               </option>
@@ -75,7 +86,7 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
           Seconda carta
           <select value={carta2 ?? ''} onChange={(e) => impostaCarta(1, e.target.value)}>
             <option value="">— scegli —</option>
-            {opzioni.map((slug) => (
+            {opzioniSecondaCarta.map((slug) => (
               <option key={slug} value={slug}>
                 {nomeRuolo(slug)}
               </option>

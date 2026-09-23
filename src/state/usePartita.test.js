@@ -5,6 +5,22 @@ beforeEach(() => {
   localStorage.clear()
 })
 
+test('carica dati salvati da uno schema precedente senza condizioni/poteriUsati/usiNotte/storiaRuoli senza andare in crash', () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true }]),
+  )
+
+  const { result } = renderHook(() => usePartita())
+
+  expect(result.current.giocatori[0]).toMatchObject({
+    condizioni: [],
+    poteriUsati: [],
+    usiNotte: [],
+    storiaRuoli: [],
+  })
+})
+
 test('addGiocatore aggiunge un giocatore vivo senza ruolo assegnato', () => {
   const { result } = renderHook(() => usePartita())
 
