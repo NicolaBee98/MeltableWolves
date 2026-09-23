@@ -1,4 +1,5 @@
 import { ROLES } from './roles'
+import { RUOLI_BRANCO_LUPI } from './nightSteps'
 
 function fazioneDi(giocatore) {
   return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
@@ -16,7 +17,12 @@ export function condizioniVittoria(giocatori) {
 
   if (vivi.length === 0) return messaggi
 
-  const lupiVivi = vivi.filter((g) => fazioneDi(g) === 'lupi')
+  // per le condizioni di vittoria contano solo i membri che cacciano con il
+  // branco (Lupo, Capobranco, Cucciolo, Nonna, Progenitore): gli altri
+  // "mannari" (Mucca, Sciacallo, Gallo, Guardia Mannara, Veggente Mannaro,
+  // Polpo) hanno fazione 'lupi' in roles.js ma non fanno numero qui, contano
+  // tra il resto del villaggio
+  const lupiVivi = vivi.filter((g) => RUOLI_BRANCO_LUPI.includes(g.ruoloSlug))
   const chupacabraVivo = vivi.some((g) => g.ruoloSlug === 'chupacabra')
   const pifferaioVivo = vivi.some((g) => g.ruoloSlug === 'pifferaio')
 

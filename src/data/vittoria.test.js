@@ -84,6 +84,23 @@ test('gli innamorati vincono se sono gli unici superstiti', () => {
   expect(condizioniVittoria(giocatori)).toContain('Gli innamorati sono gli unici superstiti: vincono loro.')
 })
 
+test('la Mucca Mannara e gli altri "mannari" non cacciano con il branco: contano tra gli abitanti', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'cucciolo-di-lupo-mannaro', condizioni: [] },
+    { id: '4', vivo: true, ruoloSlug: 'mucca-mannara', condizioni: [] },
+    { id: '5', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '6', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '7', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '8', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  // 3 lupi di branco vs 5 "abitanti" (mucca inclusa): non ancora pari
+  expect(condizioniVittoria(giocatori)).not.toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
+})
+
 test('la Suocera non è considerata viva per le condizioni di vittoria', () => {
   const giocatori = [
     { id: '1', vivo: true, ruoloSlug: 'suocera', condizioni: [] },

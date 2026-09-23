@@ -26,6 +26,26 @@ export function vicinoPiuVicinoChe(giocatori, id, predicate) {
   return null
 }
 
+// come vicinoPiuVicinoChe, ma ritorna TUTTI i candidati alla distanza minima
+// invece di sceglierne uno solo: usato dal Berserker (pag. 10), il cui lupo
+// più vicino va scelto dal narratore quando ce ne sono due alla stessa
+// distanza (sinistra e destra), invece di decidere in automatico.
+export function viciniPiuViciniChe(giocatori, id, predicate) {
+  const indice = giocatori.findIndex((g) => g.id === id)
+  if (indice === -1) return []
+
+  const n = giocatori.length
+  for (let passo = 1; passo < n; passo++) {
+    const destra = giocatori[(indice + passo) % n]
+    const sinistra = giocatori[(indice - passo + n) % n]
+    const candidati = []
+    if (destra && predicate(destra)) candidati.push(destra)
+    if (sinistra && destra !== sinistra && predicate(sinistra)) candidati.push(sinistra)
+    if (candidati.length > 0) return candidati
+  }
+  return []
+}
+
 export function viciniVivi(giocatori, id) {
   const indice = giocatori.findIndex((g) => g.id === id)
   if (indice === -1) return { sinistra: null, destra: null }

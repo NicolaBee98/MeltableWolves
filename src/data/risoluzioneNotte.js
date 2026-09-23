@@ -49,10 +49,15 @@ export function risolviCortigiana(giocatori) {
   if (!cliente) return { [cortigiana.id]: { visitaNotturna: null } }
 
   const clienteFazione = ROLES.find((r) => r.slug === cliente.ruoloSlug)?.fazione
-  const clienteELupo = clienteFazione === 'lupi'
-  const clienteMortoDiNotte = !cliente.vivo && cliente.causaMorte === 'notte'
+  // muore se visita direttamente un Lupo Mannaro o il Chupacabra, oppure se
+  // il cliente viene sbranato dal branco o ucciso dal Chupacabra quella
+  // stessa notte — non se il cliente muore per la pozione mortale della
+  // Strega o per qualunque altra causa (mortoDa distingue il "come", vedi
+  // uccidiPatch in effettiNotte.js)
+  const clientePericoloso = clienteFazione === 'lupi' || cliente.ruoloSlug === 'chupacabra'
+  const clienteSbranato = !cliente.vivo && (cliente.mortoDa === 'branco' || cliente.mortoDa === 'chupacabra')
 
-  if (clienteELupo || clienteMortoDiNotte) {
+  if (clientePericoloso || clienteSbranato) {
     return { [cortigiana.id]: { vivo: false, visitaNotturna: null } }
   }
 

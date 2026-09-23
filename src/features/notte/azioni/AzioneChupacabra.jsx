@@ -1,6 +1,6 @@
 import { ROLES } from '../../../data/roles'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { uccidiPatch, usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { uccidiPatch, usatoStanotte, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
 
 const RUOLI = ['chupacabra']
 const POTERE = 'chupacabra-caccia'
@@ -10,7 +10,7 @@ function fazioneDi(giocatore) {
 }
 
 export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
-  const vivi = giocatori.filter((g) => g.vivo)
+  const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug))
   const nessunLupoVivo = !vivi.some((g) => fazioneDi(g) === 'lupi')
 
   if (usatoStanotte(giocatori, RUOLI, POTERE)) {
@@ -22,7 +22,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
     if (target) {
       const puoUccidere = fazioneDi(target) === 'lupi' || nessunLupoVivo
       if (puoUccidere) {
-        const patch = uccidiPatch(target, round)
+        const patch = uccidiPatch(target, round, { mortoDa: 'chupacabra' })
         if (patch) {
           aggiornaGiocatore(targetId, patch)
         }

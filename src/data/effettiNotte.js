@@ -1,5 +1,5 @@
 import { ROLES } from './roles'
-import { vicinoPiuVicinoChe } from './vicinanza'
+import { viciniPiuViciniChe } from './vicinanza'
 
 function fazioneDi(giocatore) {
   return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
@@ -11,11 +11,26 @@ function fazioneDi(giocatore) {
 // controllo difensivo nel resolver condiviso.
 const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
 
+// Nano e Criceto Malvagio non possono morire di notte per il morso del
+// Chupacabra (libretto pag. 12, 18), a differenza della Cortigiana che ne è
+// immune solo per il branco: possono comunque morire per la pozione mortale
+// della Strega (uccidiPatch non li esclude) o al rogo.
+export const RUOLI_IMMUNI_AL_CHUPACABRA = ['nano', 'criceto-malvagio']
+
+// il/i lupi vivi più vicini al Berserker: normalmente uno solo, ma a parità
+// di distanza (un lupo a sinistra e uno a destra) ne ritorna due, e tocca al
+// narratore scegliere (vedi risolviAttaccoBranco più sotto)
+export function berserkerLupiCandidati(giocatori, targetId) {
+  return viciniPiuViciniChe(giocatori, targetId, (g) => g.vivo && fazioneDi(g) === 'lupi')
+}
+
 // Applica il morso del branco a un bersaglio, comprese le reazioni
 // speciali di alcuni ruoli quando vengono sbranati. Ritorna una mappa
 // {id: patch} da applicare con aggiornaGiocatore, eventualmente vuota se il
-// bersaglio è immune o protetto.
-export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco) {
+// bersaglio è immune o protetto. `berserkerLupoSceltoId` va passato solo
+// quando berserkerLupiCandidati ha già segnalato più di un candidato a
+// parità di distanza: il chiamante deve averlo chiesto al narratore prima.
+export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, berserkerLupoSceltoId) {
   const target = giocatori.find((g) => g.id === targetId)
   if (!target || RUOLI_IMMUNI_AL_BRANCO.includes(target.ruoloSlug)) return {}
 
@@ -29,14 +44,16 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco) {
     }
   }
 
-  const patchTarget = uccidiPatch(target, round)
+  const patchTarget = uccidiPatch(target, round, { mortoDa: 'branco' })
   if (!patchTarget) return {} // protetto: il morso non ha effetto, niente reazioni
 
   const patches = { [target.id]: patchTarget }
 
-  // Berserker: uccide il lupo vivo più vicino a sé (pag. 10)
+  // Berserker: uccide il lupo vivo più vicino a sé (pag. 10). A parità di
+  // distanza la scelta tocca al narratore (berserkerLupoSceltoId).
   if (target.ruoloSlug === 'berserker') {
-    const lupo = vicinoPiuVicinoChe(giocatori, target.id, (g) => g.vivo && fazioneDi(g) === 'lupi')
+    const candidati = berserkerLupiCandidati(giocatori, target.id)
+    const lupo = candidati.length <= 1 ? candidati[0] : candidati.find((g) => g.id === berserkerLupoSceltoId)
     if (lupo) {
       const patchLupo = uccidiPatch(lupo, round)
       if (patchLupo) patches[lupo.id] = patchLupo
@@ -79,14 +96,19 @@ export function aggiungiCondizionePatch(giocatore, condizione) {
   return { condizioni: [...giocatore.condizioni, condizione] }
 }
 
-export function uccidiPatch(giocatore, round, { ignoraProtezione = false } = {}) {
+// `mortoDa` distingue chi ha causato la morte notturna (branco, chupacabra,
+// strega...), a differenza di causaMorte che resta genericamente 'notte' per
+// tutte: serve a chi ha bisogno di sapere il "come", non solo il "quando"
+// (es. la Cortigiana muore solo se il cliente è sbranato dal branco o dal
+// Chupacabra, non se la Strega lo avvelena, vedi risolviCortigiana).
+export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoDa } = {}) {
   if (!ignoraProtezione && giocatore.condizioni.includes('protetto')) return null
   // L'Antico ha due vite: se perde la prima di notte, sopravvive e si rivela
   // "senza conseguenze", continuando a giocare da Villico normale (pag. 16)
   if (giocatore.ruoloSlug === 'lantico') {
     return { vivo: true, ruoloSlug: 'villico', storiaRuoli: [...(giocatore.storiaRuoli ?? []), 'villico'] }
   }
-  return { vivo: false, causaMorte: 'notte', mortoNotte: round }
+  return { vivo: false, causaMorte: 'notte', mortoNotte: round, mortoDa }
 }
 
 export function resuscitaPatch(giocatore, round) {
