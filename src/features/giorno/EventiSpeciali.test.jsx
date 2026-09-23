@@ -155,20 +155,22 @@ test('Il Boia giustizia: "Annulla" chiude il popup senza dichiarare nulla (nient
   expect(onBoiaGiustizia).not.toHaveBeenCalled()
 })
 
-test('Il Boia non può giustiziare se stesso: non compare tra i candidati del secondo passo', async () => {
+test('il Boia può giustiziare se stesso: resta tra i candidati del secondo passo (caso limite ammesso)', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Ivo', vivo: true },
     { id: '2', nome: 'Anna', vivo: true },
   ]
-  setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+  const { onBoiaGiustizia } = setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  expect(screen.getByRole('button', { name: 'Ivo' })).toBeInTheDocument()
 
-  expect(screen.queryByRole('button', { name: 'Ivo' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+
+  expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '1')
 })
 
 test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina con sé, sempre tra i vivi", async () => {
