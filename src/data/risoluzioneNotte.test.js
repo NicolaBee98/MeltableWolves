@@ -65,13 +65,40 @@ test('la cortigiana muore se il cliente scelto è un lupo', () => {
   expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
 })
 
-test('la cortigiana muore se il cliente è stato sbranato di notte', () => {
+test('la cortigiana muore se il cliente è stato sbranato dal branco', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoDa: 'branco' },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+})
+
+test('la cortigiana muore se il cliente è stato ucciso dal Chupacabra', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoDa: 'chupacabra' },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+})
+
+test('la cortigiana muore se visita direttamente il Chupacabra', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviCortigiana(giocatori)
+  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+})
+
+test('la cortigiana sopravvive se il cliente muore per la pozione mortale della Strega, non sbranato', () => {
   const giocatori = [
     { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
     { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte' },
   ]
   const patch = risolviCortigiana(giocatori)
-  expect(patch['1']).toEqual({ vivo: false, visitaNotturna: null })
+  expect(patch['1']).toEqual({ visitaNotturna: null })
 })
 
 test('la cortigiana sopravvive se il cliente è vivo e non è un lupo', () => {

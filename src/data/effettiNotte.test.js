@@ -10,6 +10,7 @@ import {
   daRipulireCambioNotte,
   maturaCucciolo,
   attivaVendettaCucciolo,
+  berserkerLupiCandidati,
 } from './effettiNotte'
 
 const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
@@ -163,6 +164,36 @@ test('risolviAttaccoBranco: il Berserker sbranato uccide il lupo vivo più vicin
   const patch = risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO)
   expect(patch['2']).toMatchObject({ vivo: false })
   expect(patch['3']).toMatchObject({ vivo: false, causaMorte: 'notte', mortoNotte: 4 })
+})
+
+test('risolviAttaccoBranco: a parità di distanza tra due lupi, senza una scelta esplicita nessuno muore per la vendetta', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO)
+  expect(Object.keys(patch)).toEqual(['2'])
+})
+
+test('risolviAttaccoBranco: a parità di distanza, uccide il lupo scelto dal narratore', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO, '3')
+  expect(patch['3']).toMatchObject({ vivo: false })
+  expect(patch['1']).toBeUndefined()
+})
+
+test('berserkerLupiCandidati ritorna entrambi i lupi a parità di distanza', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  expect(berserkerLupiCandidati(giocatori, '2').map((g) => g.id).sort()).toEqual(['1', '3'])
 })
 
 test('risolviAttaccoBranco: se non ci sono lupi vivi vicini, il Berserker muore senza altre conseguenze', () => {

@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { risolviAttaccoBranco } from '../../../data/effettiNotte'
+import { risolviAttaccoBranco, berserkerLupiCandidati } from '../../../data/effettiNotte'
 
 const POTERE = 'branco-lupi-sbrana'
 const RUOLI_IMMUNI = ['cortigiana', 'nano', 'criceto-malvagio']
@@ -10,6 +11,7 @@ function usiStanotte(giocatori, ruoli) {
 }
 
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = [] }) {
+  const [bersaglioInAttesaDiLupo, setBersaglioInAttesaDiLupo] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI.includes(g.ruoloSlug))
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,
@@ -26,8 +28,8 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
     return <p>Il branco ha già sbranato {limite === 2 ? 'le sue vittime' : 'una vittima'} questa notte.</p>
   }
 
-  function confermaScelta(targetId) {
-    const patches = risolviAttaccoBranco(giocatori, targetId, round, ruoli)
+  function finalizza(targetId, berserkerLupoSceltoId) {
+    const patches = risolviAttaccoBranco(giocatori, targetId, round, ruoli, berserkerLupoSceltoId)
     for (const [id, patch] of Object.entries(patches)) {
       aggiornaGiocatore(id, patch)
     }
@@ -42,6 +44,39 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
           ...(haRaggiuntoLimite && vendettaAttiva ? { vendettaCucciolo: false } : {}),
         })
       })
+    setBersaglioInAttesaDiLupo(null)
+  }
+
+  // Berserker: se i lupi vivi più vicini sono due (parità di distanza a
+  // destra e sinistra), il narratore sceglie quale muore per la vendetta,
+  // invece di lasciarlo decidere in automatico (pag. 10)
+  function confermaScelta(targetId) {
+    const target = giocatori.find((g) => g.id === targetId)
+    const candidatiLupo = target?.ruoloSlug === 'berserker' ? berserkerLupiCandidati(giocatori, targetId) : []
+    if (candidatiLupo.length > 1) {
+      setBersaglioInAttesaDiLupo(targetId)
+      return
+    }
+    finalizza(targetId)
+  }
+
+  if (bersaglioInAttesaDiLupo) {
+    const candidatiLupo = berserkerLupiCandidati(giocatori, bersaglioInAttesaDiLupo)
+    return (
+      <div className="scelta-giocatore__chips" role="group" aria-label="Quale lupo uccide il Berserker">
+        <p>Il Berserker ha due lupi alla stessa distanza: quale muore lottando con lui?</p>
+        {candidatiLupo.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            onClick={() => finalizza(bersaglioInAttesaDiLupo, g.id)}
+          >
+            {g.nome}
+          </button>
+        ))}
+      </div>
+    )
   }
 
   return (

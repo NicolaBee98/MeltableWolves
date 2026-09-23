@@ -13,7 +13,12 @@ test('conferma uccide il bersaglio scelto e marca il branco come già usato', as
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    vivo: false,
+    causaMorte: 'notte',
+    mortoNotte: 2,
+    mortoDa: 'branco',
+  })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: ['branco-lupi-sbrana'] })
 })
 
@@ -63,6 +68,27 @@ test('il branco stordito dall\'Ubriaco non può cacciare quella notte', () => {
 
   expect(screen.getByText(/ancora stordito/i)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+})
+
+test('Berserker sbranato con due lupi alla stessa distanza: il narratore sceglie quale muore', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Ezio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro']} />)
+
+  await user.click(screen.getByRole('button', { name: 'Bruno' }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(screen.getByText(/due lupi alla stessa distanza/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Ezio' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', expect.objectContaining({ vivo: false }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
 test('con la vendetta del Cucciolo attiva il branco può sbranare due vittime nella stessa notte', async () => {
