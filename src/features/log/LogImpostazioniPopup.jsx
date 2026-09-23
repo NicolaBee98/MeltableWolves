@@ -111,7 +111,7 @@ export function LogImpostazioniPopup({
                       type="number"
                       min="1"
                       value={durataTimer}
-                      onChange={(e) => onCambiaDurataTimer(Math.max(1, Number(e.target.value) || 1))}
+                      onChange={(e) => onCambiaDurataTimer(Math.max(1, Math.round(Number(e.target.value) || 1)))}
                     />
                   </label>
                   <button type="button" className="log-impostazioni__cta" onClick={() => setConfermaNuovaPartita(true)}>

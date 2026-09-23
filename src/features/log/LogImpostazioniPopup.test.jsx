@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LogImpostazioniPopup } from './LogImpostazioniPopup'
 
@@ -125,6 +125,21 @@ test('mostra il checkbox per il promemoria dei ruoli morti, coerente col flag ri
 
   await user.click(checkbox)
   expect(onCambiaPromemoriaRuoliMorti).toHaveBeenCalledWith(false)
+})
+
+test('la durata del timer arrotonda i valori con decimali e non scende sotto 1', async () => {
+  const user = userEvent.setup()
+  const onCambiaDurataTimer = vi.fn()
+  render(<LogImpostazioniPopup eventi={[]} durataTimer={60} onCambiaDurataTimer={onCambiaDurataTimer} />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  const input = screen.getByLabelText(/durata timer/i)
+
+  fireEvent.change(input, { target: { value: '1.5' } })
+  expect(onCambiaDurataTimer).toHaveBeenLastCalledWith(2)
+
+  fireEvent.change(input, { target: { value: '0' } })
+  expect(onCambiaDurataTimer).toHaveBeenLastCalledWith(1)
 })
 
 test('la X in alto a destra chiude il popup', async () => {
