@@ -1,11 +1,12 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { resuscitaPatch } from '../../../data/effettiNotte'
 
-export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round, escludiAttore = false }) {
+export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const poteriUsatiAttore = attore?.poteriUsati ?? []
   const giaUsato = poteriUsatiAttore.includes(potereSlug)
-  const morti = giocatori.filter((g) => !g.vivo && (!escludiAttore || g.id !== attore?.id))
+  // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi
+  const morti = giocatori.filter((g) => !g.vivo)
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>

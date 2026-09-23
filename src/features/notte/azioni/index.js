@@ -37,7 +37,14 @@ export const AZIONI_NOTTURNE = {
   },
   pifferaio: {
     Componente: AzioneCondizioneDoppia,
-    props: { condizione: 'ipnotizzato', etichetta: 'Chi ipnotizzare (due giocatori)', ruoloSlugAttore: 'pifferaio' },
+    // non può ipnotizzare se stesso, a differenza del Sacerdote che può
+    // scegliersi come uno dei due innamorati
+    props: {
+      condizione: 'ipnotizzato',
+      etichetta: 'Chi ipnotizzare (due giocatori)',
+      ruoloSlugAttore: 'pifferaio',
+      escludiAttore: true,
+    },
   },
   sacerdote: {
     Componente: AzioneCondizioneDoppia,
@@ -45,14 +52,8 @@ export const AZIONI_NOTTURNE = {
   },
   'branco-lupi': { Componente: AzioneBrancoLupi, props: { ruoli: RUOLI_BRANCO_LUPI } },
   chupacabra: { Componente: AzioneChupacabra, props: {} },
-  // il Guaritore può resuscitare anche se stesso ("può scegliere di usare
-  // il proprio potere anche verso sé stesso", roles.js); lo Sciacallo
-  // Mannaro no ("far resuscitare... un ALTRO giocatore")
   guaritore: { Componente: AzioneResuscita, props: { potereSlug: 'guaritore-resuscita', ruoloSlugAttore: 'guaritore' } },
-  'sciacallo-mannaro': {
-    Componente: AzioneResuscita,
-    props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro', escludiAttore: true },
-  },
+  'sciacallo-mannaro': { Componente: AzioneResuscita, props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro' } },
   strega: { Componente: AzioneStrega, props: {} },
   apprendista: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
   cavaliere: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
