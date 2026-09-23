@@ -111,6 +111,9 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
         >
           Sbrana normalmente
         </button>
+        <button type="button" onClick={() => setBersaglioInAttesaDiTrasformazione(null)}>
+          Annulla (cambia bersaglio)
+        </button>
       </div>
     )
   }
@@ -130,6 +133,9 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
             {g.nome}
           </button>
         ))}
+        <button type="button" onClick={() => setBersaglioInAttesaDiLupo(null)}>
+          Annulla (cambia bersaglio)
+        </button>
       </div>
     )
   }

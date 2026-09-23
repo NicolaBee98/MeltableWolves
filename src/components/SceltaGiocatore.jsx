@@ -1,4 +1,4 @@
-export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta, mostraSalta = true }) {
+export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta, mostraSalta = true, etichettaSalta = 'Salta' }) {
   if (candidati.length === 0) {
     return (
       <div className="scelta-giocatore">
@@ -22,7 +22,7 @@ export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta, mos
       </div>
       {mostraSalta && (
         <button type="button" onClick={onSalta}>
-          Salta
+          {etichettaSalta}
         </button>
       )}
     </div>
