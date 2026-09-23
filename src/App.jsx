@@ -110,7 +110,12 @@ export default function App() {
 
       {faseApp === 'giocatori' && (
         <section>
-          <PlayerTracker giocatori={giocatori} addGiocatore={addGiocatore} removeGiocatore={removeGiocatore} />
+          <PlayerTracker
+            giocatori={giocatori}
+            addGiocatore={addGiocatore}
+            removeGiocatore={removeGiocatore}
+            onRiordina={impostaGiocatori}
+          />
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="app__avviso">
               ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo.
