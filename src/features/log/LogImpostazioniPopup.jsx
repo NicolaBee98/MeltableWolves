@@ -14,6 +14,8 @@ export function LogImpostazioniPopup({
   onCambiaDurataTimer,
   promemoriaRuoliMorti,
   onCambiaPromemoriaRuoliMorti,
+  varianteMedium,
+  onCambiaVarianteMedium,
 }) {
   const [aperto, setAperto] = useState(false)
   const [tab, setTab] = useState('impostazioni')
@@ -94,6 +96,14 @@ export function LogImpostazioniPopup({
                       onChange={(e) => onCambiaPromemoriaRuoliMorti(e.target.checked)}
                     />
                     Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={varianteMedium}
+                      onChange={(e) => onCambiaVarianteMedium(e.target.checked)}
+                    />
+                    Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto
                   </label>
                   <label>
                     Durata timer arringa/spareggio (secondi)

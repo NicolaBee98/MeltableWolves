@@ -12,6 +12,7 @@ import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
 import { AzioneInquisitore } from './AzioneInquisitore'
 import { AzioneLadro } from './AzioneLadro'
 import { AzioneMimo } from './AzioneMimo'
+import { AzioneMedium } from './AzioneMedium'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
 export const AZIONI_NOTTURNE = {
@@ -63,10 +64,7 @@ export const AZIONI_NOTTURNE = {
     Componente: AzioneRivelaRuolo,
     props: { ruoloSlugAttore: 'cartomante', etichettaAttore: 'Cartomante', bersaglio: 'vivo' },
   },
-  medium: {
-    Componente: AzioneRivelaRuolo,
-    props: { ruoloSlugAttore: 'medium', etichettaAttore: 'Medium', bersaglio: 'morto' },
-  },
+  medium: { Componente: AzioneMedium, props: {} },
   inquisitore: { Componente: AzioneInquisitore, props: {} },
   ladro: { Componente: AzioneLadro, props: {} },
 }

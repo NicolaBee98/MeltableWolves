@@ -36,6 +36,8 @@ export default function App() {
     setDurataTimer,
     promemoriaRuoliMorti,
     setPromemoriaRuoliMorti,
+    varianteMedium,
+    setVarianteMedium,
   } = useImpostazioni()
 
   const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
@@ -80,6 +82,8 @@ export default function App() {
           onCambiaDurataTimer={setDurataTimer}
           promemoriaRuoliMorti={promemoriaRuoliMorti}
           onCambiaPromemoriaRuoliMorti={setPromemoriaRuoliMorti}
+          varianteMedium={varianteMedium}
+          onCambiaVarianteMedium={setVarianteMedium}
         />
       )}
 
@@ -134,6 +138,7 @@ export default function App() {
           nuovaNotte={notte.nuovaNotte}
           onNotteConclusa={() => setFaseApp('alba')}
           promemoriaRuoliMorti={promemoriaRuoliMorti}
+          varianteMedium={varianteMedium}
         />
       )}
 

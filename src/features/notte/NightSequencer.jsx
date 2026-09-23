@@ -31,6 +31,7 @@ export function NightSequencer({
   indietro,
   nuovaNotte,
   promemoriaRuoliMorti = false,
+  varianteMedium = false,
 }) {
   // il Bardo (dopo un rogo) e la maledizione de L'Antico (pag. 10, 25) non
   // sopprimono solo i poteri attivi: bloccano la notte intera. Niente
@@ -356,6 +357,7 @@ export function NightSequencer({
             ruoliSelezionati={ruoliSelezionati}
             quantita={quantita}
             onCambiaQuantita={onCambiaQuantita}
+            varianteMedium={varianteMedium}
             {...azione.props}
           />
         </>
