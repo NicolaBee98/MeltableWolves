@@ -1,5 +1,5 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 const RUOLI = ['cortigiana']
 const POTERE = 'cortigiana-visita'
@@ -14,7 +14,7 @@ export function AzioneCortigiana({ giocatori, aggiornaGiocatore }) {
 
   function confermaScelta(targetId) {
     if (cortigiana) {
-      aggiornaGiocatore(cortigiana.id, { visitaNotturna: targetId })
+      aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'cortigiana', { visitaNotturna: targetId })
     }
     segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
   }

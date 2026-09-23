@@ -1,13 +1,9 @@
-import { ROLES } from '../../../data/roles'
+import { fazioneDi } from '../../../data/roles'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { uccidiPatch, usatoStanotte, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
 
 const RUOLI = ['chupacabra']
 const POTERE = 'chupacabra-caccia'
-
-function fazioneDi(giocatore) {
-  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
-}
 
 export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
   const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug))

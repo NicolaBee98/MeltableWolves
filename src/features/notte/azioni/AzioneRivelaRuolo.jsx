@@ -1,6 +1,6 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { ROLES } from '../../../data/roles'
-import { usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 function nomeRuolo(ruoloSlug) {
   return ROLES.find((r) => r.slug === ruoloSlug)?.nome ?? 'ruolo sconosciuto'
@@ -32,7 +32,7 @@ export function AzioneRivelaRuolo({ giocatori, aggiornaGiocatore, round, ruoloSl
     if (attore) {
       const target = giocatori.find((g) => g.id === targetId)
       if (target) {
-        aggiornaGiocatore(attore.id, {
+        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
           ultimaIndagine: { targetId, ruoloRivelato: target.ruoloSlug, notte: round },
         })
       }

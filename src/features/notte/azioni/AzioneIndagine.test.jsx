@@ -99,10 +99,25 @@ test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'
 
   await user.click(screen.getByRole('button', { name: 'Piero' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
-    ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 },
-    condizioni: ['accecato'],
-  })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['accecato'] })
+})
+
+test('se il Mimo condivide questo ruoloSlug (due giocatori "veggente"), l\'esito si sincronizza su entrambi', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Sara', ruoloSlug: 'veggente', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '1' } },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  const esito = { ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 2 } }
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', esito)
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', esito)
 })
 
 test('non permette di indagare una seconda volta nella stessa notte, evitando di sovrascrivere l\'esito', async () => {

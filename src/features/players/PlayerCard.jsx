@@ -1,7 +1,9 @@
-// il riordino trascina-e-rilascia usa il drag & drop nativo HTML5, senza
-// dipendenze: la maniglia è l'unico elemento draggable, così un trascinamento
-// accidentale partito dal nome o dal pulsante di rimozione non riordina nulla
-export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop }) {
+// il riordino trascina-e-rilascia (drag & drop nativo HTML5, senza
+// dipendenze) resta come scorciatoia comoda su desktop/mouse, ma non è
+// affidabile su touch (Safari iOS non genera affatto dragstart da tocco) né
+// operabile da tastiera: i pulsanti ▲/▼ sono il modo che funziona sempre,
+// su qualunque dispositivo il narratore stia usando al tavolo.
+export function PlayerCard({ giocatore, onRemove, onSposta, primoDellaLista, ultimoDellaLista, onDragStart, onDragOver, onDrop }) {
   return (
     <article className="player-card" onDragOver={onDragOver} onDrop={onDrop}>
       <header className="player-card__header">
@@ -14,6 +16,24 @@ export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDro
         >
           ⠿
         </span>
+        <div className="player-card__sposta">
+          <button
+            type="button"
+            onClick={() => onSposta(giocatore.id, -1)}
+            disabled={primoDellaLista}
+            aria-label={`Sposta ${giocatore.nome} su`}
+          >
+            ▲
+          </button>
+          <button
+            type="button"
+            onClick={() => onSposta(giocatore.id, 1)}
+            disabled={ultimoDellaLista}
+            aria-label={`Sposta ${giocatore.nome} giù`}
+          >
+            ▼
+          </button>
+        </div>
         <h3>{giocatore.nome}</h3>
         <button type="button" onClick={() => onRemove(giocatore.id)} aria-label={`Rimuovi ${giocatore.nome}`}>
           ✕

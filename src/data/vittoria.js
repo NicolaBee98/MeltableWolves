@@ -1,9 +1,5 @@
-import { ROLES } from './roles'
+import { fazioneDi } from './roles'
 import { RUOLI_BRANCO_LUPI } from './nightSteps'
-
-function fazioneDi(giocatore) {
-  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
-}
 
 // La Suocera non è considerata in vita per le condizioni di vittoria (lo
 // dichiara esplicitamente il suo testoRegole in roles.js)

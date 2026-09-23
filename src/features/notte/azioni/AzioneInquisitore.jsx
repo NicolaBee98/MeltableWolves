@@ -1,6 +1,6 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { auraDi } from '../../../data/aura'
-import { usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 const RUOLI = ['inquisitore']
 const POTERE_PERSO = 'inquisitore-potere-perso'
@@ -35,13 +35,16 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
       const target = giocatori.find((g) => g.id === targetId)
       if (target) {
         const esito = auraDi(target.ruoloSlug)
-        const patch = { ultimaIndagine: { targetId, esito, notte: round } }
-        // "se indaga inutilmente un personaggio con aura positiva perde
-        // permanentemente il suo potere" (pag. 15)
-        if (esito === 'benevola') {
-          patch.poteriUsati = [...poteriUsati, POTERE_PERSO]
-        }
-        aggiornaGiocatore(inquisitore.id, patch)
+        // ultimaIndagine/poteriUsati sono dati del "ruolo", non del singolo
+        // corpo: se il Mimo condivide questo ruoloSlug (vedi
+        // aggiornaTuttiConRuolo), vanno sincronizzati su entrambi, ognuno
+        // partendo dal proprio poteriUsati esistente
+        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) => ({
+          ultimaIndagine: { targetId, esito, notte: round },
+          // "se indaga inutilmente un personaggio con aura positiva perde
+          // permanentemente il suo potere" (pag. 15)
+          ...(esito === 'benevola' ? { poteriUsati: [...(g.poteriUsati ?? []), POTERE_PERSO] } : {}),
+        }))
       }
     }
     segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE_NOTTE)

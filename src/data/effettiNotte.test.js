@@ -11,6 +11,8 @@ import {
   maturaCucciolo,
   attivaVendettaCucciolo,
   berserkerLupiCandidati,
+  propagaUnzione,
+  aggiornaTuttiConRuolo,
 } from './effettiNotte'
 
 const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
@@ -265,4 +267,64 @@ test('maturaCucciolo non fa nulla se il morto è il Cucciolo stesso', () => {
   const giocatori = [{ id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: false, condizioni: [] }]
   const risultato = maturaCucciolo(giocatori, '1')
   expect(risultato.find((g) => g.id === '1').ruoloSlug).toBe('cucciolo-di-lupo-mannaro')
+})
+
+test('propagaUnzione aggiunge la condizione "unto" ai due vicini vivi più prossimi', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const patch = propagaUnzione(giocatori, '2')
+  expect(patch['1']).toEqual({ condizioni: ['unto'] })
+  expect(patch['3']).toEqual({ condizioni: ['unto'] })
+})
+
+test('propagaUnzione salta chi ha già la condizione "unto"', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const patch = propagaUnzione(giocatori, '2')
+  expect(patch['1']).toBeUndefined()
+  expect(patch['3']).toEqual({ condizioni: ['unto'] })
+})
+
+test('propagaUnzione con un solo vicino vivo (2 giocatori) propaga una sola volta', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const patch = propagaUnzione(giocatori, '2')
+  expect(Object.keys(patch)).toEqual(['1'])
+})
+
+test('propagaUnzione ritorna una mappa vuota senza altri giocatori vivi (1 solo giocatore)', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
+  expect(propagaUnzione(giocatori, '1')).toEqual({})
+})
+
+test('aggiornaTuttiConRuolo applica lo stesso patch a tutti i giocatori con quel ruoloSlug', () => {
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', ruoloSlug: 'veggente', condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', ruoloSlug: 'veggente', condizioni: [] },
+  ]
+  aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'veggente', { note: 'ok' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { note: 'ok' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { note: 'ok' })
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.anything())
+})
+
+test('aggiornaTuttiConRuolo accetta una funzione (giocatore) => patch per campi che vanno uniti per-persona', () => {
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', ruoloSlug: 'inquisitore', poteriUsati: ['a'] },
+    { id: '3', ruoloSlug: 'inquisitore', poteriUsati: ['b'] },
+  ]
+  aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) => ({ poteriUsati: [...g.poteriUsati, 'x'] }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['a', 'x'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { poteriUsati: ['b', 'x'] })
 })

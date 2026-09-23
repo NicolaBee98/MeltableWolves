@@ -586,6 +586,19 @@ legend {
   font-size: 0.75rem;
 }
 
+.player-card__sposta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.player-card__sposta button {
+  min-width: 22px;
+  min-height: 18px;
+  font-size: 0.6rem;
+  line-height: 1;
+}
+
 .player-card__maniglia {
   cursor: grab;
   font-size: 1rem;

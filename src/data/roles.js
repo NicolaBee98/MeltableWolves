@@ -175,3 +175,11 @@ export const CARATTERISTICA_ICONA = {
   rivela: 'icona_rivelare_carta',
   tocca: 'icona_necessario_toccare_giocatore',
 }
+
+export function fazioneDi(giocatore) {
+  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
+}
+
+export function nomeRuolo(slug) {
+  return ROLES.find((r) => r.slug === slug)?.nome ?? slug
+}
