@@ -16,6 +16,7 @@ function setup(overrides = {}) {
     onBardoSaltaNotte: vi.fn(),
     onGalloSaltaGiorno: vi.fn(),
     onElezioneBorgomastro: vi.fn(),
+    onFantasmaOnnisciente: vi.fn(),
     ...overrides,
   }
   render(<EventiSpeciali {...props} />)
@@ -197,6 +198,32 @@ test('Il Gallo Mannaro salta il giorno è proposto solo in contesto alba', async
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onGalloSaltaGiorno).toHaveBeenCalled()
+})
+
+test('Assegna il Fantasma Onnisciente propone solo i giocatori morti, una sola volta per partita', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const { onFantasmaOnnisciente } = setup({
+    giocatori,
+    ruoliSelezionati: ['fantasma-onnisciente'],
+    contesto: 'esito',
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Assegna il Fantasma Onnisciente' }))
+  expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onFantasmaOnnisciente).toHaveBeenCalledWith('1')
+})
+
+test('Assegna il Fantasma Onnisciente non è più proposto una volta che qualcuno lo tiene già', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], eFantasmaOnnisciente: true }]
+  setup({ giocatori, ruoliSelezionati: ['fantasma-onnisciente'], contesto: 'esito' })
+  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
 test('Elezione Borgomastro è proposta in entrambi i contesti se il ruolo è nel mazzo', async () => {

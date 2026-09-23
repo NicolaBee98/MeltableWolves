@@ -109,6 +109,13 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { eBorgomastro: true })
   }
 
+  // il Fantasma Onnisciente non è distribuito a inizio partita: la sua
+  // carta va consegnata al primo morto sul rogo (pag. 13). Un'unica carta
+  // in gioco, quindi si assegna una sola volta.
+  function dichiaraFantasmaOnnisciente(id) {
+    aggiornaGiocatore(id, { eFantasmaOnnisciente: true })
+  }
+
   return (
     <section className="giorno-panel">
       <Votazione
@@ -130,6 +137,7 @@ export function GiornoPanel({
         onMorteUnzione={dichiaraMorteUnzione}
         onBardoSaltaNotte={dichiaraBardoSaltaNotte}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
+        onFantasmaOnnisciente={dichiaraFantasmaOnnisciente}
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}
