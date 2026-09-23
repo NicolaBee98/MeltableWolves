@@ -491,3 +491,59 @@ test("con la notte bloccata da L'Antico (non più Bardo) mostra l'avviso generic
 
   expect(screen.getByText(/il villaggio è maledetto/i)).toBeInTheDocument()
 })
+
+test("l'illustrazione a figura intera del titolare compare anche nelle notti successive alla prima", () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const giocatori = [{ id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], poteriUsati: [] }]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  expect(screen.getByText('Notte 2')).toBeInTheDocument()
+  const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
+  expect(illustrazioni).toHaveLength(1)
+  expect(illustrazioni[0].src).toContain('Paladino.svg')
+})
+
+test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coinvolti, una per ciascuno', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Elsa', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro', 'cucciolo-di-lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+
+  // primo passo: il Cucciolo si identifica da solo; il secondo è "il branco
+  // si riconosce" collettivamente, dove tutti e tre compaiono insieme
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByRole('heading', { name: /il branco si riconosce/i })).toBeInTheDocument()
+
+  const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
+  expect(illustrazioni).toHaveLength(3)
+  const src = [...illustrazioni].map((img) => img.src)
+  expect(src.some((s) => s.includes('Lupo_Mannaro_1.svg'))).toBe(true)
+  expect(src.some((s) => s.includes('Lupo_Mannaro_2.svg'))).toBe(true)
+  expect(src.some((s) => s.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
+})
+
+test('quando il Mimo imita un ruolo che agisce, compaiono sia la sua illustrazione sia quella del ruolo imitato', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'veggente', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['veggente']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
+  const src = [...illustrazioni].map((img) => img.src)
+  expect(src.some((s) => s.includes('Mimo.svg'))).toBe(true)
+  expect(src.filter((s) => s.includes('Veggente.svg'))).toHaveLength(2)
+})
