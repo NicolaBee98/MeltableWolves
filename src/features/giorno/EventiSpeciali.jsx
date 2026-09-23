@@ -160,7 +160,7 @@ export function EventiSpeciali({
                 }}
                 onSalta={chiudi}
                 etichetta="Chi è lo Scemo del Villaggio"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             </>
           )}
@@ -176,7 +176,7 @@ export function EventiSpeciali({
                 }}
                 onSalta={chiudi}
                 etichetta="Chi è morto per l'unzione"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             </>
           )}
@@ -219,7 +219,7 @@ export function EventiSpeciali({
                 onConferma={setBoiaId}
                 onSalta={chiudi}
                 etichetta="Chi è il Boia"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             ) : (
               <SceltaGiocatore
@@ -230,7 +230,7 @@ export function EventiSpeciali({
                 }}
                 onSalta={chiudi}
                 etichetta="Chi giustizia il Boia"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             ))}
 
@@ -241,7 +241,7 @@ export function EventiSpeciali({
                 onConferma={setAlchimistaId}
                 onSalta={chiudi}
                 etichetta="Chi è l'Alchimista"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             ) : (
               <SceltaGiocatore
@@ -252,7 +252,7 @@ export function EventiSpeciali({
                 }}
                 onSalta={chiudi}
                 etichetta="Chi trascina con sé l'Alchimista"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             ))}
 
@@ -301,7 +301,7 @@ export function EventiSpeciali({
               }}
               onSalta={chiudi}
               etichetta="Chi eleggete Borgomastro?"
-              mostraSalta={false}
+              etichettaSalta="Annulla"
             />
           )}
 
@@ -316,7 +316,7 @@ export function EventiSpeciali({
                 }}
                 onSalta={chiudi}
                 etichetta="Chi riceve la carta"
-                mostraSalta={false}
+                etichettaSalta="Annulla"
               />
             </>
           )}

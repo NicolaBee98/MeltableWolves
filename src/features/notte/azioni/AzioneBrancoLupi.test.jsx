@@ -124,6 +124,46 @@ test('con il Progenitore vivo e il potere non ancora usato, propone di trasforma
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
+test('la schermata di trasformazione del Progenitore ha un\'uscita: "Annulla" torna alla scelta del bersaglio', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+  ]
+  render(
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoli={['lupo-mannaro-progenitore']}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: /annulla/i }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
+test('la schermata di parità del Berserker ha un\'uscita: "Annulla" torna alla scelta del bersaglio', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Ezio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro']} />)
+
+  await user.click(screen.getByRole('button', { name: 'Bruno' }))
+  await user.click(screen.getByRole('button', { name: /annulla/i }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: 'Bruno' })).toBeInTheDocument()
+})
+
 test('col Progenitore, scegliendo "sbrana normalmente" uccide come al solito', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
