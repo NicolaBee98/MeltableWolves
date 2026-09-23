@@ -162,7 +162,7 @@ export function notteBloccata(giocatori, round) {
   return giocatori.some((g) => g.notteBloccataFinoA === round)
 }
 
-export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
+export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { promemoriaRuoliMorti = false } = {}) {
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
 
@@ -174,8 +174,15 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}) {
       if (!ruoliSelezionati.includes(slug)) return false
       const daAssegnare = step.assegnabile !== false && ruoliAssegnabili([slug], giocatori, quantita).length > 0
       // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (pag. 21,
-      // 22): per loro basta che il titolare esista, vivo o no
-      const titolare = giocatori.some((g) => g.ruoloSlug === slug && (step.puoAgireDaMorto || g.vivo))
+      // 22): per loro basta che il titolare esista, vivo o no. Gli altri
+      // ruoli con potere ricorrente restano nel giro anche da morti solo se
+      // il promemoria è attivo (il narratore li richiama comunque, con la
+      // sola icona del teschio, vedi NightSequencer).
+      const titolare = giocatori.some(
+        (g) =>
+          g.ruoloSlug === slug &&
+          (step.puoAgireDaMorto || g.vivo || (step.tipo === 'azione' && promemoriaRuoliMorti)),
+      )
       return daAssegnare || titolare
     })
   })

@@ -44,3 +44,16 @@ test('variantiFaccia è true di default e mostraNomeRuolo false di default, entr
   expect(result2.current.variantiFaccia).toBe(false)
   expect(result2.current.mostraNomeRuolo).toBe(true)
 })
+
+test('promemoriaRuoliMorti è true di default e persiste', () => {
+  const { result, unmount } = renderHook(() => useImpostazioni())
+  expect(result.current.promemoriaRuoliMorti).toBe(true)
+
+  act(() => {
+    result.current.setPromemoriaRuoliMorti(false)
+  })
+  unmount()
+
+  const { result: result2 } = renderHook(() => useImpostazioni())
+  expect(result2.current.promemoriaRuoliMorti).toBe(false)
+})

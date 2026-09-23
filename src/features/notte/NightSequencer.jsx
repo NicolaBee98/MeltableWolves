@@ -30,13 +30,14 @@ export function NightSequencer({
   avanti,
   indietro,
   nuovaNotte,
+  promemoriaRuoliMorti = false,
 }) {
   // il Bardo (dopo un rogo) e la maledizione de L'Antico (pag. 10, 25) non
   // sopprimono solo i poteri attivi: bloccano la notte intera. Niente
   // passi, si passa dritti all'alba (che mostrerà correttamente "nessuno è
   // morto questa notte", visto che nessun potere ha potuto agire)
   const bloccata = notteBloccata(giocatori, round)
-  const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita)
+  const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti })
   const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
 
   // pila di stati precedenti per "Indietro": un elemento per ogni cambiamento
@@ -99,6 +100,7 @@ export function NightSequencer({
       : 'Questa notte non si svolge: il villaggio è maledetto.'
 
     function vaiAllAlba() {
+      registraEvento(bardo ? `${bardo.nome} fa saltare la notte con il suo gesto segreto (Bardo).` : messaggio)
       for (const evento of annunciAlba(giocatori, round)) {
         registraEvento(evento)
       }
@@ -149,13 +151,18 @@ export function NightSequencer({
       : []
 
   const azione = AZIONI_NOTTURNE[step.id]
+  const titolareVivo = giocatoriCoinvolti.some((g) => g.vivo)
   // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (vedi
   // puoAgireDaMorto in nightSteps.js): per loro basta che il ruolo sia
   // assegnato a qualcuno, vivo o no
-  const qualcunoCoinvolto = step.puoAgireDaMorto
-    ? giocatoriCoinvolti.length > 0
-    : giocatoriCoinvolti.some((g) => g.vivo)
+  const qualcunoCoinvolto = step.puoAgireDaMorto ? giocatoriCoinvolti.length > 0 : titolareVivo
   const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto
+  // titolare morto, potere ricorrente, non tra le eccezioni che agiscono da
+  // morti: il passo compare comunque (promemoriaRuoliMorti l'ha lasciato
+  // passare in passiNotte) solo per ricordare al narratore di chiamarlo, non
+  // per svolgere un'azione vera
+  const mostraPromemoriaMorto =
+    step.tipo === 'azione' && azione && !step.puoAgireDaMorto && !titolareVivo && giocatoriCoinvolti.length > 0
 
   const capacitaPendente = ruoliPendenti.reduce(
     (somma, slug) => somma + ((quantita[slug] ?? 1) - contaAssegnati(giocatori, slug)),
@@ -208,13 +215,18 @@ export function NightSequencer({
   }
 
   // il Villico non si sceglie a mano (vedi RUOLI_NON_ASSEGNABILI_MANUALMENTE):
-  // a fine notte, chi è rimasto senza ruolo lo diventa in automatico. Non si
-  // può agganciare solo al passo "assegna i ruoli rimanenti": se quel passo
-  // non elenca nessun ruolo selezionato (es. mazzo di soli ruoli con passo
-  // dedicato + Lupo Mannaro, senza "villico" mai scelto esplicitamente nel
-  // mazzo) il passo stesso non compare mai, e senza questo fallback i
-  // giocatori avanzati restano per sempre senza ruolo.
+  // a fine notte, chi è rimasto senza ruolo lo diventa in automatico — ma
+  // solo se ogni altro ruolo del mazzo è già stato assegnato a qualcuno. Se
+  // restano ruoli "pendenti" (Spilungone, Suocera, Boia... qualunque carta
+  // non ancora consegnata) i giocatori senza ruolo restano con il punto
+  // interrogativo: l'app non sa davvero se sono Villici o tengono in mano
+  // una di quelle carte, esattamente come il narratore col mazzo fisico.
   function autoAssegnaVillici() {
+    const altriRuoliPendenti = ruoliSelezionati.some(
+      (slug) => slug !== 'villico' && ruoliAssegnabili([slug], giocatori, quantita).length > 0,
+    )
+    if (altriRuoliPendenti) return
+
     giocatori
       .filter((g) => !g.ruoloSlug)
       .forEach((g) => {
@@ -318,22 +330,35 @@ export function NightSequencer({
           {giocatoriCoinvolti.map((g) => (
             <li key={g.id}>
               {g.nome}
-              {g.vivo ? '' : ' (morto)'}
+              {g.vivo ? '' : ' ☠️'}
             </li>
           ))}
         </ul>
       )}
 
+      {mostraPromemoriaMorto && (
+        <p className="night-sequencer__promemoria-morto">
+          ☠️ Chiama comunque {giocatoriCoinvolti.map((g) => g.nome).join(', ')} per il suo turno, anche se morto/a.
+        </p>
+      )}
+
       {mostraAzione && (
-        <azione.Componente
-          giocatori={giocatoriConPendenti}
-          aggiornaGiocatore={aggiornaGiocatoreConCommit}
-          round={round}
-          ruoliSelezionati={ruoliSelezionati}
-          quantita={quantita}
-          onCambiaQuantita={onCambiaQuantita}
-          {...azione.props}
-        />
+        <>
+          {step.puoAgireDaMorto && !titolareVivo && (
+            <p className="night-sequencer__promemoria-morto">
+              ☠️ {giocatoriCoinvolti.map((g) => g.nome).join(', ')} è morto/a, ma agisce comunque.
+            </p>
+          )}
+          <azione.Componente
+            giocatori={giocatoriConPendenti}
+            aggiornaGiocatore={aggiornaGiocatoreConCommit}
+            round={round}
+            ruoliSelezionati={ruoliSelezionati}
+            quantita={quantita}
+            onCambiaQuantita={onCambiaQuantita}
+            {...azione.props}
+          />
+        </>
       )}
 
       {assegnazioneIncompleta && (

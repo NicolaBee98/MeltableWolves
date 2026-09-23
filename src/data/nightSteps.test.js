@@ -159,6 +159,20 @@ test('salta un passo di ruolo il cui unico titolare è morto e il ruolo è già 
   expect(passiNotte(['veggente'], 2, giocatori, { veggente: 1 }).map((p) => p.id)).not.toContain('veggente')
 })
 
+test('con promemoriaRuoliMorti attivo, un passo azione col titolare morto resta comunque nell\'elenco', () => {
+  const giocatori = [{ id: '1', nome: 'Bruno', ruoloSlug: 'veggente', vivo: false, condizioni: [] }]
+  expect(
+    passiNotte(['veggente'], 2, giocatori, { veggente: 1 }, { promemoriaRuoliMorti: true }).map((p) => p.id),
+  ).toContain('veggente')
+})
+
+test('con promemoriaRuoliMorti attivo, un passo informativo col titolare morto resta comunque escluso', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'eremita', vivo: false, condizioni: [] }]
+  expect(
+    passiNotte(['eremita'], 2, giocatori, { eremita: 1 }, { promemoriaRuoliMorti: true }).map((p) => p.id),
+  ).not.toContain('eremita')
+})
+
 test('"branco-lupi" sparisce quando tutti i lupi identificati sono morti', () => {
   const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [] }]
   expect(

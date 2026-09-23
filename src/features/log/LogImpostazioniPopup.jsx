@@ -12,6 +12,8 @@ export function LogImpostazioniPopup({
   onCambiaMostraNomeRuolo,
   durataTimer,
   onCambiaDurataTimer,
+  promemoriaRuoliMorti,
+  onCambiaPromemoriaRuoliMorti,
 }) {
   const [aperto, setAperto] = useState(false)
   const [tab, setTab] = useState('impostazioni')
@@ -84,6 +86,14 @@ export function LogImpostazioniPopup({
                       onChange={(e) => onCambiaMostraNomeRuolo(e.target.checked)}
                     />
                     Mostra il nome del ruolo tra parentesi accanto al nome
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={promemoriaRuoliMorti}
+                      onChange={(e) => onCambiaPromemoriaRuoliMorti(e.target.checked)}
+                    />
+                    Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)
                   </label>
                   <label>
                     Durata timer arringa/spareggio (secondi)
