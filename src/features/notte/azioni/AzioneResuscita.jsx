@@ -1,11 +1,11 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { resuscitaPatch } from '../../../data/effettiNotte'
 
-export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round }) {
+export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round, escludiAttore = false }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const poteriUsatiAttore = attore?.poteriUsati ?? []
   const giaUsato = poteriUsatiAttore.includes(potereSlug)
-  const morti = giocatori.filter((g) => !g.vivo)
+  const morti = giocatori.filter((g) => !g.vivo && (!escludiAttore || g.id !== attore?.id))
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>

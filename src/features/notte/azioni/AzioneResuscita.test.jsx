@@ -44,6 +44,39 @@ test('mostra un messaggio se il potere è già stato usato', () => {
   expect(screen.getByText(/già utilizzato/i)).toBeInTheDocument()
 })
 
+test('senza escludiAttore, il Guaritore morto compare tra i propri candidati (può resuscitare se stesso)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: false, condizioni: [], note: '', poteriUsati: [] },
+  ]
+  render(
+    <AzioneResuscita
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      potereSlug="guaritore-resuscita"
+      ruoloSlugAttore="guaritore"
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Guaritore' })).toBeInTheDocument()
+})
+
+test('con escludiAttore, lo Sciacallo Mannaro morto non compare tra i propri candidati (deve resuscitare un altro)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sciacallo', ruoloSlug: 'sciacallo-mannaro', vivo: false, condizioni: [], note: '', poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], note: '' },
+  ]
+  render(
+    <AzioneResuscita
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      potereSlug="sciacallo-mannaro-resuscita"
+      ruoloSlugAttore="sciacallo-mannaro"
+      escludiAttore
+    />,
+  )
+  expect(screen.queryByRole('button', { name: 'Sciacallo' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
 test('mostra solo i giocatori morti come candidati', () => {
   const giocatori = [
     { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], note: '', poteriUsati: [] },
