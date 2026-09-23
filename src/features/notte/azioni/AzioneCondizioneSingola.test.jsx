@@ -79,6 +79,42 @@ test('confermare marca il potere come usato per l\'attore', async () => {
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: ['untore'] })
 })
 
+test('senza escludiAttore, l\'attore compare tra i propri candidati (es. Untore può ungere se stesso)', () => {
+  const conUntore = [
+    { id: '1', nome: 'Piero', ruoloSlug: 'untore', vivo: true, condizioni: [], note: '', usiNotte: [] },
+    giocatori[1],
+  ]
+  render(
+    <AzioneCondizioneSingola
+      giocatori={conUntore}
+      aggiornaGiocatore={() => {}}
+      condizione="unto"
+      etichetta="Chi ungere"
+      ruoloSlugAttore="untore"
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Piero' })).toBeInTheDocument()
+})
+
+test('con escludiAttore, l\'attore non compare tra i propri candidati (la Fattucchiera non può inibire se stessa)', () => {
+  const conFattucchiera = [
+    { id: '1', nome: 'Piero', ruoloSlug: 'fattucchiera', vivo: true, condizioni: [], note: '', usiNotte: [] },
+    giocatori[1],
+  ]
+  render(
+    <AzioneCondizioneSingola
+      giocatori={conFattucchiera}
+      aggiornaGiocatore={() => {}}
+      condizione="inibito"
+      etichetta="Chi inibire"
+      ruoloSlugAttore="fattucchiera"
+      escludiAttore
+    />,
+  )
+  expect(screen.queryByRole('button', { name: 'Piero' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
+})
+
 test('non mostra il pulsante Salta: questi poteri non sono opzionali', () => {
   const conUntore = [
     { id: '1', nome: 'Piero', ruoloSlug: 'untore', vivo: true, condizioni: [], note: '', usiNotte: [] },

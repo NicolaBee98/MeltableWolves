@@ -26,7 +26,10 @@ export const AZIONI_NOTTURNE = {
   },
   fattucchiera: {
     Componente: AzioneCondizioneSingola,
-    props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera' },
+    // inibire se stessa è un paradosso (bloccherebbe l'azione che la sta
+    // già bloccando): unico ruolo tra quelli con AzioneCondizioneSingola a
+    // escludersi dai propri bersagli
+    props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera', escludiAttore: true },
   },
   maga: {
     Componente: AzioneCondizioneSingola,

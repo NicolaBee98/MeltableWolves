@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
-import { ROLES } from '../../data/roles'
+import { nomeRuolo } from '../../data/roles'
 import {
   ruoliRivelabili,
   boiaDisponibile,
@@ -12,8 +12,74 @@ import {
   borgomastroDisponibile,
 } from '../../data/eventiSpeciali'
 
-function nomeRuolo(slug) {
-  return ROLES.find((r) => r.slug === slug)?.nome ?? slug
+// Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
+// chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
+// Borgomastro, Fantasma Onnisciente.
+function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla }) {
+  return (
+    <>
+      {messaggio && <p>{messaggio}</p>}
+      <SceltaGiocatore
+        candidati={candidati}
+        onConferma={onConferma}
+        onSalta={onAnnulla}
+        etichetta={etichetta}
+        etichettaSalta="Annulla"
+      />
+    </>
+  )
+}
+
+// Forma a due passi: prima "chi è" (l'identità non è mai nota in anticipo),
+// poi "chi subisce l'azione". Usata da Boia e Alchimista.
+function EventoDueGiocatori({
+  candidati,
+  etichettaAttore,
+  etichettaBersaglio,
+  escludiAttoreDaBersagli = false,
+  onConferma,
+  onAnnulla,
+}) {
+  const [attoreId, setAttoreId] = useState(null)
+
+  if (!attoreId) {
+    return (
+      <SceltaGiocatore
+        candidati={candidati}
+        onConferma={setAttoreId}
+        onSalta={onAnnulla}
+        etichetta={etichettaAttore}
+        etichettaSalta="Annulla"
+      />
+    )
+  }
+
+  const bersagli = escludiAttoreDaBersagli ? candidati.filter((g) => g.id !== attoreId) : candidati
+  return (
+    <SceltaGiocatore
+      candidati={bersagli}
+      onConferma={(id) => onConferma(attoreId, id)}
+      onSalta={onAnnulla}
+      etichetta={etichettaBersaglio}
+      etichettaSalta="Annulla"
+    />
+  )
+}
+
+// Eventi che sono solo una dichiarazione, senza un giocatore da scegliere
+// (Bardo, Gallo Mannaro).
+function EventoConferma({ messaggio, onConferma, onAnnulla }) {
+  return (
+    <div className="eventi-speciali__conferma">
+      <p>{messaggio}</p>
+      <button type="button" onClick={onConferma}>
+        Conferma
+      </button>
+      <button type="button" onClick={onAnnulla}>
+        Annulla
+      </button>
+    </div>
+  )
 }
 
 // Menu unico per gli eventi che il narratore dichiara "a mano", non
@@ -44,8 +110,6 @@ export function EventiSpeciali({
 }) {
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
-  const [alchimistaId, setAlchimistaId] = useState(null)
-  const [boiaId, setBoiaId] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
@@ -53,14 +117,6 @@ export function EventiSpeciali({
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
-  const mostraRivelazione = rivelabili.length > 0
-  const mostraBoia = inGiorno && boiaDisponibile(ruoliSelezionati, giocatori, quantita)
-  const mostraAlchimista = inGiorno && alchimistaDisponibile(ruoliSelezionati, giocatori, quantita)
-  const mostraScemo = inGiorno && scemoDisponibile(ruoliSelezionati, giocatori, quantita)
-  const mostraUnzione = inGiorno && unti.length > 0
-  const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
-  const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
-  const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati, giocatori)
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
   // sul rogo (pag. 13), quindi solo finché nessuno la tiene già
   const mostraFantasma =
@@ -69,25 +125,35 @@ export function EventiSpeciali({
     !giocatori.some((g) => g.eFantasmaOnnisciente) &&
     morti.length > 0
 
-  const nessunEvento =
-    !mostraRivelazione &&
-    !mostraBoia &&
-    !mostraAlchimista &&
-    !mostraScemo &&
-    !mostraUnzione &&
-    !mostraBardo &&
-    !mostraGallo &&
-    !mostraBorgomastro &&
-    !mostraFantasma
+  const menuEventi = [
+    rivelabili.length > 0 && { key: 'rivelazione', etichetta: 'Rivelazione personaggio' },
+    inGiorno && boiaDisponibile(ruoliSelezionati, giocatori, quantita) && { key: 'boia', etichetta: 'Il Boia giustizia' },
+    inGiorno &&
+      alchimistaDisponibile(ruoliSelezionati, giocatori, quantita) && {
+        key: 'alchimista',
+        etichetta: "L'Alchimista esplode",
+      },
+    inGiorno &&
+      scemoDisponibile(ruoliSelezionati, giocatori, quantita) && {
+        key: 'scemo',
+        etichetta: 'Lo Scemo del Villaggio sbaglia la rima',
+      },
+    inGiorno && unti.length > 0 && { key: 'unzione', etichetta: 'Morte per unzione' },
+    contesto === 'esito' && bardoDisponibile(giocatori) && { key: 'bardo', etichetta: 'Il Bardo salta la notte' },
+    contesto === 'alba' && galloDisponibile(giocatori) && {
+      key: 'gallo',
+      etichetta: 'Il Gallo Mannaro salta il giorno',
+    },
+    borgomastroDisponibile(ruoliSelezionati, giocatori) && { key: 'borgomastro', etichetta: 'Elezione Borgomastro' },
+    mostraFantasma && { key: 'fantasma', etichetta: 'Assegna il Fantasma Onnisciente' },
+  ].filter(Boolean)
 
   function chiudi() {
     setEvento(null)
     setRuoloRivelazione(null)
-    setAlchimistaId(null)
-    setBoiaId(null)
   }
 
-  if (nessunEvento) return null
+  if (menuEventi.length === 0) return null
 
   return (
     <div className="eventi-speciali">
@@ -98,51 +164,11 @@ export function EventiSpeciali({
         <div className="eventi-speciali__popup" role="dialog" aria-label="Eventi speciali">
           {evento === 'menu' && (
             <div className="eventi-speciali__lista">
-              {mostraRivelazione && (
-                <button type="button" onClick={() => setEvento('rivelazione')}>
-                  Rivelazione personaggio
+              {menuEventi.map(({ key, etichetta }) => (
+                <button key={key} type="button" onClick={() => setEvento(key)}>
+                  {etichetta}
                 </button>
-              )}
-              {mostraBoia && (
-                <button type="button" onClick={() => setEvento('boia')}>
-                  Il Boia giustizia
-                </button>
-              )}
-              {mostraAlchimista && (
-                <button type="button" onClick={() => setEvento('alchimista')}>
-                  L'Alchimista esplode
-                </button>
-              )}
-              {mostraScemo && (
-                <button type="button" onClick={() => setEvento('scemo')}>
-                  Lo Scemo del Villaggio sbaglia la rima
-                </button>
-              )}
-              {mostraUnzione && (
-                <button type="button" onClick={() => setEvento('unzione')}>
-                  Morte per unzione
-                </button>
-              )}
-              {mostraBardo && (
-                <button type="button" onClick={() => setEvento('bardo')}>
-                  Il Bardo salta la notte
-                </button>
-              )}
-              {mostraGallo && (
-                <button type="button" onClick={() => setEvento('gallo')}>
-                  Il Gallo Mannaro salta il giorno
-                </button>
-              )}
-              {mostraBorgomastro && (
-                <button type="button" onClick={() => setEvento('borgomastro')}>
-                  Elezione Borgomastro
-                </button>
-              )}
-              {mostraFantasma && (
-                <button type="button" onClick={() => setEvento('fantasma')}>
-                  Assegna il Fantasma Onnisciente
-                </button>
-              )}
+              ))}
               <button type="button" onClick={chiudi}>
                 Chiudi
               </button>
@@ -150,35 +176,29 @@ export function EventiSpeciali({
           )}
 
           {evento === 'scemo' && (
-            <>
-              <p>La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante.</p>
-              <SceltaGiocatore
-                candidati={nonAssegnati}
-                onConferma={(id) => {
-                  onScemoSbaglia(id)
-                  chiudi()
-                }}
-                onSalta={chiudi}
-                etichetta="Chi è lo Scemo del Villaggio"
-                etichettaSalta="Annulla"
-              />
-            </>
+            <EventoUnGiocatore
+              candidati={nonAssegnati}
+              etichetta="Chi è lo Scemo del Villaggio"
+              messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
+              onConferma={(id) => {
+                onScemoSbaglia(id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
           )}
 
           {evento === 'unzione' && (
-            <>
-              <p>Chi è morto/a per l'unzione (ha detto "sì" o "no"): l'unzione si trasmette ai due vicini vivi.</p>
-              <SceltaGiocatore
-                candidati={unti}
-                onConferma={(id) => {
-                  onMorteUnzione(id)
-                  chiudi()
-                }}
-                onSalta={chiudi}
-                etichetta="Chi è morto per l'unzione"
-                etichettaSalta="Annulla"
-              />
-            </>
+            <EventoUnGiocatore
+              candidati={unti}
+              etichetta="Chi è morto per l'unzione"
+              messaggio={'Chi è morto/a per l\'unzione (ha detto "sì" o "no"): l\'unzione si trasmette ai due vicini vivi.'}
+              onConferma={(id) => {
+                onMorteUnzione(id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
           )}
 
           {evento === 'rivelazione' &&
@@ -212,113 +232,78 @@ export function EventiSpeciali({
               </>
             ))}
 
-          {evento === 'boia' &&
-            (!boiaId ? (
-              <SceltaGiocatore
-                candidati={vivi}
-                onConferma={setBoiaId}
-                onSalta={chiudi}
-                etichetta="Chi è il Boia"
-                etichettaSalta="Annulla"
-              />
-            ) : (
-              <SceltaGiocatore
-                candidati={vivi.filter((g) => g.id !== boiaId)}
-                onConferma={(id) => {
-                  onBoiaGiustizia(boiaId, id)
-                  chiudi()
-                }}
-                onSalta={chiudi}
-                etichetta="Chi giustizia il Boia"
-                etichettaSalta="Annulla"
-              />
-            ))}
+          {evento === 'boia' && (
+            <EventoDueGiocatori
+              candidati={vivi}
+              etichettaAttore="Chi è il Boia"
+              etichettaBersaglio="Chi giustizia il Boia"
+              onConferma={(boiaId, id) => {
+                onBoiaGiustizia(boiaId, id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
+          )}
 
-          {evento === 'alchimista' &&
-            (!alchimistaId ? (
-              <SceltaGiocatore
-                candidati={vivi}
-                onConferma={setAlchimistaId}
-                onSalta={chiudi}
-                etichetta="Chi è l'Alchimista"
-                etichettaSalta="Annulla"
-              />
-            ) : (
-              <SceltaGiocatore
-                candidati={vivi.filter((g) => g.id !== alchimistaId)}
-                onConferma={(id) => {
-                  onAlchimistaEsplode(alchimistaId, id)
-                  chiudi()
-                }}
-                onSalta={chiudi}
-                etichetta="Chi trascina con sé l'Alchimista"
-                etichettaSalta="Annulla"
-              />
-            ))}
+          {evento === 'alchimista' && (
+            <EventoDueGiocatori
+              candidati={vivi}
+              etichettaAttore="Chi è l'Alchimista"
+              etichettaBersaglio="Chi trascina con sé l'Alchimista"
+              escludiAttoreDaBersagli
+              onConferma={(alchimistaId, id) => {
+                onAlchimistaEsplode(alchimistaId, id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
+          )}
 
           {evento === 'bardo' && (
-            <div className="eventi-speciali__conferma">
-              <p>Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  onBardoSaltaNotte()
-                  chiudi()
-                }}
-              >
-                Conferma
-              </button>
-              <button type="button" onClick={chiudi}>
-                Annulla
-              </button>
-            </div>
+            <EventoConferma
+              messaggio="Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà."
+              onConferma={() => {
+                onBardoSaltaNotte()
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
           )}
 
           {evento === 'gallo' && (
-            <div className="eventi-speciali__conferma">
-              <p>Il Gallo Mannaro non canta: si salta l'intero giorno, si passa direttamente alla notte.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  onGalloSaltaGiorno()
-                  chiudi()
-                }}
-              >
-                Conferma
-              </button>
-              <button type="button" onClick={chiudi}>
-                Annulla
-              </button>
-            </div>
+            <EventoConferma
+              messaggio="Il Gallo Mannaro non canta: si salta l'intero giorno, si passa direttamente alla notte."
+              onConferma={() => {
+                onGalloSaltaGiorno()
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
           )}
 
           {evento === 'borgomastro' && (
-            <SceltaGiocatore
+            <EventoUnGiocatore
               candidati={vivi}
+              etichetta="Chi eleggete Borgomastro?"
               onConferma={(id) => {
                 onElezioneBorgomastro(id)
                 chiudi()
               }}
-              onSalta={chiudi}
-              etichetta="Chi eleggete Borgomastro?"
-              etichettaSalta="Annulla"
+              onAnnulla={chiudi}
             />
           )}
 
           {evento === 'fantasma' && (
-            <>
-              <p>Il primo morto sul rogo riceve la carta del Fantasma Onnisciente.</p>
-              <SceltaGiocatore
-                candidati={morti}
-                onConferma={(id) => {
-                  onFantasmaOnnisciente(id)
-                  chiudi()
-                }}
-                onSalta={chiudi}
-                etichetta="Chi riceve la carta"
-                etichettaSalta="Annulla"
-              />
-            </>
+            <EventoUnGiocatore
+              candidati={morti}
+              etichetta="Chi riceve la carta"
+              messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
+              onConferma={(id) => {
+                onFantasmaOnnisciente(id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
           )}
         </div>
       )}

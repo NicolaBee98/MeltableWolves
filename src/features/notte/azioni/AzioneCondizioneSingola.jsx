@@ -1,8 +1,16 @@
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { aggiungiCondizionePatch, usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
 
-export function AzioneCondizioneSingola({ giocatori, aggiornaGiocatore, condizione, etichetta, ruoloSlugAttore }) {
-  const vivi = giocatori.filter((g) => g.vivo)
+export function AzioneCondizioneSingola({
+  giocatori,
+  aggiornaGiocatore,
+  condizione,
+  etichetta,
+  ruoloSlugAttore,
+  escludiAttore = false,
+}) {
+  const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
+  const vivi = giocatori.filter((g) => g.vivo && (!escludiAttore || g.id !== attore?.id))
   const ruoli = [ruoloSlugAttore]
 
   if (usatoStanotte(giocatori, ruoli, ruoloSlugAttore)) {

@@ -6,7 +6,10 @@ const RUOLI = ['chupacabra']
 const POTERE = 'chupacabra-caccia'
 
 export function AzioneChupacabra({ giocatori, aggiornaGiocatore, round }) {
-  const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug))
+  const chupacabra = giocatori.find((g) => g.ruoloSlug === 'chupacabra')
+  const vivi = giocatori.filter(
+    (g) => g.vivo && g.id !== chupacabra?.id && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug),
+  )
   const nessunLupoVivo = !vivi.some((g) => fazioneDi(g) === 'lupi')
 
   if (usatoStanotte(giocatori, RUOLI, POTERE)) {
