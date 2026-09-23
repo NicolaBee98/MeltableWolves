@@ -5,7 +5,8 @@ import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
-import { RuoloIcona } from '../../components/RuoloIcona'
+import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
+import { variantePerGiocatore } from '../../data/assetRuoli'
 
 // il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
 // (pag. 18): puramente di presentazione, il narratore ricorda così di
@@ -14,6 +15,31 @@ function mimoDiQuestoPasso(giocatore, giocatori, step) {
   if (giocatore.legame?.tipo !== 'mimo') return false
   const bersaglio = giocatori.find((g) => g.id === giocatore.legame.targetId)
   return Boolean(bersaglio) && step.ruoli.includes(bersaglio.ruoloSlug)
+}
+
+// figura intera di ogni giocatore coinvolto in questo passo, fianco a
+// fianco (leggermente sovrapposte): ogni notte, non solo quando il ruolo
+// viene assegnato. Il Mimo mostra la propria illustrazione accanto a quella
+// del ruolo imitato, invece di sparire dietro di essa (pag. 18: si sveglia
+// insieme, non al posto del titolare).
+function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
+  if (giocatoriCoinvolti.length === 0) return null
+  return (
+    <div className="night-sequencer__illustrazioni">
+      {giocatoriCoinvolti.map((g) => (
+        <span key={g.id} className="night-sequencer__illustrazione-slot">
+          {g.legame?.tipo === 'mimo' && (
+            <RuoloIllustrazione slug="mimo" className="night-sequencer__illustrazione" />
+          )}
+          <RuoloIllustrazione
+            slug={g.ruoloSlug}
+            variante={variantePerGiocatore(giocatori, g.id)}
+            className="night-sequencer__illustrazione"
+          />
+        </span>
+      ))}
+    </div>
+  )
 }
 
 export function NightSequencer({
@@ -313,6 +339,7 @@ export function NightSequencer({
           {giocatoriCoinvolti.length > 0 && ` (${giocatoriCoinvolti.map((g) => g.nome).join(', ')})`}
         </span>
       </h2>
+      <IllustrazioniCoinvolti giocatori={giocatori} giocatoriCoinvolti={giocatoriCoinvolti} />
       <p className="night-sequencer__tipo">
         {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
       </p>

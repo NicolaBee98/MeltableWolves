@@ -695,10 +695,28 @@ legend {
   gap: 0.6rem;
 }
 
+.night-sequencer__illustrazioni {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 0.5rem 0 1rem;
+}
+
+.night-sequencer__illustrazione-slot {
+  display: flex;
+  align-items: flex-end;
+  margin-left: -1.5rem;
+}
+
+.night-sequencer__illustrazione-slot:first-child {
+  margin-left: 0;
+}
+
 .night-sequencer__illustrazione {
   width: 100%;
-  max-width: 220px;
-  margin: 0.5rem auto 1rem;
+  max-width: 140px;
+  margin: 0;
 }
 
 .night-sequencer__nav {

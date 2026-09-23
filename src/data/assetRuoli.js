@@ -92,13 +92,21 @@ export function variantePerGiocatore(giocatori, giocatoreId) {
 }
 
 // personaggi/: alcuni ruoli hanno più illustrazioni (varianti fisiche dello
-// stesso ruolo, es. Villico_1..15): si usa sempre la prima come illustrazione
-// rappresentativa del ruolo.
-const PERSONAGGI_NUMERATI = new Set(['villico', 'lupo-mannaro', 'guardia'])
-export function personaggioPath(slug) {
+// stesso ruolo, es. Villico_1..15, Lupo_Mannaro_1..5, Guardia_1..2). Senza
+// `variante` si usa sempre la prima, come illustrazione rappresentativa del
+// ruolo; passando `variante` (1-based, cicla se supera il totale) si sceglie
+// quella di un giocatore specifico, così più titolari dello stesso ruolo
+// mostrati insieme (es. il branco) non hanno tutti la stessa immagine.
+const VARIANTI_PERSONAGGIO = {
+  villico: 15,
+  'lupo-mannaro': 5,
+  guardia: 2,
+}
+export function personaggioPath(slug, variante) {
   const file = FILE_RUOLI[slug]
   if (!file) return null
-  const suffisso = PERSONAGGI_NUMERATI.has(slug) ? '_1' : ''
+  const totale = VARIANTI_PERSONAGGIO[slug]
+  const suffisso = totale ? `_${variante ? ((variante - 1) % totale) + 1 : 1}` : ''
   return `/assets/personaggi/${file}${suffisso}.svg`
 }
 

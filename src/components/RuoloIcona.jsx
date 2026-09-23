@@ -29,10 +29,12 @@ export function RuoloIcona({ slug, variante, size = 28, className = '', alt }) {
 }
 
 // Illustrazione a figura intera di un ruolo, per i momenti scenici
-// (assegnazione carta, rivelazione). Anche questa decorativa: il testo che
-// la accompagna dice già di quale ruolo si tratta.
-export function RuoloIllustrazione({ slug, className = '' }) {
-  const src = personaggioPath(slug)
+// (assegnazione carta, rivelazione, chiamata notturna). Anche questa
+// decorativa: il testo che la accompagna dice già di quale ruolo si tratta.
+// `variante` sceglie l'illustrazione di un giocatore specifico per i ruoli
+// con più copie fisiche (Villico, Lupo Mannaro, Guardia).
+export function RuoloIllustrazione({ slug, variante, className = '' }) {
+  const src = personaggioPath(slug, variante)
   if (!src) return null
   return <img src={src} alt="" aria-hidden="true" className={`ruolo-illustrazione ${className}`.trim()} loading="lazy" />
 }
