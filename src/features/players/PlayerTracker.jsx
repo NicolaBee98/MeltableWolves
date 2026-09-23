@@ -19,6 +19,7 @@ export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRior
     if (!sorgente) return
     const senzaSorgente = giocatori.filter((g) => g.id !== sourceId)
     const indiceTarget = senzaSorgente.findIndex((g) => g.id === targetId)
+    if (indiceTarget === -1) return
     const riordinati = [
       ...senzaSorgente.slice(0, indiceTarget),
       sorgente,
