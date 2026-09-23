@@ -6,9 +6,15 @@ const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
 const RUOLI_IMMUNI = ['cortigiana', 'nano', 'criceto-malvagio']
 
+// quante volte il branco ha già sbranato questa notte (0, o 1/2 con la
+// vendetta del Cucciolo): si prende il massimo tra tutti i membri invece del
+// primo trovato, per non dipendere dal fatto che segnaUsoBranco li tenga
+// sempre tutti sincronizzati allo stesso conteggio
 function usiStanotte(giocatori, ruoli) {
-  const portatore = giocatori.find((g) => ruoli.includes(g.ruoloSlug))
-  return (portatore?.usiNotte ?? []).filter((u) => u === POTERE).length
+  const conteggi = giocatori
+    .filter((g) => ruoli.includes(g.ruoloSlug))
+    .map((g) => (g.usiNotte ?? []).filter((u) => u === POTERE).length)
+  return conteggi.length > 0 ? Math.max(...conteggi) : 0
 }
 
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = [] }) {
