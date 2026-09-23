@@ -83,11 +83,12 @@ export function Votazione({
   vaiAEsito,
   tornaAlVoto,
   onRogo,
-  onMorteImprovvisa,
   onAnticoRivelazione,
   onRivelazione,
   onBoiaGiustizia,
   onAlchimistaEsplode,
+  onScemoSbaglia,
+  onMorteUnzione,
   onBardoSaltaNotte,
   onElezioneBorgomastro,
   ruoliSelezionati = [],
@@ -250,7 +251,8 @@ export function Votazione({
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
           contesto="esito"
-          onMorteImprovvisa={onMorteImprovvisa}
+          onScemoSbaglia={onScemoSbaglia}
+          onMorteUnzione={onMorteUnzione}
           onRivelazione={onRivelazione}
           onBoiaGiustizia={onBoiaGiustizia}
           onAlchimistaEsplode={onAlchimistaEsplode}
@@ -313,7 +315,8 @@ export function Votazione({
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         contesto="voto"
-        onMorteImprovvisa={onMorteImprovvisa}
+        onScemoSbaglia={onScemoSbaglia}
+        onMorteUnzione={onMorteUnzione}
         onRivelazione={onRivelazione}
         onBoiaGiustizia={onBoiaGiustizia}
         onAlchimistaEsplode={onAlchimistaEsplode}

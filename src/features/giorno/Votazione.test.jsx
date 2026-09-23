@@ -20,11 +20,12 @@ function setup(overrides = {}) {
     vaiAEsito: vi.fn(),
     tornaAlVoto: vi.fn(),
     onRogo: vi.fn(),
-    onMorteImprovvisa: vi.fn(),
     onAnticoRivelazione: vi.fn(),
     onRivelazione: vi.fn(),
     onBoiaGiustizia: vi.fn(),
     onAlchimistaEsplode: vi.fn(),
+    onScemoSbaglia: vi.fn(),
+    onMorteUnzione: vi.fn(),
     onBardoSaltaNotte: vi.fn(),
     onElezioneBorgomastro: vi.fn(),
     ruoliSelezionati: [],
@@ -240,11 +241,11 @@ test('in fase esito il pulsante Torna al voto chiama tornaAlVoto', async () => {
   expect(tornaAlVoto).toHaveBeenCalled()
 })
 
-test("in fase esito è sempre presente l'icona Eventi speciali, con la Morte improvvisa nel menu", async () => {
+test("in fase esito è sempre presente l'icona Eventi speciali se il mazzo prevede il Borgomastro", async () => {
   const user = userEvent.setup()
-  setup({ voti: { 1: 2 }, fase: 'esito' })
+  setup({ voti: { 1: 2 }, fase: 'esito', ruoliSelezionati: ['borgomastro'] })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  expect(screen.getByRole('button', { name: 'Morte improvvisa' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Elezione Borgomastro' })).toBeInTheDocument()
 })
 
 test("in fase esito, una volta che la morte è confermata, 'Torna al voto' non c'è più (niente doppio rogo lo stesso giorno)", () => {
@@ -259,9 +260,9 @@ test("in fase esito, una volta che la morte è confermata, 'Torna al voto' non c
 
 test("in fase voto è già presente l'icona Eventi speciali (non solo in fase esito)", async () => {
   const user = userEvent.setup()
-  setup()
+  setup({ ruoliSelezionati: ['borgomastro'] })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  expect(screen.getByRole('button', { name: 'Morte improvvisa' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Elezione Borgomastro' })).toBeInTheDocument()
 })
 
 test('mostra un\'icona per ogni condizione attiva del giocatore', () => {

@@ -6,6 +6,7 @@ import {
   ruoliRivelabili,
   boiaDisponibile,
   alchimistaDisponibile,
+  scemoDisponibile,
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
@@ -31,10 +32,11 @@ export function EventiSpeciali({
   ruoliSelezionati,
   quantita,
   contesto,
-  onMorteImprovvisa,
   onRivelazione,
   onBoiaGiustizia,
   onAlchimistaEsplode,
+  onScemoSbaglia,
+  onMorteUnzione,
   onBardoSaltaNotte,
   onGalloSaltaGiorno,
   onElezioneBorgomastro,
@@ -45,22 +47,25 @@ export function EventiSpeciali({
   const [boiaId, setBoiaId] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
+  const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
-  const mostraMorteImprovvisa = inGiorno
   const mostraRivelazione = rivelabili.length > 0
   const mostraBoia = inGiorno && boiaDisponibile(ruoliSelezionati, giocatori, quantita)
   const mostraAlchimista = inGiorno && alchimistaDisponibile(ruoliSelezionati, giocatori, quantita)
+  const mostraScemo = inGiorno && scemoDisponibile(ruoliSelezionati, giocatori, quantita)
+  const mostraUnzione = inGiorno && unti.length > 0
   const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
   const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati)
 
   const nessunEvento =
-    !mostraMorteImprovvisa &&
     !mostraRivelazione &&
     !mostraBoia &&
     !mostraAlchimista &&
+    !mostraScemo &&
+    !mostraUnzione &&
     !mostraBardo &&
     !mostraGallo &&
     !mostraBorgomastro
@@ -83,11 +88,6 @@ export function EventiSpeciali({
         <div className="eventi-speciali__popup" role="dialog" aria-label="Eventi speciali">
           {evento === 'menu' && (
             <div className="eventi-speciali__lista">
-              {mostraMorteImprovvisa && (
-                <button type="button" onClick={() => setEvento('morte-improvvisa')}>
-                  Morte improvvisa
-                </button>
-              )}
               {mostraRivelazione && (
                 <button type="button" onClick={() => setEvento('rivelazione')}>
                   Rivelazione personaggio
@@ -101,6 +101,16 @@ export function EventiSpeciali({
               {mostraAlchimista && (
                 <button type="button" onClick={() => setEvento('alchimista')}>
                   L'Alchimista esplode
+                </button>
+              )}
+              {mostraScemo && (
+                <button type="button" onClick={() => setEvento('scemo')}>
+                  Lo Scemo del Villaggio sbaglia la rima
+                </button>
+              )}
+              {mostraUnzione && (
+                <button type="button" onClick={() => setEvento('unzione')}>
+                  Morte per unzione
                 </button>
               )}
               {mostraBardo && (
@@ -124,17 +134,34 @@ export function EventiSpeciali({
             </div>
           )}
 
-          {evento === 'morte-improvvisa' && (
+          {evento === 'scemo' && (
             <>
-              <p>Per esecuzione del Boia, unzione dell'Untore, o rima sbagliata dello Scemo del Villaggio.</p>
+              <p>La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante.</p>
               <SceltaGiocatore
-                candidati={vivi}
+                candidati={nonAssegnati}
                 onConferma={(id) => {
-                  onMorteImprovvisa(id)
+                  onScemoSbaglia(id)
                   chiudi()
                 }}
                 onSalta={chiudi}
-                etichetta="Chi dichiarare morto"
+                etichetta="Chi è lo Scemo del Villaggio"
+                mostraSalta={false}
+              />
+            </>
+          )}
+
+          {evento === 'unzione' && (
+            <>
+              <p>Chi è morto/a per l'unzione (ha detto "sì" o "no"): l'unzione si trasmette ai due vicini vivi.</p>
+              <SceltaGiocatore
+                candidati={unti}
+                onConferma={(id) => {
+                  onMorteUnzione(id)
+                  chiudi()
+                }}
+                onSalta={chiudi}
+                etichetta="Chi è morto per l'unzione"
+                mostraSalta={false}
               />
             </>
           )}

@@ -5,7 +5,7 @@ import { RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 // rivelano "facendo" l'azione, non prima): hanno un evento dedicato che
 // chiede prima "chi è" e poi l'azione, invece di passare dal generico
 // "Rivelazione personaggio" (vedi ruoliRivelabili sotto).
-const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia']
+const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio']
 
 // L'Alchimista si rivela solo quando viene messo al rogo (pag. 5): la sua
 // identità non è mai assegnata prima. Disponibile finché il mazzo lo prevede
@@ -21,6 +21,13 @@ export function alchimistaDisponibile(ruoliSelezionati, giocatori, quantita) {
 export function boiaDisponibile(ruoliSelezionati, giocatori, quantita) {
   if (!ruoliSelezionati.includes('boia')) return false
   return ruoliAssegnabili(['boia'], giocatori, quantita).length > 0
+}
+
+// Lo Scemo del Villaggio si rivela solo sbagliando la rima, morendo sul
+// colpo nello stesso momento (pag. 20): stessa logica di Alchimista/Boia.
+export function scemoDisponibile(ruoliSelezionati, giocatori, quantita) {
+  if (!ruoliSelezionati.includes('scemo-del-villaggio')) return false
+  return ruoliAssegnabili(['scemo-del-villaggio'], giocatori, quantita).length > 0
 }
 
 // Ruoli assegnabili tramite l'evento generico "Rivelazione personaggio":
