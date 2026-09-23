@@ -1,5 +1,5 @@
 import { ROLES } from './roles'
-import { viciniPiuViciniChe } from './vicinanza'
+import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 function fazioneDi(giocatore) {
   return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
@@ -94,6 +94,22 @@ export function attivaVendettaCucciolo(giocatori, idAppenaMorto, ruoliBranco) {
 export function aggiungiCondizionePatch(giocatore, condizione) {
   if (giocatore.condizioni.includes(condizione)) return null
   return { condizioni: [...giocatore.condizioni, condizione] }
+}
+
+// Se l'Unto dice "sì" o "no" muore sul colpo, trasmettendo l'unzione ai
+// vivi ai suoi due fianchi (pag. 22): ritorna una mappa {id: patch} da
+// applicare con aggiornaGiocatore, calcolata sui posti a sedere PRIMA che il
+// morto venga rimosso dal giro (viciniVivi lo salta comunque, essendo lui
+// stesso morto solo un istante dopo).
+export function propagaUnzione(giocatori, idMorto) {
+  const { sinistra, destra } = viciniVivi(giocatori, idMorto)
+  const patch = {}
+  for (const vicino of [sinistra, destra]) {
+    if (!vicino) continue
+    const p = aggiungiCondizionePatch(vicino, 'unto')
+    if (p) patch[vicino.id] = p
+  }
+  return patch
 }
 
 // `mortoDa` distingue chi ha causato la morte notturna (branco, chupacabra,

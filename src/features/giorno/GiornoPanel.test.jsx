@@ -24,15 +24,41 @@ function setup(overrides = {}) {
   return props
 }
 
-test('dichiarare una morte improvvisa dal popup chiama aggiornaGiocatore con causaMorte:colpo', async () => {
+test('lo Scemo del Villaggio sbaglia la rima: si rivela e muore sul colpo nello stesso momento', async () => {
   const user = userEvent.setup()
-  const { aggiornaGiocatore } = setup()
+  const { aggiornaGiocatore } = setup({
+    ruoliSelezionati: ['scemo-del-villaggio'],
+    quantita: { 'scemo-del-villaggio': 1 },
+  })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Morte improvvisa' }))
+  await user.click(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ruoloSlug: 'scemo-del-villaggio',
+    storiaRuoli: ['scemo-del-villaggio'],
+    vivo: false,
+    causaMorte: 'colpo',
+  })
+})
+
+test('morte per unzione uccide l\'Unto e propaga la condizione ai vicini vivi', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const { aggiornaGiocatore } = setup({ giocatori, candidatiEsito: ['1'] })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['unto'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['unto'] })
 })
 
 test('dichiarare morte sul rogo (un solo click) chiama aggiornaGiocatore con causaMorte:rogo e la notte corrente', async () => {

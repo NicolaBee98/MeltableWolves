@@ -1,4 +1,5 @@
 import { Votazione } from './Votazione'
+import { propagaUnzione } from '../../data/effettiNotte'
 
 export function GiornoPanel({
   giocatori,
@@ -26,6 +27,28 @@ export function GiornoPanel({
 
   function dichiaraColpo(id) {
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'colpo' })
+  }
+
+  // sbagliare la rima rivela e uccide lo Scemo del Villaggio nello stesso
+  // istante (pag. 20): stessa logica del Boia/Alchimista, identità mai
+  // assegnata in anticipo
+  function dichiaraScemoSbaglia(id) {
+    const target = giocatori.find((g) => g.id === id)
+    aggiornaGiocatore(id, {
+      ruoloSlug: 'scemo-del-villaggio',
+      storiaRuoli: [...(target?.storiaRuoli ?? []), 'scemo-del-villaggio'],
+      vivo: false,
+      causaMorte: 'colpo',
+    })
+  }
+
+  // l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
+  // vivi ai suoi due fianchi (pag. 22)
+  function dichiaraMorteUnzione(id) {
+    dichiaraColpo(id)
+    for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
+      aggiornaGiocatore(vicinoId, patch)
+    }
   }
 
   // L'Antico perde la sua prima vita al rogo: si rivela, sopravvive come un
@@ -99,11 +122,12 @@ export function GiornoPanel({
         vaiAEsito={vaiAEsito}
         tornaAlVoto={tornaAlVoto}
         onRogo={dichiaraRogo}
-        onMorteImprovvisa={dichiaraColpo}
         onAnticoRivelazione={dichiaraAnticoRivelazione}
         onRivelazione={dichiaraRivelazione}
         onBoiaGiustizia={dichiaraBoiaGiustizia}
         onAlchimistaEsplode={dichiaraAlchimistaEsplode}
+        onScemoSbaglia={dichiaraScemoSbaglia}
+        onMorteUnzione={dichiaraMorteUnzione}
         onBardoSaltaNotte={dichiaraBardoSaltaNotte}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         ruoliSelezionati={ruoliSelezionati}

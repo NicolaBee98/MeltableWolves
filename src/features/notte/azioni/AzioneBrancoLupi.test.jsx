@@ -91,6 +91,90 @@ test('Berserker sbranato con due lupi alla stessa distanza: il narratore sceglie
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
+test('con il Progenitore vivo e il potere non ancora usato, propone di trasformare il bersaglio invece di sbranarlo', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+  ]
+  render(
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoli={['lupo-mannaro-progenitore']}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(screen.getByText(/il progenitore può trasformare anna/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore la trasforma in Lupo Mannaro' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith(
+    '1',
+    expect.objectContaining({ ruoloSlug: 'lupo-mannaro' }),
+  )
+  expect(aggiornaGiocatore).toHaveBeenCalledWith(
+    '2',
+    expect.objectContaining({ poteriUsati: ['progenitore-trasforma'] }),
+  )
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+})
+
+test('col Progenitore, scegliendo "sbrana normalmente" uccide come al solito', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+  ]
+  render(
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoli={['lupo-mannaro-progenitore']}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+})
+
+test('il Progenitore non ripropone la trasformazione se ha già usato il potere', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    {
+      id: '2',
+      nome: 'Dario',
+      ruoloSlug: 'lupo-mannaro-progenitore',
+      vivo: true,
+      condizioni: [],
+      usiNotte: [],
+      poteriUsati: ['progenitore-trasforma'],
+    },
+  ]
+  render(
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoli={['lupo-mannaro-progenitore']}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+})
+
 test('con la vendetta del Cucciolo attiva il branco può sbranare due vittime nella stessa notte', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn((id, patch) => {

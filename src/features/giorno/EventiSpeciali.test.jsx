@@ -8,10 +8,11 @@ function setup(overrides = {}) {
     ruoliSelezionati: [],
     quantita: {},
     contesto: 'esito',
-    onMorteImprovvisa: vi.fn(),
     onRivelazione: vi.fn(),
     onBoiaGiustizia: vi.fn(),
     onAlchimistaEsplode: vi.fn(),
+    onScemoSbaglia: vi.fn(),
+    onMorteUnzione: vi.fn(),
     onBardoSaltaNotte: vi.fn(),
     onGalloSaltaGiorno: vi.fn(),
     onElezioneBorgomastro: vi.fn(),
@@ -26,20 +27,58 @@ test('senza nessun evento disponibile non mostra nulla (contesto alba, mazzo sen
   expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
-test('in voto/esito la Morte improvvisa resta sempre disponibile anche a mazzo vuoto', () => {
+test('senza Scemo del Villaggio nel mazzo e nessuno Unto, in voto/esito l\'icona non compare (a mazzo vuoto)', () => {
   setup({ contesto: 'voto' })
-  expect(screen.getByRole('button', { name: /eventi speciali/i })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
-test('in voto/esito la Morte improvvisa è sempre proposta', async () => {
+test('Lo Scemo del Villaggio sbaglia la rima: si rivela e muore nello stesso momento', async () => {
   const user = userEvent.setup()
-  const { onMorteImprovvisa } = setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: true }] })
+  const { onScemoSbaglia } = setup({
+    giocatori: [{ id: '1', nome: 'Anna', vivo: true }],
+    ruoliSelezionati: ['scemo-del-villaggio'],
+    quantita: { 'scemo-del-villaggio': 1 },
+  })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Morte improvvisa' }))
+  await user.click(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(onMorteImprovvisa).toHaveBeenCalledWith('1')
+  expect(onScemoSbaglia).toHaveBeenCalledWith('1')
+})
+
+test('Lo Scemo del Villaggio non è proposto se già assegnato (già sbagliato una volta)', () => {
+  setup({
+    giocatori: [{ id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'scemo-del-villaggio', storiaRuoli: ['scemo-del-villaggio'] }],
+    ruoliSelezionati: ['scemo-del-villaggio'],
+    quantita: { 'scemo-del-villaggio': 1 },
+  })
+  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
+})
+
+test('Morte per unzione propone solo i vivi con la condizione "unto" e la propaga ai vicini vivi', async () => {
+  const user = userEvent.setup()
+  const { onMorteUnzione } = setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
+  expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onMorteUnzione).toHaveBeenCalledWith('1')
+})
+
+test('Morte per unzione non è proposta se nessuno è unto', async () => {
+  const user = userEvent.setup()
+  setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }], ruoliSelezionati: ['borgomastro'] })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'Morte per unzione' })).not.toBeInTheDocument()
 })
 
 test('la Rivelazione personaggio propone solo i ruoli a scoperta diurna nel mazzo, poi solo i giocatori senza ruolo noto', async () => {
@@ -139,7 +178,7 @@ test('Il Bardo salta la notte è proposto solo in esito (dopo un rogo) e richied
 test('Il Bardo salta la notte NON è proposto durante il voto, prima di un rogo (nessuna via d\'uscita verso la notte)', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Ivo', ruoloSlug: 'bardo', vivo: true, poteriUsati: [] }]
-  setup({ giocatori, contesto: 'voto' })
+  setup({ giocatori, contesto: 'voto', ruoliSelezionati: ['borgomastro'] })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   expect(screen.queryByRole('button', { name: 'Il Bardo salta la notte' })).not.toBeInTheDocument()
@@ -148,7 +187,7 @@ test('Il Bardo salta la notte NON è proposto durante il voto, prima di un rogo 
 test('Il Gallo Mannaro salta il giorno è proposto solo in contesto alba', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Ivo', ruoloSlug: 'gallo-mannaro', vivo: true, poteriUsati: [] }]
-  setup({ giocatori, contesto: 'esito' })
+  setup({ giocatori, contesto: 'esito', ruoliSelezionati: ['borgomastro'] })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   expect(screen.queryByRole('button', { name: 'Il Gallo Mannaro salta il giorno' })).not.toBeInTheDocument()
 
