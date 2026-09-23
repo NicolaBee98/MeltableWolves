@@ -61,7 +61,17 @@ test('galloDisponibile è vero solo se il Gallo Mannaro è vivo e non ha ancora 
   ).toBe(false)
 })
 
-test('borgomastroDisponibile è vero se il ruolo è nel mazzo', () => {
-  expect(borgomastroDisponibile(['borgomastro'])).toBe(true)
-  expect(borgomastroDisponibile(['villico'])).toBe(false)
+test('borgomastroDisponibile è vero se il ruolo è nel mazzo e nessuno è già Borgomastro in vita', () => {
+  expect(borgomastroDisponibile(['borgomastro'], [])).toBe(true)
+  expect(borgomastroDisponibile(['villico'], [])).toBe(false)
+})
+
+test('borgomastroDisponibile è falso se un Borgomastro è già in carica e vivo', () => {
+  const giocatori = [{ id: '1', eBorgomastro: true, vivo: true }]
+  expect(borgomastroDisponibile(['borgomastro'], giocatori)).toBe(false)
+})
+
+test('borgomastroDisponibile torna vero se il Borgomastro in carica è morto (va rieletto)', () => {
+  const giocatori = [{ id: '1', eBorgomastro: true, vivo: false }]
+  expect(borgomastroDisponibile(['borgomastro'], giocatori)).toBe(true)
 })

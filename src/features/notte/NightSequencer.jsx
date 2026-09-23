@@ -280,7 +280,7 @@ export function NightSequencer({
     // in modo generico da usePartita a ogni morte, notte o rogo che sia:
     // qui resta solo risolviCortigiana, che dipende specificamente
     // dall'esito della caccia di QUESTA notte.
-    const patchRisoluzione = risolviCortigiana(giocatoriConRuoli)
+    const patchRisoluzione = risolviCortigiana(giocatoriConRuoli, round)
     for (const [id, patch] of Object.entries(patchRisoluzione)) {
       aggiornaGiocatore(id, patch)
     }

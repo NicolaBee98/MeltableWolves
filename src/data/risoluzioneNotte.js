@@ -41,7 +41,7 @@ export function risolviLegami(giocatori) {
   return patch
 }
 
-export function risolviCortigiana(giocatori) {
+export function risolviCortigiana(giocatori, round) {
   const cortigiana = giocatori.find((g) => g.ruoloSlug === 'cortigiana')
   if (!cortigiana || !cortigiana.vivo || !cortigiana.visitaNotturna) return {}
 
@@ -58,7 +58,11 @@ export function risolviCortigiana(giocatori) {
   const clienteSbranato = !cliente.vivo && (cliente.mortoDa === 'branco' || cliente.mortoDa === 'chupacabra')
 
   if (clientePericoloso || clienteSbranato) {
-    return { [cortigiana.id]: { vivo: false, visitaNotturna: null } }
+    // causaMorte/mortoNotte come qualunque altra morte notturna (vedi
+    // uccidiPatch): senza, l'Alba non la riconoscerebbe mai come morta
+    // quella notte (CAUSE_MORTE_NOTTURNE in AlbaPanel.jsx filtra su
+    // mortoNotte === round) e il narratore non la vedrebbe mai annunciata
+    return { [cortigiana.id]: { vivo: false, causaMorte: 'notte', mortoNotte: round, visitaNotturna: null } }
   }
 
   return { [cortigiana.id]: { visitaNotturna: null } }

@@ -54,6 +54,10 @@ export function galloDisponibile(giocatori) {
   return Boolean(gallo) && !(gallo.poteriUsati ?? []).includes('gallo-salta-giorno')
 }
 
-export function borgomastroDisponibile(ruoliSelezionati) {
-  return ruoliSelezionati.includes('borgomastro')
+// "Se viene ucciso, il villaggio dovrà eleggere un nuovo primo cittadino"
+// (roles.js): l'elezione è un evento one-shot finché il Borgomastro in
+// carica è vivo, si ripropone solo dopo la sua morte
+export function borgomastroDisponibile(ruoliSelezionati, giocatori) {
+  if (!ruoliSelezionati.includes('borgomastro')) return false
+  return !giocatori.some((g) => g.eBorgomastro && g.vivo)
 }

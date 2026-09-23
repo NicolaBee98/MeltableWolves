@@ -60,7 +60,7 @@ export function EventiSpeciali({
   const mostraUnzione = inGiorno && unti.length > 0
   const mostraBardo = contesto === 'esito' && bardoDisponibile(giocatori)
   const mostraGallo = contesto === 'alba' && galloDisponibile(giocatori)
-  const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati)
+  const mostraBorgomastro = borgomastroDisponibile(ruoliSelezionati, giocatori)
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
   // sul rogo (pag. 13), quindi solo finché nessuno la tiene già
   const mostraFantasma =
@@ -223,7 +223,7 @@ export function EventiSpeciali({
               />
             ) : (
               <SceltaGiocatore
-                candidati={vivi}
+                candidati={vivi.filter((g) => g.id !== boiaId)}
                 onConferma={(id) => {
                   onBoiaGiustizia(boiaId, id)
                   chiudi()

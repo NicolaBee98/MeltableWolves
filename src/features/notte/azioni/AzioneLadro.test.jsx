@@ -107,6 +107,42 @@ test('se entrambe le carte sono Lupi Mannari non propone "Resta Villico" (scambi
   expect(screen.queryByRole('button', { name: 'Resta Villico' })).not.toBeInTheDocument()
 })
 
+test('un ruolo già assegnato a un altro giocatore (es. dal Mimo) non compare tra le carte scartabili', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, storiaRuoli: ['veggente'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+    />,
+  )
+  const [select1] = screen.getAllByRole('combobox')
+  const opzioni = Array.from(select1.options).map((o) => o.value)
+  expect(opzioni).not.toContain('veggente')
+  expect(opzioni).toContain('paladino')
+})
+
+test('la carta già scelta nel primo select non è più selezionabile nel secondo (niente doppioni)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], scartoLadro: ['veggente'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+    />,
+  )
+  const [select1, select2] = screen.getAllByRole('combobox')
+  expect(Array.from(select1.options).map((o) => o.value)).toContain('veggente')
+  expect(Array.from(select2.options).map((o) => o.value)).not.toContain('veggente')
+})
+
 test('con il potere già usato mostra solo il messaggio', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: ['ladro-scelta'] }]
   render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
