@@ -586,6 +586,18 @@ legend {
   font-size: 0.75rem;
 }
 
+.player-card__maniglia {
+  cursor: grab;
+  font-size: 1rem;
+  color: var(--muted, #888);
+  line-height: 1;
+  touch-action: none;
+}
+
+.player-card__maniglia:active {
+  cursor: grabbing;
+}
+
 .giocatori-fase__prosegui {
   display: block;
   margin: 1.5rem auto 0;
