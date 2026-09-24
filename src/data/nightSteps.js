@@ -19,14 +19,16 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
-  // Cucciolo, Capobranco e Progenitore vanno identificati singolarmente qui,
-  // insieme agli altri poteri passivi (pag. 27): così quando più avanti il
-  // branco si riconosce collettivamente questi tre sono già assegnati e non
-  // ricompaiono tra le carte da smistare, mentre restano da assegnare solo i
-  // lupi "generici" e la Nonna.
+  // Cucciolo, Capobranco, Progenitore e Nonna vanno identificati
+  // singolarmente qui, insieme agli altri poteri passivi (pag. 27): così
+  // quando più avanti il branco si riconosce collettivamente sono già tutti
+  // assegnati e non ricompaiono tra le carte da smistare (niente più
+  // selettore "che ruolo mostra la carta?" per la Nonna in mezzo ai Lupi
+  // generici), e resta da assegnare solo il Lupo Mannaro "generico".
   { id: 'cucciolo-di-lupo-mannaro', titolo: 'Cucciolo di Lupo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['cucciolo-di-lupo-mannaro'] },
   { id: 'lupo-mannaro-capobranco', titolo: 'Lupo Mannaro Capobranco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-capobranco'] },
   { id: 'lupo-mannaro-progenitore', titolo: 'Lupo Mannaro Progenitore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-progenitore'] },
+  { id: 'nonna', titolo: 'Nonna', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nonna'] },
   { id: 'criceto-malvagio', titolo: 'Criceto Malvagio', tipo: 'informativo', primaNotteSolo: true, ruoli: ['criceto-malvagio'] },
   { id: 'eremita', titolo: 'Eremita', tipo: 'informativo', primaNotteSolo: true, ruoli: ['eremita'] },
   { id: 'nano', titolo: 'Nano', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nano'] },

@@ -33,8 +33,17 @@ export function RuoloIcona({ slug, variante, size = 28, className = '', alt }) {
 // decorativa: il testo che la accompagna dice già di quale ruolo si tratta.
 // `variante` sceglie l'illustrazione di un giocatore specifico per i ruoli
 // con più copie fisiche (Villico, Lupo Mannaro, Guardia).
-export function RuoloIllustrazione({ slug, variante, className = '' }) {
+export function RuoloIllustrazione({ slug, variante, className = '', style }) {
   const src = personaggioPath(slug, variante)
   if (!src) return null
-  return <img src={src} alt="" aria-hidden="true" className={`ruolo-illustrazione ${className}`.trim()} loading="lazy" />
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      className={`ruolo-illustrazione ${className}`.trim()}
+      style={style}
+      loading="lazy"
+    />
+  )
 }

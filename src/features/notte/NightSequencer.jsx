@@ -18,23 +18,35 @@ function mimoDiQuestoPasso(giocatore, giocatori, step) {
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
-// fianco (leggermente sovrapposte): ogni notte, non solo quando il ruolo
-// viene assegnato. Il Mimo mostra la propria illustrazione accanto a quella
-// del ruolo imitato, invece di sparire dietro di essa (pag. 18: si sveglia
-// insieme, non al posto del titolare).
+// fianco (sovrapposte): ogni notte, non solo quando il ruolo viene
+// assegnato. Il Mimo mostra la propria illustrazione accanto a quella del
+// ruolo imitato, invece di sparire dietro di essa (pag. 18: si sveglia
+// insieme, non al posto del titolare). Tutte della stessa altezza (gli
+// artwork non hanno tutti le stesse proporzioni): più personaggi ci sono,
+// più piccoli e sovrapposti diventano, per restare su una riga sola invece
+// di andare a capo.
 function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
   if (giocatoriCoinvolti.length === 0) return null
+  const numeroImmagini = giocatoriCoinvolti.reduce((n, g) => n + (g.legame?.tipo === 'mimo' ? 2 : 1), 0)
+  const altezza = Math.max(70, Math.min(180, 480 / numeroImmagini))
+  const sovrapposizione = numeroImmagini > 3 ? altezza * 0.4 : altezza * 0.15
+  let indice = 0
   return (
     <div className="night-sequencer__illustrazioni">
       {giocatoriCoinvolti.map((g) => (
         <span key={g.id} className="night-sequencer__illustrazione-slot">
           {g.legame?.tipo === 'mimo' && (
-            <RuoloIllustrazione slug="mimo" className="night-sequencer__illustrazione" />
+            <RuoloIllustrazione
+              slug="mimo"
+              className="night-sequencer__illustrazione"
+              style={{ height: altezza, marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0 }}
+            />
           )}
           <RuoloIllustrazione
             slug={g.ruoloSlug}
             variante={variantePerGiocatore(giocatori, g.id)}
             className="night-sequencer__illustrazione"
+            style={{ height: altezza, marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0 }}
           />
         </span>
       ))}
