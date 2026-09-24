@@ -35,6 +35,8 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'pastore', titolo: 'Pastore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['pastore'] },
   { id: 'polpo-mannaro', titolo: 'Polpo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['polpo-mannaro'] },
   { id: 'ubriaco', titolo: 'Ubriaco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ubriaco'] },
+  { id: 'ambasciatore', titolo: 'Ambasciatore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ambasciatore'] },
+  { id: 'berserker', titolo: 'Berserker', tipo: 'informativo', primaNotteSolo: true, ruoli: ['berserker'] },
   {
     id: 'identifica-branco',
     titolo: 'Il branco si riconosce',
@@ -102,20 +104,20 @@ export const RUOLI_RIVELAZIONE_GIORNO = [
   'boia', 'spilungone', 'alchimista', 'innocente', 'lantico', 'scemo-del-villaggio', 'borgomastro',
 ]
 
-// Ruoli come Villico, Ambasciatore, Berserker, Mezzosangue, Suocera non
-// hanno nessuna azione o riconoscimento notturno, quindi altrimenti non
-// comparirebbero mai in nessun passo: non avrebbero mai occasione di essere
-// assegnati a un giocatore. Questo passo raccoglie tutti i ruoli del mazzo
-// che non sono già coperti da uno step dedicato (né sono di rivelazione
-// diurna, vedi sopra), e li rende assegnabili come gli altri entro la fine
-// della prima notte. Il Fantasma Onnisciente è l'unica eccezione voluta:
-// per regolamento (pag. 13) la sua carta non va distribuita all'inizio, va
-// al primo giocatore che muore (non gestito da questa app: va assegnato a
-// mano dal narratore quando succede).
+// Ruoli come Villico e Mezzosangue non hanno nessuna azione o
+// riconoscimento notturno, quindi altrimenti non comparirebbero mai in
+// nessun passo: non avrebbero mai occasione di essere assegnati a un
+// giocatore. Questo passo raccoglie tutti i ruoli del mazzo che non sono
+// già coperti da uno step dedicato (né sono di rivelazione diurna, vedi
+// sopra), e li rende assegnabili come gli altri entro la fine della prima
+// notte. Fantasma Onnisciente e Suocera sono le eccezioni volute: per
+// regolamento (pag. 13, 21) le loro carte non vanno distribuite/assegnate
+// all'inizio, restano "?" finché non muoiono — vedi RUOLI_RIVELAZIONE_ALLA_MORTE.
 const RUOLI_CON_STEP_DEDICATO = new Set(STEPS_CON_RUOLO_DEDICATO.flatMap((s) => s.ruoli ?? []))
+export const RUOLI_RIVELAZIONE_ALLA_MORTE = ['fantasma-onnisciente', 'suocera']
 const RUOLI_SENZA_STEP_DEDICATO = ROLES.map((r) => r.slug).filter(
   (slug) =>
-    slug !== 'fantasma-onnisciente' &&
+    !RUOLI_RIVELAZIONE_ALLA_MORTE.includes(slug) &&
     !RUOLI_RIVELAZIONE_GIORNO.includes(slug) &&
     !RUOLI_CON_STEP_DEDICATO.has(slug),
 )

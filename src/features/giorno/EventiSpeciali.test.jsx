@@ -17,6 +17,7 @@ function setup(overrides = {}) {
     onGalloSaltaGiorno: vi.fn(),
     onElezioneBorgomastro: vi.fn(),
     onFantasmaOnnisciente: vi.fn(),
+    onSuoceraRivelazione: vi.fn(),
     ...overrides,
   }
   render(<EventiSpeciali {...props} />)
@@ -254,6 +255,32 @@ test('Assegna il Fantasma Onnisciente propone solo i giocatori morti, una sola v
 test('Assegna il Fantasma Onnisciente non è più proposto una volta che qualcuno lo tiene già', () => {
   const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], eFantasmaOnnisciente: true }]
   setup({ giocatori, ruoliSelezionati: ['fantasma-onnisciente'], contesto: 'esito' })
+  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
+})
+
+test('La Suocera si rivela propone solo i morti di identità ancora ignota, in qualunque contesto (anche alba)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'villico' },
+  ]
+  const { onSuoceraRivelazione } = setup({
+    giocatori,
+    ruoliSelezionati: ['suocera'],
+    contesto: 'alba',
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
+  expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
+})
+
+test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' }]
+  setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
   expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 

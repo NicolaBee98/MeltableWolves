@@ -45,6 +45,13 @@ export function AlbaPanel({
     onGalloSaltaGiorno()
   }
 
+  // la Suocera resta "?" per tutta la partita finché non muore (pag. 21):
+  // può capitare anche di notte, quindi va rivelabile già all'alba
+  function dichiaraSuoceraRivelazione(id) {
+    const target = giocatori.find((g) => g.id === id)
+    aggiornaGiocatore(id, { ruoloSlug: 'suocera', storiaRuoli: [...(target?.storiaRuoli ?? []), 'suocera'] })
+  }
+
   return (
     <section className="alba-panel">
       <h2>Alba</h2>
@@ -87,6 +94,7 @@ export function AlbaPanel({
         onRivelazione={dichiaraRivelazione}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}
+        onSuoceraRivelazione={dichiaraSuoceraRivelazione}
       />
     </section>
   )

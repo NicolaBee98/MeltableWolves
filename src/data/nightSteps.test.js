@@ -8,11 +8,16 @@ test('un mazzo di soli ruoli senza azione notturna (es. Villico) genera comunque
   expect(passi).toEqual(['assegna-restanti'])
 })
 
-test('il passo "assegna-restanti" copre i ruoli senza uno step dedicato e senza rivelazione diurna, escluso il Fantasma Onnisciente (assegnato a runtime al primo morto)', () => {
+test('il passo "assegna-restanti" copre i ruoli senza uno step dedicato e senza rivelazione diurna/alla morte', () => {
   const restanti = NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')
   expect(restanti.ruoli).toContain('villico')
-  expect(restanti.ruoli).toContain('berserker')
+  expect(restanti.ruoli).toContain('mezzosangue')
+  // Ambasciatore e Berserker hanno ora un passo dedicato (come Eremita, Nano...)
+  expect(restanti.ruoli).not.toContain('ambasciatore')
+  expect(restanti.ruoli).not.toContain('berserker')
+  // Fantasma Onnisciente e Suocera restano "?" fino alla morte (evento dedicato)
   expect(restanti.ruoli).not.toContain('fantasma-onnisciente')
+  expect(restanti.ruoli).not.toContain('suocera')
   expect(restanti.ruoli).not.toContain('veggente') // ha già un passo dedicato
   for (const slug of RUOLI_RIVELAZIONE_GIORNO) {
     expect(restanti.ruoli).not.toContain(slug) // si assegnano dal menu Eventi speciali, non di notte
@@ -69,6 +74,11 @@ test("identifica-branco viene prima dei gesti segreti di Bardo/Gallo Mannaro (or
 test('cucciolo di lupo mannaro ha un passo dedicato tra i poteri passivi, prima che il branco si riconosca collettivamente', () => {
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
   expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'identifica-branco'])
+})
+
+test('Ambasciatore e Berserker hanno un passo dedicato di identificazione, come gli altri ruoli a potere passivo', () => {
+  const ordine = passiNotte(['ambasciatore', 'berserker'], 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(ordine).toEqual(['ambasciatore', 'berserker'])
 })
 
 test('la Nonna ha un passo dedicato prima che il branco si riconosca (niente selettore di ruolo in mezzo ai Lupi generici)', () => {

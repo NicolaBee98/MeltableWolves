@@ -107,6 +107,7 @@ export function EventiSpeciali({
   onGalloSaltaGiorno,
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
+  onSuoceraRivelazione,
 }) {
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
@@ -114,6 +115,7 @@ export function EventiSpeciali({
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
   const morti = giocatori.filter((g) => !g.vivo)
+  const mortiSenzaRuoloNoto = morti.filter((g) => !g.ruoloSlug)
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
@@ -124,6 +126,12 @@ export function EventiSpeciali({
     ruoliSelezionati.includes('fantasma-onnisciente') &&
     !giocatori.some((g) => g.eFantasmaOnnisciente) &&
     morti.length > 0
+  // resta "?" per tutta la partita finché non muore (pag. 21), di notte o
+  // al rogo: disponibile in ogni contesto (alba/voto/esito), non solo di giorno
+  const mostraSuocera =
+    ruoliSelezionati.includes('suocera') &&
+    !giocatori.some((g) => g.ruoloSlug === 'suocera') &&
+    mortiSenzaRuoloNoto.length > 0
 
   const menuEventi = [
     rivelabili.length > 0 && { key: 'rivelazione', etichetta: 'Rivelazione personaggio' },
@@ -146,6 +154,7 @@ export function EventiSpeciali({
     },
     borgomastroDisponibile(ruoliSelezionati, giocatori) && { key: 'borgomastro', etichetta: 'Elezione Borgomastro' },
     mostraFantasma && { key: 'fantasma', etichetta: 'Assegna il Fantasma Onnisciente' },
+    mostraSuocera && { key: 'suocera', etichetta: 'La Suocera si rivela' },
   ].filter(Boolean)
 
   function chiudi() {
@@ -300,6 +309,19 @@ export function EventiSpeciali({
               messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
               onConferma={(id) => {
                 onFantasmaOnnisciente(id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
+          )}
+
+          {evento === 'suocera' && (
+            <EventoUnGiocatore
+              candidati={mortiSenzaRuoloNoto}
+              etichetta="Chi era la Suocera"
+              messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
+              onConferma={(id) => {
+                onSuoceraRivelazione(id)
                 chiudi()
               }}
               onAnnulla={chiudi}
