@@ -100,6 +100,7 @@ export function Votazione({
   onBardoSaltaNotte,
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
+  onSuoceraRivelazione,
   ruoliSelezionati = [],
   quantita = {},
   onProsegui,
@@ -281,6 +282,7 @@ export function Votazione({
           onBardoSaltaNotte={onBardoSaltaNotte}
           onElezioneBorgomastro={onElezioneBorgomastro}
           onFantasmaOnnisciente={onFantasmaOnnisciente}
+          onSuoceraRivelazione={onSuoceraRivelazione}
         />
         <SezioneMorti
           giocatori={giocatori}
@@ -349,6 +351,7 @@ export function Votazione({
         onBardoSaltaNotte={onBardoSaltaNotte}
         onElezioneBorgomastro={onElezioneBorgomastro}
         onFantasmaOnnisciente={onFantasmaOnnisciente}
+        onSuoceraRivelazione={onSuoceraRivelazione}
       />
       <SezioneMorti
         giocatori={giocatori}

@@ -77,6 +77,22 @@ test('assegnare il Fantasma Onnisciente a un morto chiama aggiornaGiocatore con 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { eFantasmaOnnisciente: true })
 })
 
+test('la Suocera si rivela alla morte: assegna ruoloSlug:suocera al morto scelto', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [] }]
+  const { aggiornaGiocatore } = setup({
+    giocatori,
+    ruoliSelezionati: ['suocera'],
+    candidatiEsito: ['1'],
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] })
+})
+
 test('dichiarare morte sul rogo (un solo click) chiama aggiornaGiocatore con causaMorte:rogo e la notte corrente', async () => {
   const user = userEvent.setup()
   const { aggiornaGiocatore } = setup()
