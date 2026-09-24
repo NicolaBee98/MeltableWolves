@@ -79,8 +79,7 @@ test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], note: '' }]
   render(<NightSequencerConNotte ruoliSelezionati={['mimo', 'paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByRole('heading', { name: /mimo/i })).toBeInTheDocument()
-  expect(screen.getByText('Sara')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /mimo \(sara\)/i })).toBeInTheDocument()
 })
 
 test('il pulsante Avanti passa al passo successivo', async () => {
@@ -546,4 +545,48 @@ test('quando il Mimo imita un ruolo che agisce, compaiono sia la sua illustrazio
   const src = [...illustrazioni].map((img) => img.src)
   expect(src.some((s) => s.includes('Mimo.svg'))).toBe(true)
   expect(src.filter((s) => s.includes('Veggente.svg'))).toHaveLength(2)
+})
+
+test('la Fattucchiera blocca il potere del bersaglio inibito: nessuna azione mostrata', () => {
+  const giocatori = [
+    { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: ['inibito'], poteriUsati: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByText(/il potere è inibito questa notte dalla fattucchiera/i)).toBeInTheDocument()
+  expect(screen.queryByRole('group')).not.toBeInTheDocument()
+})
+
+test('senza inibizione il potere resta disponibile normalmente', () => {
+  const giocatori = [
+    { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.queryByText(/inibito/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
+test('durante l\'assegnazione del ruolo (chi ha questa carta) non compare la riga di illustrazioni separata (niente doppione con AssegnaRuolo)', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['ladro']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  expect(container.querySelector('.night-sequencer__illustrazioni')).not.toBeInTheDocument()
+  expect(container.querySelector('.assegna-ruolo__illustrazione')).toBeInTheDocument()
+})
+
+test('un titolare morto non compare nella riga di illustrazioni (solo i vivi)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Elsa', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['lupo-mannaro']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
+  expect(illustrazioni).toHaveLength(1)
 })

@@ -183,7 +183,14 @@ export function NightSequencer({
   // puoAgireDaMorto in nightSteps.js): per loro basta che il ruolo sia
   // assegnato a qualcuno, vivo o no
   const qualcunoCoinvolto = step.puoAgireDaMorto ? giocatoriCoinvolti.length > 0 : titolareVivo
-  const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto
+  // la Fattucchiera blocca il potere del bersaglio per la notte (vedi
+  // Inibito): controllato qui, in un unico punto per tutte le azioni,
+  // invece che in ognuna. Solo per i passi a titolare singolo/doppio noto
+  // (step.ruoli.length === 1): il branco è un'azione collettiva, inibire
+  // un solo lupo non ha senso bloccare l'intero attacco.
+  const attoreInibito =
+    step.ruoli?.length === 1 && giocatoriCoinvolti.some((g) => (g.condizioni ?? []).includes('inibito'))
+  const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto && !attoreInibito
   // titolare morto, potere ricorrente, non tra le eccezioni che agiscono da
   // morti: il passo compare comunque (promemoriaRuoliMorti l'ha lasciato
   // passare in passiNotte) solo per ricordare al narratore di chiamarlo, non
@@ -336,13 +343,22 @@ export function NightSequencer({
         <RuoloIcona slug={step.ruoli?.length === 1 ? step.ruoli[0] : undefined} size={32} />
         <span>
           {step.titolo}
-          {giocatoriCoinvolti.length > 0 && ` (${giocatoriCoinvolti.map((g) => g.nome).join(', ')})`}
+          {giocatoriCoinvolti.length > 0 &&
+            ` (${giocatoriCoinvolti.map((g) => (g.vivo ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
         </span>
       </h2>
-      <IllustrazioniCoinvolti giocatori={giocatori} giocatoriCoinvolti={giocatoriCoinvolti} />
-      <p className="night-sequencer__tipo">
-        {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
-      </p>
+      {/* solo i titolari già confermati (non le selezioni ancora pendenti,
+          che hanno già la propria illustrazione in AssegnaRuolo qui sotto —
+          altrimenti comparirebbe due volte lo stesso personaggio) e solo i
+          vivi (un titolare morto non deve comparire tra chi si sveglia) */}
+      {ruoliPendenti.length === 0 && (
+        <IllustrazioniCoinvolti giocatori={giocatori} giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo)} />
+      )}
+      {ruoliPendenti.length === 0 && (
+        <p className="night-sequencer__tipo">
+          {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
+        </p>
+      )}
 
       {ruoliPendenti.length > 0 && (
         <AssegnaRuolo
@@ -355,17 +371,14 @@ export function NightSequencer({
         />
       )}
 
-      {giocatoriCoinvolti.length === 0 ? (
+      {ruoliPendenti.length === 0 && giocatoriCoinvolti.length === 0 && (
         <p>Nessun giocatore assegnato a questo ruolo per ora.</p>
-      ) : (
-        <ul>
-          {giocatoriCoinvolti.map((g) => (
-            <li key={g.id}>
-              {g.nome}
-              {g.vivo ? '' : ' ☠️'}
-            </li>
-          ))}
-        </ul>
+      )}
+
+      {attoreInibito && (
+        <p className="night-sequencer__inibito">
+          🚫 Il potere è inibito questa notte dalla Fattucchiera: nessuna azione disponibile.
+        </p>
       )}
 
       {mostraPromemoriaMorto && (
