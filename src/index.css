@@ -646,6 +646,33 @@ legend {
   box-shadow: 1.5px 1.5px 0 var(--text);
 }
 
+.chip--benevola:disabled,
+.chip--malvagia:disabled {
+  opacity: 1;
+}
+
+.chip--benevola {
+  background: var(--pal-azzurro);
+  color: var(--pal-inchiostro);
+}
+
+.chip--malvagia {
+  background: var(--pal-rosso);
+  color: var(--pal-bianco);
+}
+
+.azione-indagine__chip-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.azione-indagine__etichetta-esito {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
 /* Dimensione fissa (width/height passati come props, entrambi = size):
    object-fit: contain fa sì che il lato più lungo dell'icona (orizzontale o
    verticale, varia da ruolo a ruolo) tocchi il lato del quadrato, senza
