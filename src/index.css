@@ -695,6 +695,24 @@ legend {
   margin: 0 auto 0.75rem;
 }
 
+/* Ladro: "Prima carta"/"Seconda carta" allineate su due colonne (etichetta
+   a destra, select a sinistra), non una riga sola col testo appiccicato
+   al menu */
+.azione-ladro__scarto {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.azione-ladro__scarto label {
+  display: contents;
+}
+
+.azione-ladro__scarto label span {
+  text-align: right;
+}
+
 /* Night sequencer */
 
 .night-sequencer__notte {

@@ -68,7 +68,7 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
       <p>Quali due carte sono rimaste fuori dal mazzo, tra quelle non assegnate a nessuno?</p>
       <div className="azione-ladro__scarto">
         <label>
-          Prima carta
+          <span>Prima carta</span>
           <select value={carta1 ?? ''} onChange={(e) => impostaCarta(0, e.target.value)}>
             <option value="">— scegli —</option>
             {opzioniPrimaCarta.map((slug) => (
@@ -79,7 +79,7 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
           </select>
         </label>
         <label>
-          Seconda carta
+          <span>Seconda carta</span>
           <select value={carta2 ?? ''} onChange={(e) => impostaCarta(1, e.target.value)}>
             <option value="">— scegli —</option>
             {opzioniSecondaCarta.map((slug) => (
