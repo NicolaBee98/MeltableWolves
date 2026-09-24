@@ -761,7 +761,10 @@ legend {
 }
 
 .alba-panel__annunci li {
-  color: var(--text-soft);
+  /* non --text-soft: quel grigio chiaro è pensato per un fondo chiaro, ma
+     qui il fondo è l'ambra dell'alba (vedi [data-fase='alba']) e ci si
+     legge malissimo */
+  color: var(--text);
   font-style: italic;
 }
 
@@ -813,6 +816,12 @@ legend {
   padding: 1rem;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+.votazione__nome-designato {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
 .votazione__designato-azioni {
