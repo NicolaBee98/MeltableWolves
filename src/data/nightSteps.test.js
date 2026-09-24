@@ -71,6 +71,11 @@ test('cucciolo di lupo mannaro ha un passo dedicato tra i poteri passivi, prima 
   expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'identifica-branco'])
 })
 
+test('la Nonna ha un passo dedicato prima che il branco si riconosca (niente selettore di ruolo in mezzo ai Lupi generici)', () => {
+  const ordine = passiNotte(['nonna'], 1, NESSUN_GIOCATORE).map((p) => p.id)
+  expect(ordine).toEqual(['nonna', 'identifica-branco'])
+})
+
 test('capobranco e progenitore hanno anch\'essi un passo dedicato prima che il branco si riconosca', () => {
   const ordine = passiNotte(
     ['lupo-mannaro-capobranco', 'lupo-mannaro-progenitore'],

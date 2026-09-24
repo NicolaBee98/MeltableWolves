@@ -697,25 +697,24 @@ legend {
 
 .night-sequencer__illustrazioni {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: flex-end;
   margin: 0.5rem 0 1rem;
+  overflow: hidden;
 }
 
 .night-sequencer__illustrazione-slot {
   display: flex;
   align-items: flex-end;
-  margin-left: -1.5rem;
+  flex-shrink: 0;
 }
 
-.night-sequencer__illustrazione-slot:first-child {
-  margin-left: 0;
-}
-
+/* l'altezza e la sovrapposizione (margin-left) sono calcolate in JS in
+   base a quante immagini ci sono, vedi IllustrazioniCoinvolti in
+   NightSequencer.jsx: qui solo le proprietà che non cambiano */
 .night-sequencer__illustrazione {
-  width: 100%;
-  max-width: 140px;
+  width: auto;
   margin: 0;
 }
 
