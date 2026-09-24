@@ -39,6 +39,22 @@ test('mostra un avviso non bloccante se il numero di giocatori non combacia con 
   expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
 })
 
+test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due carte extra non sono per nessuno)', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Ladro' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+
+  // mazzo: Ladro + Mimo = 2 ruoli, meno le 2 carte extra del Ladro = 0 attesi
+  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  expect(screen.getByText(/hai 1 giocatori per 0 ruoli/i)).toBeInTheDocument()
+})
+
 test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   const user = userEvent.setup()
   render(<App />)

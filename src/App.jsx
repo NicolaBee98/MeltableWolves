@@ -40,7 +40,10 @@ export default function App() {
     setVarianteMedium,
   } = useImpostazioni()
 
-  const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0)
+  // con il Ladro il mazzo fisico ha 2 carte in più dei giocatori (pag. 15):
+  // il conteggio atteso dei giocatori va ridotto di conseguenza, quelle due
+  // carte non sono destinate a nessuno
+  const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0) - (quantita.ladro > 0 ? 2 : 0)
   const ruoliSelezionati = ruoliAttivi(
     ruoliInMazzo.map((r) => r.slug),
     giocatori,
