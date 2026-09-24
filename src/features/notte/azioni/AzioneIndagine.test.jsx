@@ -127,8 +127,10 @@ test('non permette di indagare una seconda volta nella stessa notte, evitando di
   ]
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
 
-  expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
-  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+  // niente indagine registrata per QUESTA notte (round 2): nessuna chip
+  // marcata con un esito, solo i candidati disattivati
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeDisabled()
+  expect(screen.queryByText(/aura/i)).not.toBeInTheDocument()
 })
 
 test('dopo la conferma mostra subito il responso da dare al Veggente (aura malvagia)', () => {
@@ -147,6 +149,26 @@ test('dopo la conferma mostra subito il responso da dare al Veggente (aura malva
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={3} />)
 
   expect(screen.getByText(/aura malvagia/i)).toBeInTheDocument()
+})
+
+test('la chip del bersaglio indagato è colorata secondo l\'esito (azzurra benevola, rossa malvagia), le altre no', () => {
+  const giocatori = [
+    {
+      id: '1',
+      nome: 'Anna',
+      ruoloSlug: 'veggente',
+      vivo: true,
+      condizioni: [],
+      usiNotte: ['veggente-indagine'],
+      ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 3 },
+    },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={3} />)
+
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveClass('chip--malvagia')
+  expect(screen.getByRole('button', { name: 'Luca' })).not.toHaveClass('chip--malvagia', 'chip--benevola')
 })
 
 test('non mostra il responso di una notte precedente', () => {

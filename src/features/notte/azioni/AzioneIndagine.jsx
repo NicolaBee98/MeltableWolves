@@ -22,12 +22,25 @@ export function AzioneIndagine({
   if (usatoStanotte(giocatori, ruoli, potere)) {
     return (
       <div className="azione-indagine">
-        <p>Potere già utilizzato questa notte.</p>
-        {indagineStanotte && (
-          <p className="azione-indagine__esito">
-            Rispondi al {etichettaAttore}: aura {indagineStanotte.esito === 'malvagia' ? 'malvagia 🐺' : 'benevola 🕊️'}
-          </p>
-        )}
+        <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
+        <div className="scelta-giocatore__chips" role="group" aria-label="Chi indagare">
+          {candidati.map((g) => {
+            const indagato = indagineStanotte?.targetId === g.id
+            const classeEsito = indagato ? `chip--${indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
+            return (
+              <span key={g.id} className="azione-indagine__chip-slot">
+                <button type="button" className={`chip ${classeEsito}`.trim()} disabled>
+                  {g.nome}
+                </button>
+                {indagato && (
+                  <span className="azione-indagine__etichetta-esito">
+                    Aura {indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}
+                  </span>
+                )}
+              </span>
+            )
+          })}
+        </div>
       </div>
     )
   }
