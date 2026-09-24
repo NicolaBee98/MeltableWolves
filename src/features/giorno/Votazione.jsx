@@ -65,9 +65,12 @@ function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo 
               {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
             </span>
             {g.eFantasmaOnnisciente && (
-              <span className="votazione__icona-condizione" title="Fantasma Onnisciente">
-                👻
-              </span>
+              <RuoloIcona
+                slug="fantasma-onnisciente"
+                size={24}
+                className="votazione__icona-condizione"
+                alt="Fantasma Onnisciente"
+              />
             )}
           </li>
         ))}
@@ -214,7 +217,10 @@ export function Votazione({
       <section className="votazione votazione--esito">
         {designati.length === 1 ? (
           <div className="votazione__esito">
-            <p>Vittima designata: {giocatori.find((g) => g.id === designati[0])?.nome}</p>
+            <p>
+              Vittima designata:{' '}
+              <span className="votazione__nome-designato">{giocatori.find((g) => g.id === designati[0])?.nome}</span>
+            </p>
             {renderEsitoDesignato(designati[0])}
           </div>
         ) : (
@@ -295,9 +301,12 @@ export function Votazione({
             </span>
             <BadgeCondizioni condizioni={g.condizioni} />
             {g.eBorgomastro && (
-              <span className="votazione__icona-condizione" title="Borgomastro: il suo voto vale doppio">
-                👑
-              </span>
+              <RuoloIcona
+                slug="borgomastro"
+                size={24}
+                className="votazione__icona-condizione"
+                alt="Borgomastro: il suo voto vale doppio"
+              />
             )}
             <span className="votazione__voti">{voti[g.id] ?? 0} voti</span>
             <button type="button" onClick={() => decrementaVoto(g.id)}>

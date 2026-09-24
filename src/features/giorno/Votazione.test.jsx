@@ -84,7 +84,8 @@ test("con un massimo di voti il pulsante per andare all'esito chiama vaiAEsito c
 test('in fase esito con un solo massimo mostra la vittima designata; un click dichiara il rogo (nessuna conferma ridondante)', async () => {
   const user = userEvent.setup()
   const { onRogo } = setup({ voti: { 1: 2 }, fase: 'esito' })
-  expect(screen.getByText(/vittima designata: anna/i)).toBeInTheDocument()
+  expect(screen.getByText(/vittima designata/i)).toBeInTheDocument()
+  expect(screen.getByText('Anna', { selector: '.votazione__nome-designato' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
   expect(onRogo).toHaveBeenCalledWith('1')
@@ -197,7 +198,8 @@ test("il calcolo dell'esito usa i candidati congelati, non i giocatori vivi corr
   ]
   setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito', candidatiEsito: ['1', '2'] })
 
-  expect(screen.getByText(/vittima designata: anna/i)).toBeInTheDocument()
+  expect(screen.getByText(/vittima designata/i)).toBeInTheDocument()
+  expect(screen.getByText('Anna', { selector: '.votazione__nome-designato' })).toBeInTheDocument()
   expect(screen.queryByText(/spareggio/i)).not.toBeInTheDocument()
 })
 
@@ -286,7 +288,7 @@ test("mostra un'icona per il Fantasma Onnisciente nella sezione Morti", () => {
     { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
   ]
   setup({ giocatori })
-  expect(screen.getByTitle('Fantasma Onnisciente')).toBeInTheDocument()
+  expect(screen.getByAltText('Fantasma Onnisciente')).toBeInTheDocument()
 })
 
 test('mostra un\'icona per il Borgomastro, promemoria per il voto doppio', () => {
@@ -295,7 +297,7 @@ test('mostra un\'icona per il Borgomastro, promemoria per il voto doppio', () =>
     { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
   ]
   setup({ giocatori })
-  expect(screen.getByTitle(/voto vale doppio/i)).toBeInTheDocument()
+  expect(screen.getByAltText(/voto vale doppio/i)).toBeInTheDocument()
 })
 
 test('senza mostraRuoli (default) non mostra icona di ruolo anche se il giocatore ha un ruolo assegnato', () => {
