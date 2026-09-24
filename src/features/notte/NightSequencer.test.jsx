@@ -590,3 +590,50 @@ test('un titolare morto non compare nella riga di illustrazioni (solo i vivi)', 
   const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
   expect(illustrazioni).toHaveLength(1)
 })
+
+test('"Indietro" annulla in un colpo solo TUTTE le modifiche fatte nel passo corrente, non una alla volta (es. Ladro: più campi cambiati in sequenza)', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const impostaGiocatori = vi.fn((nuovi) => {
+    giocatori = nuovi
+  })
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const props = () => ({
+    ruoliSelezionati: ['ladro', 'veggente', 'paladino'],
+    giocatori,
+    aggiornaGiocatore,
+    impostaGiocatori,
+  })
+
+  const { rerender } = render(<NightSequencerConNotte {...props()} />)
+  function rr() {
+    rerender(<NightSequencerConNotte {...props()} />)
+  }
+
+  // 1) assegna l'identità del Ladro ad Anna (pending -> commit al primo campo toccato sotto)
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rr()
+  // 2) imposta entrambe le carte di scarto (due modifiche separate)
+  await user.selectOptions(screen.getAllByRole('combobox')[0], 'veggente')
+  rr()
+  await user.selectOptions(screen.getAllByRole('combobox')[1], 'paladino')
+  rr()
+  // 3) sceglie la carta finale (altra modifica)
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  rr()
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('veggente')
+
+  // un solo "Indietro" deve annullare TUTTO quello fatto sul passo del Ladro,
+  // non solo l'ultimo click
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  rr()
+
+  const ripristinati = impostaGiocatori.mock.calls.at(-1)[0]
+  expect(ripristinati.find((g) => g.id === '1').ruoloSlug).toBeUndefined()
+  expect(screen.getByRole('heading', { name: /ladro/i })).toBeInTheDocument()
+})

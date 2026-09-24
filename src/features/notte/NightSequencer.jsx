@@ -67,31 +67,47 @@ export function NightSequencer({
   const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti })
   const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
 
-  // pila di stati precedenti per "Indietro": un elemento per ogni cambiamento
-  // atomico (un'azione notturna eseguita, oppure un avanzamento di passo),
-  // non uno per passo. Così se il passo corrente ha già un'azione compiuta
-  // (es. il branco ha sbranato), il primo "Indietro" annulla solo quella e
-  // resta sullo stesso passo; se invece il passo corrente non ha ancora
-  // un'azione, il primo "Indietro" torna al passo precedente mostrando la
-  // sua azione già fatta, e solo un secondo "Indietro" la annulla (non
-  // persistita: non deve sopravvivere a un refresh, e si azzera a ogni
-  // nuova notte)
+  // pila di stati precedenti per "Indietro": un elemento per passo visitato
+  // (non per singola modifica). Se durante un passo capitano più modifiche
+  // (es. il Ladro: identità + due carte di scarto + scelta finale), contano
+  // come UN solo "prima" da ripristinare, non una per ciascuna — altrimenti
+  // "Indietro" premuto lo stesso numero di volte che si crede necessario per
+  // tornare "all'inizio del passo" in realtà annulla solo l'ultima modifica.
+  // Così: se il passo corrente ha già almeno un'azione compiuta, il primo
+  // "Indietro" annulla TUTTE le modifiche fatte in questo passo e resta sullo
+  // stesso passo; se invece non ne ha ancora, il primo "Indietro" torna al
+  // passo precedente mostrando le sue modifiche già fatte, e solo un
+  // secondo "Indietro" le annulla (non persistito: non deve sopravvivere a
+  // un refresh, e si azzera a ogni nuova notte)
   // stato (non ref): deve rientrare in un nuovo render subito, altrimenti
   // "disabled" sul pulsante Indietro resterebbe indietro di un render
   // rispetto al push appena fatto dall'effect qui sotto
   const [storico, setStorico] = useState([])
   const ultimoStatoRef = useRef({ stepIndex: indiceValido, giocatori })
+  // true se per il passo corrente è già stata pushata una voce di storico:
+  // le modifiche successive sullo STESSO passo aggiornano solo il
+  // riferimento "corrente", senza aggiungerne altre
+  const vocePushataPerPassoRef = useRef(false)
 
   useEffect(() => {
     setStorico([])
     ultimoStatoRef.current = { stepIndex: 0, giocatori }
+    vocePushataPerPassoRef.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
   useEffect(() => {
     const ultimo = ultimoStatoRef.current
-    if (ultimo.stepIndex !== indiceValido || ultimo.giocatori !== giocatori) {
+    const passoCambiato = ultimo.stepIndex !== indiceValido
+    if (passoCambiato) {
       setStorico((prev) => [...prev, ultimo])
+      ultimoStatoRef.current = { stepIndex: indiceValido, giocatori }
+      vocePushataPerPassoRef.current = false
+    } else if (ultimo.giocatori !== giocatori) {
+      if (!vocePushataPerPassoRef.current) {
+        setStorico((prev) => [...prev, ultimo])
+        vocePushataPerPassoRef.current = true
+      }
       ultimoStatoRef.current = { stepIndex: indiceValido, giocatori }
     }
   }, [indiceValido, giocatori])
