@@ -109,3 +109,50 @@ test('la Suocera non è considerata viva per le condizioni di vittoria', () => {
   // senza la Suocera nel conteggio, il Chupacabra risulta l'unico vivo
   expect(condizioniVittoria(giocatori)).toContain("Il Chupacabra è l'ultimo sopravvissuto: vince lui.")
 })
+
+test('con la Suocera ancora nel mazzo e non rivelata, conta comunque -1 tra gli abitanti (nascosta tra i vivi)', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '4', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '5', vivo: true, condizioni: [] }, // "?" non ancora assegnato: potrebbe essere la Suocera
+  ]
+  // senza l'aggiustamento: 2 lupi vs 3 abitanti, non pari. Con la Suocera
+  // nascosta tolta dal conteggio: 2 lupi vs 2 abitanti, pari: vincono i lupi
+  expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
+  expect(condizioniVittoria(giocatori, { suocera: 0 })).not.toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
+})
+
+test('se il Ladro ha scartato la carta della Suocera (quantita.suocera azzerata), non conta più come nascosta', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '4', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '5', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  // 2 lupi vs 3 abitanti: senza la Suocera nascosta (scartata dal Ladro)
+  // resta 3, non pari
+  expect(condizioniVittoria(giocatori, { suocera: 0 })).not.toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
+})
+
+test('una volta rivelata (morta), la Suocera conta come qualsiasi altro morto: nessun -1 aggiuntivo', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '4', vivo: false, ruoloSlug: 'suocera', condizioni: [] },
+  ]
+  // 2 lupi vs 1 abitante vivo (la Suocera morta non conta comunque, ma non
+  // va tolto un ulteriore -1 "fantasma" visto che ormai è nota)
+  expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
+})

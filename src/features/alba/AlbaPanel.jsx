@@ -19,7 +19,7 @@ export function AlbaPanel({
     (g) => !g.vivo && g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte),
   )
   const annunci = annunciAlba(giocatori, round)
-  const vittoria = condizioniVittoria(giocatori)
+  const vittoria = condizioniVittoria(giocatori, quantita)
   // copre sia "non è mai stato eletto" (pag. 11: si elegge all'alba del
   // primo giorno) sia "il Borgomastro in carica è morto": in entrambi i
   // casi nessun giocatore vivo ha il titolo, e serve eleggerne uno tramite
