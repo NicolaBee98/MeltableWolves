@@ -161,6 +161,7 @@ test('lo Spilungone scelto nello spareggio si rivela e non muore', async () => {
   })
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
 
   expect(onRogo).not.toHaveBeenCalled()
   expect(screen.getByText(/anna rivela la propria carta: è lo spilungone/i)).toBeInTheDocument()
@@ -228,12 +229,21 @@ test('in fase esito con più massimi mostra lo spareggio con le chip dei candida
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
-test('in fase esito, selezionare chi muore nello spareggio dichiara subito il rogo su quel giocatore', async () => {
+test('in fase esito, nello spareggio la chip resta selezionabile/cambiabile: serve "Dichiara morte sul rogo" per confermare', async () => {
   const user = userEvent.setup()
   const { onRogo } = setup({ voti: { 1: 2, 2: 2 }, fase: 'esito' })
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  expect(onRogo).toHaveBeenCalledWith('2')
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  // si può cambiare idea prima di confermare
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'false')
+
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(onRogo).toHaveBeenCalledWith('1')
 })
 
 test('in fase esito il pulsante Torna al voto chiama tornaAlVoto', async () => {
