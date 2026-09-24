@@ -118,6 +118,9 @@ export function Votazione({
   // conferma. Da rivedere se capita davvero in una partita reale.
   const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
   const [anticoRivelatoId, setAnticoRivelatoId] = useState(null)
+  // spareggio: la chip resta selezionabile/cambiabile finché non si preme
+  // "Dichiara morte sul rogo", invece di decidere già al click della chip
+  const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
 
   if (fase === 'esito') {
     // l'esito si calcola sui candidati congelati al momento di "Vai all'esito",
@@ -237,11 +240,18 @@ export function Votazione({
               <div className="votazione__scelta-box">
                 <div className="scelta-giocatore__chips" role="group" aria-label="Chi muore nello spareggio">
                   {designati.map((id) => (
-                    <button key={id} type="button" className="chip" onClick={() => confermaMorte(id)}>
+                    <button
+                      key={id}
+                      type="button"
+                      className="chip"
+                      aria-pressed={designatoSpareggio === id}
+                      onClick={() => setDesignatoSpareggio(id)}
+                    >
                       {giocatori.find((g) => g.id === id)?.nome}
                     </button>
                   ))}
                 </div>
+                {designatoSpareggio && renderEsitoDesignato(designatoSpareggio)}
               </div>
             ) : null}
           </div>
