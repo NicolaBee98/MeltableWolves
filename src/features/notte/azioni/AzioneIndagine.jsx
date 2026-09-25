@@ -1,4 +1,3 @@
-import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { auraDi } from '../../../data/aura'
 import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
@@ -18,32 +17,7 @@ export function AzioneIndagine({
   // l'accecamento dal Polpo Mannaro (pag. 20) è specifico del Veggente, non
   // del Veggente Mannaro, che il libretto non menziona in quella voce
   const puoEssereAccecato = ruoloSlugAttore === 'veggente'
-
-  if (usatoStanotte(giocatori, ruoli, potere)) {
-    return (
-      <div className="azione-indagine">
-        <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
-        <div className="scelta-giocatore__chips" role="group" aria-label="Chi indagare">
-          {candidati.map((g) => {
-            const indagato = indagineStanotte?.targetId === g.id
-            const classeEsito = indagato ? `chip--${indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
-            return (
-              <span key={g.id} className="azione-indagine__chip-slot">
-                <button type="button" className={`chip ${classeEsito}`.trim()} disabled>
-                  {g.nome}
-                </button>
-                {indagato && (
-                  <span className="azione-indagine__etichetta-esito">
-                    Aura {indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}
-                  </span>
-                )}
-              </span>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
+  const giaUsato = usatoStanotte(giocatori, ruoli, potere)
 
   function confermaScelta(targetId) {
     if (veggente) {
@@ -68,17 +42,39 @@ export function AzioneIndagine({
     segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
   }
 
-  function salta() {
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
+  if (candidati.length === 0) {
+    return <p>Nessun bersaglio disponibile.</p>
   }
 
+  // la chip resta sempre cliccabile, anche dopo aver già indagato questa
+  // notte: il narratore può correggere la scelta finché non preme "Avanti"
+  // (vedi principio generale "editabile fino ad Avanti" in NightSequencer).
+  // L'etichetta dell'esito va sotto TUTTE le chip, non sotto quella singola.
   return (
-    <SceltaGiocatore
-      candidati={candidati}
-      onConferma={confermaScelta}
-      onSalta={salta}
-      etichetta={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}
-      mostraSalta={false}
-    />
+    <div className="azione-indagine">
+      <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
+      <div className="scelta-giocatore__chips" role="group" aria-label="Chi indagare">
+        {candidati.map((g) => {
+          const indagato = giaUsato && indagineStanotte?.targetId === g.id
+          const classeEsito = indagato ? `chip--${indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
+          return (
+            <button
+              key={g.id}
+              type="button"
+              className={`chip ${classeEsito}`.trim()}
+              aria-pressed={indagato}
+              onClick={() => confermaScelta(g.id)}
+            >
+              {g.nome}
+            </button>
+          )
+        })}
+      </div>
+      {giaUsato && indagineStanotte && (
+        <p className="azione-indagine__etichetta-esito">
+          Aura {indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}
+        </p>
+      )}
+    </div>
   )
 }

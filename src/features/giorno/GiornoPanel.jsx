@@ -52,13 +52,16 @@ export function GiornoPanel({
   }
 
   // L'Antico perde la sua prima vita al rogo: si rivela, sopravvive come un
-  // normale Villico e maledice il villaggio per la notte successiva (pag. 16, 25)
+  // normale Villico e maledice il villaggio per la notte successiva (pag.
+  // 16, 25) — ma la maledizione blocca solo i poteri "buoni" (vedi
+  // villaggioMaledetto in nightSteps.js), a differenza del Bardo che salta
+  // la notte per intero: campo separato da notteBloccataFinoA
   function dichiaraAnticoRivelazione(id) {
     const target = giocatori.find((g) => g.id === id)
     aggiornaGiocatore(id, {
       ruoloSlug: 'villico',
       storiaRuoli: [...(target?.storiaRuoli ?? []), 'villico'],
-      notteBloccataFinoA: round,
+      villaggioMaledettoFinoA: round,
     })
   }
 

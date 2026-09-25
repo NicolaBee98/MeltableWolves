@@ -113,7 +113,7 @@ test("L'Antico designato al rogo sopravvive come Villico e maledice la notte suc
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
     ruoloSlug: 'villico',
     storiaRuoli: ['lantico', 'villico'],
-    notteBloccataFinoA: 3,
+    villaggioMaledettoFinoA: 3,
   })
 })
 

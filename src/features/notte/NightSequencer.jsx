@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte, notteBloccata, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { passiNotte, notteBloccata, villaggioMaledetto, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
 import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
-import { variantePerGiocatore } from '../../data/assetRuoli'
+import { variantePerGiocatore, altezzaNaturalePersonaggio } from '../../data/assetRuoli'
+
+// sottotitolo "Legato con..." per i ruoli con legame permanente stabilito
+// la prima notte (pag. 9-10): una volta scelto il bersaglio non si può più
+// cambiare, quindi vale la pena ricordarlo ogni volta che la carta si
+// risveglia, non solo nel momento in cui viene stabilito
+const ETICHETTA_LEGAME = {
+  apprendista: 'è il suo maestro',
+  cavaliere: 'è per lui che si sacrifica',
+  'figlia-dei-lupi': 'è il suo genitore',
+}
 
 // il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
 // (pag. 18): puramente di presentazione, il narratore ricorda così di
@@ -28,8 +38,18 @@ function mimoDiQuestoPasso(giocatore, giocatori, step) {
 function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
   if (giocatoriCoinvolti.length === 0) return null
   const numeroImmagini = giocatoriCoinvolti.reduce((n, g) => n + (g.legame?.tipo === 'mimo' ? 2 : 1), 0)
-  const altezza = Math.max(70, Math.min(180, 480 / numeroImmagini))
-  const sovrapposizione = numeroImmagini > 3 ? altezza * 0.4 : altezza * 0.15
+  // altezza del personaggio più alto del gruppo: si restringe più ce ne
+  // sono, per restare su una riga sola; gli altri si scalano dallo STESSO
+  // fattore (vedi altezzaNaturalePersonaggio), non tutti alla stessa altezza
+  const altezzaMassima = Math.max(70, Math.min(180, 480 / numeroImmagini))
+  const naturaleMassima = Math.max(
+    ...giocatoriCoinvolti.flatMap((g) => [
+      altezzaNaturalePersonaggio(g.ruoloSlug),
+      ...(g.legame?.tipo === 'mimo' ? [altezzaNaturalePersonaggio('mimo')] : []),
+    ]),
+  )
+  const scala = altezzaMassima / naturaleMassima
+  const sovrapposizione = numeroImmagini > 3 ? altezzaMassima * 0.4 : altezzaMassima * 0.15
   let indice = 0
   return (
     <div className="night-sequencer__illustrazioni">
@@ -39,14 +59,20 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
             <RuoloIllustrazione
               slug="mimo"
               className="night-sequencer__illustrazione"
-              style={{ height: altezza, marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0 }}
+              style={{
+                height: altezzaNaturalePersonaggio('mimo') * scala,
+                marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0,
+              }}
             />
           )}
           <RuoloIllustrazione
             slug={g.ruoloSlug}
             variante={variantePerGiocatore(giocatori, g.id)}
             className="night-sequencer__illustrazione"
-            style={{ height: altezza, marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0 }}
+            style={{
+              height: altezzaNaturalePersonaggio(g.ruoloSlug) * scala,
+              marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0,
+            }}
           />
         </span>
       ))}
@@ -76,6 +102,7 @@ export function NightSequencer({
   // passi, si passa dritti all'alba (che mostrerà correttamente "nessuno è
   // morto questa notte", visto che nessun potere ha potuto agire)
   const bloccata = notteBloccata(giocatori, round)
+  const maledetto = villaggioMaledetto(giocatori, round)
   const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti })
   const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
 
@@ -205,6 +232,9 @@ export function NightSequencer({
         )
       : []
 
+  const attoreConLegame = giocatoriCoinvolti.find((g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo])
+  const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
+
   const azione = AZIONI_NOTTURNE[step.id]
   const titolareVivo = giocatoriCoinvolti.some((g) => g.vivo)
   // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (vedi
@@ -309,6 +339,13 @@ export function NightSequencer({
     if (assegnazioneIncompleta) return
     if (ciSonoSelezioniDaConfermare) {
       confermaSelezioniRestandoSulPasso()
+      // resta sul passo solo se ha un'azione da poter usare subito (es.
+      // Veggente appena assegnato): un passo "informativo" (solo
+      // riconoscimento, es. il branco) non ha nulla da fare qui, quindi
+      // andrebbe avanti da solo invece di mostrare "Nessuna azione
+      // richiesta" e richiedere un secondo click su Avanti
+      if (step.tipo === 'azione') return
+      avanti(steps.length)
       return
     }
     avanti(steps.length)
@@ -316,9 +353,12 @@ export function NightSequencer({
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta) return
-    if (ciSonoSelezioniDaConfermare) {
+    if (ciSonoSelezioniDaConfermare && step.tipo === 'azione') {
       confermaSelezioniRestandoSulPasso()
       return
+    }
+    if (ciSonoSelezioniDaConfermare) {
+      confermaSelezioniRestandoSulPasso()
     }
     autoAssegnaVillici()
     // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
@@ -364,6 +404,11 @@ export function NightSequencer({
       <p className="night-sequencer__passo">
         Passo {indiceValido + 1} di {steps.length}
       </p>
+      {maledetto && (
+        <p className="night-sequencer__maledizione">
+          🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.
+        </p>
+      )}
       <h2 className="night-sequencer__ruolo">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
@@ -375,16 +420,28 @@ export function NightSequencer({
             ` (${giocatoriCoinvolti.map((g) => (g.vivo ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
         </span>
       </h2>
-      {/* solo i titolari già confermati (non le selezioni ancora pendenti,
-          che hanno già la propria illustrazione in AssegnaRuolo qui sotto —
-          altrimenti comparirebbe due volte lo stesso personaggio) e solo i
-          vivi (un titolare morto non deve comparire tra chi si sveglia) */}
-      {ruoliPendenti.length === 0 && (
-        <IllustrazioniCoinvolti giocatori={giocatori} giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo)} />
-      )}
+      {/* solo i titolari già confermati (non le selezioni ancora pendenti
+          per un ruolo di QUESTO passo, che hanno già la propria
+          illustrazione in AssegnaRuolo qui sotto — altrimenti comparirebbe
+          due volte lo stesso personaggio) e solo i vivi (un titolare morto
+          non deve comparire tra chi si sveglia). Un passo come "Il branco si
+          riconosce" copre più ruoli insieme (i Lupi generici ancora da
+          assegnare + Nonna/Progenitore/Cucciolo già assegnati nei loro passi
+          dedicati): questi ultimi vanno comunque mostrati qui, il branco si
+          vede al completo mentre si riconosce. */}
+      <IllustrazioniCoinvolti
+        giocatori={giocatori}
+        giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo && !ruoliPendenti.includes(g.ruoloSlug))}
+      />
       {ruoliPendenti.length === 0 && (
         <p className="night-sequencer__tipo">
           {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
+        </p>
+      )}
+
+      {bersaglioLegame && (
+        <p className="night-sequencer__legame">
+          🔗 {bersaglioLegame.nome} {ETICHETTA_LEGAME[attoreConLegame.legame.tipo]}.
         </p>
       )}
 

@@ -1,4 +1,4 @@
-import { NIGHT_STEPS, passiNotte, notteBloccata, ruoliAttivi, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 import { ruoliAssegnabili } from './assegnazione'
 
 const NESSUN_GIOCATORE = []
@@ -209,6 +209,23 @@ test('notteBloccata è vera se un giocatore ha notteBloccataFinoA uguale al roun
   const giocatori = [{ id: '1', notteBloccataFinoA: 3 }]
   expect(notteBloccata(giocatori, 3)).toBe(true)
   expect(notteBloccata(giocatori, 4)).toBe(false)
+})
+
+test('la maledizione de L\'Antico blocca solo i passi con ruoli "buoni" (villaggio), i lupi e gli indipendenti continuano ad agire', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], villaggioMaledettoFinoA: 3 },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+  ]
+  const passi = passiNotte(['veggente', 'lupo-mannaro', 'chupacabra'], 3, giocatori, {
+    veggente: 1,
+    'lupo-mannaro': 1,
+    chupacabra: 1,
+  }).map((p) => p.id)
+  expect(villaggioMaledetto(giocatori, 3)).toBe(true)
+  expect(passi).not.toContain('veggente')
+  expect(passi).toContain('branco-lupi')
+  expect(passi).toContain('chupacabra')
 })
 
 

@@ -174,6 +174,21 @@ test('il Boia può giustiziare se stesso: resta tra i candidati del secondo pass
   expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '1')
 })
 
+test('"Chi è il Boia" propone solo i giocatori senza ruolo ancora noto, non tutti i vivi', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', vivo: true },
+    { id: '2', nome: 'Anna', ruoloSlug: 'veggente', vivo: true },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
+
+  expect(screen.getByRole('button', { name: 'Ivo' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+})
+
 test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina con sé, sempre tra i vivi", async () => {
   const user = userEvent.setup()
   const giocatori = [
