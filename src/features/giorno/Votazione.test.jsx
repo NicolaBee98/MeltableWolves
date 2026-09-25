@@ -191,6 +191,31 @@ test("L'Antico designato al rogo si rivela, sopravvive e chiama onAnticoRivelazi
   expect(onProsegui).toHaveBeenCalled()
 })
 
+test("un designato di ruolo ignoto può rivelarsi l'Alchimista al rogo: chiede poi chi trascina con sé nell'esplosione", async () => {
+  const user = userEvent.setup()
+  const giocatoriConAlchimista = [
+    { id: '1', nome: 'Anna', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+    { id: '3', nome: 'Luca', vivo: true },
+  ]
+  const { onRogo, onAlchimistaEsplode } = setup({
+    giocatori: giocatoriConAlchimista,
+    voti: { 1: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1'],
+    ruoliSelezionati: ['alchimista'],
+    quantita: { alchimista: 1 },
+  })
+
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  expect(onRogo).not.toHaveBeenCalled()
+  expect(onAlchimistaEsplode).toHaveBeenCalledWith('1', '2')
+  expect(screen.getByText(/anna rivela la propria carta: è l'alchimista/i)).toBeInTheDocument()
+  expect(screen.getByText(/trascina con sé marco/i)).toBeInTheDocument()
+})
+
 test("il calcolo dell'esito usa i candidati congelati, non i giocatori vivi correnti (evita lo spareggio fantasma dopo il rogo)", () => {
   const giocatoriDopoRogo = [
     { id: '1', nome: 'Anna', vivo: false },

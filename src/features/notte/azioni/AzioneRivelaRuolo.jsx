@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { ROLES } from '../../../data/roles'
 import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { ruoliAssegnabili } from '../../../data/assegnazione'
 
 function nomeRuolo(ruoloSlug) {
   return ROLES.find((r) => r.slug === ruoloSlug)?.nome ?? 'ruolo sconosciuto'
@@ -8,7 +10,21 @@ function nomeRuolo(ruoloSlug) {
 
 // Usato da Cartomante (bersaglio vivo, "alternativa al Veggente" ma rivela
 // il ruolo intero) e Medium (bersaglio morto, il "vecchio ruolo").
-export function AzioneRivelaRuolo({ giocatori, aggiornaGiocatore, round, ruoloSlugAttore, etichettaAttore, bersaglio }) {
+export function AzioneRivelaRuolo({
+  giocatori,
+  aggiornaGiocatore,
+  round,
+  ruoloSlugAttore,
+  etichettaAttore,
+  bersaglio,
+  ruoliSelezionati = [],
+  quantita = {},
+}) {
+  // se il bersaglio non ha ancora un ruolo noto all'app (nessuno step
+  // dedicato l'ha ancora assegnato), il narratore vede comunque la carta
+  // fisica: gliela si chiede per assegnarla subito, invece di registrare
+  // "ruolo sconosciuto" — il potere fa guadagnare informazioni anche a lui
+  const [targetInAttesaDiRuolo, setTargetInAttesaDiRuolo] = useState(null)
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
@@ -28,16 +44,52 @@ export function AzioneRivelaRuolo({ giocatori, aggiornaGiocatore, round, ruoloSl
     )
   }
 
-  function confermaScelta(targetId) {
+  function registraIndagine(targetId, ruoloRivelato) {
     if (attore) {
-      const target = giocatori.find((g) => g.id === targetId)
-      if (target) {
-        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
-          ultimaIndagine: { targetId, ruoloRivelato: target.ruoloSlug, notte: round },
-        })
-      }
+      aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
+        ultimaIndagine: { targetId, ruoloRivelato, notte: round },
+      })
     }
     segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
+  }
+
+  function confermaScelta(targetId) {
+    const target = giocatori.find((g) => g.id === targetId)
+    if (target && !target.ruoloSlug) {
+      setTargetInAttesaDiRuolo(targetId)
+      return
+    }
+    registraIndagine(targetId, target?.ruoloSlug)
+  }
+
+  function confermaRuoloVisto(ruoloSlug) {
+    const target = giocatori.find((g) => g.id === targetInAttesaDiRuolo)
+    aggiornaGiocatore(targetInAttesaDiRuolo, {
+      ruoloSlug,
+      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
+    })
+    registraIndagine(targetInAttesaDiRuolo, ruoloSlug)
+    setTargetInAttesaDiRuolo(null)
+  }
+
+  if (targetInAttesaDiRuolo) {
+    const target = giocatori.find((g) => g.id === targetInAttesaDiRuolo)
+    // qui, a differenza dell'assegnazione automatica di inizio notte, anche
+    // il Villico va offerto: il narratore vede la carta fisica in mano, può
+    // benissimo essere quella
+    const opzioni = ruoliAssegnabili(ruoliSelezionati, giocatori, quantita)
+    return (
+      <div className="azione-indagine">
+        <p>La carta di {target?.nome} è ancora sconosciuta: quale ruolo mostra?</p>
+        <div className="scelta-giocatore__chips" role="group" aria-label="Che ruolo era">
+          {opzioni.map((slug) => (
+            <button key={slug} type="button" className="chip" onClick={() => confermaRuoloVisto(slug)}>
+              {nomeRuolo(slug)}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (

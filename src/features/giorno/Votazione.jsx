@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
 import { CONDIZIONI } from '../../data/conditions'
-import { ROLES } from '../../data/roles'
+import { ROLES, ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
@@ -25,10 +25,11 @@ function BadgeCondizioni({ condizioni = [] }) {
 // punto interrogativo invece di sparire, per segnalare "identità non nota
 // ancora" e non "nessuna informazione qui"
 function BadgeRuolo({ ruoloSlug, variante }) {
-  const ruolo = ROLES.find((r) => r.slug === ruoloSlug)
+  const slugVisibile = ruoloPerDisplay(ruoloSlug)
+  const ruolo = ROLES.find((r) => r.slug === slugVisibile)
   return (
     <RuoloIcona
-      slug={ruoloSlug}
+      slug={slugVisibile}
       variante={variante}
       size={24}
       className="votazione__icona-ruolo"
@@ -38,7 +39,7 @@ function BadgeRuolo({ ruoloSlug, variante }) {
 }
 
 function nomeRuoloTraParentesi(ruoloSlug) {
-  const ruolo = ROLES.find((r) => r.slug === ruoloSlug)
+  const ruolo = ROLES.find((r) => r.slug === ruoloPerDisplay(ruoloSlug))
   return ruolo ? ` (${ruolo.nome})` : ''
 }
 
@@ -119,6 +120,11 @@ export function Votazione({
   // conferma. Da rivedere se capita davvero in una partita reale.
   const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
   const [anticoRivelatoId, setAnticoRivelatoId] = useState(null)
+  // l'Alchimista ha bisogno di un secondo click (chi trascina con sé
+  // nell'esplosione, pag. 5): attesaVittimaId mentre si sceglie, poi
+  // l'esito finale una volta scelta la vittima
+  const [alchimistaInAttesaVittimaId, setAlchimistaInAttesaVittimaId] = useState(null)
+  const [alchimistaEsploso, setAlchimistaEsploso] = useState(null)
   // spareggio: la chip resta selezionabile/cambiabile finché non si preme
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
@@ -132,7 +138,8 @@ export function Votazione({
     const morteConfermata =
       designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) ||
       spilungoneRivelatoId !== null ||
-      anticoRivelatoId !== null
+      anticoRivelatoId !== null ||
+      alchimistaEsploso !== null
 
     // Spilungone e L'Antico sono ruoli a rivelazione diurna (pag. 13): la
     // loro identità non è quasi mai già nota all'app quando arrivano al
@@ -144,6 +151,9 @@ export function Votazione({
       ruoliSelezionati?.includes('spilungone') && ruoliAssegnabili(['spilungone'], giocatori, quantita).length > 0
     const lanticoRivelabileOra =
       ruoliSelezionati?.includes('lantico') && ruoliAssegnabili(['lantico'], giocatori, quantita).length > 0
+    // stessa logica: si rivela solo al rogo (pag. 5), non prima
+    const alchimistaRivelabileOra =
+      ruoliSelezionati?.includes('alchimista') && ruoliAssegnabili(['alchimista'], giocatori, quantita).length > 0
 
     // un solo click: la scelta del bersaglio (candidato singolo o chip dello
     // spareggio) è già di per sé una decisione inequivocabile, una conferma
@@ -155,6 +165,8 @@ export function Votazione({
       } else if (target?.ruoloSlug === 'lantico') {
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
+      } else if (target?.ruoloSlug === 'alchimista') {
+        setAlchimistaInAttesaVittimaId(id)
       } else {
         onRogo(id)
       }
@@ -164,6 +176,10 @@ export function Votazione({
     // (registrandolo come qualunque altra rivelazione diurna) e applica
     // subito lo stesso esito speciale
     function rivelaEDesigna(id, ruoloSlug) {
+      if (ruoloSlug === 'alchimista') {
+        setAlchimistaInAttesaVittimaId(id)
+        return
+      }
       onRivelazione(ruoloSlug, id)
       if (ruoloSlug === 'spilungone') {
         setSpilungoneRivelatoId(id)
@@ -171,6 +187,15 @@ export function Votazione({
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
       }
+    }
+
+    // secondo passo dell'Alchimista: chi trascina con sé nell'esplosione.
+    // onAlchimistaEsplode registra da solo sia la rivelazione/morte
+    // dell'Alchimista sia quella della vittima (vedi GiornoPanel).
+    function confermaVittimaAlchimista(alchimistaId, vittimaId) {
+      onAlchimistaEsplode(alchimistaId, vittimaId)
+      setAlchimistaEsploso({ alchimistaId, vittimaId })
+      setAlchimistaInAttesaVittimaId(null)
     }
 
     function renderEsitoDesignato(id) {
@@ -192,10 +217,36 @@ export function Votazione({
           </p>
         )
       }
+      if (alchimistaEsploso?.alchimistaId === id) {
+        const nome = giocatori.find((g) => g.id === id)?.nome
+        const nomeVittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)?.nome
+        return (
+          <p>
+            {nome} rivela la propria carta: è l'Alchimista e trascina con sé {nomeVittima} nell'aldilà con
+            una grande esplosione pirotecnica.
+          </p>
+        )
+      }
+      if (alchimistaInAttesaVittimaId === id) {
+        const bersagli = vivi.filter((g) => g.id !== id)
+        return (
+          <div className="votazione__designato-azioni">
+            <p>Chi trascina con sé l'Alchimista nell'esplosione?</p>
+            <div className="scelta-giocatore__chips" role="group" aria-label="Chi trascina con sé l'Alchimista">
+              {bersagli.map((g) => (
+                <button key={g.id} type="button" className="chip" onClick={() => confermaVittimaAlchimista(id, g.id)}>
+                  {g.nome}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      }
       if (!morteConfermata) {
         const target = giocatori.find((g) => g.id === id)
         const puoEssereSpilungone = spilungoneRivelabileOra && !target?.ruoloSlug
         const puoEssereLantico = lanticoRivelabileOra && !target?.ruoloSlug
+        const puoEssereAlchimista = alchimistaRivelabileOra && !target?.ruoloSlug
         return (
           <div className="votazione__designato-azioni">
             <button type="button" onClick={() => confermaMorte(id)}>
@@ -209,6 +260,11 @@ export function Votazione({
             {puoEssereLantico && (
               <button type="button" onClick={() => rivelaEDesigna(id, 'lantico')}>
                 Si rivela: è L'Antico
+              </button>
+            )}
+            {puoEssereAlchimista && (
+              <button type="button" onClick={() => rivelaEDesigna(id, 'alchimista')}>
+                Si rivela: è l'Alchimista
               </button>
             )}
           </div>

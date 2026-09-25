@@ -57,6 +57,37 @@ test('dopo la conferma la Cartomante mostra subito il ruolo da rivelare', () => 
   expect(screen.getByText(/lupo mannaro/i)).toBeInTheDocument()
 })
 
+test('Cartomante: indagando un bersaglio senza ruolo ancora noto, chiede quale ruolo mostra la carta e lo assegna', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], storiaRuoli: [] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'villico']}
+      quantita={{ cartomante: 1, villico: 5 }}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.getByText(/ancora sconosciuta/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Villico' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ultimaIndagine: { targetId: '2', ruoloRivelato: 'villico', notte: 2 },
+  })
+})
+
 test('Medium: propone solo i giocatori morti come bersaglio', () => {
   const giocatori = [
     { id: '1', nome: 'Sonia', ruoloSlug: 'medium', vivo: true, condizioni: [] },

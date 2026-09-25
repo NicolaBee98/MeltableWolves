@@ -120,7 +120,7 @@ test('se il Mimo condivide questo ruoloSlug (due giocatori "veggente"), l\'esito
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', esito)
 })
 
-test('non permette di indagare una seconda volta nella stessa notte, evitando di sovrascrivere l\'esito', async () => {
+test('il potere usato senza indagine registrata per questa notte non mostra nessun esito, ma le chip restano cliccabili', async () => {
   const giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], usiNotte: ['veggente-indagine'] },
     { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
@@ -128,8 +128,10 @@ test('non permette di indagare una seconda volta nella stessa notte, evitando di
   render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
 
   // niente indagine registrata per QUESTA notte (round 2): nessuna chip
-  // marcata con un esito, solo i candidati disattivati
-  expect(screen.getByRole('button', { name: 'Marco' })).toBeDisabled()
+  // marcata con un esito. Le chip restano comunque cliccabili (non
+  // disabilitate): il narratore può correggere la scelta finché non preme
+  // "Avanti", vedi principio generale in NightSequencer.
+  expect(screen.getByRole('button', { name: 'Marco' })).not.toBeDisabled()
   expect(screen.queryByText(/aura/i)).not.toBeInTheDocument()
 })
 

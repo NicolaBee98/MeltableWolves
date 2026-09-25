@@ -15,9 +15,10 @@ import {
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
 // chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
 // Borgomastro, Fantasma Onnisciente.
-function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla }) {
+function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConferma, onAnnulla }) {
   return (
     <>
+      {ruoloSlug && <RuoloIllustrazione slug={ruoloSlug} className="eventi-speciali__illustrazione" />}
       {messaggio && <p>{messaggio}</p>}
       <SceltaGiocatore
         candidati={candidati}
@@ -30,10 +31,13 @@ function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnu
   )
 }
 
-// Forma a due passi: prima "chi è" (l'identità non è mai nota in anticipo),
-// poi "chi subisce l'azione". Usata da Boia e Alchimista.
+// Forma a due passi: prima "chi è" (l'identità non è mai nota in anticipo,
+// quindi si sceglie solo tra chi non ha ancora un ruolo assegnato), poi
+// "chi subisce l'azione" (un giocatore qualunque). Usata da Boia e Alchimista.
 function EventoDueGiocatori({
-  candidati,
+  ruoloSlug,
+  candidatiAttore,
+  candidatiBersaglio,
   etichettaAttore,
   etichettaBersaglio,
   escludiAttoreDaBersagli = false,
@@ -44,17 +48,20 @@ function EventoDueGiocatori({
 
   if (!attoreId) {
     return (
-      <SceltaGiocatore
-        candidati={candidati}
-        onConferma={setAttoreId}
-        onSalta={onAnnulla}
-        etichetta={etichettaAttore}
-        etichettaSalta="Annulla"
-      />
+      <>
+        {ruoloSlug && <RuoloIllustrazione slug={ruoloSlug} className="eventi-speciali__illustrazione" />}
+        <SceltaGiocatore
+          candidati={candidatiAttore}
+          onConferma={setAttoreId}
+          onSalta={onAnnulla}
+          etichetta={etichettaAttore}
+          etichettaSalta="Annulla"
+        />
+      </>
     )
   }
 
-  const bersagli = escludiAttoreDaBersagli ? candidati.filter((g) => g.id !== attoreId) : candidati
+  const bersagli = escludiAttoreDaBersagli ? candidatiBersaglio.filter((g) => g.id !== attoreId) : candidatiBersaglio
   return (
     <SceltaGiocatore
       candidati={bersagli}
@@ -186,6 +193,7 @@ export function EventiSpeciali({
 
           {evento === 'scemo' && (
             <EventoUnGiocatore
+              ruoloSlug="scemo-del-villaggio"
               candidati={nonAssegnati}
               etichetta="Chi è lo Scemo del Villaggio"
               messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
@@ -243,7 +251,9 @@ export function EventiSpeciali({
 
           {evento === 'boia' && (
             <EventoDueGiocatori
-              candidati={vivi}
+              ruoloSlug="boia"
+              candidatiAttore={nonAssegnati}
+              candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
               etichettaBersaglio="Chi giustizia il Boia"
               onConferma={(boiaId, id) => {
@@ -256,7 +266,9 @@ export function EventiSpeciali({
 
           {evento === 'alchimista' && (
             <EventoDueGiocatori
-              candidati={vivi}
+              ruoloSlug="alchimista"
+              candidatiAttore={nonAssegnati}
+              candidatiBersaglio={vivi}
               etichettaAttore="Chi è l'Alchimista"
               etichettaBersaglio="Chi trascina con sé l'Alchimista"
               escludiAttoreDaBersagli
@@ -304,6 +316,7 @@ export function EventiSpeciali({
 
           {evento === 'fantasma' && (
             <EventoUnGiocatore
+              ruoloSlug="fantasma-onnisciente"
               candidati={morti}
               etichetta="Chi riceve la carta"
               messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
@@ -317,6 +330,7 @@ export function EventiSpeciali({
 
           {evento === 'suocera' && (
             <EventoUnGiocatore
+              ruoloSlug="suocera"
               candidati={mortiSenzaRuoloNoto}
               etichetta="Chi era la Suocera"
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."

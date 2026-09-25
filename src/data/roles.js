@@ -183,3 +183,13 @@ export function fazioneDi(giocatore) {
 export function nomeRuolo(slug) {
   return ROLES.find((r) => r.slug === slug)?.nome ?? slug
 }
+
+// La Guardia Mannara ha una carta fisicamente identica a quella della
+// Guardia (pag. 8): nessuno, nemmeno il narratore, può distinguerle a
+// vista. Ovunque il ruolo comparirebbe in UI (badge, elenco morti) va
+// quindi mostrato come "Guardia" — l'identità reale resta nota all'app
+// solo internamente, per le condizioni di vittoria.
+const RUOLI_INDISTINGUIBILI = { 'guardia-mannara': 'guardia' }
+export function ruoloPerDisplay(slug) {
+  return RUOLI_INDISTINGUIBILI[slug] ?? slug
+}
