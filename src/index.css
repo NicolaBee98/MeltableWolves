@@ -493,10 +493,20 @@ legend {
 
 .libretto__ruolo dt {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
   font-family: var(--font-heading);
+}
+
+/* simbolo speciale + poteri: un unico gruppo compatto, sempre sulla
+   stessa riga (mai spezzato tra le icone), a contatto l'una con l'altra */
+.libretto__badge-poteri {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
 }
 
 .libretto__ruolo dd {

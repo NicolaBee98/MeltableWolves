@@ -115,17 +115,23 @@ function SezioneRuoli() {
           <div key={ruolo.slug} className="libretto__ruolo">
             <dt>
               <RuoloIcona slug={ruolo.slug} size={32} />
-              {ruolo.nome}
-              {FAZIONE_RUOLO_ICONA[ruolo.slug] && (
-                <img
-                  src={iconaPath(FAZIONE_RUOLO_ICONA[ruolo.slug])}
-                  alt="simbolo speciale"
-                  width={22}
-                  height={22}
-                  className="libretto__icona"
-                />
-              )}
-              <BadgeCaratteristiche slug={ruolo.slug} />
+              <span className="libretto__ruolo-nome">{ruolo.nome}</span>
+              {/* le icone di uno stesso ruolo (simbolo speciale + poteri)
+                  restano a contatto tra loro su un'unica riga, invece di
+                  distribuirsi con lo stesso gap del resto di dt e poter
+                  andare a capo singolarmente */}
+              <span className="libretto__badge-poteri">
+                {FAZIONE_RUOLO_ICONA[ruolo.slug] && (
+                  <img
+                    src={iconaPath(FAZIONE_RUOLO_ICONA[ruolo.slug])}
+                    alt="simbolo speciale"
+                    width={22}
+                    height={22}
+                    className="libretto__icona"
+                  />
+                )}
+                <BadgeCaratteristiche slug={ruolo.slug} />
+              </span>
             </dt>
             <dd>
               <TestoMultiParagrafo testo={ruolo.testoRegole} />
