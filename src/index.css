@@ -189,6 +189,20 @@ button:disabled {
   box-shadow: none;
 }
 
+/* link "torna indietro" tra una fase e l'altra (mazzo/giocatori/notte):
+   stile leggero e uniforme, non un'azione primaria */
+.app__torna-indietro {
+  display: block;
+  margin: 0 0 1rem;
+  background: transparent;
+  border-color: var(--border-soft);
+  color: var(--text-soft);
+  box-shadow: none;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  min-height: auto;
+}
+
 button[aria-pressed='true'] {
   background: var(--accent);
   border-color: var(--text);
@@ -657,7 +671,7 @@ legend {
   border-color: var(--border-soft);
   font-size: 0.85rem;
   padding: 0.4rem 0.85rem;
-  min-height: 38px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -984,16 +998,33 @@ legend {
 }
 
 .eventi-speciali__popup {
+  position: relative;
   background: var(--pal-bianco);
   color: var(--pal-inchiostro);
   border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   padding: 1rem;
+  padding-top: 3rem;
   margin-top: 0.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+/* chiusura sempre nello stesso punto/stile del popup di Registro e
+   impostazioni (vedi .log-impostazioni__chiudi): prima non c'era un modo
+   fisso per chiudere, solo "Annulla"/"Chiudi" in fondo al form attivo */
+.eventi-speciali__chiudi {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: auto;
+  border-radius: 50%;
+  padding: 0.4rem 0.7rem;
+  background: transparent;
+  border-color: var(--pal-blu-notte);
+  color: var(--pal-blu-notte);
 }
 
 .eventi-speciali__lista {

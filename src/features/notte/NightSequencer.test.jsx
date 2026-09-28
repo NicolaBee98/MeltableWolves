@@ -17,6 +17,56 @@ test('senza alcun ruolo selezionato mostra un messaggio', () => {
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
+test('mostra "Torna ai giocatori" solo al primo passo della prima notte, prima di qualunque azione', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'veggente', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  const onTornaAiGiocatori = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['veggente']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      onTornaAiGiocatori={onTornaAiGiocatori}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: /torna ai giocatori/i }))
+  expect(onTornaAiGiocatori).toHaveBeenCalled()
+})
+
+test('senza onTornaAiGiocatori non mostra "Torna ai giocatori"', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'veggente', condizioni: [] }]
+  render(
+    <NightSequencerConNotte ruoliSelezionati={['veggente']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+  expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
+})
+
+test('una volta avanzati oltre il primo passo, "Torna ai giocatori" non è più disponibile', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'veggente', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['veggente']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      onTornaAiGiocatori={() => {}}
+    />,
+  )
+  expect(screen.getByRole('button', { name: /torna ai giocatori/i })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
+})
+
 test('un mazzo di solo Villico mostra comunque il passo, ma senza chiedere di selezionarlo a mano', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]

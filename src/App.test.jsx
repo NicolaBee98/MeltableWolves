@@ -19,6 +19,26 @@ test("l'icona Registro e impostazioni è disponibile già dalla home, prima di i
   expect(screen.getByRole('dialog', { name: 'Registro e impostazioni' })).toBeInTheDocument()
 })
 
+test('"Torna al mazzo" dai giocatori, e "Torna ai giocatori" dalla prima notte (prima di ogni azione), tengono il mazzo e i giocatori intatti', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+
+  await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
+  expect(screen.getByRole('heading', { name: /nel mazzo \(1\)/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /mimo/i })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
+
+  await user.click(screen.getByRole('button', { name: /torna ai giocatori/i }))
+  expect(screen.getByText('Anna')).toBeInTheDocument()
+})
+
 test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi alla notte', async () => {
   const user = userEvent.setup()
   render(<App />)

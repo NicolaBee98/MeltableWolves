@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
+import { useDialogA11y } from '../../components/useDialogA11y'
 import { nomeRuolo } from '../../data/roles'
 import {
   ruoliRivelabili,
@@ -177,15 +178,26 @@ export function EventiSpeciali({
     setRuoloRivelazione(null)
   }
 
+  const { dialogRef, triggerRef } = useDialogA11y(Boolean(evento), chiudi)
+
   if (menuEventi.length === 0) return null
 
   return (
     <div className="eventi-speciali">
-      <button type="button" className="eventi-speciali__icona" onClick={() => setEvento('menu')}>
+      <button type="button" ref={triggerRef} className="eventi-speciali__icona" onClick={() => setEvento('menu')}>
         🎭 Eventi speciali
       </button>
       {evento && (
-        <div className="eventi-speciali__popup" role="dialog" aria-label="Eventi speciali">
+        <div
+          className="eventi-speciali__popup"
+          role="dialog"
+          aria-label="Eventi speciali"
+          ref={dialogRef}
+          tabIndex={-1}
+        >
+          <button type="button" className="eventi-speciali__chiudi" onClick={chiudi} aria-label="Chiudi">
+            ✕
+          </button>
           {evento === 'menu' && (
             <div className="eventi-speciali__lista">
               {menuEventi.map(({ key, etichetta }) => (

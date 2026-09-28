@@ -119,6 +119,9 @@ export default function App() {
 
       {faseApp === 'giocatori' && (
         <section>
+          <button type="button" className="app__torna-indietro" onClick={() => setFaseApp('mazzo')}>
+            ← Torna al mazzo
+          </button>
           <PlayerTracker
             giocatori={giocatori}
             addGiocatore={addGiocatore}
@@ -154,6 +157,7 @@ export default function App() {
           onNotteConclusa={() => setFaseApp('alba')}
           promemoriaRuoliMorti={promemoriaRuoliMorti}
           varianteMedium={varianteMedium}
+          onTornaAiGiocatori={() => setFaseApp('giocatori')}
         />
       )}
 

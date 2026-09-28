@@ -56,6 +56,29 @@ test('Nuova Partita, confermata, chiama onNuovaPartita e chiude il popup', async
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 })
 
+test('premere Esc chiude il popup e riporta il focus sul pulsante che lo aveva aperto', async () => {
+  const user = userEvent.setup()
+  render(<LogImpostazioniPopup eventi={[]} />)
+
+  const icona = screen.getByRole('button', { name: 'Registro e impostazioni' })
+  await user.click(icona)
+  expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+  await user.keyboard('{Escape}')
+
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(icona).toHaveFocus()
+})
+
+test('all\'apertura il focus entra nel dialog', async () => {
+  const user = userEvent.setup()
+  render(<LogImpostazioniPopup eventi={[]} />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+
+  expect(screen.getByRole('dialog')).toHaveFocus()
+})
+
 test('la tab Impostazioni partita mostra il checkbox per i ruoli in votazione, coerente col flag ricevuto', async () => {
   const user = userEvent.setup()
   render(<LogImpostazioniPopup eventi={[]} mostraRuoliInVotazione={false} onCambiaMostraRuoliInVotazione={vi.fn()} />)

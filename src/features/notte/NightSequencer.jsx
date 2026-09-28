@@ -96,6 +96,7 @@ export function NightSequencer({
   nuovaNotte,
   promemoriaRuoliMorti = false,
   varianteMedium = false,
+  onTornaAiGiocatori,
 }) {
   // il Bardo (dopo un rogo) e la maledizione de L'Antico (pag. 10, 25) non
   // sopprimono solo i poteri attivi: bloccano la notte intera. Niente
@@ -398,8 +399,18 @@ export function NightSequencer({
     nuovaNotte()
   }
 
+  // via di fuga per "ho dimenticato un giocatore": ha senso solo prima che
+  // sia successo qualunque cosa questa partita (altrimenti si rischia di
+  // rimuovere qualcuno con già un ruolo/condizioni assegnati a metà notte)
+  const puoTornareAiGiocatori = onTornaAiGiocatori && round === 1 && indiceValido === 0 && storico.length === 0
+
   return (
     <section className="night-sequencer">
+      {puoTornareAiGiocatori && (
+        <button type="button" className="app__torna-indietro" onClick={onTornaAiGiocatori}>
+          ← Torna ai giocatori
+        </button>
+      )}
       <p className="night-sequencer__notte">Notte {round}</p>
       <p className="night-sequencer__passo">
         Passo {indiceValido + 1} di {steps.length}
@@ -409,7 +420,7 @@ export function NightSequencer({
           🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.
         </p>
       )}
-      <h2 className="night-sequencer__ruolo">
+      <h2 className="night-sequencer__ruolo" aria-live="polite" aria-atomic="true">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
             interrogativo, mostrare una faccia a caso tra tante sarebbe fuorviante */}
