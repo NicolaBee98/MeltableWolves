@@ -35,6 +35,21 @@ test('senza Scemo del Villaggio nel mazzo e nessuno Unto, in voto/esito l\'icona
   expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
+test('un pulsante di chiusura fisso è sempre presente nel popup, e premere Esc chiude riportando il focus all\'icona', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true }]
+  setup({ giocatori, ruoliSelezionati: ['borgomastro'] })
+
+  const icona = screen.getByRole('button', { name: /eventi speciali/i })
+  await user.click(icona)
+  expect(document.querySelector('.eventi-speciali__chiudi')).toBeInTheDocument()
+
+  await user.keyboard('{Escape}')
+
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(icona).toHaveFocus()
+})
+
 test('Lo Scemo del Villaggio sbaglia la rima: si rivela e muore nello stesso momento', async () => {
   const user = userEvent.setup()
   const { onScemoSbaglia } = setup({

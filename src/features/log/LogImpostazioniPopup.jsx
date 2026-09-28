@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LogPartita } from './LogPartita'
+import { useDialogA11y } from '../../components/useDialogA11y'
 
 export function LogImpostazioniPopup({
   eventi,
@@ -26,6 +27,8 @@ export function LogImpostazioniPopup({
     setConfermaNuovaPartita(false)
   }
 
+  const { dialogRef, triggerRef } = useDialogA11y(aperto, chiudi)
+
   function confermaNuova() {
     onNuovaPartita()
     chiudi()
@@ -33,11 +36,17 @@ export function LogImpostazioniPopup({
 
   return (
     <div className="log-impostazioni">
-      <button type="button" className="log-impostazioni__icona" onClick={() => setAperto(true)}>
+      <button type="button" ref={triggerRef} className="log-impostazioni__icona" onClick={() => setAperto(true)}>
         <span aria-hidden="true">📜</span> Registro e impostazioni
       </button>
       {aperto && (
-        <div className="log-impostazioni__popup" role="dialog" aria-label="Registro e impostazioni">
+        <div
+          className="log-impostazioni__popup"
+          role="dialog"
+          aria-label="Registro e impostazioni"
+          ref={dialogRef}
+          tabIndex={-1}
+        >
           <button type="button" className="log-impostazioni__chiudi" onClick={chiudi} aria-label="Chiudi">
             ✕
           </button>
