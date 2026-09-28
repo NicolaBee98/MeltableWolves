@@ -300,6 +300,21 @@ legend {
   width: 100%;
 }
 
+/* Errore imprevisto (ErrorBoundary): stessa cornice della Home (sfondo di
+   copertina scuro), un messaggio rassicurante e un solo bottone */
+.errore-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.errore-app p {
+  color: var(--pal-azzurro);
+}
+
 /* Mazzo galleria: consultazione di tutte le carte, fuori da una partita */
 
 .mazzo-galleria__header {
