@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1b2036" />
     <link rel="icon" type="image/svg+xml" href="/assets/facce/Lupo_Mannaro.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS ignora il manifest per l'icona in home screen: serve questo
+         meta/link dedicato, e vuole un PNG (niente SVG) -->
+    <link rel="apple-touch-icon" href="/assets/icone/app/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Meltable Wolves" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Meltable Wolves — Narratore</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

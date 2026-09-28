@@ -1,0 +1,21 @@
+{
+  "name": "Meltable Wolves — Narratore",
+  "short_name": "Meltable Wolves",
+  "description": "Assistente per il Narratore di Meltable Wolves",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1b2036",
+  "theme_color": "#1b2036",
+  "icons": [
+    {
+      "src": "/assets/icone/app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icone/app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
