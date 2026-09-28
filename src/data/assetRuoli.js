@@ -158,6 +158,9 @@ export const FAZIONE_RUOLO_ICONA = {
   'criceto-malvagio': 'icona_fazione_criceto_malvagio',
   pifferaio: 'icona_fazione_pifferaio',
   'lupo-mannaro-capobranco': 'icona_fazione_lupo_mannaro_capobranco',
+  'fantasma-onnisciente': 'icona_morte_lapide',
+  'figlia-dei-lupi': 'icona_voltagabbana',
+  mezzosangue: 'icona_voltagabbana',
 }
 
 const ICONE_PNG = new Set(['icona_rogo', 'icona_alba', 'icona_giorno'])
