@@ -71,7 +71,7 @@ export default function App() {
         <span className="app__titolo-wolves">Wolves</span>
       </h1>
 
-      {faseApp !== 'home' && faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
+      {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
         <LogImpostazioniPopup
           eventi={eventi}
           onNuovaPartita={nuovaPartita}

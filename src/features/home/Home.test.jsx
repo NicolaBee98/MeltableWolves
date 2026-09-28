@@ -2,17 +2,11 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Home } from './Home'
 
-test('mostra i tre pulsanti principali e l\'icona impostazioni', () => {
+test('mostra i tre pulsanti principali', () => {
   render(<Home onNuovaPartita={() => {}} />)
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Regolamento' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Mazzo' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Impostazioni' })).toBeInTheDocument()
-})
-
-test('Impostazioni è disabilitata (non ancora implementata)', () => {
-  render(<Home onNuovaPartita={() => {}} />)
-  expect(screen.getByRole('button', { name: 'Impostazioni' })).toBeDisabled()
 })
 
 test('cliccare Nuova Partita chiama onNuovaPartita', async () => {

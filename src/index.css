@@ -271,12 +271,6 @@ legend {
   width: 100%;
 }
 
-.home__impostazioni {
-  width: auto;
-  border-radius: 50%;
-  padding: 0.5rem;
-}
-
 /* Mazzo galleria: consultazione di tutte le carte, fuori da una partita */
 
 .mazzo-galleria__header {
@@ -984,19 +978,15 @@ legend {
 /* Popups: full-screen sheet on mobile. Restano su superfici neutre
    (bianco/inchiostro) indipendenti dalla fase, per leggibilità costante. */
 
-.morte-improvvisa__icona {
-  width: 100%;
-  background: transparent;
-  border-color: var(--pal-rosso);
-  color: var(--pal-rosso);
-}
-
-.morte-improvvisa__popup,
 .log-impostazioni__popup {
   position: fixed;
-  inset: 0;
-  background: var(--pal-bianco);
-  color: var(--pal-inchiostro);
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(480px, 100%);
+  background: var(--bg);
+  color: var(--text);
   padding: 1.5rem 1.25rem;
   overflow-y: auto;
   z-index: 50;
@@ -1045,6 +1035,63 @@ legend {
   gap: 1rem;
 }
 
+/* interruttore grande e giocoso al posto della checkbox di sistema: un
+   pillolotto che scivola, non un quadratino minuscolo difficile da
+   toccare su un telefono al tavolo da gioco */
+.impostazioni__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.impostazioni__toggle input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 1.75rem;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--border-soft);
+  border: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.impostazioni__toggle input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.15s ease;
+}
+
+.impostazioni__toggle input[type='checkbox']:checked {
+  background: var(--pal-verde);
+  border-color: var(--pal-verde);
+}
+
+.impostazioni__toggle input[type='checkbox']:checked::after {
+  transform: translateX(1.25rem);
+}
+
+.impostazioni__campo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.impostazioni__campo input[type='number'] {
+  width: 5rem;
+}
+
 .log-impostazioni__cta,
 .log-impostazioni__conferma .log-impostazioni__cta {
   background: var(--pal-rosso);
@@ -1074,4 +1121,14 @@ legend {
 .log-partita li {
   border-bottom: 1px solid color-mix(in srgb, var(--pal-inchiostro) 15%, white);
   padding-bottom: 0.4rem;
+}
+
+.log-partita__notte {
+  margin-bottom: 1rem;
+}
+
+.log-partita__notte h3 {
+  color: var(--accent);
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
 }

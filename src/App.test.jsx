@@ -11,6 +11,14 @@ test('parte dalla home', () => {
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 })
 
+test("l'icona Registro e impostazioni è disponibile già dalla home, prima di iniziare una partita", async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  expect(screen.getByRole('dialog', { name: 'Registro e impostazioni' })).toBeInTheDocument()
+})
+
 test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi alla notte', async () => {
   const user = userEvent.setup()
   render(<App />)

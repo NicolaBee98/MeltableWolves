@@ -65,7 +65,7 @@ export function LogImpostazioniPopup({
                 <LogPartita eventi={eventi} />
               ) : (
                 <div className="log-impostazioni__impostazioni">
-                  <label>
+                  <label className="impostazioni__toggle">
                     <input
                       type="checkbox"
                       checked={mostraRuoliInVotazione}
@@ -73,7 +73,7 @@ export function LogImpostazioniPopup({
                     />
                     Mostra i ruoli durante la votazione (narratore)
                   </label>
-                  <label>
+                  <label className="impostazioni__toggle">
                     <input
                       type="checkbox"
                       checked={variantiFaccia}
@@ -81,7 +81,7 @@ export function LogImpostazioniPopup({
                     />
                     Varianti di icona per Lupi Mannari e Villici
                   </label>
-                  <label>
+                  <label className="impostazioni__toggle">
                     <input
                       type="checkbox"
                       checked={mostraNomeRuolo}
@@ -89,7 +89,7 @@ export function LogImpostazioniPopup({
                     />
                     Mostra il nome del ruolo tra parentesi accanto al nome
                   </label>
-                  <label>
+                  <label className="impostazioni__toggle">
                     <input
                       type="checkbox"
                       checked={promemoriaRuoliMorti}
@@ -97,7 +97,7 @@ export function LogImpostazioniPopup({
                     />
                     Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)
                   </label>
-                  <label>
+                  <label className="impostazioni__toggle">
                     <input
                       type="checkbox"
                       checked={varianteMedium}
@@ -105,7 +105,7 @@ export function LogImpostazioniPopup({
                     />
                     Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto
                   </label>
-                  <label>
+                  <label className="impostazioni__campo">
                     Durata timer arringa/spareggio (secondi)
                     <input
                       type="number"
