@@ -113,6 +113,7 @@ export function EventiSpeciali({
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
   onSuoceraRivelazione,
+  onAnnullaMorte,
 }) {
   const [evento, setEvento] = useState(null)
   const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
@@ -164,6 +165,11 @@ export function EventiSpeciali({
     borgomastroDisponibile(ruoliSelezionati, giocatori) && { key: 'borgomastro', etichetta: 'Elezione Borgomastro' },
     mostraFantasma && { key: 'fantasma', etichetta: 'Assegna il Fantasma Onnisciente' },
     mostraSuocera && { key: 'suocera', etichetta: 'La Suocera si rivela' },
+    // corregge un tap sbagliato durante il momento più concitato della
+    // partita (un'esecuzione): disponibile in ogni contesto, come la
+    // Suocera, non solo di giorno — un decesso notturno può essere notato
+    // solo all'alba
+    morti.length > 0 && { key: 'annulla-morte', etichetta: 'Annulla morte giocatore' },
   ].filter(Boolean)
 
   function chiudi() {
@@ -338,6 +344,19 @@ export function EventiSpeciali({
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
               onConferma={(id) => {
                 onSuoceraRivelazione(id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+            />
+          )}
+
+          {evento === 'annulla-morte' && (
+            <EventoUnGiocatore
+              candidati={morti}
+              etichetta="Chi va riportato in vita"
+              messaggio="Corregge una morte dichiarata per errore. Non annulla da sola eventuali conseguenze già innescate (es. crepacuore del partner): quelle vanno sistemate a mano."
+              onConferma={(id) => {
+                onAnnullaMorte(id)
                 chiudi()
               }}
               onAnnulla={chiudi}

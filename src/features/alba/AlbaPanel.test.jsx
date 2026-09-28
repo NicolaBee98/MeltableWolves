@@ -108,3 +108,16 @@ test('la Suocera si rivela alla morte anche già all\'alba (morte notturna), non
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] })
 })
+
+test('Annulla morte giocatore riporta in vita chi era stato dichiarato morto per errore, già all\'alba', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, causaMorte: 'notte' }]
+  const aggiornaGiocatore = vi.fn()
+  render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} aggiornaGiocatore={aggiornaGiocatore} />)
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Annulla morte giocatore' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+})

@@ -18,6 +18,7 @@ function setup(overrides = {}) {
     onElezioneBorgomastro: vi.fn(),
     onFantasmaOnnisciente: vi.fn(),
     onSuoceraRivelazione: vi.fn(),
+    onAnnullaMorte: vi.fn(),
     ...overrides,
   }
   render(<EventiSpeciali {...props} />)
@@ -49,13 +50,17 @@ test('Lo Scemo del Villaggio sbaglia la rima: si rivela e muore nello stesso mom
   expect(onScemoSbaglia).toHaveBeenCalledWith('1')
 })
 
-test('Lo Scemo del Villaggio non è proposto se già assegnato (già sbagliato una volta)', () => {
+test('Lo Scemo del Villaggio non è proposto se già assegnato (già sbagliato una volta)', async () => {
+  const user = userEvent.setup()
   setup({
     giocatori: [{ id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'scemo-del-villaggio', storiaRuoli: ['scemo-del-villaggio'] }],
     ruoliSelezionati: ['scemo-del-villaggio'],
     quantita: { 'scemo-del-villaggio': 1 },
   })
-  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
+  // il menu resta disponibile per "Annulla morte giocatore" (Anna è morta),
+  // ma non propone più di rivelare lo Scemo del Villaggio
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' })).not.toBeInTheDocument()
 })
 
 test('Morte per unzione propone solo i vivi con la condizione "unto" e la propaga ai vicini vivi', async () => {
@@ -267,10 +272,12 @@ test('Assegna il Fantasma Onnisciente propone solo i giocatori morti, una sola v
   expect(onFantasmaOnnisciente).toHaveBeenCalledWith('1')
 })
 
-test('Assegna il Fantasma Onnisciente non è più proposto una volta che qualcuno lo tiene già', () => {
+test('Assegna il Fantasma Onnisciente non è più proposto una volta che qualcuno lo tiene già', async () => {
+  const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], eFantasmaOnnisciente: true }]
   setup({ giocatori, ruoliSelezionati: ['fantasma-onnisciente'], contesto: 'esito' })
-  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'Assegna il Fantasma Onnisciente' })).not.toBeInTheDocument()
 })
 
 test('La Suocera si rivela propone solo i morti di identità ancora ignota, in qualunque contesto (anche alba)', async () => {
@@ -293,10 +300,40 @@ test('La Suocera si rivela propone solo i morti di identità ancora ignota, in q
   expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
 })
 
-test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', () => {
+test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', async () => {
+  const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' }]
   setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
-  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'La Suocera si rivela' })).not.toBeInTheDocument()
+})
+
+test('Annulla morte giocatore propone tutti i morti (qualunque ruolo), in qualunque contesto, e chiama onAnnullaMorte', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'villico' },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const { onAnnullaMorte } = setup({ giocatori, contesto: 'alba' })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Annulla morte giocatore' }))
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Luca' })).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(onAnnullaMorte).toHaveBeenCalledWith('2')
+})
+
+test('senza nessun morto, "Annulla morte giocatore" non compare nel menu', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
+  setup({ giocatori, ruoliSelezionati: ['borgomastro'], contesto: 'alba' })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.queryByRole('button', { name: 'Annulla morte giocatore' })).not.toBeInTheDocument()
 })
 
 test('Elezione Borgomastro è proposta in entrambi i contesti se il ruolo è nel mazzo', async () => {

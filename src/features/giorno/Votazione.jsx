@@ -102,6 +102,7 @@ export function Votazione({
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
   onSuoceraRivelazione,
+  onAnnullaMorte,
   ruoliSelezionati = [],
   quantita = {},
   onProsegui,
@@ -336,6 +337,7 @@ export function Votazione({
           onElezioneBorgomastro={onElezioneBorgomastro}
           onFantasmaOnnisciente={onFantasmaOnnisciente}
           onSuoceraRivelazione={onSuoceraRivelazione}
+          onAnnullaMorte={onAnnullaMorte}
         />
         <SezioneMorti
           giocatori={giocatori}
@@ -405,6 +407,7 @@ export function Votazione({
         onElezioneBorgomastro={onElezioneBorgomastro}
         onFantasmaOnnisciente={onFantasmaOnnisciente}
         onSuoceraRivelazione={onSuoceraRivelazione}
+        onAnnullaMorte={onAnnullaMorte}
       />
       <SezioneMorti
         giocatori={giocatori}

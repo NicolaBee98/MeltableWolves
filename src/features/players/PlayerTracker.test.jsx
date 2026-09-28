@@ -29,13 +29,14 @@ test('mostra i giocatori esistenti come card, con solo il nome', () => {
   expect(screen.getByText('Marco')).toBeInTheDocument()
 })
 
-test('click sul pulsante di rimozione chiama removeGiocatore con id del giocatore', async () => {
-  const user = userEvent.setup()
+test('tenere premuto fino al riempimento completo chiama removeGiocatore con id del giocatore', () => {
   const { removeGiocatore } = setup({
     giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [] }],
   })
 
-  await user.click(screen.getByRole('button', { name: /rimuovi marco/i }))
+  const bottone = screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i })
+  fireEvent.pointerDown(bottone)
+  fireEvent.transitionEnd(bottone.querySelector('.player-card__elimina-riempimento'), { propertyName: 'width' })
 
   expect(removeGiocatore).toHaveBeenCalledWith('1')
 })
