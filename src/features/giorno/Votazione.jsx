@@ -141,19 +141,16 @@ export function Votazione({
       anticoRivelatoId !== null ||
       alchimistaEsploso !== null
 
-    // Spilungone e L'Antico sono ruoli a rivelazione diurna (pag. 13): la
-    // loro identità non è quasi mai già nota all'app quando arrivano al
-    // rogo (si rivelano proprio in quel momento, non prima). Se il mazzo li
-    // prevede e nessuno li ha ancora assunti, il narratore deve poterli
-    // rivelare qui invece di doverli assegnare in anticipo da "Eventi
-    // speciali" (altrimenti morirebbero come un designato qualsiasi).
-    const spilungoneRivelabileOra =
-      ruoliSelezionati?.includes('spilungone') && ruoliAssegnabili(['spilungone'], giocatori, quantita).length > 0
-    const lanticoRivelabileOra =
-      ruoliSelezionati?.includes('lantico') && ruoliAssegnabili(['lantico'], giocatori, quantita).length > 0
-    // stessa logica: si rivela solo al rogo (pag. 5), non prima
-    const alchimistaRivelabileOra =
-      ruoliSelezionati?.includes('alchimista') && ruoliAssegnabili(['alchimista'], giocatori, quantita).length > 0
+    // Spilungone, L'Antico e Alchimista sono ruoli a rivelazione diurna
+    // (pag. 5, 13): la loro identità non è quasi mai già nota all'app
+    // quando arrivano al rogo (si rivelano proprio in quel momento, non
+    // prima). Se il mazzo li prevede e nessuno li ha ancora assunti, il
+    // narratore deve poterli rivelare qui invece di doverli assegnare in
+    // anticipo da "Eventi speciali" (altrimenti morirebbero come un
+    // designato qualsiasi).
+    function rivelabileOra(slug) {
+      return ruoliSelezionati?.includes(slug) && ruoliAssegnabili([slug], giocatori, quantita).length > 0
+    }
 
     // un solo click: la scelta del bersaglio (candidato singolo o chip dello
     // spareggio) è già di per sé una decisione inequivocabile, una conferma
@@ -244,9 +241,9 @@ export function Votazione({
       }
       if (!morteConfermata) {
         const target = giocatori.find((g) => g.id === id)
-        const puoEssereSpilungone = spilungoneRivelabileOra && !target?.ruoloSlug
-        const puoEssereLantico = lanticoRivelabileOra && !target?.ruoloSlug
-        const puoEssereAlchimista = alchimistaRivelabileOra && !target?.ruoloSlug
+        const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug
+        const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug
+        const puoEssereAlchimista = rivelabileOra('alchimista') && !target?.ruoloSlug
         return (
           <div className="votazione__designato-azioni">
             <button type="button" onClick={() => confermaMorte(id)}>

@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { risolviAttaccoBranco, berserkerLupiCandidati } from '../../../data/effettiNotte'
+import { risolviAttaccoBranco, berserkerLupiCandidati, RUOLI_IMMUNI_AL_BRANCO } from '../../../data/effettiNotte'
 
 const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
-const RUOLI_IMMUNI = ['cortigiana', 'nano', 'criceto-malvagio']
 
 // quante volte il branco ha già sbranato questa notte (0, o 1/2 con la
 // vendetta del Cucciolo): si prende il massimo tra tutti i membri invece del
@@ -20,7 +19,7 @@ function usiStanotte(giocatori, ruoli) {
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = [] }) {
   const [bersaglioInAttesaDiLupo, setBersaglioInAttesaDiLupo] = useState(null)
   const [bersaglioInAttesaDiTrasformazione, setBersaglioInAttesaDiTrasformazione] = useState(null)
-  const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI.includes(g.ruoloSlug))
+  const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_BRANCO.includes(g.ruoloSlug))
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,
   )

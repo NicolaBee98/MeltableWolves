@@ -4,9 +4,7 @@ import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
 import { nomeRuolo } from '../../data/roles'
 import {
   ruoliRivelabili,
-  boiaDisponibile,
-  alchimistaDisponibile,
-  scemoDisponibile,
+  rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
@@ -142,14 +140,18 @@ export function EventiSpeciali({
 
   const menuEventi = [
     rivelabili.length > 0 && { key: 'rivelazione', etichetta: 'Rivelazione personaggio' },
-    inGiorno && boiaDisponibile(ruoliSelezionati, giocatori, quantita) && { key: 'boia', etichetta: 'Il Boia giustizia' },
     inGiorno &&
-      alchimistaDisponibile(ruoliSelezionati, giocatori, quantita) && {
+      rivelazioneContestualeDisponibile('boia', ruoliSelezionati, giocatori, quantita) && {
+        key: 'boia',
+        etichetta: 'Il Boia giustizia',
+      },
+    inGiorno &&
+      rivelazioneContestualeDisponibile('alchimista', ruoliSelezionati, giocatori, quantita) && {
         key: 'alchimista',
         etichetta: "L'Alchimista esplode",
       },
     inGiorno &&
-      scemoDisponibile(ruoliSelezionati, giocatori, quantita) && {
+      rivelazioneContestualeDisponibile('scemo-del-villaggio', ruoliSelezionati, giocatori, quantita) && {
         key: 'scemo',
         etichetta: 'Lo Scemo del Villaggio sbaglia la rima',
       },

@@ -2,10 +2,11 @@ import { fazioneDi } from './roles'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
-// direttamente dai lupi di notte (libretto pag. 12, 12, 18): vengono
-// esclusi anche dai candidati in AzioneBrancoLupi.jsx, questo è un
-// controllo difensivo nel resolver condiviso.
-const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
+// direttamente dai lupi di notte (libretto pag. 12, 12, 18): esportata così
+// AzioneBrancoLupi.jsx la riusa per filtrare i candidati invece di
+// mantenerne una propria copia (rischio di scollegamento silenzioso se una
+// delle due cambia e l'altra no).
+export const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
 
 // Nano e Criceto Malvagio non possono morire di notte per il morso del
 // Chupacabra (libretto pag. 12, 18), a differenza della Cortigiana che ne è
@@ -182,11 +183,16 @@ export function daRipulireCambioNotte(giocatori) {
     .map((g) => ({ id: g.id, condizioni: g.condizioni.filter((c) => c !== 'unto' && c !== 'trasformato') }))
 }
 
+// chi acceca il Veggente (pag. 20): esportata così sia il resolver di morte
+// sia AzioneIndagine.jsx leggono lo stesso slug invece di due letterali
+// indipendenti che potrebbero scollegarsi
+export const RUOLO_CAUSA_ACCECAMENTO = 'polpo-mannaro'
+
 // il Veggente accecato dal Polpo Mannaro torna a vedere normalmente non
 // appena il Polpo muore (pag. 20: "fino alla morte del Polpo")
 export function rimuoviAccecamentoSeMortoPolpo(giocatori, idAppenaMorto) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
-  if (morto?.ruoloSlug !== 'polpo-mannaro') return giocatori
+  if (morto?.ruoloSlug !== RUOLO_CAUSA_ACCECAMENTO) return giocatori
 
   return giocatori.map((g) =>
     (g.condizioni ?? []).includes('accecato')

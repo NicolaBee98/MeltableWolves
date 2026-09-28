@@ -1,7 +1,6 @@
 import {
   ruoliRivelabili,
-  boiaDisponibile,
-  alchimistaDisponibile,
+  rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
@@ -29,19 +28,20 @@ test('ruoliRivelabili esclude un ruolo già assegnato del tutto', () => {
   expect(ruoliRivelabili(['innocente'], giocatori, { innocente: 1 })).toEqual([])
 })
 
-test('boiaDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
-  expect(boiaDisponibile([], [], {})).toBe(false)
-  expect(boiaDisponibile(['boia'], [], { boia: 1 })).toBe(true)
+test('rivelazioneContestualeDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
+  expect(rivelazioneContestualeDisponibile('boia', [], [], {})).toBe(false)
+  expect(rivelazioneContestualeDisponibile('boia', ['boia'], [], { boia: 1 })).toBe(true)
   expect(
-    boiaDisponibile(['boia'], [{ id: '1', ruoloSlug: 'boia', storiaRuoli: ['boia'] }], { boia: 1 }),
+    rivelazioneContestualeDisponibile('boia', ['boia'], [{ id: '1', ruoloSlug: 'boia', storiaRuoli: ['boia'] }], {
+      boia: 1,
+    }),
   ).toBe(false)
-})
 
-test('alchimistaDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
-  expect(alchimistaDisponibile([], [], {})).toBe(false)
-  expect(alchimistaDisponibile(['alchimista'], [], { alchimista: 1 })).toBe(true)
+  expect(rivelazioneContestualeDisponibile('alchimista', [], [], {})).toBe(false)
+  expect(rivelazioneContestualeDisponibile('alchimista', ['alchimista'], [], { alchimista: 1 })).toBe(true)
   expect(
-    alchimistaDisponibile(
+    rivelazioneContestualeDisponibile(
+      'alchimista',
       ['alchimista'],
       [{ id: '1', ruoloSlug: 'alchimista', storiaRuoli: ['alchimista'] }],
       { alchimista: 1 },
