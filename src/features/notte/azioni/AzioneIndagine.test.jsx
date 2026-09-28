@@ -37,7 +37,7 @@ test('un veggente accecato percepisce sempre aura benevola', async () => {
     { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: ['accecato'] },
     { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
   ]
-  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} puoEssereAccecato />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
 
@@ -95,7 +95,7 @@ test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'
     { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
     { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
   ]
-  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} puoEssereAccecato />)
 
   await user.click(screen.getByRole('button', { name: 'Piero' }))
 

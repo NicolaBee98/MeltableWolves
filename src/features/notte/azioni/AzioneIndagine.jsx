@@ -1,6 +1,11 @@
 import { auraDi } from '../../../data/aura'
-import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo, RUOLO_CAUSA_ACCECAMENTO } from '../../../data/effettiNotte'
 
+// l'accecamento dal Polpo Mannaro (pag. 20) è specifico del Veggente, non
+// del Veggente Mannaro, che il libretto non menziona in quella voce: passato
+// come prop dalla registrazione in azioni/index.js invece che dedotto qui
+// dallo slug dell'attore, così un futuro potere analogo non richiede un
+// altro controllo inline sull'identità del ruolo.
 export function AzioneIndagine({
   giocatori,
   aggiornaGiocatore,
@@ -8,15 +13,13 @@ export function AzioneIndagine({
   ruoloSlugAttore = 'veggente',
   etichettaAttore = 'Veggente',
   bersaglio = 'vivo',
+  puoEssereAccecato = false,
 }) {
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const veggente = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
-  // l'accecamento dal Polpo Mannaro (pag. 20) è specifico del Veggente, non
-  // del Veggente Mannaro, che il libretto non menziona in quella voce
-  const puoEssereAccecato = ruoloSlugAttore === 'veggente'
   const giaUsato = usatoStanotte(giocatori, ruoli, potere)
 
   function confermaScelta(targetId) {
@@ -34,7 +37,7 @@ export function AzioneIndagine({
         aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
           ultimaIndagine: { targetId, esito, notte: round },
         })
-        if (puoEssereAccecato && !accecato && target.ruoloSlug === 'polpo-mannaro') {
+        if (puoEssereAccecato && !accecato && target.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO) {
           aggiornaGiocatore(veggente.id, { condizioni: [...(veggente.condizioni ?? []), 'accecato'] })
         }
       }

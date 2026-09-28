@@ -119,13 +119,6 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { eFantasmaOnnisciente: true })
   }
 
-  // la Suocera resta "?" per tutta la partita finché non muore (pag. 21):
-  // solo allora il narratore la rivela, sul giocatore già dichiarato morto
-  function dichiaraSuoceraRivelazione(id) {
-    const target = giocatori.find((g) => g.id === id)
-    aggiornaGiocatore(id, { ruoloSlug: 'suocera', storiaRuoli: [...(target?.storiaRuoli ?? []), 'suocera'] })
-  }
-
   return (
     <section className="giorno-panel">
       <Votazione
@@ -148,7 +141,7 @@ export function GiornoPanel({
         onBardoSaltaNotte={dichiaraBardoSaltaNotte}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onFantasmaOnnisciente={dichiaraFantasmaOnnisciente}
-        onSuoceraRivelazione={dichiaraSuoceraRivelazione}
+        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id)}
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}

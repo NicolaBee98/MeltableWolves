@@ -1,4 +1,4 @@
-import { fazioneDi } from './roles'
+import { ROLES } from './roles'
 import { RUOLI_BRANCO_LUPI } from './nightSteps'
 
 // La Suocera non è considerata in vita per le condizioni di vittoria (lo
@@ -44,10 +44,8 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   }
 
   if (vivi.length === 1) {
-    const ultimo = vivi[0]
-    if (ultimo.ruoloSlug === 'chupacabra') messaggi.push("Il Chupacabra è l'ultimo sopravvissuto: vince lui.")
-    if (ultimo.ruoloSlug === 'criceto-malvagio') messaggi.push("Il Criceto Malvagio è l'ultimo sopravvissuto: vince lui.")
-    if (ultimo.ruoloSlug === 'pifferaio') messaggi.push("Il Pifferaio è l'ultimo sopravvissuto: vince lui.")
+    const ultimo = ROLES.find((r) => r.slug === vivi[0].ruoloSlug)
+    if (ultimo?.vinceUltimoSopravvissuto) messaggi.push(`Il ${ultimo.nome} è l'ultimo sopravvissuto: vince lui.`)
   }
 
   if (vivi.length === 2 && vivi.every((g) => (g.condizioni ?? []).includes('innamorato'))) {

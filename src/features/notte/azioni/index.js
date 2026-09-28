@@ -65,7 +65,7 @@ export const AZIONI_NOTTURNE = {
   mimo: { Componente: AzioneMimo, props: {} },
   cortigiana: { Componente: AzioneCortigiana, props: {} },
   addolorata: { Componente: AzioneAddolorata, props: {} },
-  veggente: { Componente: AzioneIndagine, props: {} },
+  veggente: { Componente: AzioneIndagine, props: { puoEssereAccecato: true } },
   'veggente-mannaro': {
     Componente: AzioneIndagine,
     props: { ruoloSlugAttore: 'veggente-mannaro', etichettaAttore: 'Veggente Mannaro' },
