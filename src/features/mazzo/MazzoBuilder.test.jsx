@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MazzoBuilder } from './MazzoBuilder'
 
@@ -29,6 +29,24 @@ test('cliccare una chip disponibile chiama setQuantita con 1', async () => {
   await user.click(screen.getByRole('button', { name: 'Paladino' }))
 
   expect(setQuantita).toHaveBeenCalledWith('paladino', 1)
+})
+
+test('cliccare un ruolo lo lascia visibile ma disabilitato (in dissolvenza) per un istante, prima di sparire dai disponibili', () => {
+  vi.useFakeTimers()
+  try {
+    setup()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paladino' }))
+    expect(screen.getByRole('button', { name: 'Paladino' })).toBeDisabled()
+
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+
+    expect(screen.getByRole('button', { name: 'Paladino' })).not.toBeDisabled()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 test('cliccare la chip di un ruolo già nel mazzo lo rimuove (torna a quantità 0)', async () => {

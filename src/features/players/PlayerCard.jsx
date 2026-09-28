@@ -15,6 +15,9 @@ const DURATA_PRESSIONE_MS = 700
 
 export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop }) {
   const [eliminando, setEliminando] = useState(false)
+  // riempimento completato: la card si restringe e sfuma (CSS) prima di
+  // sparire davvero, invece di scomparire di scatto nello stesso istante
+  const [uscendo, setUscendo] = useState(false)
 
   function iniziaEliminazione(e) {
     if (e.type === 'keydown' && e.repeat) return
@@ -30,17 +33,26 @@ export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDro
   // significa che il riempimento è arrivato in fondo
   function confermaSeRiempimentoCompletato() {
     if (eliminando) {
+      setUscendo(true)
+    }
+  }
+
+  // la card ha una sola animazione (player-card-exit, vedi CSS): se questo
+  // scatta è perché è quella, non serve controllarne il nome
+  function completaRimozioneSeUscita() {
+    if (uscendo) {
       onRemove(giocatore.id)
     }
   }
 
   return (
     <article
-      className="player-card"
-      draggable={DRAG_AND_DROP_SUPPORTATO}
+      className={`player-card${uscendo ? ' player-card--uscendo' : ''}`}
+      draggable={DRAG_AND_DROP_SUPPORTATO && !uscendo}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
+      onAnimationEnd={completaRimozioneSeUscita}
     >
       <header className="player-card__header">
         <h3>{giocatore.nome}</h3>
