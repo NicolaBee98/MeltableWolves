@@ -1,2 +1,8 @@
 node_modules
 dist
+
+# materiale sorgente di progettazione (bozze PDF/SVG dell'impaginazione):
+# non usato dall'app in produzione (solo public/assets/ lo è), pesa 50+MB
+# e gonfia inutilmente le dimensioni del repo
+asset_svg
+Impaginazione libretto bozza 2.pdf
