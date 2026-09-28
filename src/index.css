@@ -588,11 +588,33 @@ legend {
   white-space: nowrap;
 }
 
-.player-card__header button {
-  min-width: 28px;
-  min-height: 28px;
+/* Tieni premuto per rimuovere: invece di un tap secco (facile da toccare
+   per sbaglio in un tavolo affollato, vedi audit UX), il pulsante si
+   riempie di rosso da sinistra a destra finché resta premuto — solo a
+   riempimento completato il giocatore viene davvero rimosso. Eredita le
+   dimensioni minime standard (44px) dalla regola generica `button`. */
+.player-card__elimina {
+  position: relative;
+  overflow: hidden;
   padding: 0;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  background: transparent;
+  border-color: var(--border-soft);
+  color: var(--text-soft);
+  box-shadow: none;
+}
+
+.player-card__elimina-riempimento {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--pal-rosso);
+  transition-property: width;
+  transition-timing-function: linear;
+}
+
+.player-card__elimina-etichetta {
+  position: relative;
 }
 
 .giocatori-fase__prosegui {

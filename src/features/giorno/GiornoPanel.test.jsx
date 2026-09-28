@@ -24,6 +24,18 @@ function setup(overrides = {}) {
   return props
 }
 
+test('Annulla morte giocatore riporta in vita chi era stato dichiarato morto per errore', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, causaMorte: 'rogo', mortoNotte: 2, condizioni: [] }]
+  const { aggiornaGiocatore } = setup({ giocatori })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Annulla morte giocatore' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+})
+
 test('lo Scemo del Villaggio sbaglia la rima: si rivela e muore sul colpo nello stesso momento', async () => {
   const user = userEvent.setup()
   const { aggiornaGiocatore } = setup({

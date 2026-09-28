@@ -45,6 +45,12 @@ export function AlbaPanel({
     onGalloSaltaGiorno()
   }
 
+  // corregge una morte dichiarata per errore: vedi lo stesso handler in
+  // GiornoPanel.jsx (qui serve per un decesso notturno visto solo all'alba)
+  function dichiaraAnnullaMorte(id) {
+    aggiornaGiocatore(id, { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+  }
+
   return (
     <section className="alba-panel">
       <h2>Alba</h2>
@@ -91,6 +97,7 @@ export function AlbaPanel({
         // 21, può capitare anche di notte): è a tutti gli effetti una
         // rivelazione diurna a ruolo fisso, riusa lo stesso handler
         onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id)}
+        onAnnullaMorte={dichiaraAnnullaMorte}
       />
     </section>
   )

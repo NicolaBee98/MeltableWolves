@@ -119,6 +119,15 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { eFantasmaOnnisciente: true })
   }
 
+  // corregge una morte dichiarata per errore (un tap sbagliato durante il
+  // rogo o un evento speciale, il momento più pubblico e frenetico della
+  // partita): resta viva/o, senza però disfare a catena le conseguenze già
+  // innescate da quella morte (crepacuore del partner, eredità
+  // dell'Apprendista...) — quelle restano da sistemare a mano dal narratore.
+  function dichiaraAnnullaMorte(id) {
+    aggiornaGiocatore(id, { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+  }
+
   return (
     <section className="giorno-panel">
       <Votazione
@@ -142,6 +151,7 @@ export function GiornoPanel({
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onFantasmaOnnisciente={dichiaraFantasmaOnnisciente}
         onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id)}
+        onAnnullaMorte={dichiaraAnnullaMorte}
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}
