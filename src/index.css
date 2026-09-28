@@ -511,6 +511,13 @@ legend {
   margin-bottom: 0.5rem;
 }
 
+/* con tanti giocatori le chip del mazzo potrebbero altrimenti coprire
+   tutto lo schermo: oltre metà altezza si scorre invece di allungarsi */
+.mazzo-builder__nel-mazzo .scelta-giocatore__chips {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
 .mazzo-builder__vuoto {
   color: var(--text-soft);
   margin: 0;
@@ -567,6 +574,14 @@ legend {
   width: auto;
 }
 
+.player-card[draggable='true'] {
+  cursor: grab;
+}
+
+.player-card[draggable='true']:active {
+  cursor: grabbing;
+}
+
 .player-card__header {
   display: flex;
   align-items: center;
@@ -584,31 +599,6 @@ legend {
   min-height: 28px;
   padding: 0;
   font-size: 0.75rem;
-}
-
-.player-card__sposta {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.player-card__sposta button {
-  min-width: 22px;
-  min-height: 18px;
-  font-size: 0.6rem;
-  line-height: 1;
-}
-
-.player-card__maniglia {
-  cursor: grab;
-  font-size: 1rem;
-  color: var(--muted, #888);
-  line-height: 1;
-  touch-action: none;
-}
-
-.player-card__maniglia:active {
-  cursor: grabbing;
 }
 
 .giocatori-fase__prosegui {

@@ -28,30 +28,15 @@ export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRior
     onRiordina(riordinati)
   }
 
-  // ▲/▼: funziona sempre (mouse, touch, tastiera), a differenza del drag &
-  // drop nativo — vedi il commento in PlayerCard.jsx
-  function sposta(id, direzione) {
-    const indice = giocatori.findIndex((g) => g.id === id)
-    const nuovoIndice = indice + direzione
-    if (indice === -1 || nuovoIndice < 0 || nuovoIndice >= giocatori.length) return
-
-    const riordinati = [...giocatori]
-    ;[riordinati[indice], riordinati[nuovoIndice]] = [riordinati[nuovoIndice], riordinati[indice]]
-    onRiordina(riordinati)
-  }
-
   return (
     <section className="player-tracker">
       <AddPlayerForm onAdd={addGiocatore} />
       <div className="player-tracker__list">
-        {giocatori.map((giocatore, indice) => (
+        {giocatori.map((giocatore) => (
           <PlayerCard
             key={giocatore.id}
             giocatore={giocatore}
             onRemove={removeGiocatore}
-            onSposta={sposta}
-            primoDellaLista={indice === 0}
-            ultimoDellaLista={indice === giocatori.length - 1}
             onDragStart={(e) => handleDragStart(e, giocatore.id)}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => handleDrop(e, giocatore.id)}
