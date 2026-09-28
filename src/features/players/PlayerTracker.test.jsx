@@ -37,6 +37,7 @@ test('tenere premuto fino al riempimento completo chiama removeGiocatore con id 
   const bottone = screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i })
   fireEvent.pointerDown(bottone)
   fireEvent.transitionEnd(bottone.querySelector('.player-card__elimina-riempimento'), { propertyName: 'width' })
+  fireEvent.animationEnd(bottone.closest('article'))
 
   expect(removeGiocatore).toHaveBeenCalledWith('1')
 })

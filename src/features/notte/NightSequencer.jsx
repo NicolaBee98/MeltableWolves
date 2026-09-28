@@ -420,6 +420,10 @@ export function NightSequencer({
           🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.
         </p>
       )}
+      {/* key sul round+passo: forza un remount a ogni cambio, così il
+          fade+slide d'ingresso (CSS, vedi .night-sequencer__contenuto)
+          riparte da solo ogni volta, senza bisogno di gestirlo a mano */}
+      <div key={`${round}-${indiceValido}`} className="night-sequencer__contenuto">
       <h2 className="night-sequencer__ruolo" aria-live="polite" aria-atomic="true">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
@@ -509,6 +513,7 @@ export function NightSequencer({
           {capacitaPendente - selezionatiPendenti === 1 ? 'giocatore' : 'giocatori'} prima di continuare.
         </p>
       )}
+      </div>
 
       <div className="night-sequencer__nav">
         <button type="button" onClick={vaiIndietro} disabled={storico.length === 0}>

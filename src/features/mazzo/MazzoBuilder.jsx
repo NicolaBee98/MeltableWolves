@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ROLES } from '../../data/roles'
 import { validaMazzo } from '../../data/validaMazzo'
 import { RuoloIcona } from '../../components/RuoloIcona'
@@ -17,13 +18,33 @@ const FAZIONE_ICONA = {
 // ruoli "infiniti": la chip disponibile resta sempre cliccabile per
 // aggiungerne un'altra unità, invece di sparire dopo il primo click
 const RUOLI_INFINITI = ['villico', 'lupo-mannaro']
+// durata dell'animazione di dissolvenza di una chip che lascia i
+// "disponibili" perché appena aggiunta al mazzo (vedi .chip--uscendo)
+const DURATA_USCITA_MS = 200
 
 export function MazzoBuilder({ quantita, setQuantita }) {
+  const [uscenti, setUscenti] = useState(() => new Set())
   const avvisi = validaMazzo(quantita)
   const guardiePresenti = (quantita.guardia ?? 0) > 0
   const ladroPresente = (quantita.ladro ?? 0) > 0
   const ruoliNelMazzo = ROLES.filter((ruolo) => (quantita[ruolo.slug] ?? 0) > 0)
   const totaleRuoli = ruoliNelMazzo.reduce((somma, ruolo) => somma + (quantita[ruolo.slug] ?? 0), 0)
+
+  // il ruolo resta visibile (ma disabilitato, in dissolvenza) tra i
+  // "disponibili" ancora per la durata dell'animazione, invece di sparire
+  // di scatto nello stesso istante in cui passa a "Nel mazzo"
+  function selezionaConDissolvenza(slug, aggiorna) {
+    aggiorna()
+    setUscenti((prev) => new Set(prev).add(slug))
+    setTimeout(() => {
+      setUscenti((prev) => {
+        if (!prev.has(slug)) return prev
+        const next = new Set(prev)
+        next.delete(slug)
+        return next
+      })
+    }, DURATA_USCITA_MS)
+  }
 
   function toggleGuardie(valoreAttuale) {
     if (valoreAttuale === 2) {
@@ -99,7 +120,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
         const disponibili = ROLES.filter(
           (ruolo) =>
             ruolo.fazione === fazione &&
-            (RUOLI_INFINITI.includes(ruolo.slug) || (quantita[ruolo.slug] ?? 0) === 0),
+            (RUOLI_INFINITI.includes(ruolo.slug) || (quantita[ruolo.slug] ?? 0) === 0 || uscenti.has(ruolo.slug)),
         )
         if (disponibili.length === 0) return null
 
@@ -113,14 +134,36 @@ export function MazzoBuilder({ quantita, setQuantita }) {
             </legend>
             <div className="scelta-giocatore__chips" role="group" aria-label={`${FAZIONE_LABEL[fazione]} disponibili`}>
               {disponibili.map((ruolo) => {
-                if (ruolo.slug === 'guardia-mannara') {
+                // i ruoli "infiniti" restano sempre tra i disponibili (si
+                // può cliccarli di nuovo subito per aggiungerne un'altra
+                // copia): niente dissolvenza in uscita per loro, non escono
+                // mai davvero dalla lista
+                const inUscita = !RUOLI_INFINITI.includes(ruolo.slug) && uscenti.has(ruolo.slug)
+                const classe = `chip${inUscita ? ' chip--uscendo' : ''}`
+
+                if (RUOLI_INFINITI.includes(ruolo.slug)) {
+                  const valoreInfinito = quantita[ruolo.slug] ?? 0
                   return (
                     <button
                       key={ruolo.slug}
                       type="button"
                       className="chip"
-                      disabled={!guardiePresenti}
-                      onClick={() => setQuantita(ruolo.slug, 1)}
+                      onClick={() => setQuantita(ruolo.slug, valoreInfinito + 1)}
+                    >
+                      <RuoloIcona slug={ruolo.slug} size={22} />
+                      {ruolo.nome}
+                    </button>
+                  )
+                }
+
+                if (ruolo.slug === 'guardia-mannara') {
+                  return (
+                    <button
+                      key={ruolo.slug}
+                      type="button"
+                      className={classe}
+                      disabled={!guardiePresenti || inUscita}
+                      onClick={() => selezionaConDissolvenza(ruolo.slug, () => setQuantita(ruolo.slug, 1))}
                     >
                       <RuoloIcona slug={ruolo.slug} size={22} />
                       {ruolo.nome}
@@ -131,7 +174,13 @@ export function MazzoBuilder({ quantita, setQuantita }) {
 
                 if (ruolo.slug === 'guardia') {
                   return (
-                    <button key={ruolo.slug} type="button" className="chip" onClick={() => toggleGuardie(0)}>
+                    <button
+                      key={ruolo.slug}
+                      type="button"
+                      className={classe}
+                      disabled={inUscita}
+                      onClick={() => selezionaConDissolvenza('guardia', () => toggleGuardie(0))}
+                    >
                       <RuoloIcona slug={ruolo.slug} size={22} />
                       Guardie
                     </button>
@@ -143,8 +192,9 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                   <button
                     key={ruolo.slug}
                     type="button"
-                    className="chip"
-                    onClick={() => setQuantita(ruolo.slug, valore + 1)}
+                    className={classe}
+                    disabled={inUscita}
+                    onClick={() => selezionaConDissolvenza(ruolo.slug, () => setQuantita(ruolo.slug, valore + 1))}
                   >
                     <RuoloIcona slug={ruolo.slug} size={22} />
                     {ruolo.nome}

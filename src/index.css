@@ -1,3 +1,18 @@
+/* chi ha disattivato le animazioni dal sistema operativo le vede tutte
+   quasi istantanee, invece di disattivarle del tutto: alcune (il
+   riempimento rosso per rimuovere un giocatore, il fade di uscita di una
+   chip) guidano una logica applicativa che ascolta la fine della
+   transizione/animazione, quindi devono continuare a scattare */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 :root {
   color-scheme: light;
 
@@ -590,6 +605,18 @@ legend {
   cursor: grabbing;
 }
 
+.player-card--uscendo {
+  animation: player-card-exit 200ms ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes player-card-exit {
+  to {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
 .player-card__header {
   display: flex;
   align-items: center;
@@ -682,6 +709,34 @@ legend {
   color: var(--accent-contrast);
   border-color: var(--text);
   box-shadow: 1.5px 1.5px 0 var(--text);
+  /* piccolo scatto di conferma alla selezione: scatta da solo ogni volta
+     che una chip diventa selezionata (anche appena montata già selezionata,
+     es. una nuova carta che entra in "Nel mazzo"), niente JS necessario */
+  animation: chip-pop 220ms ease-out;
+}
+
+@keyframes chip-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes chip-fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+.chip--uscendo {
+  animation: chip-fade-out 200ms ease-in forwards;
+  pointer-events: none;
 }
 
 .chip--benevola:disabled,
@@ -807,6 +862,23 @@ legend {
    passo all'altro, ed è scomodo premerli "a occhio" senza guardare */
 .night-sequencer {
   padding-bottom: 4.5rem;
+}
+
+/* il contenuto di ogni passo entra con un lieve fade+slide invece di
+   comparire di scatto: è la schermata più vista di tutta l'app */
+.night-sequencer__contenuto {
+  animation: night-step-enter 220ms ease-out;
+}
+
+@keyframes night-step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .night-sequencer__nav {
@@ -1010,6 +1082,18 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  animation: popup-enter 160ms ease-out;
+}
+
+@keyframes popup-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* chiusura sempre nello stesso punto/stile del popup di Registro e
@@ -1064,6 +1148,18 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  animation: popup-sheet-enter 180ms ease-out;
+}
+
+@keyframes popup-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .log-impostazioni__icona {
