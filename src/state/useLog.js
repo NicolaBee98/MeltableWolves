@@ -12,7 +12,7 @@ function loadEventi() {
   }
 }
 
-export function useLog(giocatori, round) {
+export function useLog(giocatori, round, fase = 'notte') {
   const [eventi, setEventi] = useState(loadEventi)
   const precedentiRef = useRef({ giocatori, round })
 
@@ -22,19 +22,22 @@ export function useLog(giocatori, round) {
     // pulizia condizioni + incremento round in un unico batch), la modifica
     // ai giocatori appartiene alla notte appena conclusa, non a quella nuova
     const roundEventi = round !== precedenti.round ? precedenti.round : round
-    const nuoviEventi = rilevaEventi(precedenti.giocatori, giocatori, roundEventi)
+    const nuoviEventi = rilevaEventi(precedenti.giocatori, giocatori, roundEventi, fase)
     if (nuoviEventi.length > 0) {
       setEventi((prev) => [...prev, ...nuoviEventi])
     }
     precedentiRef.current = { giocatori, round }
-  }, [giocatori, round])
+  }, [giocatori, round, fase])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(eventi))
   }, [eventi])
 
-  function aggiungiEvento(messaggio) {
-    setEventi((prev) => [...prev, { round, messaggio }])
+  // fase esplicita: per i messaggi registrati "in anticipo" rispetto alla
+  // schermata su cui si trova il narratore (es. gli annunci dell'alba,
+  // scritti da NightSequencer mentre è ancora sulla notte, vedi App.jsx)
+  function aggiungiEvento(messaggio, faseEsplicita) {
+    setEventi((prev) => [...prev, { round, fase: faseEsplicita ?? fase, messaggio }])
   }
 
   function resetLog() {

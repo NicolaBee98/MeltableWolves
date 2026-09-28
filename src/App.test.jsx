@@ -92,7 +92,7 @@ test("l'icona Registro e impostazioni apre il popup, di default sulle impostazio
   expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
 })
 
-test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home e azzera lo stato della partita', async () => {
+test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home, azzera il mazzo e tiene i nomi dei giocatori', async () => {
   const user = userEvent.setup()
   render(<App />)
 
@@ -114,5 +114,22 @@ test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home e azzera l
   expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
 
   await user.click(screen.getByRole('button', { name: 'Continua' }))
+  // il narratore rifà spesso partite con lo stesso gruppo: il nome resta
+  // già in lista (con stato azzerato), non va riscritto da capo
+  expect(screen.getByText('Anna')).toBeInTheDocument()
+})
+
+test('"Elimina tutti i giocatori" (con conferma) svuota la lista, per ripartire con persone diverse', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  expect(screen.getByText('Anna')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Elimina tutti i giocatori' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, elimina tutti' }))
+
   expect(screen.queryByText('Anna')).not.toBeInTheDocument()
 })

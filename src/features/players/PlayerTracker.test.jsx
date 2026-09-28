@@ -55,3 +55,23 @@ test('trascinare la card di un giocatore su un altro chiama onRiordina col nuovo
 
   expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0], giocatori[2]])
 })
+
+test('"Elimina tutti i giocatori" chiede conferma prima di chiamare onEliminaTutti', async () => {
+  const user = userEvent.setup()
+  const onEliminaTutti = vi.fn()
+  setup({
+    giocatori: [{ id: '1', nome: 'Marco', vivo: true, condizioni: [] }],
+    onEliminaTutti,
+  })
+
+  await user.click(screen.getByRole('button', { name: 'Elimina tutti i giocatori' }))
+  expect(onEliminaTutti).not.toHaveBeenCalled()
+
+  await user.click(screen.getByRole('button', { name: 'Sì, elimina tutti' }))
+  expect(onEliminaTutti).toHaveBeenCalled()
+})
+
+test('senza giocatori non mostra "Elimina tutti i giocatori" (niente da eliminare)', () => {
+  setup({ giocatori: [], onEliminaTutti: vi.fn() })
+  expect(screen.queryByRole('button', { name: 'Elimina tutti i giocatori' })).not.toBeInTheDocument()
+})
