@@ -11,9 +11,6 @@ export function Home({ onNuovaPartita, onApriLibretto, onApriMazzo }) {
       <button type="button" onClick={onApriMazzo}>
         Mazzo
       </button>
-      <button type="button" className="home__impostazioni" disabled title="Prossimamente" aria-label="Impostazioni">
-        ⚙️
-      </button>
     </section>
   )
 }
