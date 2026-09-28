@@ -67,14 +67,42 @@ test('lo stato persiste in localStorage tra due montaggi dell\'hook', () => {
   expect(result2.current.giocatori[0].nome).toBe('Anna')
 })
 
-test('resetPartita svuota la lista dei giocatori', () => {
+test('resetPartita tiene i nomi (stesso gruppo, nuova partita) ma azzera ruolo, condizioni e stato di vita', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Anna')
+    result.current.addGiocatore('Marco')
+  })
+  act(() => {
+    result.current.aggiornaGiocatore(result.current.giocatori[0].id, {
+      ruoloSlug: 'veggente',
+      vivo: false,
+      causaMorte: 'rogo',
+      condizioni: ['inibito'],
+    })
+  })
+
+  act(() => {
+    result.current.resetPartita()
+  })
+
+  expect(result.current.giocatori.map((g) => g.nome)).toEqual(['Anna', 'Marco'])
+  expect(result.current.giocatori[0]).toMatchObject({
+    ruoloSlug: undefined,
+    vivo: true,
+    condizioni: [],
+  })
+})
+
+test('svuotaGiocatori elimina tutti i giocatori (per ripartire con persone diverse)', () => {
   const { result } = renderHook(() => usePartita())
 
   act(() => {
     result.current.addGiocatore('Anna')
   })
   act(() => {
-    result.current.resetPartita()
+    result.current.svuotaGiocatori()
   })
 
   expect(result.current.giocatori).toEqual([])

@@ -20,11 +20,17 @@ import { ruoliAttivi } from './data/nightSteps'
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
   const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
-  const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, impostaGiocatori } = usePartita()
+  const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, svuotaGiocatori, impostaGiocatori } =
+    usePartita()
   const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
     useVotazione()
   const notte = useNotte()
-  const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round)
+  // sotto-fase del registro (icona in LogPartita.jsx): quella delle
+  // schermate 'notte'/'alba'/'giorno' rispecchia 1:1 la fase dell'app;
+  // altrove (home, mazzo, giocatori...) non ci sono eventi di partita da
+  // rilevare, il valore di default non ha effetto
+  const faseLog = ['notte', 'alba', 'giorno'].includes(faseApp) ? faseApp : 'notte'
+  const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round, faseLog)
   const {
     mostraRuoliInVotazione,
     setMostraRuoliInVotazione,
@@ -118,6 +124,7 @@ export default function App() {
             addGiocatore={addGiocatore}
             removeGiocatore={removeGiocatore}
             onRiordina={impostaGiocatori}
+            onEliminaTutti={svuotaGiocatori}
           />
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="app__avviso">

@@ -30,6 +30,22 @@ function loadGiocatori() {
   }
 }
 
+// scheda "pulita" di un giocatore, senza nessuno stato di partita: usata
+// sia per aggiungerne uno nuovo sia per riportare un giocatore esistente
+// a inizio partita mantenendone solo il nome (vedi resetPartita)
+function nuovoGiocatore(nome, id = crypto.randomUUID()) {
+  return {
+    id,
+    nome,
+    ruoloSlug: undefined,
+    vivo: true,
+    condizioni: [],
+    poteriUsati: [],
+    usiNotte: [],
+    storiaRuoli: [],
+  }
+}
+
 export function usePartita() {
   const [giocatori, setGiocatori] = useState(loadGiocatori)
 
@@ -38,19 +54,7 @@ export function usePartita() {
   }, [giocatori])
 
   function addGiocatore(nome) {
-    setGiocatori((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        nome,
-        ruoloSlug: undefined,
-        vivo: true,
-        condizioni: [],
-        poteriUsati: [],
-        usiNotte: [],
-        storiaRuoli: [],
-      },
-    ])
+    setGiocatori((prev) => [...prev, nuovoGiocatore(nome)])
   }
 
   function removeGiocatore(id) {
@@ -76,7 +80,16 @@ export function usePartita() {
     })
   }
 
+  // un narratore fa spesso più partite di fila con lo stesso gruppo: tiene
+  // i nomi (evita di doverli riscrivere ogni volta), azzera solo lo stato
+  // della partita appena conclusa (ruolo, condizioni, vivo/morto...).
+  // "Elimina tutti" (svuotaGiocatori) resta il modo esplicito per ripartire
+  // da zero con persone diverse.
   function resetPartita() {
+    setGiocatori((prev) => prev.map((g) => nuovoGiocatore(g.nome, g.id)))
+  }
+
+  function svuotaGiocatori() {
     setGiocatori([])
   }
 
@@ -90,6 +103,7 @@ export function usePartita() {
     removeGiocatore,
     aggiornaGiocatore,
     resetPartita,
+    svuotaGiocatori,
     impostaGiocatori,
   }
 }

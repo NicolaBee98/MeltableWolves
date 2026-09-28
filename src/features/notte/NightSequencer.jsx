@@ -184,7 +184,7 @@ export function NightSequencer({
     function vaiAllAlba() {
       registraEvento(bardo ? `${bardo.nome} fa saltare la notte con il suo gesto segreto (Bardo).` : messaggio)
       for (const evento of annunciAlba(giocatori, round)) {
-        registraEvento(evento)
+        registraEvento(evento, 'alba')
       }
       onNotteConclusa()
       nuovaNotte()
@@ -391,7 +391,7 @@ export function NightSequencer({
     }
 
     for (const messaggio of annunciAlba(giocatoriConRuoli, round)) {
-      registraEvento(messaggio)
+      registraEvento(messaggio, 'alba')
     }
 
     onNotteConclusa()

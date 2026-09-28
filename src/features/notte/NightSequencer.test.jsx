@@ -272,7 +272,7 @@ test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
 
   await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
 
-  expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.')
+  expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.', 'alba')
 })
 
 test('"Notte successiva" azzera usiNotte per far ripartire i poteri della notte', async () => {

@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { AddPlayerForm } from './AddPlayerForm'
 import { PlayerCard } from './PlayerCard'
 
 // l'ordine dei giocatori riflette i posti a sedere intorno al tavolo: conta
 // per chi ha bisogno di sapere chi siede a fianco a chi (Untore, Pastore,
 // Berserker...), quindi il narratore deve poterlo correggere trascinando.
-export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRiordina = () => {} }) {
+export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRiordina = () => {}, onEliminaTutti }) {
+  const [confermaElimina, setConfermaElimina] = useState(false)
+
   function handleDragStart(e, id) {
     e.dataTransfer.setData('text/plain', id)
     e.dataTransfer.effectAllowed = 'move'
@@ -43,6 +46,33 @@ export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRior
           />
         ))}
       </div>
+      {/* i nomi restano da una partita all'altra (stesso gruppo al tavolo,
+          vedi resetPartita): questo è l'unico modo esplicito per ripartire
+          con persone diverse, quindi chiede conferma come le altre azioni
+          distruttive dell'app */}
+      {giocatori.length > 0 && onEliminaTutti && (
+        confermaElimina ? (
+          <p className="player-tracker__conferma">
+            Eliminare tutti i {giocatori.length} giocatori?
+            <button
+              type="button"
+              onClick={() => {
+                onEliminaTutti()
+                setConfermaElimina(false)
+              }}
+            >
+              Sì, elimina tutti
+            </button>
+            <button type="button" onClick={() => setConfermaElimina(false)}>
+              Annulla
+            </button>
+          </p>
+        ) : (
+          <button type="button" className="player-tracker__elimina-tutti" onClick={() => setConfermaElimina(true)}>
+            Elimina tutti i giocatori
+          </button>
+        )
+      )}
     </section>
   )
 }

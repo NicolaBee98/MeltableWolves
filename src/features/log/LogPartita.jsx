@@ -1,8 +1,19 @@
+import { iconaPath } from '../../data/assetRuoli'
+
+// icona a sinistra di ogni riga, per riconoscere a colpo d'occhio la
+// sotto-fase (notte/alba/giorno/rogo) senza dover leggere il testo
+const ICONA_FASE = {
+  notte: 'icona_notte',
+  alba: 'icona_alba',
+  giorno: 'icona_giorno',
+  rogo: 'icona_rogo',
+}
+
 // eventi consecutivi con lo stesso round appartengono allo stesso ciclo
 // notte+giorno (round si incrementa solo passando alla notte successiva,
 // vedi useNotte/useLog): raggrupparli sotto un titolo solo li rende
 // leggibili a colpo d'occhio, invece di ripetere "Notte N:" su ogni riga
-function raggruppaPerNotte(eventi) {
+function raggruppaPerGiorno(eventi) {
   const gruppi = []
   for (const evento of eventi) {
     const ultimo = gruppi[gruppi.length - 1]
@@ -23,12 +34,17 @@ export function LogPartita({ eventi }) {
   return (
     <section className="log-partita">
       <h2>Registro partita</h2>
-      {raggruppaPerNotte(eventi).map((gruppo) => (
-        <div key={gruppo.round} className="log-partita__notte">
-          <h3>Notte {gruppo.round}</h3>
+      {raggruppaPerGiorno(eventi).map((gruppo) => (
+        <div key={gruppo.round} className="log-partita__giorno">
+          <h3>Giorno {gruppo.round}</h3>
           <ul>
             {gruppo.eventi.map((evento, indice) => (
-              <li key={indice}>{evento.messaggio}</li>
+              <li key={indice}>
+                {ICONA_FASE[evento.fase] && (
+                  <img src={iconaPath(ICONA_FASE[evento.fase])} alt="" aria-hidden="true" className="log-partita__icona-fase" />
+                )}
+                {evento.messaggio}
+              </li>
             ))}
           </ul>
         </div>

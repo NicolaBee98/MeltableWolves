@@ -600,6 +600,24 @@ legend {
   margin: 1.5rem auto 0;
 }
 
+.player-tracker__elimina-tutti {
+  display: block;
+  margin: 1rem auto 0;
+  background: transparent;
+  border-color: var(--border-soft);
+  color: var(--text-soft);
+  box-shadow: none;
+}
+
+.player-tracker__conferma {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
 /* Chip: pulsante-pillola usato per selezionare un giocatore al posto di
    una <select>/dropdown, riusato in SceltaGiocatore/SceltaDoppiaGiocatore.
    L'icona-faccia (RuoloIcona), quando presente, precede il testo. */
@@ -1119,16 +1137,25 @@ legend {
 }
 
 .log-partita li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   border-bottom: 1px solid color-mix(in srgb, var(--pal-inchiostro) 15%, white);
   padding-bottom: 0.4rem;
 }
 
-.log-partita__notte {
+.log-partita__giorno {
   margin-bottom: 1rem;
 }
 
-.log-partita__notte h3 {
+.log-partita__giorno h3 {
   color: var(--accent);
   font-size: 1rem;
   margin-bottom: 0.4rem;
+}
+
+.log-partita__icona-fase {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
