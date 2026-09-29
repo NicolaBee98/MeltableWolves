@@ -1,4 +1,4 @@
-import { contaAssegnati, ruoliAssegnabili } from './assegnazione'
+import { contaAssegnati, ruoliAssegnabili, assegnaGuardiaMannaraCasuale } from './assegnazione'
 
 test('contaAssegnati conta i giocatori con quel ruolo', () => {
   const giocatori = [
@@ -30,4 +30,36 @@ test('un ruolo senza quantità nel mazzo ha capacità di default 1', () => {
 
   const giocatoriConPaladino = [{ id: '1', ruoloSlug: 'paladino' }]
   expect(ruoliAssegnabili(['paladino'], giocatoriConPaladino, {})).toEqual([])
+})
+
+test('assegnaGuardiaMannaraCasuale sceglie esattamente una delle Guardie come traditrice, senza toccare le altre', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] },
+    { id: '3', nome: 'Luca', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, { guardia: 2, 'guardia-mannara': 1 })
+
+  expect(aggiornaGiocatore).toHaveBeenCalledTimes(1)
+  const [id, patch] = aggiornaGiocatore.mock.calls[0]
+  expect(['1', '2', '3']).toContain(id)
+  expect(patch).toEqual({ ruoloSlug: 'guardia-mannara', storiaRuoli: ['guardia-mannara'] })
+})
+
+test('assegnaGuardiaMannaraCasuale non fa nulla se il mazzo non prevede la Guardia Mannara', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] }]
+  const aggiornaGiocatore = vi.fn()
+  assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, { guardia: 2 })
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+})
+
+test('assegnaGuardiaMannaraCasuale non fa nulla se è già stata scelta', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'guardia-mannara', storiaRuoli: ['guardia-mannara'] },
+    { id: '2', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, { guardia: 2, 'guardia-mannara': 1 })
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })

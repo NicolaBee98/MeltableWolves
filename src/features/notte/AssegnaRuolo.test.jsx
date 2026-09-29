@@ -169,3 +169,72 @@ test('non renderizza nulla se non ci sono ruoli da assegnare', () => {
   )
   expect(container).toBeEmptyDOMElement()
 })
+
+test('Guardia e Guardia Mannara: nessun selettore "che ruolo mostra la carta", si scelgono insieme come un gruppo unico', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: undefined },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: undefined },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['guardia-mannara', 'guardia']}
+      giocatori={giocatori}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+      selezioni={{}}
+      onCambiaSelezioni={() => {}}
+    />,
+  )
+
+  expect(screen.queryByText(/che ruolo mostra la carta/i)).not.toBeInTheDocument()
+  expect(screen.getByText(/seleziona 3 giocatori in più/i)).toBeInTheDocument()
+})
+
+test('Guardia e Guardia Mannara: selezionare 3 giocatori li mette tutti sotto la stessa chiave "guardia" (la app sceglie da sola chi tradisce)', async () => {
+  const user = userEvent.setup()
+  const onCambiaSelezioni = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: undefined },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['guardia-mannara', 'guardia']}
+      giocatori={giocatori}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+      selezioni={{ guardia: ['1'] }}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  expect(onCambiaSelezioni).toHaveBeenCalledWith({ guardia: ['1', '2'] })
+})
+
+test('Guardia e Guardia Mannara: la chip di chi ha già una delle due carte (anche già la traditrice) resta visibile e rimovibile', async () => {
+  const user = userEvent.setup()
+  const onRimuovi = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'guardia-mannara' },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'guardia' },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['guardia-mannara', 'guardia']}
+      giocatori={giocatori}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+      selezioni={{}}
+      onCambiaSelezioni={() => {}}
+      onRimuovi={onRimuovi}
+    />,
+  )
+
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onRimuovi).toHaveBeenCalledWith('1', 'guardia-mannara')
+})
