@@ -14,6 +14,7 @@ export function AlbaPanel({
   quantita = {},
   onVaiAlVoto,
   onGalloSaltaGiorno = () => {},
+  onConcludiPartita = () => {},
 }) {
   const morti = giocatori.filter(
     (g) => !g.vivo && g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte),
@@ -71,11 +72,16 @@ export function AlbaPanel({
         </ul>
       )}
       {vittoria.length > 0 && (
-        <ul className="alba-panel__vittoria">
-          {vittoria.map((testo) => (
-            <li key={testo}>🏆 {testo}</li>
-          ))}
-        </ul>
+        <>
+          <ul className="alba-panel__vittoria">
+            {vittoria.map((testo) => (
+              <li key={testo}>🏆 {testo}</li>
+            ))}
+          </ul>
+          <button type="button" onClick={onConcludiPartita}>
+            Concludi partita
+          </button>
+        </>
       )}
       {borgomastroDaEleggere && (
         <p className="alba-panel__promemoria">

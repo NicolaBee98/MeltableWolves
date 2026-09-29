@@ -70,6 +70,19 @@ test('premere Esc chiude il popup e riporta il focus sul pulsante che lo aveva a
   expect(icona).toHaveFocus()
 })
 
+test('ricliccare "Registro e impostazioni" chiude il popup, come la (X)', async () => {
+  const user = userEvent.setup()
+  render(<LogImpostazioniPopup eventi={[]} />)
+
+  const icona = screen.getByRole('button', { name: 'Registro e impostazioni' })
+  await user.click(icona)
+  expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+  await user.click(icona)
+
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+})
+
 test('all\'apertura il focus entra nel dialog', async () => {
   const user = userEvent.setup()
   render(<LogImpostazioniPopup eventi={[]} />)

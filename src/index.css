@@ -800,6 +800,14 @@ button.chip--malvagia {
   color: var(--pal-bianco);
 }
 
+/* Borgomastro/Fantasma Onnisciente: non sono carte distribuite come le
+   altre all'inizio (titolo per elezione / si riceve solo alla morte), il
+   colore diverso lo ricorda a colpo d'occhio nella composizione del mazzo */
+button.chip--non-distribuita {
+  background: var(--pal-viola);
+  color: var(--pal-bianco);
+}
+
 .azione-indagine__chip-slot {
   display: flex;
   flex-direction: column;
@@ -1105,6 +1113,12 @@ button.chip--malvagia {
   font-family: var(--font-heading);
   font-size: 2rem;
   margin: 0;
+}
+
+.timer-spareggio__controlli {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 }
 
 /* Eventi speciali: pulsante fluttuante + pannello a comparsa */

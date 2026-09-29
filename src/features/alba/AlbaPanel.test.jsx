@@ -15,6 +15,32 @@ test('mostra i giocatori morti nella notte appena conclusa, non quelli di notti 
   expect(screen.queryByText('Luca')).not.toBeInTheDocument()
 })
 
+test('con una condizione di vittoria mostra il messaggio e il tasto "Concludi partita"', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  const onConcludiPartita = vi.fn()
+  render(
+    <AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} onConcludiPartita={onConcludiPartita} />,
+  )
+
+  expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  expect(onConcludiPartita).toHaveBeenCalled()
+})
+
+test('senza condizioni di vittoria non mostra "Concludi partita"', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '2', nome: 'Luca', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Marco', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} />)
+  expect(screen.queryByRole('button', { name: 'Concludi partita' })).not.toBeInTheDocument()
+})
+
 test('non mostra chi è morto sul rogo o per morte improvvisa, solo le morti notturne', () => {
   const giocatori = [
     { id: '1', nome: 'Dario', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico' },

@@ -21,13 +21,16 @@ export function TimerSpareggio({ durataSecondi = 60 }) {
     return () => clearInterval(intervalRef.current)
   }, [attivo])
 
-  function avvia() {
-    setRimanente(durataSecondi)
+  // un solo tasto: avvia/riprende se fermo (ripartendo da capo solo se il
+  // tempo è già esaurito), mette in pausa se in corso — "Azzera" resta
+  // separato per tornare al tempo pieno
+  function toggleAvvioPausa() {
+    if (attivo) {
+      setAttivo(false)
+      return
+    }
+    if (rimanente <= 0) setRimanente(durataSecondi)
     setAttivo(true)
-  }
-
-  function pausa() {
-    setAttivo(false)
   }
 
   function azzera() {
@@ -42,15 +45,14 @@ export function TimerSpareggio({ durataSecondi = 60 }) {
   return (
     <div className="timer-spareggio">
       <p>{tempoFormattato}</p>
-      <button type="button" onClick={avvia}>
-        Avvia
-      </button>
-      <button type="button" onClick={pausa} disabled={!attivo}>
-        Pausa
-      </button>
-      <button type="button" onClick={azzera}>
-        Azzera
-      </button>
+      <div className="timer-spareggio__controlli">
+        <button type="button" onClick={toggleAvvioPausa}>
+          {attivo ? 'Pausa' : 'Avvia'}
+        </button>
+        <button type="button" onClick={azzera}>
+          Azzera
+        </button>
+      </div>
     </div>
   )
 }

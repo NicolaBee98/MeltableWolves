@@ -23,6 +23,11 @@ const FAZIONE_ICONA = {
 // ruoli "infiniti": la chip disponibile resta sempre cliccabile per
 // aggiungerne un'altra unità, invece di sparire dopo il primo click
 const RUOLI_INFINITI = ['villico', 'lupo-mannaro']
+// non sono carte distribuite come le altre all'inizio (il Borgomastro è un
+// titolo per elezione, il Fantasma Onnisciente si riceve solo alla morte,
+// vedi RUOLI_RIVELAZIONE_GIORNO/RUOLI_RIVELAZIONE_ALLA_MORTE): la chip si
+// distingue con un colore diverso per non farli sembrare carte "normali"
+const RUOLI_NON_CARTA_DISTRIBUITA = ['borgomastro', 'fantasma-onnisciente']
 // durata dell'animazione di dissolvenza di una chip che lascia i
 // "disponibili" perché appena aggiunta al mazzo (vedi .chip--uscendo)
 const DURATA_USCITA_MS = 200
@@ -96,7 +101,13 @@ export function MazzoBuilder({ quantita, setQuantita }) {
           <div className="scelta-giocatore__chips" role="group" aria-label="Ruoli nel mazzo">
             {ruoliNelMazzo.flatMap((ruolo) =>
               chipsNelMazzoPer(ruolo).map((chip) => (
-                <button key={chip.key} type="button" className="chip" aria-pressed="true" onClick={chip.onRimuovi}>
+                <button
+                  key={chip.key}
+                  type="button"
+                  className={`chip${RUOLI_NON_CARTA_DISTRIBUITA.includes(chip.slug) ? ' chip--non-distribuita' : ''}`}
+                  aria-pressed="true"
+                  onClick={chip.onRimuovi}
+                >
                   <RuoloIcona slug={chip.slug} size={20} />
                   {chip.etichetta} ✕
                 </button>
@@ -144,7 +155,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                 // copia): niente dissolvenza in uscita per loro, non escono
                 // mai davvero dalla lista
                 const inUscita = !RUOLI_INFINITI.includes(ruolo.slug) && uscenti.has(ruolo.slug)
-                const classe = `chip${inUscita ? ' chip--uscendo' : ''}`
+                const classe = `chip${inUscita ? ' chip--uscendo' : ''}${RUOLI_NON_CARTA_DISTRIBUITA.includes(ruolo.slug) ? ' chip--non-distribuita' : ''}`
 
                 if (RUOLI_INFINITI.includes(ruolo.slug)) {
                   const valoreInfinito = quantita[ruolo.slug] ?? 0

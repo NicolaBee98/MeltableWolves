@@ -15,8 +15,19 @@ function loadEventi() {
 export function useLog(giocatori, round, fase = 'notte') {
   const [eventi, setEventi] = useState(loadEventi)
   const precedentiRef = useRef({ giocatori, round })
+  // resetLog() e il reset di "giocatori"/"round" (Nuova Partita) avvengono
+  // nello stesso batch: senza questo, l'effetto qui sotto confronterebbe la
+  // partita appena finita con quella azzerata e "rileverebbe" un mucchio di
+  // falsi eventi (tutti "tornati in vita", condizioni perse...), ripopolando
+  // il log appena svuotato
+  const sopprimiProssimoConfrontoRef = useRef(false)
 
   useEffect(() => {
+    if (sopprimiProssimoConfrontoRef.current) {
+      sopprimiProssimoConfrontoRef.current = false
+      precedentiRef.current = { giocatori, round }
+      return
+    }
     const precedenti = precedentiRef.current
     // se round e giocatori cambiano nello stesso aggiornamento (fine notte:
     // pulizia condizioni + incremento round in un unico batch), la modifica
@@ -42,6 +53,7 @@ export function useLog(giocatori, round, fase = 'notte') {
 
   function resetLog() {
     setEventi([])
+    sopprimiProssimoConfrontoRef.current = true
   }
 
   return { eventi, aggiungiEvento, resetLog }

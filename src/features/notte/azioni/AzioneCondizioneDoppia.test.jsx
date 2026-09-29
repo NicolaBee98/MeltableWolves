@@ -58,18 +58,18 @@ test('con escludiAttore, l\'attore non compare tra i propri candidati (il Piffer
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
-test('la coppia scelta resta modificabile: le chip restano tutte cliccabili anche a coppia già completa', async () => {
+test('la coppia scelta in questa sessione resta modificabile: cambiare un membro sposta la condizione', async () => {
   const user = userEvent.setup()
-  const conPifferaioUsato = [
-    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
-    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
+  const giocatoriBase = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], note: '' },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [], note: '' },
     { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [] },
-    { id: '4', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: ['pifferaio'] },
+    { id: '4', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [] },
   ]
   const aggiornaGiocatore = vi.fn()
   render(
     <AzioneCondizioneDoppia
-      giocatori={conPifferaioUsato}
+      giocatori={giocatoriBase}
       aggiornaGiocatore={aggiornaGiocatore}
       condizione="ipnotizzato"
       etichetta="Chi ipnotizzare"
@@ -77,13 +77,46 @@ test('la coppia scelta resta modificabile: le chip restano tutte cliccabili anch
       escludiAttore
     />,
   )
-  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
-  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
 
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
   // deseleziona Marco e sceglie Luca al suo posto
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   await user.click(screen.getByRole('button', { name: 'Luca' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['ipnotizzato'] })
+})
+
+test('il Pifferaio (ipnotizzato è cumulativo tra notti): scegliere una nuova coppia non toglie la condizione a chi era già ipnotizzato da notti precedenti', async () => {
+  const user = userEvent.setup()
+  const giaIpnotizzati = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '5', nome: 'Sara', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <AzioneCondizioneDoppia
+      giocatori={giaIpnotizzati}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="ipnotizzato"
+      etichetta="Chi ipnotizzare"
+      ruoloSlugAttore="pifferaio"
+      escludiAttore
+    />,
+  )
+  // niente chip pre-selezionata per chi era già ipnotizzato da prima: la
+  // scelta di stanotte è indipendente da quella delle notti precedenti
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+  await user.click(screen.getByRole('button', { name: 'Sara' }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.anything())
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.anything())
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['ipnotizzato'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('5', { condizioni: ['ipnotizzato'] })
 })

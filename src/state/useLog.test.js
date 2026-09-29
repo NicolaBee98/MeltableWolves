@@ -95,3 +95,20 @@ test('resetLog svuota gli eventi registrati', () => {
 
   expect(result.current.eventi).toEqual([])
 })
+
+test('resetLog non fa ricomparire eventi quando coincide con l\'azzeramento di giocatori/round (Nuova Partita)', () => {
+  const morto = [{ id: '1', nome: 'Anna', vivo: false, condizioni: ['protetto'], ruoloSlug: 'veggente' }]
+  const { result, rerender } = renderHook(({ giocatori, round }) => useLog(giocatori, round), {
+    initialProps: { giocatori: morto, round: 3 },
+  })
+
+  act(() => {
+    result.current.resetLog()
+  })
+  // Nuova Partita: stessi id/nomi, tutto il resto azzerato, nello stesso
+  // batch del resetLog (come fa nuovaPartita in App.jsx)
+  const azzerato = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: undefined }]
+  rerender({ giocatori: azzerato, round: 1 })
+
+  expect(result.current.eventi).toEqual([])
+})

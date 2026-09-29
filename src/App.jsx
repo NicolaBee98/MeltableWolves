@@ -182,6 +182,7 @@ export default function App() {
           quantita={quantita}
           onVaiAlVoto={() => setFaseApp('giorno')}
           onGalloSaltaGiorno={proseguiAllaNotte}
+          onConcludiPartita={nuovaPartita}
         />
       )}
 
@@ -201,6 +202,7 @@ export default function App() {
           quantita={quantita}
           round={notte.round}
           onProsegui={proseguiAllaNotte}
+          onConcludiPartita={nuovaPartita}
           mostraRuoli={mostraRuoliInVotazione}
           variantiFaccia={variantiFaccia}
           mostraNomeRuolo={mostraNomeRuolo}
