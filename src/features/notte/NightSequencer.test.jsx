@@ -692,3 +692,36 @@ test('"Indietro" annulla in un colpo solo TUTTE le modifiche fatte nel passo cor
   expect(ripristinati.find((g) => g.id === '1').ruoloSlug).toBeUndefined()
   expect(screen.getByRole('heading', { name: /ladro/i })).toBeInTheDocument()
 })
+
+test('Guardia e Guardia Mannara: assegnando le tre guardie insieme, l\'app sceglie da sola (a caso) chi tradisce', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const props = () => ({
+    ruoliSelezionati: ['guardia', 'guardia-mannara'],
+    giocatori,
+    aggiornaGiocatore,
+    quantita: { guardia: 2, 'guardia-mannara': 1 },
+  })
+
+  const { rerender } = render(<NightSequencerConNotte {...props()} />)
+
+  expect(screen.queryByText(/che ruolo mostra la carta/i)).not.toBeInTheDocument()
+
+  for (const nome of ['Anna', 'Marco', 'Luca']) {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(<NightSequencerConNotte {...props()} />)
+  }
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  rerender(<NightSequencerConNotte {...props()} />)
+
+  const ruoli = giocatori.map((g) => g.ruoloSlug).sort()
+  expect(ruoli).toEqual(['guardia', 'guardia', 'guardia-mannara'])
+})

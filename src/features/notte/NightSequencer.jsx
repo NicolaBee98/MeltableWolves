@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { passiNotte, notteBloccata, villaggioMaledetto, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
-import { ruoliAssegnabili, contaAssegnati } from '../../data/assegnazione'
+import { ruoliAssegnabili, contaAssegnati, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
@@ -328,6 +328,10 @@ export function NightSequencer({
         aggiornaGiocatore(id, { ruoloSlug: slug, storiaRuoli })
       }
     }
+    // "le tre guardie" si scelgono come gruppo unico (vedi AssegnaRuolo):
+    // appena il gruppo è completo, ne sceglie una a caso come traditrice,
+    // senza mai chiederlo al narratore
+    assegnaGuardiaMannaraCasuale(giocatoriConRuoli, aggiornaGiocatore, quantita)
   }
 
   const ciSonoSelezioniDaConfermare = Object.values(selezioniRuolo).some((ids) => ids.length > 0)
