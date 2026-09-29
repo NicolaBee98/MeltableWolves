@@ -9,11 +9,16 @@ const FAZIONE_LABEL = {
   villaggio: 'Villaggio',
   lupi: 'Lupi',
   indipendente: 'Indipendenti',
-  sconosciuto: 'Sconosciuti',
+  // "sconosciuto" durante la scelta del mazzo: sono sia ruoli il cui esito
+  // è ignoto all'inizio (Ladro, Mimo) sia voltagabbana (Mezzosangue, Figlia
+  // dei Lupi), "Variabili" descrive meglio entrambi i casi
+  sconosciuto: 'Variabili',
 }
 const FAZIONE_ICONA = {
   villaggio: iconaPath('icona_fazione_villaggio'),
   lupi: iconaPath('icona_fazione_branco'),
+  indipendente: iconaPath('icona_fazione_indipendente'),
+  sconosciuto: iconaPath('icona_ruolo_sconosciuto_cerchiato'),
 }
 // ruoli "infiniti": la chip disponibile resta sempre cliccabile per
 // aggiungerne un'altra unità, invece di sparire dopo il primo click

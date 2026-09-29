@@ -448,10 +448,13 @@ export function NightSequencer({
         giocatori={giocatori}
         giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo && !ruoliPendenti.includes(g.ruoloSlug))}
       />
-      {ruoliPendenti.length === 0 && (
-        <p className="night-sequencer__tipo">
-          {step.tipo === 'informativo' ? 'Nessuna azione richiesta' : 'Possibile azione'}
-        </p>
+      {/* "Possibile azione" (quando il passo prevedeva potenzialmente
+          un'azione ma non c'era nessun titolare in attesa di selezione) è
+          stata rimossa: creava confusione lasciando intendere ci fosse
+          qualcosa da fare in app, quando in realtà l'azione fisica del
+          ruolo (se c'è) resta interamente in mano al narratore */}
+      {ruoliPendenti.length === 0 && step.tipo === 'informativo' && (
+        <p className="night-sequencer__tipo">Nessuna azione richiesta</p>
       )}
 
       {bersaglioLegame && (
@@ -508,7 +511,7 @@ export function NightSequencer({
       )}
 
       {assegnazioneIncompleta && (
-        <p className="night-sequencer__avviso">
+        <p className="avviso">
           ⚠️ Seleziona ancora {capacitaPendente - selezionatiPendenti}{' '}
           {capacitaPendente - selezionatiPendenti === 1 ? 'giocatore' : 'giocatori'} prima di continuare.
         </p>

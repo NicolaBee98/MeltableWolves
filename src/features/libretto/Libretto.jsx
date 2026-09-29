@@ -3,7 +3,13 @@ import { ROLES, CARATTERISTICHE_RUOLI, CARATTERISTICA_ICONA } from '../../data/r
 import { CONDIZIONI } from '../../data/conditions'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { TestoFormattato } from '../../components/TestoFormattato'
-import { condizionePath, iconaPath, personaggioRiconoscimentoPath, FAZIONE_RUOLO_ICONA } from '../../data/assetRuoli'
+import {
+  condizionePath,
+  iconaPath,
+  personaggioPath,
+  personaggioRiconoscimentoPath,
+  FAZIONE_RUOLO_ICONA,
+} from '../../data/assetRuoli'
 
 const FAZIONE_ICONA = {
   villaggio: 'icona_fazione_villaggio',
@@ -121,6 +127,15 @@ function SezioneRuoli() {
                   distribuirsi con lo stesso gap del resto di dt e poter
                   andare a capo singolarmente */}
               <span className="libretto__badge-poteri">
+                {FAZIONE_ICONA[ruolo.fazione] && (
+                  <img
+                    src={iconaPath(FAZIONE_ICONA[ruolo.fazione])}
+                    alt="fazione"
+                    width={22}
+                    height={22}
+                    className="libretto__icona"
+                  />
+                )}
                 {FAZIONE_RUOLO_ICONA[ruolo.slug] && (
                   <img
                     src={iconaPath(FAZIONE_RUOLO_ICONA[ruolo.slug])}
@@ -142,31 +157,24 @@ function SezioneRuoli() {
   )
 }
 
-// immagini decorative per spezzare il testo (icone/: nome file senza
-// prefisso di cartella, vedi iconaPath)
-function SezioneImmagini({ nomi }) {
-  if (!nomi) return null
-  return (
-    <div className="libretto__immagini">
-      {nomi.map((nome) => (
-        <img key={nome} src={iconaPath(nome)} alt="" aria-hidden="true" className="libretto__immagine" />
-      ))}
-    </div>
-  )
+// personaggio "immerso" nel testo della sezione (il testo vi scorre attorno),
+// al posto di icone puramente decorative senza legame con l'ambientazione
+function SezionePersonaggio({ slug }) {
+  if (!slug) return null
+  return <img src={personaggioPath(slug)} alt="" aria-hidden="true" className="libretto__personaggio-testo" />
 }
 
-// i quattro personaggini degli autori originali, in fondo ai Riconoscimenti
+// i quattro personaggini degli autori originali, in fondo ai Riconoscimenti;
+// il nome (preso dal nome del file) è testo HTML, non più disegnato dentro
+// l'SVG come nella versione precedente dell'illustrazione
 function SezionePersonaggini() {
   return (
     <div className="libretto__personaggini">
       {PERSONAGGINI_RICONOSCIMENTI.map((nome) => (
-        <img
-          key={nome}
-          src={personaggioRiconoscimentoPath(nome)}
-          alt=""
-          aria-hidden="true"
-          className="libretto__personaggino"
-        />
+        <figure key={nome} className="libretto__personaggino-figura">
+          <img src={personaggioRiconoscimentoPath(nome)} alt="" aria-hidden="true" className="libretto__personaggino" />
+          <figcaption>{nome[0].toUpperCase() + nome.slice(1)}</figcaption>
+        </figure>
       ))}
     </div>
   )
@@ -202,6 +210,7 @@ export function Libretto({ onTornaAllaHome }) {
       {SEZIONI.map((sezione) => (
         <section key={sezione.titolo} className="libretto__sezione">
           <h3>{sezione.titolo}</h3>
+          <SezionePersonaggio slug={sezione.personaggio} />
           <Paragrafi paragrafi={sezione.paragrafi} />
           <Lista voci={sezione.lista} />
           {sezione.fazioni && <SezioneFazioni fazioni={sezione.fazioni} />}
@@ -216,7 +225,6 @@ export function Libretto({ onTornaAllaHome }) {
           {sezione.caratteristiche && <SezioneCaratteristiche caratteristiche={sezione.caratteristiche} />}
           {sezione.speciale === 'ruoli' && <SezioneRuoli />}
           {sezione.speciale === 'condizioni' && <SezioneCondizioni />}
-          <SezioneImmagini nomi={sezione.immagini} />
           {sezione.titolo === 'Riconoscimenti' && <SezionePersonaggini />}
         </section>
       ))}

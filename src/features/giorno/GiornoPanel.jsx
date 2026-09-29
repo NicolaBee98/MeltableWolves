@@ -56,11 +56,22 @@ export function GiornoPanel({
   // 16, 25) — ma la maledizione blocca solo i poteri "buoni" (vedi
   // villaggioMaledetto in nightSteps.js), a differenza del Bardo che salta
   // la notte per intero: campo separato da notteBloccataFinoA
+  // per un L'Antico non ancora assegnato in app (rivelato solo ora, al
+  // rogo), il chiamante passa storiaRuoli precedente da qui e non da un
+  // secondo aggiornaGiocatore separato (vedi onRivelazione in Votazione.jsx):
+  // due aggiornaGiocatore in sequenza sulla stessa persona leggerebbero
+  // entrambi la stessa "giocatori" non ancora aggiornata, e il secondo
+  // sovrascriverebbe storiaRuoli perdendo il 'lantico' appena scritto dal
+  // primo — lasciandolo per sempre "non assegnato" (rivelabile di nuovo,
+  // e ancora tra le carte ignote proposte dalla Cartomante)
   function dichiaraAnticoRivelazione(id) {
     const target = giocatori.find((g) => g.id === id)
+    const storiaPrecedente = target?.storiaRuoli ?? []
     aggiornaGiocatore(id, {
       ruoloSlug: 'villico',
-      storiaRuoli: [...(target?.storiaRuoli ?? []), 'villico'],
+      storiaRuoli: storiaPrecedente.includes('lantico')
+        ? [...storiaPrecedente, 'villico']
+        : [...storiaPrecedente, 'lantico', 'villico'],
       villaggioMaledettoFinoA: round,
     })
   }

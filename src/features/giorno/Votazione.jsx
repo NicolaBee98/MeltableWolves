@@ -178,10 +178,15 @@ export function Votazione({
         setAlchimistaInAttesaVittimaId(id)
         return
       }
-      onRivelazione(ruoloSlug, id)
       if (ruoloSlug === 'spilungone') {
+        onRivelazione(ruoloSlug, id)
         setSpilungoneRivelatoId(id)
       } else {
+        // non onRivelazione + onAnticoRivelazione: due aggiornaGiocatore in
+        // sequenza sulla stessa persona si perderebbero a vicenda lo
+        // storiaRuoli (vedi commento in dichiaraAnticoRivelazione), quindi
+        // qui è quest'ultimo da solo a registrare anche il 'lantico' mai
+        // assegnato prima
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
       }
@@ -271,6 +276,12 @@ export function Votazione({
       return null
     }
 
+    // chi tra i candidati allo spareggio è stato effettivamente designato:
+    // serve per il messaggio "Vittima designata" una volta risolto, uguale
+    // a quello (già esistente) mostrato quando non c'è spareggio
+    const vittimaSpareggioId =
+      designatoSpareggio ?? spilungoneRivelatoId ?? anticoRivelatoId ?? alchimistaEsploso?.alchimistaId ?? null
+
     return (
       <section className="votazione votazione--esito">
         {designati.length === 1 ? (
@@ -283,10 +294,21 @@ export function Votazione({
           </div>
         ) : (
           <div className="votazione__spareggio">
-            <p>Spareggio tra: {designati.map((id) => giocatori.find((g) => g.id === id)?.nome).join(', ')}</p>
-            <div className="votazione__timer-box">
-              <TimerSpareggio durataSecondi={durataTimer} />
-            </div>
+            {morteConfermata ? (
+              <p>
+                Vittima designata:{' '}
+                <span className="votazione__nome-designato">
+                  {giocatori.find((g) => g.id === vittimaSpareggioId)?.nome}
+                </span>
+              </p>
+            ) : (
+              <>
+                <p>Spareggio tra: {designati.map((id) => giocatori.find((g) => g.id === id)?.nome).join(', ')}</p>
+                <div className="votazione__timer-box">
+                  <TimerSpareggio durataSecondi={durataTimer} />
+                </div>
+              </>
+            )}
             {spilungoneRivelatoId !== null ? (
               renderEsitoDesignato(spilungoneRivelatoId)
             ) : anticoRivelatoId !== null ? (

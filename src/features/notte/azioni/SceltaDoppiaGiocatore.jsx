@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichetta }) {
-  const [selezionati, setSelezionati] = useState([])
+export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichetta, selezionatiIniziali = [] }) {
+  const [selezionati, setSelezionati] = useState(selezionatiIniziali)
 
   function toggleSelezione(id) {
     if (selezionati.includes(id)) {

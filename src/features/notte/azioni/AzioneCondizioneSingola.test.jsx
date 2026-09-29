@@ -39,22 +39,30 @@ test('mostra solo i giocatori vivi come candidati', () => {
   expect(screen.queryByText('Luca')).not.toBeInTheDocument()
 })
 
-test('nasconde la selezione e mostra un avviso se il potere è già stato usato questa notte', () => {
+test('la scelta resta modificabile: le chip restano tutte cliccabili e selezionarne un\'altra sposta la condizione', async () => {
+  const user = userEvent.setup()
   const conUntoreUsato = [
-    { id: '1', nome: 'Anna', ruoloSlug: 'untore', vivo: true, condizioni: [], note: '', usiNotte: ['untore'] },
-    giocatori[1],
+    { id: '1', nome: 'Untore', ruoloSlug: 'untore', vivo: true, condizioni: [], note: '', usiNotte: ['untore'] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: ['unto'], note: '' },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [], note: '' },
   ]
+  const aggiornaGiocatore = vi.fn()
   render(
     <AzioneCondizioneSingola
       giocatori={conUntoreUsato}
-      aggiornaGiocatore={() => {}}
+      aggiornaGiocatore={aggiornaGiocatore}
       condizione="unto"
       etichetta="Chi ungere"
       ruoloSlugAttore="untore"
     />,
   )
-  expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
-  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Luca' })).toHaveAttribute('aria-pressed', 'false')
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['unto'] })
 })
 
 test('confermare marca il potere come usato per l\'attore', async () => {

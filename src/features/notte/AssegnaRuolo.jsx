@@ -60,7 +60,6 @@ export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCam
       <p>
         Chi ha questa carta? Seleziona {capacita - pendenti.length} {capacita - pendenti.length === 1 ? 'giocatore' : 'giocatori'} in più, poi premi Avanti.
       </p>
-      {avviso && <p className="assegna-ruolo__avviso">⚠️ {avviso}</p>}
       {candidati.length === 0 ? (
         <p>Nessun giocatore disponibile da assegnare.</p>
       ) : (
@@ -78,6 +77,9 @@ export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCam
           ))}
         </div>
       )}
+      {/* sempre subito dopo le chip che l'hanno generato, mai sopra: stessa
+          posizione in tutta l'app (vedi anche night-sequencer__avviso) */}
+      {avviso && <p className="avviso">⚠️ {avviso}</p>}
     </div>
   )
 }

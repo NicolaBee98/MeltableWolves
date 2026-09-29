@@ -11,10 +11,10 @@ test('un mazzo di soli ruoli senza azione notturna (es. Villico) genera comunque
 test('il passo "assegna-restanti" copre i ruoli senza uno step dedicato e senza rivelazione diurna/alla morte', () => {
   const restanti = NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')
   expect(restanti.ruoli).toContain('villico')
-  expect(restanti.ruoli).toContain('mezzosangue')
-  // Ambasciatore e Berserker hanno ora un passo dedicato (come Eremita, Nano...)
+  // Ambasciatore, Berserker e Mezzosangue hanno ora un passo dedicato (come Eremita, Nano...)
   expect(restanti.ruoli).not.toContain('ambasciatore')
   expect(restanti.ruoli).not.toContain('berserker')
+  expect(restanti.ruoli).not.toContain('mezzosangue')
   // Fantasma Onnisciente e Suocera restano "?" fino alla morte (evento dedicato)
   expect(restanti.ruoli).not.toContain('fantasma-onnisciente')
   expect(restanti.ruoli).not.toContain('suocera')
