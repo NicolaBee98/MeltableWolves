@@ -104,7 +104,11 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                 <button
                   key={chip.key}
                   type="button"
-                  className={`chip${RUOLI_NON_CARTA_DISTRIBUITA.includes(chip.slug) ? ' chip--non-distribuita' : ''}`}
+                  className={`chip${
+                    RUOLI_NON_CARTA_DISTRIBUITA.includes(chip.slug)
+                      ? ' chip--non-distribuita'
+                      : ` chip--fazione-${ruolo.fazione}`
+                  }`}
                   aria-pressed="true"
                   onClick={chip.onRimuovi}
                 >
@@ -155,12 +159,11 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                 // copia): niente dissolvenza in uscita per loro, non escono
                 // mai davvero dalla lista
                 const inUscita = !RUOLI_INFINITI.includes(ruolo.slug) && uscenti.has(ruolo.slug)
-                // colore secondo la fazione (vedi .chip--fazione-* in
-                // index.css): qui, tra i ruoli disponibili, Borgomastro e
-                // Fantasma Onnisciente sono ruoli come gli altri della loro
-                // fazione — il colore viola "non è una carta distribuita"
-                // ha senso solo una volta nel mazzo (vedi chipsNelMazzoPer)
-                const classe = `chip chip--fazione-${fazione}${inUscita ? ' chip--uscendo' : ''}`
+                // i colori per fazione (vedi .chip--fazione-* in index.css)
+                // si vedono solo nel box "Nel mazzo": tra i disponibili le
+                // chip restano tutte bianche, il colore è un'informazione
+                // sulla composizione del mazzo, non sul catalogo dei ruoli
+                const classe = `chip${inUscita ? ' chip--uscendo' : ''}`
 
                 if (RUOLI_INFINITI.includes(ruolo.slug)) {
                   const valoreInfinito = quantita[ruolo.slug] ?? 0
@@ -168,7 +171,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                     <button
                       key={ruolo.slug}
                       type="button"
-                      className={`chip chip--fazione-${fazione}`}
+                      className="chip"
                       onClick={() => setQuantita(ruolo.slug, valoreInfinito + 1)}
                     >
                       <RuoloIcona slug={ruolo.slug} size={22} />

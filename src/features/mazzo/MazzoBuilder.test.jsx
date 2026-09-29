@@ -12,19 +12,20 @@ function setup(overrides = {}) {
   return props
 }
 
-test('le chip disponibili hanno un colore per fazione, ma Borgomastro/Fantasma Onnisciente hanno quello "non distribuita" solo una volta nel mazzo', async () => {
+test('le chip disponibili restano bianche (senza colore di fazione); nel mazzo hanno il colore della fazione, tranne Borgomastro/Fantasma Onnisciente che hanno quello "non distribuita"', async () => {
   const user = userEvent.setup()
   const setQuantita = vi.fn()
   setup({ setQuantita })
 
-  expect(screen.getByRole('button', { name: 'Veggente' })).toHaveClass('chip--fazione-villaggio')
-  expect(screen.getByRole('button', { name: 'Lupo Mannaro' })).toHaveClass('chip--fazione-lupi')
-  expect(screen.getByRole('button', { name: 'Borgomastro' })).toHaveClass('chip--fazione-villaggio')
+  expect(screen.getByRole('button', { name: 'Veggente' })).not.toHaveClass('chip--fazione-villaggio')
+  expect(screen.getByRole('button', { name: 'Lupo Mannaro' })).not.toHaveClass('chip--fazione-lupi')
+  expect(screen.getByRole('button', { name: 'Borgomastro' })).not.toHaveClass('chip--fazione-villaggio')
   expect(screen.getByRole('button', { name: 'Borgomastro' })).not.toHaveClass('chip--non-distribuita')
 
   await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
-  setup({ setQuantita, quantita: { borgomastro: 1 } })
+  setup({ setQuantita, quantita: { borgomastro: 1, veggente: 1 } })
   expect(screen.getByRole('button', { name: /borgomastro ✕/i })).toHaveClass('chip--non-distribuita')
+  expect(screen.getByRole('button', { name: /veggente ✕/i })).toHaveClass('chip--fazione-villaggio')
 })
 
 test('senza ruoli selezionati il box "Nel mazzo" mostra un messaggio vuoto', () => {
