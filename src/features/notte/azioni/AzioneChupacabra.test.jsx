@@ -18,14 +18,33 @@ test('uccide un bersaglio di fazione lupi', async () => {
   })
 })
 
-test('non permette una seconda caccia nella stessa notte', () => {
+test('la scelta resta modificabile: cambiare bersaglio annulla la morte del precedente', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
-    { id: '2', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: ['chupacabra-caccia'] },
+    { id: '2', nome: 'Luca', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
-  expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    vivo: true,
+    causaMorte: undefined,
+    mortoNotte: undefined,
+    mortoDa: undefined,
+  })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', {
+    vivo: false,
+    causaMorte: 'notte',
+    mortoNotte: 2,
+    mortoDa: 'chupacabra',
+  })
 })
 
 test('non ha effetto su un bersaglio non-lupo se ci sono ancora lupi vivi', async () => {
