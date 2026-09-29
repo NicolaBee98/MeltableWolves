@@ -1,26 +1,67 @@
-import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
+import { useState } from 'react'
 import { resuscitaPatch } from '../../../data/effettiNotte'
 
+// come la pozione della Strega: potere unico per l'intera partita, quindi
+// "già usato" va catturato una sola volta al montaggio del passo (non ad
+// ogni render), altrimenti un click pendente in questa stessa notte
+// nasconderebbe subito le chip impedendo di ripensare il bersaglio.
 export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const poteriUsatiAttore = attore?.poteriUsati ?? []
-  const giaUsato = poteriUsatiAttore.includes(potereSlug)
-  // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi
-  const morti = giocatori.filter((g) => !g.vivo)
+  const [giaUsato] = useState(() => (attore?.poteriUsati ?? []).includes(potereSlug))
+  const [target, setTarget] = useState(null)
+  // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi.
+  // Il bersaglio appena resuscitato resta comunque in lista anche se non è
+  // più morto, altrimenti la sua chip sparirebbe subito dopo il click.
+  const morti = giocatori.filter((g) => !g.vivo || g.id === target)
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>
   }
 
   function confermaScelta(targetId) {
-    const target = giocatori.find((g) => g.id === targetId)
-    if (!target || !attore) return
-    const patch = resuscitaPatch(target, round)
+    if (!attore) return
+    if (target && target !== targetId) {
+      const vecchio = giocatori.find((g) => g.id === target)
+      if (vecchio) {
+        aggiornaGiocatore(target, {
+          vivo: false,
+          condizioni: vecchio.condizioni.filter((c) => c !== 'resuscitato'),
+          resuscitatoNotte: undefined,
+        })
+      }
+    }
+    setTarget(targetId)
+    const nuovoBersaglio = giocatori.find((g) => g.id === targetId)
+    const patch = nuovoBersaglio && resuscitaPatch(nuovoBersaglio, round)
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     }
-    aggiornaGiocatore(attore.id, { poteriUsati: [...poteriUsatiAttore, potereSlug] })
+    const poteriUsatiAttore = attore.poteriUsati ?? []
+    if (!poteriUsatiAttore.includes(potereSlug)) {
+      aggiornaGiocatore(attore.id, { poteriUsati: [...poteriUsatiAttore, potereSlug] })
+    }
   }
 
-  return <SceltaGiocatore candidati={morti} onConferma={confermaScelta} onSalta={() => {}} etichetta="Chi resuscitare" />
+  if (morti.length === 0) {
+    return <p>Nessun bersaglio disponibile.</p>
+  }
+
+  return (
+    <div className="scelta-giocatore">
+      <p>Chi resuscitare</p>
+      <div className="scelta-giocatore__chips" role="group" aria-label="Chi resuscitare">
+        {morti.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            aria-pressed={target === g.id}
+            onClick={() => confermaScelta(g.id)}
+          >
+            {g.nome}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }

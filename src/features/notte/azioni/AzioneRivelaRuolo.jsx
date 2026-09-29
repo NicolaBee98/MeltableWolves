@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { ROLES } from '../../../data/roles'
-import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { RUOLI_RIVELAZIONE_ALLA_MORTE } from '../../../data/nightSteps'
 
@@ -39,19 +38,6 @@ export function AzioneRivelaRuolo({
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== attore?.id))
   const indagineStanotte = attore?.ultimaIndagine?.notte === round ? attore.ultimaIndagine : null
-
-  if (usatoStanotte(giocatori, ruoli, potere)) {
-    return (
-      <div className="azione-indagine">
-        <p>Potere già utilizzato questa notte.</p>
-        {indagineStanotte && (
-          <p className="azione-indagine__esito">
-            Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato)}
-          </p>
-        )}
-      </div>
-    )
-  }
 
   function registraIndagine(targetId, ruoloRivelato) {
     if (attore) {
@@ -105,13 +91,37 @@ export function AzioneRivelaRuolo({
     )
   }
 
+  if (candidati.length === 0) {
+    return <p>Nessun bersaglio disponibile.</p>
+  }
+
+  // come il Veggente: la chip resta modificabile finché non si preme
+  // "Avanti" (vedi AzioneIndagine). Un bersaglio con ruolo GIÀ noto può
+  // essere ricambiato liberamente (è solo informativo); uno con ruolo
+  // ignoto invece, una volta assegnato tramite il flusso qui sopra, resta
+  // assegnato per sempre (è un fatto reale sul giocatore, non solo la
+  // scelta dell'attore) anche se in seguito si indaga qualcun altro.
   return (
-    <SceltaGiocatore
-      candidati={candidati}
-      onConferma={confermaScelta}
-      onSalta={() => {}}
-      etichetta={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}
-      mostraSalta={false}
-    />
+    <div className="azione-indagine">
+      <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
+      <div className="scelta-giocatore__chips" role="group" aria-label={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}>
+        {candidati.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            aria-pressed={indagineStanotte?.targetId === g.id}
+            onClick={() => confermaScelta(g.id)}
+          >
+            {g.nome}
+          </button>
+        ))}
+      </div>
+      {indagineStanotte && (
+        <p className="azione-indagine__esito">
+          Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato)}
+        </p>
+      )}
+    </div>
   )
 }
