@@ -241,6 +241,21 @@ test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
+test('un ruolo "ogni notte" (es. Addolorata) mostra il picker "chi ha questa carta" solo la prima notte: dalla notte 2 il titolare è fisso e la sua illustrazione compare una volta sola', async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] }]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['addolorata']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  expect(screen.getByRole('group', { name: 'Chi ha questa carta' })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+
+  expect(screen.queryByRole('group', { name: 'Chi ha questa carta' })).not.toBeInTheDocument()
+  expect(container.querySelectorAll('.ruolo-illustrazione')).toHaveLength(1)
+})
+
 test("mostra lo scambio per Addolorata quando c'è una vittima al rogo della notte corrente", () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
