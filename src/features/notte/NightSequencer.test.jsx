@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NightSequencer } from './NightSequencer'
 import { useNotte } from '../../state/useNotte'
@@ -67,17 +67,17 @@ test('una volta avanzati oltre il primo passo, "Torna ai giocatori" non è più 
   expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
 })
 
-test('un mazzo di solo Villico mostra comunque il passo, ma senza chiedere di selezionarlo a mano', async () => {
+test('un mazzo di solo Villico non mostra alcun passo: si va dritti all\'alba e Anna diventa Villico da sola', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
   const aggiornaGiocatore = vi.fn()
   render(
     <NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
   )
-  expect(screen.getByRole('heading', { name: /assegna i ruoli rimanenti/i })).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: /assegna i ruoli rimanenti/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
 })
@@ -120,7 +120,7 @@ test('non forza il Villico a fine notte se un altro ruolo del mazzo non è ancor
     />,
   )
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
 
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'villico' }))
 })
@@ -417,7 +417,10 @@ test('"Indietro" durante un\'azione già compiuta la annulla restando sullo stes
 
   const { rerender } = render(<NightSequencerConNotte {...props()} />)
 
-  await user.click(screen.getByRole('button', { name: 'Pietro' }))
+  // "Pietro" compare sia nel picker "chi ha questa carta" (AssegnaRuolo,
+  // sempre visibile) sia tra i candidati dell'azione stessa (il Paladino può
+  // proteggere anche se stesso): serve disambiguare sul gruppo giusto
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Pietro' }))
   rerender(<NightSequencerConNotte {...props()} />)
   expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
   expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
@@ -452,7 +455,7 @@ test('"Indietro" senza azione sul passo corrente torna al passo precedente mostr
 
   const { rerender } = render(<NightSequencerConNotte {...props()} />)
 
-  await user.click(screen.getByRole('button', { name: 'Pietro' }))
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Pietro' }))
   rerender(<NightSequencerConNotte {...props()} />)
 
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
@@ -604,7 +607,9 @@ test('la Fattucchiera blocca il potere del bersaglio inibito: nessuna azione mos
   render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
   expect(screen.getByText(/il potere è inibito questa notte dalla fattucchiera/i)).toBeInTheDocument()
-  expect(screen.queryByRole('group')).not.toBeInTheDocument()
+  // "chi ha questa carta" (AssegnaRuolo) resta visibile: solo l'azione vera
+  // e propria ("chi proteggere") è nascosta dall'inibizione
+  expect(screen.queryByRole('group', { name: 'Chi proteggere' })).not.toBeInTheDocument()
 })
 
 test('senza inibizione il potere resta disponibile normalmente', () => {

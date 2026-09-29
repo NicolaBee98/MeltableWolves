@@ -134,12 +134,23 @@ const RUOLI_SENZA_STEP_DEDICATO = ROLES.map((r) => r.slug).filter(
     !RUOLI_CON_STEP_DEDICATO.has(slug),
 )
 
+// il Villico (RUOLI_NON_ASSEGNABILI_MANUALMENTE) non va mai mostrato qui:
+// si assegna da solo in automatico a fine prima notte (vedi
+// autoAssegnaVillici in NightSequencer), non tramite questo passo. Oggi è
+// anche l'unico ruolo rimasto in RUOLI_SENZA_STEP_DEDICATO (Mezzosangue,
+// Ambasciatore, Berserker... hanno tutti un passo proprio): se in futuro ne
+// arrivasse un altro senza passo dedicato, tornerebbe a comparire qui da
+// solo, senza bisogno di ritoccare questo file.
+const RUOLI_ASSEGNA_RESTANTI = RUOLI_SENZA_STEP_DEDICATO.filter(
+  (slug) => !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug),
+)
+
 const PASSO_ASSEGNA_RESTANTI = {
   id: 'assegna-restanti',
   titolo: 'Assegna i ruoli rimanenti',
   tipo: 'informativo',
   primaNotteSolo: true,
-  ruoli: RUOLI_SENZA_STEP_DEDICATO,
+  ruoli: RUOLI_ASSEGNA_RESTANTI,
 }
 
 // va inserito subito dopo l'ultimo passo "solo prima notte" e prima di
@@ -154,7 +165,7 @@ const indiceUltimoPassoPrimaNotte = STEPS_CON_RUOLO_DEDICATO.reduce(
 
 export const NIGHT_STEPS = [
   ...STEPS_CON_RUOLO_DEDICATO.slice(0, indiceUltimoPassoPrimaNotte + 1),
-  PASSO_ASSEGNA_RESTANTI,
+  ...(RUOLI_ASSEGNA_RESTANTI.length > 0 ? [PASSO_ASSEGNA_RESTANTI] : []),
   ...STEPS_CON_RUOLO_DEDICATO.slice(indiceUltimoPassoPrimaNotte + 1),
 ]
 

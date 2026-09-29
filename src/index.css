@@ -521,6 +521,7 @@ legend {
 .libretto__personaggini {
   display: flex;
   justify-content: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.25rem;
@@ -588,9 +589,13 @@ legend {
   text-align: center;
 }
 
+/* colore del testo fisso (non var(--text)): l'avviso durante la notte
+   userebbe il bianco di quella fase su questo sfondo chiaro sempre uguale,
+   illeggibile (stesso bug già visto per Registro/impostazioni) */
 .mazzo-builder__avvisi,
 .avviso {
   background: var(--warn-bg);
+  color: var(--pal-inchiostro);
   border: var(--border);
   border-left-width: 6px;
   border-radius: 8px;
@@ -601,6 +606,7 @@ legend {
 
 .mazzo-builder__nota-ladro {
   background: var(--warn-bg);
+  color: var(--pal-inchiostro);
   border: var(--border);
   border-left-width: 6px;
   border-radius: 8px;

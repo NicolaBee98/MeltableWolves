@@ -40,7 +40,7 @@ test('ricliccare un giocatore già selezionato lo deseleziona', async () => {
   expect(onCambiaSelezioni).toHaveBeenCalledWith({ paladino: [] })
 })
 
-test('selezionare oltre la capacità del ruolo mostra un avviso e non chiama onCambiaSelezioni', async () => {
+test('ruolo a capacità 1: scegliere un altro giocatore sostituisce il precedente invece di rifiutare il click', async () => {
   const user = userEvent.setup()
   const onCambiaSelezioni = vi.fn()
   const giocatori = [
@@ -59,8 +59,56 @@ test('selezionare oltre la capacità del ruolo mostra un avviso e non chiama onC
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
+  expect(onCambiaSelezioni).toHaveBeenCalledWith({ sacerdote: ['2'] })
+})
+
+test('ruolo a capacità >1: selezionare oltre la capacità mostra un avviso e non chiama onCambiaSelezioni', async () => {
+  const user = userEvent.setup()
+  const onCambiaSelezioni = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Steve', vivo: true, ruoloSlug: undefined },
+    { id: '2', nome: 'Anna', vivo: true, ruoloSlug: undefined },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['guardia']}
+      giocatori={giocatori}
+      quantita={{ guardia: 2 }}
+      selezioni={{ guardia: ['1', '2'] }}
+      onCambiaSelezioni={onCambiaSelezioni}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
   expect(onCambiaSelezioni).not.toHaveBeenCalled()
-  expect(screen.getByText(/puoi selezionare al massimo 1/i)).toBeInTheDocument()
+  expect(screen.getByText(/puoi selezionare al massimo 2/i)).toBeInTheDocument()
+})
+
+test('resta visibile e modificabile anche a scelta già confermata (giocatore con ruoloSlug già scritto)', async () => {
+  const user = userEvent.setup()
+  const onRimuovi = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Steve', vivo: true, ruoloSlug: 'veggente' },
+    { id: '2', nome: 'Anna', vivo: true, ruoloSlug: undefined },
+  ]
+  render(
+    <AssegnaRuolo
+      ruoli={['veggente']}
+      giocatori={giocatori}
+      quantita={{ veggente: 1 }}
+      selezioni={{}}
+      onCambiaSelezioni={() => {}}
+      onRimuovi={onRimuovi}
+    />,
+  )
+
+  expect(screen.getByRole('button', { name: 'Steve' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Steve' }))
+
+  expect(onRimuovi).toHaveBeenCalledWith('1', 'veggente')
 })
 
 test('con più varianti di ruolo, un selettore permette di scegliere quale assegnare, mantenendo selezioni separate', async () => {

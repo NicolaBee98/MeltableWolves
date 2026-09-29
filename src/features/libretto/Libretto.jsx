@@ -8,8 +8,14 @@ import {
   iconaPath,
   personaggioPath,
   personaggioRiconoscimentoPath,
+  altezzaNaturaleRiconoscimento,
   FAZIONE_RUOLO_ICONA,
 } from '../../data/assetRuoli'
+
+// altezza a schermo del più alto dei quattro (Remo); gli altri si scalano
+// dallo stesso fattore, vedi altezzaNaturaleRiconoscimento
+const ALTEZZA_RICONOSCIMENTO_MASSIMA = 140
+const SCALA_RICONOSCIMENTO = ALTEZZA_RICONOSCIMENTO_MASSIMA / altezzaNaturaleRiconoscimento('remo')
 
 const FAZIONE_ICONA = {
   villaggio: 'icona_fazione_villaggio',
@@ -127,16 +133,12 @@ function SezioneRuoli() {
                   distribuirsi con lo stesso gap del resto di dt e poter
                   andare a capo singolarmente */}
               <span className="libretto__badge-poteri">
-                {FAZIONE_ICONA[ruolo.fazione] && (
-                  <img
-                    src={iconaPath(FAZIONE_ICONA[ruolo.fazione])}
-                    alt="fazione"
-                    width={22}
-                    height={22}
-                    className="libretto__icona"
-                  />
-                )}
-                {FAZIONE_RUOLO_ICONA[ruolo.slug] && (
+                {/* un ruolo con un proprio simbolo speciale (Chupacabra,
+                    Criceto Malvagio, Pifferaio, Capobranco, Figlia dei
+                    Lupi, Mezzosangue...) mostra SOLO quello, non anche
+                    l'icona generica della fazione: il simbolo speciale è
+                    già la sua fazione, più precisa */}
+                {FAZIONE_RUOLO_ICONA[ruolo.slug] ? (
                   <img
                     src={iconaPath(FAZIONE_RUOLO_ICONA[ruolo.slug])}
                     alt="simbolo speciale"
@@ -144,6 +146,16 @@ function SezioneRuoli() {
                     height={22}
                     className="libretto__icona"
                   />
+                ) : (
+                  FAZIONE_ICONA[ruolo.fazione] && (
+                    <img
+                      src={iconaPath(FAZIONE_ICONA[ruolo.fazione])}
+                      alt="fazione"
+                      width={22}
+                      height={22}
+                      className="libretto__icona"
+                    />
+                  )
                 )}
                 <BadgeCaratteristiche slug={ruolo.slug} />
               </span>
@@ -179,7 +191,13 @@ function SezionePersonaggini() {
     <div className="libretto__personaggini">
       {PERSONAGGINI_RICONOSCIMENTI.map((nome) => (
         <figure key={nome} className="libretto__personaggino-figura">
-          <img src={personaggioRiconoscimentoPath(nome)} alt="" aria-hidden="true" className="libretto__personaggino" />
+          <img
+            src={personaggioRiconoscimentoPath(nome)}
+            alt=""
+            aria-hidden="true"
+            className="libretto__personaggino"
+            style={{ height: altezzaNaturaleRiconoscimento(nome) * SCALA_RICONOSCIMENTO }}
+          />
           <figcaption>{nome[0].toUpperCase() + nome.slice(1)}</figcaption>
         </figure>
       ))}
