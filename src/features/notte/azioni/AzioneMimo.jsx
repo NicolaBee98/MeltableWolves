@@ -15,7 +15,23 @@ const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro']
 // la carta fisica del bersaglio, la sceglie qui: da quel momento il Mimo ha
 // letteralmente quel ruoloSlug (non un'imitazione a parte), quindi si
 // sveglia da solo insieme a lui, senza una seconda azione separata.
-export function AzioneMimo({ giocatori, aggiornaGiocatore, ruoliSelezionati = [], quantita = {} }) {
+//
+// La scelta della carta resta solo LOCALE (mimoRuoloScelto/onScegliRuoloMimo,
+// stato in NightSequencer) finché non si preme "Avanti": applicarla subito
+// cambierebbe il ruoloSlug del Mimo nello stesso istante, e siccome questo
+// passo esiste solo finché qualcuno ha ruoloSlug 'mimo', sparirebbe da solo a
+// metà scelta, facendo "saltare" la schermata al passo successivo (bug reale
+// osservato: si sceglie la carta e la schermata mostra già quella del ruolo
+// copiato). Restando una scelta locale, il passo non si tocca e resta
+// modificabile come ogni altra azione.
+export function AzioneMimo({
+  giocatori,
+  aggiornaGiocatore,
+  ruoliSelezionati = [],
+  quantita = {},
+  mimoRuoloScelto,
+  onScegliRuoloMimo,
+}) {
   const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
   if (!mimo) return null
 
@@ -34,6 +50,9 @@ export function AzioneMimo({ giocatori, aggiornaGiocatore, ruoliSelezionati = []
 
   const target = giocatori.find((g) => g.id === mimo.legame.targetId)
 
+  // il bersaglio ha già un ruolo noto in app (assegnato altrove, non da
+  // questa scelta): niente da chiedere qui, il Mimo lo scoprirà/adotterà
+  // quando quel ruolo si sveglierà (vedi mimoDiQuestoPasso in NightSequencer)
   if (target?.ruoloSlug) {
     return (
       <p>
@@ -56,23 +75,18 @@ export function AzioneMimo({ giocatori, aggiornaGiocatore, ruoliSelezionati = []
     ]),
   ]
 
-  function scegliRuolo(slug) {
-    aggiornaGiocatore(mimo.id, {
-      ruoloSlug: slug,
-      storiaRuoli: [...(mimo.storiaRuoli ?? []), slug],
-    })
-    aggiornaGiocatore(target.id, {
-      ruoloSlug: slug,
-      storiaRuoli: [...(target.storiaRuoli ?? []), slug],
-    })
-  }
-
   return (
     <div className="azione-mimo">
       <p>Che carta ha davvero {target?.nome}?</p>
       <div className="scelta-giocatore__chips" role="group" aria-label="Che carta ha il bersaglio del Mimo">
         {opzioni.map((slug) => (
-          <button key={slug} type="button" className="chip" onClick={() => scegliRuolo(slug)}>
+          <button
+            key={slug}
+            type="button"
+            className="chip"
+            aria-pressed={mimoRuoloScelto === slug}
+            onClick={() => onScegliRuoloMimo(slug)}
+          >
             {nomeRuolo(slug)}
           </button>
         ))}

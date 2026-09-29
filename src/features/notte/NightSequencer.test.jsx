@@ -637,7 +637,7 @@ test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coi
   expect(src.some((s) => s.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
 })
 
-test('quando il Mimo imita un ruolo che agisce, compaiono sia la sua illustrazione sia quella del ruolo imitato', () => {
+test('quando il Mimo imita un ruolo che agisce, compare la sua illustrazione accanto a quella del vero titolare (mai una seconda copia del ruolo imitato per il Mimo stesso)', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'veggente', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
@@ -648,8 +648,47 @@ test('quando il Mimo imita un ruolo che agisce, compaiono sia la sua illustrazio
 
   const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
   const src = [...illustrazioni].map((img) => img.src)
-  expect(src.some((s) => s.includes('Mimo.svg'))).toBe(true)
-  expect(src.filter((s) => s.includes('Veggente.svg'))).toHaveLength(2)
+  // Sara (il Mimo) mostra solo la propria faccia, non anche una seconda
+  // illustrazione da Veggente: resta visivamente se stessa, il vero
+  // titolare (Marco) è l'unico a mostrare il ruolo imitato
+  expect(src.filter((s) => s.includes('Mimo.svg'))).toHaveLength(1)
+  expect(src.filter((s) => s.includes('Veggente.svg'))).toHaveLength(1)
+})
+
+test('il Mimo che copia un ruolo non ancora assegnato: scegliere la carta resta sul passo "Mimo" (niente salto improvviso al passo del ruolo copiato) finché non si preme Avanti', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['mimo', 'cucciolo-di-lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+    />,
+  )
+
+  const chipCucciolo = screen.getByRole('button', { name: 'Cucciolo di Lupo Mannaro' })
+  await user.click(chipCucciolo)
+
+  // niente salto al passo "Cucciolo di Lupo Mannaro": si resta su "Mimo",
+  // la chip scelta è marcata attiva, e nessun giocatore è stato ancora toccato
+  expect(screen.getByRole('heading', { name: /^mimo/i })).toBeInTheDocument()
+  expect(chipCucciolo).toHaveAttribute('aria-pressed', 'true')
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+
+  // solo premendo Avanti la scelta diventa reale, per entrambi
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ruoloSlug: 'cucciolo-di-lupo-mannaro',
+    storiaRuoli: ['cucciolo-di-lupo-mannaro'],
+  })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', {
+    ruoloSlug: 'cucciolo-di-lupo-mannaro',
+    storiaRuoli: ['cucciolo-di-lupo-mannaro'],
+  })
 })
 
 test('la Fattucchiera blocca il potere del bersaglio inibito: nessuna azione mostrata', () => {

@@ -16,9 +16,10 @@ test('senza legame propone la scelta del bersaglio da imitare', async () => {
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: { tipo: 'mimo', targetId: '2' } })
 })
 
-test('con bersaglio scelto ma senza ruolo noto, propone le carte del mazzo (Villico sempre incluso)', async () => {
+test('con bersaglio scelto ma senza ruolo noto, propone le carte del mazzo (Villico sempre incluso): la scelta resta locale, non tocca i giocatori finché non si preme Avanti', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
+  const onScegliRuoloMimo = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', vivo: true },
@@ -29,6 +30,8 @@ test('con bersaglio scelto ma senza ruolo noto, propone le carte del mazzo (Vill
       aggiornaGiocatore={aggiornaGiocatore}
       ruoliSelezionati={['mimo', 'veggente']}
       quantita={{ veggente: 1 }}
+      mimoRuoloScelto={null}
+      onScegliRuoloMimo={onScegliRuoloMimo}
     />,
   )
 
@@ -38,8 +41,30 @@ test('con bersaglio scelto ma senza ruolo noto, propone le carte del mazzo (Vill
 
   await user.click(screen.getByRole('button', { name: 'Veggente' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', storiaRuoli: ['veggente'] })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'veggente', storiaRuoli: ['veggente'] })
+  // niente commit qui: il passo "mimo" esiste solo finché il ruoloSlug del
+  // Mimo resta 'mimo', quindi la scelta reale (via NightSequencer, sull'Avanti)
+  expect(onScegliRuoloMimo).toHaveBeenCalledWith('veggente')
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+})
+
+test('la carta già scelta (mimoRuoloScelto) resta modificabile: la chip corrispondente è marcata attiva', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  render(
+    <AzioneMimo
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['mimo', 'veggente']}
+      quantita={{ veggente: 1 }}
+      mimoRuoloScelto="veggente"
+      onScegliRuoloMimo={() => {}}
+    />,
+  )
+
+  expect(screen.getByRole('button', { name: 'Veggente' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Villico' })).toHaveAttribute('aria-pressed', 'false')
 })
 
 test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chiedere nulla', () => {
