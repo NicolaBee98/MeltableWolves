@@ -256,6 +256,19 @@ test('un ruolo "ogni notte" (es. Addolorata) mostra il picker "chi ha questa car
   expect(container.querySelectorAll('.ruolo-illustrazione')).toHaveLength(1)
 })
 
+test('un ruolo a titolare singolo con carta già distribuita a inizio partita (es. Cavaliere) non mostra l\'illustrazione due volte già alla prima notte', () => {
+  const giocatori = [
+    { id: '1', nome: 'Fabio', ruoloSlug: 'cavaliere', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Gino', ruoloSlug: undefined, vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte ruoliSelezionati={['cavaliere']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
+  )
+
+  expect(screen.getByRole('group', { name: 'Chi ha questa carta' })).toBeInTheDocument()
+  expect(container.querySelectorAll('.ruolo-illustrazione')).toHaveLength(1)
+})
+
 test("mostra lo scambio per Addolorata quando c'è una vittima al rogo della notte corrente", () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },

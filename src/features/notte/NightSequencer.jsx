@@ -279,6 +279,15 @@ export function NightSequencer({
         )
       : []
   const ruoliPendenti = ruoliAssegnabili(ruoliAssegnabiliStep, giocatori, quantita)
+  // sottoinsieme di ruoliAssegnabiliStep con un solo titolare reale: è
+  // l'unico caso in cui l'illustrazione di AssegnaRuolo qui sotto è
+  // esattamente la stessa persona che comparirebbe in IllustrazioniCoinvolti
+  // (va quindi esclusa da lì). Un ruolo con PIÙ titolari contemporanei (es.
+  // il Lupo Mannaro "generico", più copie nel mazzo) resta invece visibile
+  // per intero in IllustrazioniCoinvolti: lì AssegnaRuolo mostra solo UN
+  // ritratto generico, non uno per persona (vedi anche variante/mimo/vivo,
+  // che solo IllustrazioniCoinvolti sa rendere).
+  const ruoliAssegnabiliStepSingoli = ruoliAssegnabiliStep.filter((slug) => contaAssegnati(giocatori, slug) <= 1)
 
   const attoreConLegame = giocatoriCoinvolti.find((g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo])
   const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
@@ -500,18 +509,21 @@ export function NightSequencer({
             ` (${giocatoriCoinvolti.map((g) => (g.vivo ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
         </span>
       </h2>
-      {/* solo i titolari già confermati (non le selezioni ancora pendenti
-          per un ruolo di QUESTO passo, che hanno già la propria
-          illustrazione in AssegnaRuolo qui sotto — altrimenti comparirebbe
-          due volte lo stesso personaggio) e solo i vivi (un titolare morto
-          non deve comparire tra chi si sveglia). Un passo come "Il branco si
-          riconosce" copre più ruoli insieme (i Lupi generici ancora da
-          assegnare + Nonna/Progenitore/Cucciolo già assegnati nei loro passi
-          dedicati): questi ultimi vanno comunque mostrati qui, il branco si
-          vede al completo mentre si riconosce. */}
+      {/* mai i ruoli a titolare singolo che AssegnaRuolo gestisce in questo
+          stesso passo (ruoliAssegnabiliStepSingoli, che sia il titolare già
+          confermato o ancora da scegliere): quello ha già la propria
+          illustrazione qui sotto, altrimenti comparirebbe due volte lo
+          stesso personaggio — bug reale osservato ogni volta che un
+          titolare arriva già assegnato (carta distribuita a inizio partita)
+          su un passo ancora "assegnabile" (notte 1, o notte 2+ con posti
+          liberi). Solo i vivi (un titolare morto non deve comparire tra chi
+          si sveglia). Un passo come "Il branco si riconosce" (assegnabile:
+          false, quindi fuori da ruoliAssegnabiliStep) o un ruolo con più
+          titolari (es. Lupo Mannaro generico) mostra così comunque tutti i
+          suoi titolari. */}
       <IllustrazioniCoinvolti
         giocatori={giocatori}
-        giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo && !ruoliPendenti.includes(g.ruoloSlug))}
+        giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo && !ruoliAssegnabiliStepSingoli.includes(g.ruoloSlug))}
       />
       {/* "Possibile azione" (quando il passo prevedeva potenzialmente
           un'azione ma non c'era nessun titolare in attesa di selezione) è
