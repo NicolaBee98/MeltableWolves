@@ -509,6 +509,15 @@ legend {
   margin: 0 0 0.75rem 1.25rem;
 }
 
+.libretto__illustrazione {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin: 0.5rem auto 1rem;
+  border-radius: var(--radius);
+}
+
 .libretto__personaggini {
   display: flex;
   justify-content: center;
@@ -871,7 +880,11 @@ button.chip--malvagia {
   justify-content: center;
   align-items: flex-end;
   margin: 0.5rem 0 1rem;
-  overflow: hidden;
+  /* mai "overflow: hidden": con un branco molto numeroso, su schermi
+     stretti, taglierebbe via in silenzio gli ultimi personaggi invece di
+     segnalarlo — meglio uno scorrimento orizzontale, sempre visibile */
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .night-sequencer__illustrazione-slot {

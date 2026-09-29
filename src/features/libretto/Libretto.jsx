@@ -164,6 +164,13 @@ function SezionePersonaggio({ slug }) {
   return <img src={personaggioPath(slug)} alt="" aria-hidden="true" className="libretto__personaggio-testo" />
 }
 
+// illustrazione di scena (più larga che alta, es. villaggio.svg): a banner
+// sotto il titolo della sezione, non immersa nel testo come un personaggio
+function SezioneIllustrazione({ src }) {
+  if (!src) return null
+  return <img src={src} alt="" aria-hidden="true" className="libretto__illustrazione" />
+}
+
 // i quattro personaggini degli autori originali, in fondo ai Riconoscimenti;
 // il nome (preso dal nome del file) è testo HTML, non più disegnato dentro
 // l'SVG come nella versione precedente dell'illustrazione
@@ -211,6 +218,7 @@ export function Libretto({ onTornaAllaHome }) {
         <section key={sezione.titolo} className="libretto__sezione">
           <h3>{sezione.titolo}</h3>
           <SezionePersonaggio slug={sezione.personaggio} />
+          <SezioneIllustrazione src={sezione.immagine} />
           <Paragrafi paragrafi={sezione.paragrafi} />
           <Lista voci={sezione.lista} />
           {sezione.fazioni && <SezioneFazioni fazioni={sezione.fazioni} />}
