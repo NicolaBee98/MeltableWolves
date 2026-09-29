@@ -1,5 +1,6 @@
 import { ROLES, nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
+import { aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 const POTERE = 'ladro-scelta'
 
@@ -35,10 +36,17 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
     Boolean(carta2) &&
     [carta1, carta2].every((slug) => ROLES.find((r) => r.slug === slug)?.fazione === 'lupi')
 
+  // se il Mimo sta imitando il Ladro (stesso ruoloSlug 'ladro', vedi
+  // AzioneMimo.jsx: "si sveglia da solo insieme a lui"), scarto e scelta
+  // finale vanno scritti su ENTRAMBI, non solo sul primo trovato —
+  // altrimenti il Mimo resterebbe "ladro" per sempre anche dopo che il vero
+  // Ladro ha già scelto un'altra identità (le sue illustrazioni/il suo
+  // titolo continuerebbero a mostrare due persone diverse come fossero
+  // ancora la stessa carta)
   function impostaCarta(indice, slug) {
     const scarto = [carta1, carta2]
     scarto[indice] = slug || undefined
-    aggiornaGiocatore(ladro.id, { scartoLadro: scarto })
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'ladro', { scartoLadro: scarto })
   }
 
   // la carta non presa dal Ladro resta fuori dal mazzo per il resto della
@@ -50,11 +58,11 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   }
 
   function scegli(ruoloSlug) {
-    aggiornaGiocatore(ladro.id, {
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'ladro', (g) => ({
       ruoloSlug,
-      storiaRuoli: [...(ladro.storiaRuoli ?? []), ruoloSlug],
-      poteriUsati: [...(ladro.poteriUsati ?? []), POTERE],
-    })
+      storiaRuoli: [...(g.storiaRuoli ?? []), ruoloSlug],
+      poteriUsati: [...(g.poteriUsati ?? []), POTERE],
+    }))
     if (ruoloSlug === carta1 || ruoloSlug === carta2) {
       scartaCarta(ruoloSlug === carta1 ? carta2 : carta1)
     } else {

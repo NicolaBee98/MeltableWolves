@@ -16,6 +16,22 @@ test('propone lo scambio con la vittima del rogo della notte corrente', async ()
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', poteriUsati: ['addolorata-scambio'] })
 })
 
+test('se il Mimo sta imitando l\'Addolorata (stesso ruoloSlug), lo scambio si scrive su entrambi', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Gino', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '3', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2 },
+  ]
+  render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Scambia' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', poteriUsati: ['addolorata-scambio'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'veggente', poteriUsati: ['addolorata-scambio'] })
+})
+
 test('mostra un messaggio se nessuno è morto al rogo questa notte', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] }]
   render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
