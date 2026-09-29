@@ -512,7 +512,7 @@ legend {
 .libretto__illustrazione {
   display: block;
   width: 100%;
-  max-width: 420px;
+  max-width: 320px;
   height: auto;
   margin: 0.5rem auto 1rem;
   border-radius: var(--radius);
