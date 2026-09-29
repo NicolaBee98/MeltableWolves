@@ -808,6 +808,28 @@ button.chip--non-distribuita {
   color: var(--pal-bianco);
 }
 
+/* composizione del mazzo: colore secondo la fazione, per riconoscerle a
+   colpo d'occhio tra i ruoli disponibili (vedi MazzoBuilder.jsx) */
+button.chip--fazione-villaggio {
+  background: var(--pal-azzurro);
+  color: var(--pal-inchiostro);
+}
+
+button.chip--fazione-lupi {
+  background: var(--pal-rosso);
+  color: var(--pal-bianco);
+}
+
+button.chip--fazione-indipendente {
+  background: var(--pal-verde);
+  color: var(--pal-bianco);
+}
+
+button.chip--fazione-sconosciuto {
+  background: var(--pal-giallo);
+  color: var(--pal-inchiostro);
+}
+
 .azione-indagine__chip-slot {
   display: flex;
   flex-direction: column;

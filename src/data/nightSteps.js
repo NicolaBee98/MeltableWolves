@@ -19,16 +19,17 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
-  // Cucciolo, Capobranco, Progenitore e Nonna vanno identificati
-  // singolarmente qui, insieme agli altri poteri passivi (pag. 27): così
-  // quando più avanti il branco si riconosce collettivamente sono già tutti
-  // assegnati e non ricompaiono tra le carte da smistare (niente più
-  // selettore "che ruolo mostra la carta?" per la Nonna in mezzo ai Lupi
-  // generici), e resta da assegnare solo il Lupo Mannaro "generico".
+  // Cucciolo, Capobranco, Progenitore, Nonna e infine i Lupi Mannari
+  // "generici" vanno assegnati singolarmente PRIMA che il branco si
+  // riconosca collettivamente (pag. 27): il narratore sa chi ha quale carta
+  // (le ha distribuite lui), ma quella decisione non va presa nello stesso
+  // momento in cui i lupi aprono gli occhi insieme — lì non deve più
+  // esserci nulla da scegliere, solo da mostrare.
   { id: 'cucciolo-di-lupo-mannaro', titolo: 'Cucciolo di Lupo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['cucciolo-di-lupo-mannaro'] },
   { id: 'lupo-mannaro-capobranco', titolo: 'Lupo Mannaro Capobranco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-capobranco'] },
   { id: 'lupo-mannaro-progenitore', titolo: 'Lupo Mannaro Progenitore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-progenitore'] },
   { id: 'nonna', titolo: 'Nonna', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nonna'] },
+  { id: 'lupo-mannaro', titolo: 'Lupo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro'] },
   { id: 'criceto-malvagio', titolo: 'Criceto Malvagio', tipo: 'informativo', primaNotteSolo: true, ruoli: ['criceto-malvagio'] },
   { id: 'eremita', titolo: 'Eremita', tipo: 'informativo', primaNotteSolo: true, ruoli: ['eremita'] },
   { id: 'nano', titolo: 'Nano', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nano'] },
@@ -46,6 +47,12 @@ const STEPS_CON_RUOLO_DEDICATO = [
     titolo: 'Il branco si riconosce',
     tipo: 'informativo',
     primaNotteSolo: true,
+    // ogni ruolo del branco ha già il proprio passo di assegnazione qui
+    // sopra: qui non c'è più nulla da scegliere, solo da mostrare — i lupi
+    // aprono gli occhi tutti insieme, non è il momento per il narratore di
+    // decidere chi è chi (stessa ragione di "assegnabile: false" su
+    // branco-lupi qui sotto)
+    assegnabile: false,
     ruoli: RUOLI_BRANCO_LUPI,
   },
   { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },

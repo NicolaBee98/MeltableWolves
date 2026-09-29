@@ -12,6 +12,21 @@ function setup(overrides = {}) {
   return props
 }
 
+test('le chip disponibili hanno un colore per fazione, ma Borgomastro/Fantasma Onnisciente hanno quello "non distribuita" solo una volta nel mazzo', async () => {
+  const user = userEvent.setup()
+  const setQuantita = vi.fn()
+  setup({ setQuantita })
+
+  expect(screen.getByRole('button', { name: 'Veggente' })).toHaveClass('chip--fazione-villaggio')
+  expect(screen.getByRole('button', { name: 'Lupo Mannaro' })).toHaveClass('chip--fazione-lupi')
+  expect(screen.getByRole('button', { name: 'Borgomastro' })).toHaveClass('chip--fazione-villaggio')
+  expect(screen.getByRole('button', { name: 'Borgomastro' })).not.toHaveClass('chip--non-distribuita')
+
+  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
+  setup({ setQuantita, quantita: { borgomastro: 1 } })
+  expect(screen.getByRole('button', { name: /borgomastro ✕/i })).toHaveClass('chip--non-distribuita')
+})
+
 test('senza ruoli selezionati il box "Nel mazzo" mostra un messaggio vuoto', () => {
   setup()
   expect(screen.getByText(/nessuna carta selezionata/i)).toBeInTheDocument()

@@ -155,7 +155,12 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                 // copia): niente dissolvenza in uscita per loro, non escono
                 // mai davvero dalla lista
                 const inUscita = !RUOLI_INFINITI.includes(ruolo.slug) && uscenti.has(ruolo.slug)
-                const classe = `chip${inUscita ? ' chip--uscendo' : ''}${RUOLI_NON_CARTA_DISTRIBUITA.includes(ruolo.slug) ? ' chip--non-distribuita' : ''}`
+                // colore secondo la fazione (vedi .chip--fazione-* in
+                // index.css): qui, tra i ruoli disponibili, Borgomastro e
+                // Fantasma Onnisciente sono ruoli come gli altri della loro
+                // fazione — il colore viola "non è una carta distribuita"
+                // ha senso solo una volta nel mazzo (vedi chipsNelMazzoPer)
+                const classe = `chip chip--fazione-${fazione}${inUscita ? ' chip--uscendo' : ''}`
 
                 if (RUOLI_INFINITI.includes(ruolo.slug)) {
                   const valoreInfinito = quantita[ruolo.slug] ?? 0
@@ -163,7 +168,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                     <button
                       key={ruolo.slug}
                       type="button"
-                      className="chip"
+                      className={`chip chip--fazione-${fazione}`}
                       onClick={() => setQuantita(ruolo.slug, valoreInfinito + 1)}
                     >
                       <RuoloIcona slug={ruolo.slug} size={22} />
