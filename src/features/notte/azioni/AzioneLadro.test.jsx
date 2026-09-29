@@ -143,6 +143,36 @@ test('la carta già scelta nel primo select non è più selezionabile nel second
   expect(Array.from(select2.options).map((o) => o.value)).not.toContain('veggente')
 })
 
+test('se il Mimo sta imitando il Ladro (stesso ruoloSlug), la scelta finale si scrive su entrambi, non solo sul primo trovato', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['mimo', 'ladro'], legame: { tipo: 'mimo', targetId: '2' }, scartoLadro: ['veggente', 'paladino'] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Resta Villico' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ruoloSlug: 'villico',
+    storiaRuoli: ['mimo', 'ladro', 'villico'],
+    poteriUsati: ['ladro-scelta'],
+  })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', {
+    ruoloSlug: 'villico',
+    storiaRuoli: ['ladro', 'villico'],
+    poteriUsati: ['ladro-scelta'],
+  })
+})
+
 test('con il potere già usato mostra solo il messaggio', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: ['ladro-scelta'] }]
   render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
