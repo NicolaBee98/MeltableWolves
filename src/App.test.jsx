@@ -83,6 +83,22 @@ test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due
   expect(screen.getByText(/hai 1 giocatori per 0 ruoli/i)).toBeInTheDocument()
 })
 
+test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel conteggio atteso', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
+  await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
+  await user.click(screen.getByRole('button', { name: 'Continua' }))
+
+  // mazzo: Mimo + Borgomastro + Fantasma Onnisciente = 3 ruoli, ma i due
+  // titoli non aggiungono nessun giocatore: 1 atteso, non 3
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+})
+
 test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   const user = userEvent.setup()
   render(<App />)

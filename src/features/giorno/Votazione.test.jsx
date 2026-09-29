@@ -116,7 +116,7 @@ test('un designato di ruolo ancora ignoto può rivelarsi Spilungone o L\'Antico 
     { id: '1', nome: 'Anna', vivo: true },
     { id: '2', nome: 'Marco', vivo: true },
   ]
-  const { onRogo, onRivelazione } = setup({
+  const { onRogo, onAnticoRivelazione } = setup({
     giocatori: giocatoriSenzaRuoloNoto,
     voti: { 1: 2 },
     fase: 'esito',
@@ -127,7 +127,11 @@ test('un designato di ruolo ancora ignoto può rivelarsi Spilungone o L\'Antico 
   expect(screen.getByRole('button', { name: 'Si rivela: è lo Spilungone' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: "Si rivela: è L'Antico" }))
 
-  expect(onRivelazione).toHaveBeenCalledWith('lantico', '1')
+  // non onRivelazione + onAnticoRivelazione separati: due aggiornaGiocatore
+  // in sequenza sulla stessa persona si perderebbero a vicenda lo
+  // storiaRuoli (vedi GiornoPanel.dichiaraAnticoRivelazione), quindi è
+  // quest'ultimo da solo a registrare anche il 'lantico' mai assegnato prima
+  expect(onAnticoRivelazione).toHaveBeenCalledWith('1')
   expect(onRogo).not.toHaveBeenCalled()
   expect(screen.getByText(/anna rivela la propria carta: è l'antico/i)).toBeInTheDocument()
 })

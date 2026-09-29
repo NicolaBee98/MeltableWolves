@@ -88,6 +88,33 @@ test('Cartomante: indagando un bersaglio senza ruolo ancora noto, chiede quale r
   })
 })
 
+test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma Onnisciente, Suocera o Borgomastro (non sono carte in mano dall\'inizio)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], storiaRuoli: [] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'villico', 'fantasma-onnisciente', 'suocera', 'borgomastro']}
+      quantita={{ cartomante: 1, villico: 5, 'fantasma-onnisciente': 1, suocera: 1, borgomastro: 1 }}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  expect(screen.queryByRole('button', { name: 'Fantasma Onnisciente' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Suocera' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Borgomastro' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Villico' })).toBeInTheDocument()
+})
+
 test('Medium: propone solo i giocatori morti come bersaglio', () => {
   const giocatori = [
     { id: '1', nome: 'Sonia', ruoloSlug: 'medium', vivo: true, condizioni: [] },

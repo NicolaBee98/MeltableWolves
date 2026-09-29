@@ -3,6 +3,15 @@ import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { ROLES } from '../../../data/roles'
 import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
+import { RUOLI_RIVELAZIONE_ALLA_MORTE } from '../../../data/nightSteps'
+
+// Fantasma Onnisciente e Suocera (RUOLI_RIVELAZIONE_ALLA_MORTE) non sono mai
+// la carta segreta in mano a un giocatore vivo: si ricevono solo alla morte.
+// Il Borgomastro non è nemmeno una carta a sé: è un titolo assegnato per
+// elezione sopra il ruolo già posseduto (pag. 13), "questo giocatore
+// mantiene comunque il ruolo assegnatogli all'inizio della partita". Nessuno
+// dei tre può quindi essere la risposta a "che carta tiene in mano?".
+const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro']
 
 function nomeRuolo(ruoloSlug) {
   return ROLES.find((r) => r.slug === ruoloSlug)?.nome ?? 'ruolo sconosciuto'
@@ -77,7 +86,11 @@ export function AzioneRivelaRuolo({
     // qui, a differenza dell'assegnazione automatica di inizio notte, anche
     // il Villico va offerto: il narratore vede la carta fisica in mano, può
     // benissimo essere quella
-    const opzioni = ruoliAssegnabili(ruoliSelezionati, giocatori, quantita)
+    const opzioni = ruoliAssegnabili(
+      ruoliSelezionati.filter((slug) => !RUOLI_NON_CARTA_SEGRETA.includes(slug)),
+      giocatori,
+      quantita,
+    )
     return (
       <div className="azione-indagine">
         <p>La carta di {target?.nome} è ancora sconosciuta: quale ruolo mostra?</p>

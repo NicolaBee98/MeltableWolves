@@ -61,7 +61,7 @@ export const ROLES = [
     testoRegole: "Ogni notte lancia un incantesimo su una persona, trasformandola in maiale per una giornata. Il malcapitato dovrà parlare solo tramite grugniti fino al calar della notte (vedi **Trasformato**)." },
   { slug: 'medium', nome: 'Medium', fazione: 'villaggio', notturno: true,
     testoRegole: "Ogni notte può interrogare un membro del villaggio defunto in merito alla sua vita passata e scoprire quale fosse il suo “vecchio” ruolo guardandone la carta.\n**Variante**: Il Medium potrà percepire soltanto se il ruolo avesse aura benevola o malvagia" },
-  { slug: 'mezzosangue', nome: 'Mezzosangue', fazione: 'villaggio', notturno: false,
+  { slug: 'mezzosangue', nome: 'Mezzosangue', fazione: 'sconosciuto', notturno: false,
     testoRegole: "A causa del suo sangue misto, se viene sbranato dai lupi non muore ma diventa Lupo Mannaro. Nel caso non venga mai sbranato rimane un normale Villico che vince assieme al villaggio." },
   { slug: 'mimo', nome: 'Mimo', fazione: 'sconosciuto', notturno: true,
     testoRegole: "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la partita. Se il ruolo scelto compie delle azioni di notte (*Lupo Mannaro, Veggente, Paladino* etc.) il *Mimo* si sveglia assieme ad esso e si accorda sull'agire." },

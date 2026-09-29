@@ -48,8 +48,17 @@ export default function App() {
 
   // con il Ladro il mazzo fisico ha 2 carte in più dei giocatori (pag. 15):
   // il conteggio atteso dei giocatori va ridotto di conseguenza, quelle due
-  // carte non sono destinate a nessuno
-  const totaleRuoliMazzo = Object.values(quantita).reduce((somma, n) => somma + n, 0) - (quantita.ladro > 0 ? 2 : 0)
+  // carte non sono destinate a nessuno. Borgomastro e Fantasma Onnisciente
+  // non aggiungono invece nessun giocatore in più: il Borgomastro è un
+  // titolo assegnato per elezione sopra un ruolo già distribuito (pag. 13),
+  // il Fantasma Onnisciente si riceve solo alla morte al posto della
+  // propria vecchia carta (pag. 13) — la loro "carta" nel mazzo non conta
+  // come una casella giocatore a sé.
+  const totaleRuoliMazzo =
+    Object.values(quantita).reduce((somma, n) => somma + n, 0) -
+    (quantita.ladro > 0 ? 2 : 0) -
+    (quantita.borgomastro > 0 ? 1 : 0) -
+    (quantita['fantasma-onnisciente'] > 0 ? 1 : 0)
   const ruoliSelezionati = ruoliAttivi(
     ruoliInMazzo.map((r) => r.slug),
     giocatori,
@@ -73,8 +82,11 @@ export default function App() {
   return (
     <main className={`app${faseApp === 'home' ? ' app--home' : ''}`} data-fase={faseApp}>
       <h1 className="app__titolo">
-        <span className="app__titolo-meltable">Meltable</span>
-        <span className="app__titolo-wolves">Wolves</span>
+        {faseApp === 'home' ? (
+          <img src="/assets/titolo/Titolo.svg" alt="Meltable Wolves" className="app__logo app__logo--home" />
+        ) : (
+          <img src="/assets/titolo/Titolo_in_linea.svg" alt="Meltable Wolves" className="app__logo app__logo--inline" />
+        )}
       </h1>
 
       {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (

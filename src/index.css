@@ -141,37 +141,27 @@ p {
 
 .app__titolo {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
   justify-content: center;
   margin-bottom: 1rem;
 }
 
 .app--home .app__titolo {
-  font-family: var(--font-logo);
-  font-size: 2.6rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
   margin-top: 2rem;
-  -webkit-text-stroke: 1.5px var(--pal-inchiostro);
 }
 
 .app:not(.app--home) .app__titolo {
-  font-size: 1.1rem;
   justify-content: flex-start;
   margin-bottom: 1.25rem;
 }
 
-.app__titolo-meltable {
-  color: var(--pal-rosso);
+.app__logo--home {
+  width: 220px;
+  height: auto;
 }
 
-.app__titolo-wolves {
-  color: var(--pal-azzurro);
-}
-
-.app:not(.app--home) .app__titolo-wolves {
-  color: var(--text-soft);
+.app__logo--inline {
+  width: 200px;
+  height: auto;
 }
 
 /* Buttons: bordo netto + ombra "hard" (nessuna sfumatura) come i contorni
@@ -325,10 +315,8 @@ legend {
 }
 
 .mazzo-galleria__indietro {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--border-soft);
-  box-shadow: none;
+  background: var(--pal-azzurro);
+  color: var(--pal-blu-notte);
 }
 
 .mazzo-galleria__fazione h3 {
@@ -414,10 +402,8 @@ legend {
 /* Libretto: regolamento completo, una pagina continua */
 
 .libretto__indietro {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--border-soft);
-  box-shadow: none;
+  background: var(--pal-azzurro);
+  color: var(--pal-blu-notte);
   margin-bottom: 0.5rem;
 }
 
@@ -516,17 +502,11 @@ legend {
   color: var(--text-soft);
 }
 
-.libretto__immagini {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin: 1rem 0;
-}
-
-.libretto__immagine {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
+.libretto__personaggio-testo {
+  float: right;
+  width: 110px;
+  height: auto;
+  margin: 0 0 0.75rem 1.25rem;
 }
 
 .libretto__personaggini {
@@ -537,9 +517,24 @@ legend {
   margin-top: 1.25rem;
 }
 
+.libretto__personaggino-figura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
 .libretto__personaggino {
-  width: 90px;
-  height: auto;
+  height: 140px;
+  width: auto;
+}
+
+.libretto__personaggino-figura figcaption {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-soft);
 }
 
 /* Mazzo builder */
@@ -584,7 +579,8 @@ legend {
   text-align: center;
 }
 
-.mazzo-builder__avvisi {
+.mazzo-builder__avvisi,
+.avviso {
   background: var(--warn-bg);
   border: var(--border);
   border-left-width: 6px;
@@ -769,12 +765,22 @@ legend {
   opacity: 1;
 }
 
-.chip--benevola {
+/* selettore su "button" (non solo la classe) per battere in specificità
+   button[aria-pressed='true'] qui sopra, che altrimenti sovrascrive sempre
+   lo sfondo colorato dell'aura (stessa specificità classe-vs-attributo,
+   quest'ultimo vince perché è più in alto nel file) */
+button.chip--benevola {
   background: var(--pal-azzurro);
   color: var(--pal-inchiostro);
 }
 
-.chip--malvagia {
+/* testo scuro anche da premuta: .chip[aria-pressed='true'] (specificità
+   più alta) altrimenti lo forzerebbe bianco, illeggibile sull'azzurro chiaro */
+.chip.chip--benevola[aria-pressed='true'] {
+  color: var(--pal-inchiostro);
+}
+
+button.chip--malvagia {
   background: var(--pal-rosso);
   color: var(--pal-bianco);
 }
@@ -1128,12 +1134,18 @@ legend {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  width: auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  padding: 0.4rem 0.7rem;
-  background: transparent;
-  border-color: var(--pal-blu-notte);
-  color: var(--pal-blu-notte);
+  background: var(--pal-bianco);
+  border-color: var(--pal-inchiostro);
+  color: var(--pal-inchiostro);
 }
 
 .eventi-speciali__lista {
@@ -1200,12 +1212,18 @@ legend {
   position: absolute;
   top: 1rem;
   right: 1.25rem;
-  width: auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  padding: 0.4rem 0.7rem;
-  background: transparent;
-  border-color: var(--pal-blu-notte);
-  color: var(--pal-blu-notte);
+  background: var(--pal-bianco);
+  border-color: var(--pal-inchiostro);
+  color: var(--pal-inchiostro);
 }
 
 .log-impostazioni__tabs {
@@ -1216,9 +1234,9 @@ legend {
 
 .log-impostazioni__tabs button {
   flex: 1;
-  background: transparent;
-  border-color: var(--pal-blu-notte);
-  color: var(--pal-blu-notte);
+  background: var(--pal-bianco);
+  border-color: var(--pal-inchiostro);
+  color: var(--pal-inchiostro);
 }
 
 .log-impostazioni__impostazioni {

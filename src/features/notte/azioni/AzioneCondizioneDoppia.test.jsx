@@ -58,16 +58,32 @@ test('con escludiAttore, l\'attore non compare tra i propri candidati (il Piffer
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
-test('nasconde la selezione se il potere è già stato usato questa notte', () => {
-  const conPifferaioUsato = [...giocatori, { id: '4', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: ['pifferaio'] }]
+test('la coppia scelta resta modificabile: le chip restano tutte cliccabili anche a coppia già completa', async () => {
+  const user = userEvent.setup()
+  const conPifferaioUsato = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'], note: '' },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: ['pifferaio'] },
+  ]
+  const aggiornaGiocatore = vi.fn()
   render(
     <AzioneCondizioneDoppia
       giocatori={conPifferaioUsato}
-      aggiornaGiocatore={() => {}}
+      aggiornaGiocatore={aggiornaGiocatore}
       condizione="ipnotizzato"
       etichetta="Chi ipnotizzare"
       ruoloSlugAttore="pifferaio"
+      escludiAttore
     />,
   )
-  expect(screen.getByText(/potere già utilizzato questa notte/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  // deseleziona Marco e sceglie Luca al suo posto
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['ipnotizzato'] })
 })

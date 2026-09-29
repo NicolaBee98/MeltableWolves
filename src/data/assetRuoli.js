@@ -163,10 +163,8 @@ export const FAZIONE_RUOLO_ICONA = {
   mezzosangue: 'icona_voltagabbana',
 }
 
-const ICONE_PNG = new Set(['icona_rogo', 'icona_alba', 'icona_giorno'])
 export function iconaPath(nomeFile) {
-  const ext = ICONE_PNG.has(nomeFile) ? 'png' : 'svg'
-  return `/assets/icone/${nomeFile}.${ext}`
+  return `/assets/icone/${nomeFile}.svg`
 }
 
 // riconoscimenti/: i personaggini dei quattro autori originali, per chiudere

@@ -27,7 +27,7 @@ All'inizio del gioco scegliete chi farà il **Narratore**, che non appartiene a 
   },
   {
     titolo: "È notte nel villaggio...",
-    immagini: ['icona_alba', 'icona_giorno'],
+    personaggio: 'lupo-mannaro',
     paragrafi: [`Durante il gioco si alternano due fasi: la **notte** e il **giorno**.`, `Di notte** **tutti (anche i morti!) **chiudono ****gli occhi** e il **narratore** chiama i singoli ruoli con abilità particolari, che si **svegliano** per svolgere le loro **azioni**; per ultimi si svegliano i *Lupi Mannari*, che **sbranano** un giocatore. Tutti i ruoli che agiscono di notte devono essere chiamati: se il personaggio è **morto** non potrà agire ma il narratore lascerà comunque un **momento di silenzio** per non far capire che quel personaggio non è più in gioco.`, `**Di giorno** il narratore annuncia gli avvenimenti della notte (se e quali giocatori sono morti o sono stati colpiti dai poteri di altri ruoli), poi tutti gli abitanti del villaggio **discutono** **e condannano** al rogo una persona, sperando che sia un lupo mannaro.
 Si inizia a votare dalla destra del morto (o, in assenza di morti, dalla destra del narratore) e si continua il giro in **senso antiorario**. La persona con più voti **muore sul rogo**.
 In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**arringa difensiva**, nella quale, in un tempo limitato e uguale per tutti, devono cercare di **convincere** i compaesani della loro innocenza; al termine delle arringhe il villaggio vota **per alzata di mano** chi tra i candidati mandare al rogo. Durante questo spareggio, in via del tutto eccezionale, **anche i morti possono votare**. Dopo il rogo, il narratore annuncia l'inizio di una **nuova ****notte**, e così via, fino a che una delle fazioni riesce a vincere. La vittoria è di **tutta la fazione** vincente (Lupi o Villici), inclusi i morti.`],
@@ -105,7 +105,7 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
   },
   {
     titolo: 'Narrare una partita',
-    immagini: ['icona_rogo'],
+    personaggio: 'boia',
     paragrafi: [
       `Spesso le cose da tenere in considerazione durante una partita sono **tante**, soprattutto se si utilizzano molti ruoli. Può quindi essere utile avere sottomano **carta e penna**, in modo da segnare i ruoli di ogni giocatore, le vittime dei lupi e le altre condizioni particolari che i personaggi possono ricevere nel gioco.
 Non temere, in caso di dubbi ricorda che la prima regola di Meltable Wolves è:

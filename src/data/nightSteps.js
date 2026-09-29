@@ -37,6 +37,10 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'ubriaco', titolo: 'Ubriaco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ubriaco'] },
   { id: 'ambasciatore', titolo: 'Ambasciatore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['ambasciatore'] },
   { id: 'berserker', titolo: 'Berserker', tipo: 'informativo', primaNotteSolo: true, ruoli: ['berserker'] },
+  // altrimenti finisce nel generico "Assegna i ruoli rimanenti" insieme al
+  // Villico, con un titolo che non lo nomina nemmeno: come gli altri ruoli
+  // passivi qui sopra merita un passo tutto suo, anche se non fa nulla
+  { id: 'mezzosangue', titolo: 'Mezzosangue', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mezzosangue'] },
   {
     id: 'identifica-branco',
     titolo: 'Il branco si riconosce',
@@ -50,12 +54,17 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'cavaliere', titolo: 'Cavaliere', tipo: 'azione', primaNotteSolo: true, ruoli: ['cavaliere'] },
   { id: 'figlia-dei-lupi', titolo: 'Figlia dei Lupi', tipo: 'azione', primaNotteSolo: true, ruoli: ['figlia-dei-lupi'] },
   { id: 'sacerdote', titolo: 'Sacerdote', tipo: 'azione', primaNotteSolo: true, ruoli: ['sacerdote'] },
-  { id: 'guardia', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia'] },
+  // subito dopo chi li crea (il Sacerdote), non dopo le Guardie
+  { id: 'innamorati', titolo: 'Innamorati si riconoscono', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato' },
+  // se nel mazzo c'è anche la Guardia Mannara, la sua carta è indistinguibile
+  // dalle altre (pag. 8): il passo qui sotto le riconosce già tutte insieme,
+  // quindi questo va saltato per non avere due schede separate per lo stesso
+  // riconoscimento (vedi escludiSeSelezionato)
+  { id: 'guardia', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia'], escludiSeSelezionato: ['guardia-mannara'] },
   // la Guardia Mannara si sveglia insieme a TUTTE le Guardie (pag. 8): la sua
   // carta è indistinguibile dalla loro, quindi il narratore deve chiamarle
   // tutte insieme, senza sapere quale in realtà "tradisce" il branco
   { id: 'guardia-mannara', titolo: 'Le Guardie si riconoscono', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'] },
-  { id: 'innamorati', titolo: 'Innamorati si riconoscono', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato' },
   { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
 
   // --- Ogni notte, poteri non mortali (pag. 28) ---
@@ -189,6 +198,7 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { 
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
     if (maledetto && passoBloccatoDallaMaledizione(step)) return false
+    if (step.escludiSeSelezionato?.some((slug) => ruoliSelezionati.includes(slug))) return false
 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))

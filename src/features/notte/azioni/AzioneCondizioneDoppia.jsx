@@ -1,6 +1,9 @@
 import { SceltaDoppiaGiocatore } from './SceltaDoppiaGiocatore'
-import { aggiungiCondizionePatch, usatoStanotte, segnaUsoStanotte } from '../../../data/effettiNotte'
+import { segnaUsoStanotte } from '../../../data/effettiNotte'
 
+// la coppia scelta resta modificabile finché non si preme "Avanti" (stesso
+// principio di AzioneCondizioneSingola): niente più gate che nasconde le
+// chip subito dopo la prima coppia confermata.
 export function AzioneCondizioneDoppia({
   giocatori,
   aggiornaGiocatore,
@@ -11,27 +14,32 @@ export function AzioneCondizioneDoppia({
 }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const vivi = giocatori.filter((g) => g.vivo && (!escludiAttore || g.id !== attore?.id))
-  const ruoli = [ruoloSlugAttore]
-
-  if (usatoStanotte(giocatori, ruoli, ruoloSlugAttore)) {
-    return <p>Potere già utilizzato questa notte.</p>
-  }
 
   function confermaScelta(idA, idB) {
-    for (const id of [idA, idB]) {
+    const coppia = [idA, idB]
+    // toglie la condizione a chi l'aveva presa in una coppia precedente di
+    // questa stessa notte e non fa più parte della nuova coppia
+    giocatori
+      .filter((g) => g.condizioni.includes(condizione) && !coppia.includes(g.id))
+      .forEach((g) => aggiornaGiocatore(g.id, { condizioni: g.condizioni.filter((c) => c !== condizione) }))
+    for (const id of coppia) {
       const target = giocatori.find((g) => g.id === id)
-      if (!target) continue
-      const patch = aggiungiCondizionePatch(target, condizione)
-      if (patch) {
-        aggiornaGiocatore(id, patch)
+      if (target && !target.condizioni.includes(condizione)) {
+        aggiornaGiocatore(id, { condizioni: [...target.condizioni, condizione] })
       }
     }
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, ruoloSlugAttore)
+    segnaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
   }
 
-  function salta() {
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, ruoloSlugAttore)
-  }
+  const selezionatiIniziali = vivi.filter((g) => g.condizioni.includes(condizione)).map((g) => g.id)
 
-  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={salta} etichetta={etichetta} />
+  return (
+    <SceltaDoppiaGiocatore
+      candidati={vivi}
+      onConferma={confermaScelta}
+      onSalta={() => {}}
+      etichetta={etichetta}
+      selezionatiIniziali={selezionatiIniziali}
+    />
+  )
 }
