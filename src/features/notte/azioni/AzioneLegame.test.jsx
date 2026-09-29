@@ -24,21 +24,28 @@ test('conferma stabilisce il legame sul giocatore attore', async () => {
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: { tipo: 'apprendista', targetId: '2' } })
 })
 
-test('mostra un messaggio se il legame è già stabilito', () => {
+test('col legame già stabilito, le chip restano visibili e modificabili (principio "editabile finché non premi Avanti"): quella del bersaglio scelto è marcata attiva', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Elena', ruoloSlug: 'villico', vivo: true, condizioni: [] },
   ]
   render(
     <AzioneLegame
       giocatori={giocatori}
-      aggiornaGiocatore={() => {}}
+      aggiornaGiocatore={aggiornaGiocatore}
       ruoloSlugAttore="apprendista"
       tipoLegame="apprendista"
       etichetta="Chi seguire"
     />,
   )
-  expect(screen.getByText(/legame già stabilito con Marco/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Elena' })).toHaveAttribute('aria-pressed', 'false')
+
+  await user.click(screen.getByRole('button', { name: 'Elena' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: { tipo: 'apprendista', targetId: '3' } })
 })
 
 test("non mostra l'attore stesso tra i candidati", () => {
