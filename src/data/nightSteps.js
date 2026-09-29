@@ -42,19 +42,6 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // Villico, con un titolo che non lo nomina nemmeno: come gli altri ruoli
   // passivi qui sopra merita un passo tutto suo, anche se non fa nulla
   { id: 'mezzosangue', titolo: 'Mezzosangue', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mezzosangue'] },
-  {
-    id: 'identifica-branco',
-    titolo: 'Il branco si riconosce',
-    tipo: 'informativo',
-    primaNotteSolo: true,
-    // ogni ruolo del branco ha già il proprio passo di assegnazione qui
-    // sopra: qui non c'è più nulla da scegliere, solo da mostrare — i lupi
-    // aprono gli occhi tutti insieme, non è il momento per il narratore di
-    // decidere chi è chi (stessa ragione di "assegnabile: false" su
-    // branco-lupi qui sotto)
-    assegnabile: false,
-    ruoli: RUOLI_BRANCO_LUPI,
-  },
   { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
   { id: 'gallo-mannaro', titolo: 'Gallo Mannaro (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
@@ -101,8 +88,12 @@ const STEPS_CON_RUOLO_DEDICATO = [
     titolo: 'Branco dei Lupi',
     tipo: 'azione',
     primaNotteSolo: false,
-    // l'identità dei lupi si stabilisce solo nel passo "identifica-branco",
-    // la prima notte: qui si sceglie soltanto la vittima, ogni notte
+    // i lupi si svegliano e riconoscono qui, tutti insieme, nello stesso
+    // momento in cui scelgono la vittima (non in un passo separato prima):
+    // l'identità di ciascuno si è già stabilita nei rispettivi passi di
+    // assegnazione qui sopra (Cucciolo, Capobranco, Progenitore, Nonna,
+    // Lupo Mannaro), quindi qui non c'è nulla da scegliere su CHI è chi,
+    // solo la vittima
     assegnabile: false,
     ruoli: RUOLI_BRANCO_LUPI,
   },

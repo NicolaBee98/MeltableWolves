@@ -24,25 +24,26 @@ test('paladino compare a ogni notte', () => {
   expect(passiNotte(['paladino'], 5, NESSUN_GIOCATORE).map((p) => p.id)).toContain('paladino')
 })
 
-test('senza lupi ancora identificati, la prima notte propone il passo dedicato "lupo-mannaro" per assegnarli, non ancora "identifica-branco" o "branco-lupi"', () => {
+test('senza lupi ancora identificati, la prima notte propone il passo dedicato "lupo-mannaro" per assegnarli, non ancora "branco-lupi"', () => {
   const passi = passiNotte(['lupo-mannaro'], 1, NESSUN_GIOCATORE).map((p) => p.id)
   expect(passi).toContain('lupo-mannaro')
-  expect(passi).not.toContain('identifica-branco')
   expect(passi).not.toContain('branco-lupi')
 })
 
-test('una volta identificato un lupo vivo, "identifica-branco" e "branco-lupi" compaiono', () => {
+test('una volta identificato un lupo vivo, "branco-lupi" compare: è lì che il branco si riconosce E sceglie la vittima, nello stesso passo', () => {
   const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]
   const passi = passiNotte(['lupo-mannaro'], 1, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
-  expect(passi).toContain('identifica-branco')
   expect(passi).toContain('branco-lupi')
 })
 
-test('"identifica-branco" compare solo alla prima notte, "branco-lupi" continua a comparire', () => {
+test('"branco-lupi" continua a comparire anche dalla notte 2', () => {
   const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]
   const passi = passiNotte(['lupo-mannaro'], 2, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
-  expect(passi).not.toContain('identifica-branco')
   expect(passi).toContain('branco-lupi')
+})
+
+test('"identifica-branco" non esiste più: il branco si riconosce direttamente nel passo "branco-lupi", non in un passo separato prima', () => {
+  expect(NIGHT_STEPS.find((s) => s.id === 'identifica-branco')).toBeUndefined()
 })
 
 test("rispetta l'ordine del regolamento tra le categorie", () => {
@@ -51,24 +52,24 @@ test("rispetta l'ordine del regolamento tra le categorie", () => {
   expect(ordine).toEqual(['fattucchiera', 'veggente', 'strega'])
 })
 
-test("identifica-branco viene prima dei gesti segreti di Bardo/Gallo Mannaro (ordine libretto pag. 27)", () => {
+test("bardo e gallo mannaro vengono prima di branco-lupi (ordine libretto: poteri non mortali prima di quelli mortali)", () => {
   const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]
   const ruoli = ['lupo-mannaro', 'bardo', 'gallo-mannaro']
   const ordine = passiNotte(ruoli, 1, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
-  expect(ordine).toEqual(['lupo-mannaro', 'identifica-branco', 'bardo', 'gallo-mannaro', 'branco-lupi'])
+  expect(ordine).toEqual(['lupo-mannaro', 'bardo', 'gallo-mannaro', 'branco-lupi'])
 })
 
-test('cucciolo di lupo mannaro ha un passo dedicato tra i poteri passivi, prima che il branco si riconosca collettivamente', () => {
+test('cucciolo di lupo mannaro ha un passo dedicato tra i poteri passivi, prima che il branco si riconosca collettivamente in branco-lupi', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['cucciolo-di-lupo-mannaro'] },
   ]
   const ordine = passiNotte(['cucciolo-di-lupo-mannaro'], 1, giocatori).map((p) => p.id)
-  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'identifica-branco', 'branco-lupi'])
+  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'branco-lupi'])
 })
 
-test('"identifica-branco" non mostra mai un selettore per assegnare un ruolo: ogni membro del branco ha già il proprio passo dedicato prima', () => {
-  const identificaBranco = NIGHT_STEPS.find((s) => s.id === 'identifica-branco')
-  expect(identificaBranco.assegnabile).toBe(false)
+test('"branco-lupi" non mostra mai un selettore per assegnare un ruolo: ogni membro del branco ha già il proprio passo dedicato prima, qui si sceglie solo la vittima', () => {
+  const brancoLupi = NIGHT_STEPS.find((s) => s.id === 'branco-lupi')
+  expect(brancoLupi.assegnabile).toBe(false)
 })
 
 test('Ambasciatore e Berserker hanno un passo dedicato di identificazione, come gli altri ruoli a potere passivo', () => {
@@ -76,10 +77,10 @@ test('Ambasciatore e Berserker hanno un passo dedicato di identificazione, come 
   expect(ordine).toEqual(['ambasciatore', 'berserker'])
 })
 
-test('la Nonna ha un passo dedicato prima che il branco si riconosca (niente selettore di ruolo in mezzo ai Lupi generici)', () => {
+test('la Nonna ha un passo dedicato prima che il branco si riconosca in branco-lupi (niente selettore di ruolo in mezzo ai Lupi generici)', () => {
   const giocatori = [{ id: '1', nome: 'Nonna', ruoloSlug: 'nonna', vivo: true, condizioni: [], storiaRuoli: ['nonna'] }]
   const ordine = passiNotte(['nonna'], 1, giocatori).map((p) => p.id)
-  expect(ordine).toEqual(['nonna', 'identifica-branco', 'branco-lupi'])
+  expect(ordine).toEqual(['nonna', 'branco-lupi'])
 })
 
 test('capobranco e progenitore hanno anch\'essi un passo dedicato prima che il branco si riconosca', () => {
@@ -91,7 +92,7 @@ test('capobranco e progenitore hanno anch\'essi un passo dedicato prima che il b
     1,
     giocatori,
   ).map((p) => p.id)
-  expect(ordine).toEqual(['lupo-mannaro-capobranco', 'lupo-mannaro-progenitore', 'identifica-branco', 'branco-lupi'])
+  expect(ordine).toEqual(['lupo-mannaro-capobranco', 'lupo-mannaro-progenitore', 'branco-lupi'])
 })
 
 test('il Lupo Mannaro "generico" ha un passo dedicato tutto suo, prima che il branco si riconosca collettivamente', () => {
@@ -100,10 +101,10 @@ test('il Lupo Mannaro "generico" ha un passo dedicato tutto suo, prima che il br
 
   const giocatori = [{ id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['lupo-mannaro'] }]
   const ordineDopo = passiNotte(['lupo-mannaro'], 1, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
-  expect(ordineDopo).toEqual(['lupo-mannaro', 'identifica-branco', 'branco-lupi'])
+  expect(ordineDopo).toEqual(['lupo-mannaro', 'branco-lupi'])
 })
 
-test('una volta che tutto il branco è già assegnato, "il branco si riconosce" non propone più alcun selettore', () => {
+test('una volta che tutto il branco è già assegnato, "branco-lupi" (dove il branco si riconosce e sceglie la vittima) non propone alcun selettore di ruolo', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['cucciolo-di-lupo-mannaro'] },
     { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro-capobranco', vivo: true, condizioni: [], storiaRuoli: ['lupo-mannaro-capobranco'] },
@@ -111,10 +112,10 @@ test('una volta che tutto il branco è già assegnato, "il branco si riconosce" 
   ]
   const mazzo = ['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro']
   const ordine = passiNotte(mazzo, 1, giocatori, { 'lupo-mannaro': 1 }).map((p) => p.id)
-  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro', 'identifica-branco', 'branco-lupi'])
+  expect(ordine).toEqual(['cucciolo-di-lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro', 'branco-lupi'])
 
-  const identificaBranco = NIGHT_STEPS.find((s) => s.id === 'identifica-branco')
-  expect(identificaBranco.assegnabile).toBe(false)
+  const brancoLupi = NIGHT_STEPS.find((s) => s.id === 'branco-lupi')
+  expect(brancoLupi.assegnabile).toBe(false)
 })
 
 test('i ruoli con potere passivo rimasti (es. eremita) hanno un passo individuale assegnabile', () => {

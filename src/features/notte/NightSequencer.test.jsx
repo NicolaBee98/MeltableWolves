@@ -585,7 +585,7 @@ test("l'illustrazione a figura intera del titolare compare anche nelle notti suc
   expect(illustrazioni[0].src).toContain('Paladino.svg')
 })
 
-test('"Il branco si riconosce" non mostra mai chip selezionabili: ogni Lupo Mannaro è già stato assegnato nei passi precedenti', async () => {
+test('"Branco dei Lupi" (dove il branco si riconosce e sceglie la vittima insieme) non mostra mai chip per riassegnare l\'identità: ogni Lupo Mannaro è già stato assegnato nei passi precedenti', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
@@ -600,9 +600,11 @@ test('"Il branco si riconosce" non mostra mai chip selezionabili: ogni Lupo Mann
   )
 
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
-  expect(screen.getByRole('heading', { name: /il branco si riconosce/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /branco dei lupi/i })).toBeInTheDocument()
   expect(screen.queryByRole('group', { name: 'Chi ha questa carta' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Dario' })).not.toBeInTheDocument()
+  // le chip qui sono per scegliere la vittima ("Il branco sbrana"), non per
+  // riassegnare chi è Dario/Elsa: l'identità non è più in discussione
+  expect(screen.getByRole('group', { name: 'Il branco sbrana' })).toBeInTheDocument()
 })
 
 test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coinvolti, una per ciascuno', async () => {
@@ -621,11 +623,11 @@ test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coi
   )
 
   // primo passo: il Cucciolo si identifica da solo; il secondo assegna i
-  // Lupi Mannari "generici"; il terzo è "il branco si riconosce"
-  // collettivamente, dove tutti e tre compaiono insieme
+  // Lupi Mannari "generici"; il terzo è "Branco dei Lupi", dove tutti e tre
+  // si risvegliano insieme (il branco si riconosce mentre sceglie la vittima)
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
-  expect(screen.getByRole('heading', { name: /il branco si riconosce/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /branco dei lupi/i })).toBeInTheDocument()
 
   const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
   expect(illustrazioni).toHaveLength(3)
