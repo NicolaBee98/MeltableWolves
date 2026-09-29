@@ -34,6 +34,7 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
     sottosezioni: [
       {
         titolo: 'I giocatori morti',
+        icona: 'icona_morte_teschio',
         lista: [
       `Non possono più **parlare** o fare gesti espliciti per accusare altri personaggi`,
       `Non possono più **utilizzare i loro poteri** (a meno che non sia specificato nelle loro abilità)`,
@@ -43,13 +44,16 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
       },
       {
         titolo: null,
-        paragrafi: [`Nel corso del gioco **non** si può **rivelare** la propria carta, nemmeno quando si muore; sarebbe bene anche evitare di dire il proprio ruolo (es. "io sono il Veggente"), soprattutto se tutti o quasi tutti i giocatori hanno un ruolo speciale, per evitare che il gioco diventi una "**caccia al personaggio**" per capire i ruoli di tutti, nella quale si rischia di **svantaggiare** eccessivamente i Lupi.`],
+        paragrafi: [
+          `Nel corso del gioco **non** si può **rivelare** la propria carta, nemmeno quando si muore; sarebbe bene anche evitare di dire il proprio ruolo (es. "io sono il Veggente"), soprattutto se tutti o quasi tutti i giocatori hanno un ruolo speciale, per evitare che il gioco diventi una "**caccia al personaggio**" per capire i ruoli di tutti, nella quale si rischia di **svantaggiare** eccessivamente i Lupi.`,
+          `Per distinguere i personaggi morti da quelli vivi si utilizza la **posizione della carta**: se viene tenuta con il lato corto rivolto verso il giocatore significa che il personaggio è vivo. Quando un giocatore muore, invece, **ruota** la carta di 90 gradi.`,
+        ],
       },
     ],
   },
   {
     titolo: 'Comporre il mazzo',
-    paragrafi: [`Per distinguere i personaggi morti da quelli vivi si utilizza la **posizione della carta**: se viene tenuta con il lato corto rivolto verso il giocatore significa che il personaggio è vivo. Quando un giocatore muore, invece, **ruota** la carta di 90 gradi.`, `Un narratore esperto deve saper **combinare** tra loro i vari ruoli speciali per avere una partita **bilanciata** e **divertente**. Ecco alcuni consigli:`],
+    paragrafi: [`Un narratore esperto deve saper **combinare** tra loro i vari ruoli speciali per avere una partita **bilanciata** e **divertente**. Ecco alcuni consigli:`],
     lista: [
       `Per prima cosa inserite un *Lupo Mannaro* ogni cinque giocatori. Scegliete poi i ruoli speciali stando attenti a:`,
       `**Bilanciare** i ruoli a favore dei villici con ruoli a favore dei lupi.`,
@@ -106,6 +110,8 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
   {
     titolo: 'Narrare una partita',
     personaggio: 'boia',
+    personaggioMeta: 'strega',
+    personaggioFine: 'lantico',
     paragrafi: [
       `Spesso le cose da tenere in considerazione durante una partita sono **tante**, soprattutto se si utilizzano molti ruoli. Può quindi essere utile avere sottomano **carta e penna**, in modo da segnare i ruoli di ogni giocatore, le vittime dei lupi e le altre condizioni particolari che i personaggi possono ricevere nel gioco.
 Non temere, in caso di dubbi ricorda che la prima regola di Meltable Wolves è:

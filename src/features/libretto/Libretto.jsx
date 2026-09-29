@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { SEZIONI } from '../../data/libretto'
 import { ROLES, CARATTERISTICHE_RUOLI, CARATTERISTICA_ICONA } from '../../data/roles'
 import { CONDIZIONI } from '../../data/conditions'
@@ -37,12 +38,19 @@ function Paragrafi({ paragrafi }) {
   ))
 }
 
-// alcuni testi (es. la Variante del Borgomastro) hanno un "\n" interno che
-// segna un secondo paragrafo, non solo un a-capo visivo
+// alcuni testi (es. la Variante del Borgomastro) hanno un "\n\n" interno che
+// segna un secondo paragrafo; un singolo "\n" (es. la poesia dello Scemo
+// del Villaggio) è invece un semplice a-capo nello stesso paragrafo, righe
+// consecutive senza lo spazio che ci sarebbe tra due paragrafi
 function TestoMultiParagrafo({ testo }) {
-  return testo.split('\n').map((para, i) => (
+  return testo.split('\n\n').map((paragrafo, i) => (
     <p key={i}>
-      <TestoFormattato testo={para} />
+      {paragrafo.split('\n').map((riga, j, righe) => (
+        <Fragment key={j}>
+          <TestoFormattato testo={riga} />
+          {j < righe.length - 1 && <br />}
+        </Fragment>
+      ))}
     </p>
   ))
 }
@@ -240,13 +248,22 @@ export function Libretto({ onTornaAllaHome }) {
           <Paragrafi paragrafi={sezione.paragrafi} />
           <Lista voci={sezione.lista} />
           {sezione.fazioni && <SezioneFazioni fazioni={sezione.fazioni} />}
+          <SezionePersonaggio slug={sezione.personaggioMeta} />
           {sezione.sottosezioni?.map((sotto, i) => (
             <div key={i} className="libretto__sottosezione">
-              {sotto.titolo && <h4>{sotto.titolo}</h4>}
+              {sotto.titolo && (
+                <h4>
+                  {sotto.icona && (
+                    <img src={iconaPath(sotto.icona)} alt="" aria-hidden="true" className="libretto__icona" />
+                  )}
+                  {sotto.titolo}
+                </h4>
+              )}
               <Paragrafi paragrafi={sotto.paragrafi} />
               <Lista voci={sotto.lista} />
             </div>
           ))}
+          <SezionePersonaggio slug={sezione.personaggioFine} />
           <Paragrafi paragrafi={sezione.paragrafiDopo} />
           {sezione.caratteristiche && <SezioneCaratteristiche caratteristiche={sezione.caratteristiche} />}
           {sezione.speciale === 'ruoli' && <SezioneRuoli />}
