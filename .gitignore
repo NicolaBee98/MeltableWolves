@@ -1,5 +1,6 @@
 node_modules
 dist
+.playwright-mcp
 
 # materiale sorgente di progettazione (bozze PDF/SVG dell'impaginazione):
 # non usato dall'app in produzione (solo public/assets/ lo è), pesa 50+MB
