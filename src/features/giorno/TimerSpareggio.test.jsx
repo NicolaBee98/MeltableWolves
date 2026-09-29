@@ -40,6 +40,22 @@ test('pausa ferma il conto alla rovescia', () => {
   expect(screen.getByText('00:58')).toBeInTheDocument()
 })
 
+test('Avvia e Pausa sono lo stesso tasto: dopo una pausa riprende da dove si era fermato, non riparte da capo', () => {
+  render(<TimerSpareggio />)
+
+  fireEvent.click(screen.getByRole('button', { name: 'Avvia' }))
+  act(() => {
+    vi.advanceTimersByTime(10000)
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Pausa' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Avvia' }))
+  act(() => {
+    vi.advanceTimersByTime(1000)
+  })
+
+  expect(screen.getByText('00:49')).toBeInTheDocument()
+})
+
 test('la durata arriva dalle impostazioni (durataSecondi), non da un input nella UI di gioco', () => {
   render(<TimerSpareggio durataSecondi={30} />)
 

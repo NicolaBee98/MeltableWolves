@@ -16,6 +16,7 @@ export function GiornoPanel({
   quantita,
   round,
   onProsegui,
+  onConcludiPartita,
   mostraRuoli,
   variantiFaccia,
   mostraNomeRuolo,
@@ -166,6 +167,7 @@ export function GiornoPanel({
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}
+        onConcludiPartita={onConcludiPartita}
         mostraRuoli={mostraRuoli}
         variantiFaccia={variantiFaccia}
         mostraNomeRuolo={mostraNomeRuolo}

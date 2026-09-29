@@ -251,6 +251,20 @@ test('in fase esito, dopo la conferma del rogo, compare "È notte nel villaggio"
   expect(onProsegui).toHaveBeenCalled()
 })
 
+test('in fase esito, se il rogo determina una condizione di vittoria, mostra il messaggio e "Concludi partita"', async () => {
+  const user = userEvent.setup()
+  const giocatoriDopoRogo = [
+    { id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  const onConcludiPartita = vi.fn()
+  setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito', onConcludiPartita })
+
+  expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  expect(onConcludiPartita).toHaveBeenCalled()
+})
+
 test('in fase esito con più massimi mostra lo spareggio con le chip dei candidati', () => {
   setup({ voti: { 1: 2, 2: 2 }, fase: 'esito' })
   expect(screen.getByText(/spareggio tra: anna, marco/i)).toBeInTheDocument()

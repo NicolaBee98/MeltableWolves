@@ -36,7 +36,13 @@ export function LogImpostazioniPopup({
 
   return (
     <div className="log-impostazioni">
-      <button type="button" ref={triggerRef} className="log-impostazioni__icona" onClick={() => setAperto(true)}>
+      <button
+        type="button"
+        ref={triggerRef}
+        className="log-impostazioni__icona"
+        aria-pressed={aperto}
+        onClick={() => setAperto((a) => !a)}
+      >
         <span aria-hidden="true">📜</span> Registro e impostazioni
       </button>
       {aperto && (

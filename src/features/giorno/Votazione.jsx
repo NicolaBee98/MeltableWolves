@@ -7,6 +7,7 @@ import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
+import { condizioniVittoria } from '../../data/vittoria'
 
 function BadgeCondizioni({ condizioni = [] }) {
   return condizioni.map((slug) => {
@@ -106,6 +107,7 @@ export function Votazione({
   ruoliSelezionati = [],
   quantita = {},
   onProsegui,
+  onConcludiPartita = () => {},
   variantiFaccia = true,
   mostraNomeRuolo = false,
   durataTimer = 60,
@@ -341,9 +343,23 @@ export function Votazione({
           </button>
         )}
         {morteConfermata && (
-          <button type="button" onClick={onProsegui}>
-            È notte nel villaggio
-          </button>
+          <>
+            {condizioniVittoria(giocatori, quantita).length > 0 && (
+              <>
+                <ul className="alba-panel__vittoria">
+                  {condizioniVittoria(giocatori, quantita).map((testo) => (
+                    <li key={testo}>🏆 {testo}</li>
+                  ))}
+                </ul>
+                <button type="button" onClick={onConcludiPartita}>
+                  Concludi partita
+                </button>
+              </>
+            )}
+            <button type="button" onClick={onProsegui}>
+              È notte nel villaggio
+            </button>
+          </>
         )}
         <EventiSpeciali
           giocatori={giocatori}
