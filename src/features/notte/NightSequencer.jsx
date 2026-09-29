@@ -263,10 +263,20 @@ export function NightSequencer({
   // mostrare il picker "chi ha questa carta", che deve restare visibile per
   // tutta la durata del passo anche a selezione già confermata (vedi
   // AssegnaRuolo più sotto) — ruoliPendenti invece resta "solo ciò che manca
-  // ancora", usato per capire quando bloccare "Avanti"
+  // ancora", usato per capire quando bloccare "Avanti".
+  // L'identità di chi ha una carta si fissa alla prima assegnazione: dalla
+  // notte 2 in poi, se il ruolo è già interamente assegnato, il picker non
+  // deve più comparire (altrimenti il narratore potrebbe "riassegnare" la
+  // carta a qualcun altro ogni notte, e l'illustrazione del titolare
+  // finirebbe duplicata, una volta da qui e una da IllustrazioniCoinvolti)
   const ruoliAssegnabiliStep =
     step.ruoli && step.assegnabile !== false
-      ? step.ruoli.filter((slug) => ruoliSelezionati.includes(slug) && !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug))
+      ? step.ruoli.filter(
+          (slug) =>
+            ruoliSelezionati.includes(slug) &&
+            !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug) &&
+            (round === 1 || ruoliAssegnabili([slug], giocatori, quantita).length > 0),
+        )
       : []
   const ruoliPendenti = ruoliAssegnabili(ruoliAssegnabiliStep, giocatori, quantita)
 
