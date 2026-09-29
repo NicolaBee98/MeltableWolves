@@ -28,54 +28,47 @@ function mimoDiQuestoPasso(giocatore, giocatori, step) {
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
-// fianco (sovrapposte): ogni notte, non solo quando il ruolo viene
-// assegnato. Il Mimo mostra la propria illustrazione accanto a quella del
-// ruolo imitato, invece di sparire dietro di essa (pag. 18: si sveglia
-// insieme, non al posto del titolare). Tutte della stessa altezza (gli
-// artwork non hanno tutti le stesse proporzioni): più personaggi ci sono,
-// più piccoli e sovrapposti diventano, per restare su una riga sola invece
-// di andare a capo.
+// fianco: ogni notte, non solo quando il ruolo viene assegnato. Altezza
+// FISSA per tutti i passi (non si restringe più in base a quanti personaggi
+// ci sono, altrimenti con un branco numeroso ogni figura diventa via via più
+// piccola e stretta): con un gruppo numeroso la riga usa più spazio
+// orizzontale ed eventualmente scorre (overflow-x:auto sul contenitore),
+// invece di rimpicciolire tutti fino a diventare illeggibili. Restano
+// scalate diversamente TRA loro in base ad altezzaNaturalePersonaggio (una
+// Guardia, disegnata più bassa, resta più piccola di un Veggente, come
+// nell'artwork originale), solo non più in base al conteggio del gruppo.
+// Chi sta imitando (il Mimo) mostra SOLO la propria illustrazione, mai
+// anche quella del ruolo copiato: visivamente resta se stesso/a, il ruolo
+// reale è rappresentato dal vero titolare.
+const ALTEZZA_MASSIMA_ILLUSTRAZIONE = 160
 function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
   if (giocatoriCoinvolti.length === 0) return null
-  const numeroImmagini = giocatoriCoinvolti.reduce((n, g) => n + (g.legame?.tipo === 'mimo' ? 2 : 1), 0)
-  // altezza del personaggio più alto del gruppo: si restringe più ce ne
-  // sono, per restare su una riga sola; gli altri si scalano dallo STESSO
-  // fattore (vedi altezzaNaturalePersonaggio), non tutti alla stessa altezza
-  const altezzaMassima = Math.max(70, Math.min(180, 480 / numeroImmagini))
   const naturaleMassima = Math.max(
-    ...giocatoriCoinvolti.flatMap((g) => [
-      altezzaNaturalePersonaggio(g.ruoloSlug),
-      ...(g.legame?.tipo === 'mimo' ? [altezzaNaturalePersonaggio('mimo')] : []),
-    ]),
+    ...giocatoriCoinvolti.map((g) => altezzaNaturalePersonaggio(g.legame?.tipo === 'mimo' ? 'mimo' : g.ruoloSlug)),
   )
-  const scala = altezzaMassima / naturaleMassima
-  const sovrapposizione = numeroImmagini > 3 ? altezzaMassima * 0.4 : altezzaMassima * 0.15
-  let indice = 0
+  const scala = ALTEZZA_MASSIMA_ILLUSTRAZIONE / naturaleMassima
+  // una lieve sovrapposizione, costante, solo se il gruppo è numeroso: mai
+  // progressiva (niente più "ognuno più stretto del precedente")
+  const sovrapposizione = giocatoriCoinvolti.length > 4 ? ALTEZZA_MASSIMA_ILLUSTRAZIONE * 0.2 : 0
   return (
     <div className="night-sequencer__illustrazioni">
-      {giocatoriCoinvolti.map((g) => (
-        <span key={g.id} className="night-sequencer__illustrazione-slot">
-          {g.legame?.tipo === 'mimo' && (
+      {giocatoriCoinvolti.map((g, indice) => {
+        const eMimo = g.legame?.tipo === 'mimo'
+        const slug = eMimo ? 'mimo' : g.ruoloSlug
+        return (
+          <span key={g.id} className="night-sequencer__illustrazione-slot">
             <RuoloIllustrazione
-              slug="mimo"
+              slug={slug}
+              variante={eMimo ? undefined : variantePerGiocatore(giocatori, g.id)}
               className="night-sequencer__illustrazione"
               style={{
-                height: altezzaNaturalePersonaggio('mimo') * scala,
-                marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0,
+                height: altezzaNaturalePersonaggio(slug) * scala,
+                marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0,
               }}
             />
-          )}
-          <RuoloIllustrazione
-            slug={g.ruoloSlug}
-            variante={variantePerGiocatore(giocatori, g.id)}
-            className="night-sequencer__illustrazione"
-            style={{
-              height: altezzaNaturalePersonaggio(g.ruoloSlug) * scala,
-              marginLeft: indice++ > 0 ? `-${sovrapposizione}px` : 0,
-            }}
-          />
-        </span>
-      ))}
+          </span>
+        )
+      })}
     </div>
   )
 }
@@ -162,6 +155,33 @@ export function NightSequencer({
     setSelezioniRuolo({})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indiceValido])
+
+  // stesso principio di selezioniRuolo, per il Mimo: "che carta ha davvero
+  // il bersaglio" cambia il ruoloSlug del Mimo stesso, che farebbe sparire
+  // subito il passo "mimo" dall'elenco (il suo unico ruolo coinvolto non
+  // sarebbe più 'mimo'), facendo "saltare" la schermata al passo successivo
+  // nel bel mezzo della scelta. Restando solo una scelta locale finché non
+  // si preme Avanti, il passo non si tocca e la scelta resta modificabile.
+  const [mimoRuoloScelto, setMimoRuoloScelto] = useState(null)
+
+  useEffect(() => {
+    setMimoRuoloScelto(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indiceValido])
+
+  function commitMimoSeSelezionato() {
+    if (!mimoRuoloScelto) return
+    const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
+    const target = mimo && giocatori.find((g) => g.id === mimo.legame?.targetId)
+    if (mimo && target) {
+      aggiornaGiocatore(mimo.id, { ruoloSlug: mimoRuoloScelto, storiaRuoli: [...(mimo.storiaRuoli ?? []), mimoRuoloScelto] })
+      aggiornaGiocatore(target.id, {
+        ruoloSlug: mimoRuoloScelto,
+        storiaRuoli: [...(target.storiaRuoli ?? []), mimoRuoloScelto],
+      })
+    }
+    setMimoRuoloScelto(null)
+  }
 
   function vaiIndietro() {
     if (storico.length === 0) return
@@ -412,6 +432,7 @@ export function NightSequencer({
 
   function vaiAvanti() {
     if (assegnazioneIncompleta) return
+    commitMimoSeSelezionato()
     if (ciSonoSelezioniDaConfermare) {
       confermaSelezioniRestandoSulPasso()
       // resta sul passo solo se ha un'azione da poter usare subito (es.
@@ -428,6 +449,7 @@ export function NightSequencer({
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta) return
+    commitMimoSeSelezionato()
     if (ciSonoSelezioniDaConfermare && step.tipo === 'azione') {
       confermaSelezioniRestandoSulPasso()
       return
@@ -583,6 +605,8 @@ export function NightSequencer({
             quantita={quantita}
             onCambiaQuantita={onCambiaQuantita}
             varianteMedium={varianteMedium}
+            mimoRuoloScelto={mimoRuoloScelto}
+            onScegliRuoloMimo={setMimoRuoloScelto}
             {...azione.props}
           />
         </>

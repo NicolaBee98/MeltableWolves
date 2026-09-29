@@ -913,7 +913,11 @@ button.chip--fazione-sconosciuto {
 .night-sequencer__illustrazioni {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
+  /* "safe center": centrata quando ci sta, ma se il gruppo è più largo del
+     contenitore si allinea a sinistra invece di aprirsi già scrollata a
+     metà (con "center" puro, il primo personaggio finirebbe tagliato fuori
+     dallo scroll iniziale) */
+  justify-content: safe center;
   align-items: flex-end;
   margin: 0.5rem 0 1rem;
   /* mai "overflow: hidden": con un branco molto numeroso, su schermi
