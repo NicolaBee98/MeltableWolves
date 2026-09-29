@@ -203,7 +203,43 @@ export function NightSequencer({
   }
 
   if (steps.length === 0) {
-    return <p>Nessun ruolo con azione notturna nel mazzo attuale.</p>
+    // nessun passo notturno per questo mazzo (es. solo Villici, o solo
+    // ruoli a rivelazione diurna): non è un vicolo cieco, si passa
+    // direttamente all'alba. Chi non ha ancora un ruolo diventa Villico
+    // (vedi autoAssegnaVillici più sotto, stessa logica): qui nessun altro
+    // ruolo del mazzo può essere "in attesa", altrimenti passiNotte avrebbe
+    // già generato un passo per assegnarlo.
+    function vaiAllAlbaSenzaPassi() {
+      // come autoAssegnaVillici più sotto: se un altro ruolo del mazzo (es.
+      // uno a rivelazione diurna come lo Spilungone) non è ancora stato
+      // assegnato a nessuno, chi resta senza ruolo potrebbe essere proprio
+      // lui — resta "?" invece di diventare Villico per forza
+      const altriRuoliPendenti = ruoliSelezionati.some(
+        (slug) => slug !== 'villico' && ruoliAssegnabili([slug], giocatori, quantita).length > 0,
+      )
+      if (!altriRuoliPendenti) {
+        giocatori
+          .filter((g) => !g.ruoloSlug)
+          .forEach((g) => {
+            aggiornaGiocatore(g.id, { ruoloSlug: 'villico', storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'] })
+          })
+      }
+      for (const messaggio of annunciAlba(giocatori, round)) {
+        registraEvento(messaggio, 'alba')
+      }
+      onNotteConclusa()
+      nuovaNotte()
+    }
+
+    return (
+      <section className="night-sequencer">
+        <p className="night-sequencer__notte">Notte {round}</p>
+        <p>Nessun ruolo con azione notturna nel mazzo attuale.</p>
+        <button type="button" onClick={vaiAllAlbaSenzaPassi}>
+          Vai all'alba
+        </button>
+      </section>
+    )
   }
 
   const step = steps[indiceValido]
@@ -222,16 +258,17 @@ export function NightSequencer({
         (g) => step.ruoli.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, giocatoriConPendenti, step),
       )
 
-  const ruoliPendenti =
+  // i ruoli di questo passo che si assegnano a mano (indipendentemente dal
+  // fatto che siano già tutti assegnati o no): usato per decidere SE
+  // mostrare il picker "chi ha questa carta", che deve restare visibile per
+  // tutta la durata del passo anche a selezione già confermata (vedi
+  // AssegnaRuolo più sotto) — ruoliPendenti invece resta "solo ciò che manca
+  // ancora", usato per capire quando bloccare "Avanti"
+  const ruoliAssegnabiliStep =
     step.ruoli && step.assegnabile !== false
-      ? ruoliAssegnabili(
-          step.ruoli.filter(
-            (slug) => ruoliSelezionati.includes(slug) && !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug),
-          ),
-          giocatori,
-          quantita,
-        )
+      ? step.ruoli.filter((slug) => ruoliSelezionati.includes(slug) && !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug))
       : []
+  const ruoliPendenti = ruoliAssegnabili(ruoliAssegnabiliStep, giocatori, quantita)
 
   const attoreConLegame = giocatoriCoinvolti.find((g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo])
   const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
@@ -294,6 +331,20 @@ export function NightSequencer({
   }
 
   const ciSonoSelezioniDaConfermare = Object.values(selezioniRuolo).some((ids) => ids.length > 0)
+
+  // annulla per davvero un'assegnazione già confermata di questo stesso
+  // passo (il narratore ha sbagliato/ripensato chi ha la carta, prima di
+  // premere "Avanti"): tolto anche da storiaRuoli, altrimenti il ruolo
+  // resterebbe per sempre "già assegnato" (contaAssegnati non lo riconta
+  // mai) e non sarebbe più possibile darlo a qualcun altro
+  function rimuoviAssegnazione(giocatoreId, ruoloSlug) {
+    const g = giocatori.find((x) => x.id === giocatoreId)
+    if (!g) return
+    aggiornaGiocatore(giocatoreId, {
+      ruoloSlug: undefined,
+      storiaRuoli: (g.storiaRuoli ?? []).filter((s) => s !== ruoloSlug),
+    })
+  }
 
   // passata all'azione al posto di aggiornaGiocatore: se il narratore
   // sceglie il bersaglio dell'azione mentre "chi ha questa carta" è ancora
@@ -453,7 +504,7 @@ export function NightSequencer({
           stata rimossa: creava confusione lasciando intendere ci fosse
           qualcosa da fare in app, quando in realtà l'azione fisica del
           ruolo (se c'è) resta interamente in mano al narratore */}
-      {ruoliPendenti.length === 0 && step.tipo === 'informativo' && (
+      {ruoliAssegnabiliStep.length === 0 && step.tipo === 'informativo' && (
         <p className="night-sequencer__tipo">Nessuna azione richiesta</p>
       )}
 
@@ -463,18 +514,19 @@ export function NightSequencer({
         </p>
       )}
 
-      {ruoliPendenti.length > 0 && (
+      {ruoliAssegnabiliStep.length > 0 && (
         <AssegnaRuolo
           key={step.id}
-          ruoli={ruoliPendenti}
+          ruoli={ruoliAssegnabiliStep}
           giocatori={giocatori}
           quantita={quantita}
           selezioni={selezioniRuolo}
           onCambiaSelezioni={setSelezioniRuolo}
+          onRimuovi={rimuoviAssegnazione}
         />
       )}
 
-      {ruoliPendenti.length === 0 && giocatoriCoinvolti.length === 0 && (
+      {ruoliAssegnabiliStep.length === 0 && giocatoriCoinvolti.length === 0 && (
         <p>Nessun giocatore assegnato a questo ruolo per ora.</p>
       )}
 

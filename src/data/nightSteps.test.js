@@ -1,31 +1,15 @@
-import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi, RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi } from './nightSteps'
 import { ruoliAssegnabili } from './assegnazione'
 
 const NESSUN_GIOCATORE = []
 
-test('un mazzo di soli ruoli senza azione notturna (es. Villico) genera comunque il passo per assegnarli (altrimenti non verrebbero mai assegnati a nessuno)', () => {
+test('un mazzo di soli Villici non genera alcun passo notturno (si assegna da solo in automatico, non è mai un passo manuale)', () => {
   const passi = passiNotte(['villico'], 1, NESSUN_GIOCATORE).map((p) => p.id)
-  expect(passi).toEqual(['assegna-restanti'])
+  expect(passi).toEqual([])
 })
 
-test('il passo "assegna-restanti" copre i ruoli senza uno step dedicato e senza rivelazione diurna/alla morte', () => {
-  const restanti = NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')
-  expect(restanti.ruoli).toContain('villico')
-  // Ambasciatore, Berserker e Mezzosangue hanno ora un passo dedicato (come Eremita, Nano...)
-  expect(restanti.ruoli).not.toContain('ambasciatore')
-  expect(restanti.ruoli).not.toContain('berserker')
-  expect(restanti.ruoli).not.toContain('mezzosangue')
-  // Fantasma Onnisciente e Suocera restano "?" fino alla morte (evento dedicato)
-  expect(restanti.ruoli).not.toContain('fantasma-onnisciente')
-  expect(restanti.ruoli).not.toContain('suocera')
-  expect(restanti.ruoli).not.toContain('veggente') // ha già un passo dedicato
-  for (const slug of RUOLI_RIVELAZIONE_GIORNO) {
-    expect(restanti.ruoli).not.toContain(slug) // si assegnano dal menu Eventi speciali, non di notte
-  }
-})
-
-test('"assegna-restanti" compare solo alla prima notte', () => {
-  expect(passiNotte(['villico'], 2, NESSUN_GIOCATORE)).toEqual([])
+test('il passo "assegna-restanti" non esiste più: il Villico era l\'unico ruolo rimasto senza uno step dedicato, e non va mai mostrato (si assegna da solo)', () => {
+  expect(NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')).toBeUndefined()
 })
 
 test('mimo compare solo alla notte 1', () => {

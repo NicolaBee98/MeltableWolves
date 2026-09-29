@@ -1,6 +1,13 @@
 import { nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
+import { RUOLI_RIVELAZIONE_ALLA_MORTE } from '../../../data/nightSteps'
+
+// nessuno di questi è mai la carta segreta in mano a un giocatore vivo (vedi
+// lo stesso elenco in AzioneRivelaRuolo.jsx): Fantasma Onnisciente e Suocera
+// si ricevono solo alla morte, il Borgomastro è un titolo per elezione sopra
+// il ruolo già posseduto (pag. 13), non una carta a sé
+const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro']
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il
@@ -39,7 +46,14 @@ export function AzioneMimo({ giocatori, aggiornaGiocatore, ruoliSelezionati = []
   // sua carta fisica e la comunica qui. "villico" è sempre proponibile anche
   // se non compare esplicitamente nel mazzo (vedi RUOLI_NON_ASSEGNABILI_MANUALMENTE)
   const opzioni = [
-    ...new Set([...ruoliAssegnabili(ruoliSelezionati.filter((slug) => slug !== 'mimo'), giocatori, quantita), 'villico']),
+    ...new Set([
+      ...ruoliAssegnabili(
+        ruoliSelezionati.filter((slug) => slug !== 'mimo' && !RUOLI_NON_CARTA_SEGRETA.includes(slug)),
+        giocatori,
+        quantita,
+      ),
+      'villico',
+    ]),
   ]
 
   function scegliRuolo(slug) {
