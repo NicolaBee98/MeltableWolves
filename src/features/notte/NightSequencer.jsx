@@ -13,9 +13,11 @@ import { variantePerGiocatore, altezzaNaturalePersonaggio } from '../../data/ass
 // cambiare, quindi vale la pena ricordarlo ogni volta che la carta si
 // risveglia, non solo nel momento in cui viene stabilito
 const ETICHETTA_LEGAME = {
-  apprendista: 'è il suo maestro',
-  cavaliere: 'è per lui che si sacrifica',
-  'figlia-dei-lupi': 'è il suo genitore',
+  apprendista: (nome) => `${nome} è il suo maestro`,
+  // frase con l'attore come soggetto, non "Tizio è per lui che si
+  // sacrifica" (target-first, si leggeva macchinoso)
+  cavaliere: (nome) => `È pronto a sacrificarsi per ${nome}`,
+  'figlia-dei-lupi': (nome) => `${nome} è il suo genitore`,
 }
 
 // il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
@@ -226,24 +228,11 @@ export function NightSequencer({
     // nessun passo notturno per questo mazzo (es. solo Villici, o solo
     // ruoli a rivelazione diurna): non è un vicolo cieco, si passa
     // direttamente all'alba. Chi non ha ancora un ruolo diventa Villico
-    // (vedi autoAssegnaVillici più sotto, stessa logica): qui nessun altro
-    // ruolo del mazzo può essere "in attesa", altrimenti passiNotte avrebbe
-    // già generato un passo per assegnarlo.
+    // (vedi autoAssegnaRuoliRimasti più sotto, stessa logica): qui nessun
+    // altro ruolo del mazzo può essere "in attesa", altrimenti passiNotte
+    // avrebbe già generato un passo per assegnarlo.
     function vaiAllAlbaSenzaPassi() {
-      // come autoAssegnaVillici più sotto: se un altro ruolo del mazzo (es.
-      // uno a rivelazione diurna come lo Spilungone) non è ancora stato
-      // assegnato a nessuno, chi resta senza ruolo potrebbe essere proprio
-      // lui — resta "?" invece di diventare Villico per forza
-      const altriRuoliPendenti = ruoliSelezionati.some(
-        (slug) => slug !== 'villico' && ruoliAssegnabili([slug], giocatori, quantita).length > 0,
-      )
-      if (!altriRuoliPendenti) {
-        giocatori
-          .filter((g) => !g.ruoloSlug)
-          .forEach((g) => {
-            aggiornaGiocatore(g.id, { ruoloSlug: 'villico', storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'] })
-          })
-      }
+      autoAssegnaRuoliRimasti()
       for (const messaggio of annunciAlba(giocatori, round)) {
         registraEvento(messaggio, 'alba')
       }
@@ -312,15 +301,22 @@ export function NightSequencer({
     step.ruoliMostraCoinvolti?.length > 0 &&
     giocatoriCoinvolti.some((g) => step.ruoliMostraCoinvolti.includes(g.ruoloSlug) && !step.ruoli.includes(g.ruoloSlug))
   const domandaAssegnaRuolo = altriLupiSpecialiGiaRiconosciuti ? 'Seleziona i lupi mannari rimanenti.' : undefined
-  // sottoinsieme di ruoliAssegnabiliStep con un solo titolare reale: è
-  // l'unico caso in cui l'illustrazione di AssegnaRuolo qui sotto è
-  // esattamente la stessa persona che comparirebbe in IllustrazioniCoinvolti
-  // (va quindi esclusa da lì). Un ruolo con PIÙ titolari contemporanei (es.
-  // il Lupo Mannaro "generico", più copie nel mazzo) resta invece visibile
-  // per intero in IllustrazioniCoinvolti: lì AssegnaRuolo mostra solo UN
-  // ritratto generico, non uno per persona (vedi anche variante/mimo/vivo,
-  // che solo IllustrazioniCoinvolti sa rendere).
-  const ruoliAssegnabiliStepSingoli = ruoliAssegnabiliStep.filter((slug) => contaAssegnati(giocatori, slug) <= 1)
+  // sottoinsieme di ruoliAssegnabiliStep con un solo titolare (reale o
+  // ancora solo pendente, non confermato): è l'unico caso in cui
+  // l'illustrazione di AssegnaRuolo qui sotto è esattamente la stessa
+  // persona che comparirebbe in IllustrazioniCoinvolti (va quindi esclusa da
+  // lì). Un ruolo con PIÙ titolari contemporanei (es. il Lupo Mannaro
+  // "generico", più copie nel mazzo) resta invece visibile per intero in
+  // IllustrazioniCoinvolti: lì AssegnaRuolo mostra solo UN ritratto generico,
+  // non uno per persona (vedi anche variante/mimo/vivo, che solo
+  // IllustrazioniCoinvolti sa rendere). Contati su giocatoriConPendenti, non
+  // su contaAssegnati/storiaRuoli: altrimenti un secondo/terzo titolare
+  // ancora solo selezionato (non confermato con Avanti) non farebbe uscire
+  // il ruolo dalla modalità "singolo", e la sua illustrazione non
+  // comparirebbe nella riga finché non si conferma.
+  const ruoliAssegnabiliStepSingoli = ruoliAssegnabiliStep.filter(
+    (slug) => giocatoriConPendenti.filter((g) => g.ruoloSlug === slug).length <= 1,
+  )
 
   // solo se il legame è ancora quello di QUESTO passo (step.ruoli.includes),
   // non un legame di un ruolo precedente rimasto per sbaglio sul giocatore
@@ -341,9 +337,16 @@ export function NightSequencer({
   // Inibito): controllato qui, in un unico punto per tutte le azioni,
   // invece che in ognuna. Solo per i passi a titolare singolo/doppio noto
   // (step.ruoli.length === 1): il branco è un'azione collettiva, inibire
-  // un solo lupo non ha senso bloccare l'intero attacco.
+  // un solo lupo non ha senso bloccare l'intero attacco. Mai sul passo della
+  // Fattucchiera stessa: nessun'altra azione applica 'inibito', quindi può
+  // comparire sulla sua stessa titolare solo come residuo di un cambio di
+  // "chi ha questa carta" (era stata scelta come bersaglio mentre la carta
+  // era di qualcun altro) — un vero auto-blocco non esiste, il suo potere
+  // non deve mai risultare inibito da lei stessa.
   const attoreInibito =
-    step.ruoli?.length === 1 && giocatoriCoinvolti.some((g) => (g.condizioni ?? []).includes('inibito'))
+    step.id !== 'fattucchiera' &&
+    step.ruoli?.length === 1 &&
+    giocatoriCoinvolti.some((g) => (g.condizioni ?? []).includes('inibito'))
   const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto && !attoreInibito
   // titolare morto, potere ricorrente, non tra le eccezioni che agiscono da
   // morti: il passo compare comunque (promemoriaRuoliMorti l'ha lasciato
@@ -432,18 +435,33 @@ export function NightSequencer({
   // restano ruoli "pendenti" (Spilungone, Suocera, Boia... qualunque carta
   // non ancora consegnata) i giocatori senza ruolo restano con il punto
   // interrogativo: l'app non sa davvero se sono Villici o tengono in mano
-  // una di quelle carte, esattamente come il narratore col mazzo fisico.
-  function autoAssegnaVillici() {
-    const altriRuoliPendenti = ruoliSelezionati.some(
+  // una di quelle carte, esattamente come il narratore col mazzo fisico —
+  // A MENO CHE non resti in sospeso un SOLO altro ruolo, con ESATTAMENTE
+  // tanti posti liberi quanti sono i giocatori ancora senza ruolo: lì non
+  // c'è nessuna vera scelta da fare (nessun altro candidato possibile),
+  // quindi non ha senso lasciarli misteriosi solo perché il narratore non è
+  // ancora passato dal passo dedicato a quel ruolo.
+  function autoAssegnaRuoliRimasti() {
+    const senzaRuolo = giocatori.filter((g) => !g.ruoloSlug)
+    if (senzaRuolo.length === 0) return
+
+    const ruoliNonVillicoPendenti = ruoliSelezionati.filter(
       (slug) => slug !== 'villico' && ruoliAssegnabili([slug], giocatori, quantita).length > 0,
     )
-    if (altriRuoliPendenti) return
 
-    giocatori
-      .filter((g) => !g.ruoloSlug)
-      .forEach((g) => {
-        aggiornaGiocatore(g.id, { ruoloSlug: 'villico', storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'] })
-      })
+    let ruoloDaAssegnare = 'villico'
+    if (ruoliNonVillicoPendenti.length === 1) {
+      const [slug] = ruoliNonVillicoPendenti
+      const capacitaResidua = (quantita[slug] ?? 1) - contaAssegnati(giocatori, slug)
+      if (capacitaResidua !== senzaRuolo.length) return
+      ruoloDaAssegnare = slug
+    } else if (ruoliNonVillicoPendenti.length > 1) {
+      return
+    }
+
+    senzaRuolo.forEach((g) => {
+      aggiornaGiocatore(g.id, { ruoloSlug: ruoloDaAssegnare, storiaRuoli: [...(g.storiaRuoli ?? []), ruoloDaAssegnare] })
+    })
   }
 
   // se c'erano selezioni pendenti, il primo click le conferma e basta:
@@ -482,13 +500,14 @@ export function NightSequencer({
     if (ciSonoSelezioniDaConfermare) {
       confermaSelezioniRestandoSulPasso()
     }
-    autoAssegnaVillici()
+    autoAssegnaRuoliRimasti()
     // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
-    // appena lanciate da autoAssegnaVillici (setState funzionale) non si
+    // appena lanciate da autoAssegnaRuoliRimasti (setState funzionale) non si
     // riflettono qui in modo sincrono. Va bene solo perché risolviCortigiana
     // e la pulizia qui sotto non dipendono mai da un ruoloSlug appena
-    // diventato 'villico' — se in futuro dovessero, andrebbe ricalcolato
-    // esplicitamente chi è rimasto senza ruolo invece di riusare "giocatori".
+    // diventato 'villico' (o dall'unico altro ruolo rimasto) — se in futuro
+    // dovessero, andrebbe ricalcolato esplicitamente chi è rimasto senza
+    // ruolo invece di riusare "giocatori".
     const giocatoriConRuoli = giocatori
 
     giocatoriConRuoli.forEach((g) => {
@@ -541,10 +560,19 @@ export function NightSequencer({
           🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.
         </p>
       )}
-      {/* key sul round+passo: forza un remount a ogni cambio, così il
-          fade+slide d'ingresso (CSS, vedi .night-sequencer__contenuto)
-          riparte da solo ogni volta, senza bisogno di gestirlo a mano */}
-      <div key={`${round}-${indiceValido}`} className="night-sequencer__contenuto">
+      {/* key su round+ID del passo (non l'indice posizionale!): forza un
+          remount a ogni cambio di passo vero, così il fade+slide d'ingresso
+          (CSS, vedi .night-sequencer__contenuto) riparte da solo ogni volta,
+          senza doverlo gestire a mano. Un'azione può uccidere l'unico
+          titolare di un passo precedente (es. il Chupacabra che sbrana
+          l'unico Lupo Mannaro rimasto): quel passo (es. "branco-lupi") sparisce
+          da steps e tutti gli indici successivi si accorciano, ma indiceValido
+          resta lo STESSO passo (chupacabra), solo con un indice diverso —
+          usare l'indice come key lo rimonterebbe per errore, perdendo lo
+          stato locale dell'azione (bug reale osservato: la scelta del
+          Chupacabra si "resettava" da sola dopo aver sbranato l'ultimo lupo,
+          niente più possibilità di ripensare il bersaglio) */}
+      <div key={`${round}-${step.id}`} className="night-sequencer__contenuto">
       <h2 className="night-sequencer__ruolo" aria-live="polite" aria-atomic="true">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
@@ -582,9 +610,7 @@ export function NightSequencer({
       )}
 
       {bersaglioLegame && (
-        <p className="night-sequencer__legame">
-          🔗 {bersaglioLegame.nome} {ETICHETTA_LEGAME[attoreConLegame.legame.tipo]}.
-        </p>
+        <p className="night-sequencer__legame">🔗 {ETICHETTA_LEGAME[attoreConLegame.legame.tipo](bersaglioLegame.nome)}.</p>
       )}
 
       {ruoliAssegnabiliStep.length > 0 && (
@@ -652,7 +678,7 @@ export function NightSequencer({
         </button>
         {ultimoPasso ? (
           <button type="button" onClick={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta}>
-            Notte successiva
+            È giorno nel villaggio
           </button>
         ) : (
           <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta}>

@@ -14,7 +14,7 @@ import {
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
 // chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
 // Borgomastro, Fantasma Onnisciente.
-function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConferma, onAnnulla }) {
+function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = false }) {
   return (
     <>
       {ruoloSlug && <RuoloIllustrazione slug={ruoloSlug} className="eventi-speciali__illustrazione" />}
@@ -25,6 +25,7 @@ function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConfe
         onSalta={onAnnulla}
         etichetta={etichetta}
         etichettaSalta="Annulla"
+        richiedeConferma={richiedeConferma}
       />
     </>
   )
@@ -235,6 +236,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 

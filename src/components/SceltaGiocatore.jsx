@@ -1,4 +1,21 @@
-export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta, mostraSalta = true, etichettaSalta = 'Salta' }) {
+import { useState } from 'react'
+
+// `richiedeConferma`: per le scelte più consequenziali (es. dichiarare chi è
+// morto per l'unzione) la chip non applica subito la scelta al click, ma la
+// marca soltanto (aria-pressed) — serve poi un esplicito "Conferma"
+// (disabilitato finché non si seleziona qualcuno). Le altre scelte restano
+// invece a singolo click, invariate (default false).
+export function SceltaGiocatore({
+  candidati,
+  onConferma,
+  onSalta,
+  etichetta,
+  mostraSalta = true,
+  etichettaSalta = 'Salta',
+  richiedeConferma = false,
+}) {
+  const [selezionatoId, setSelezionatoId] = useState(null)
+
   if (candidati.length === 0) {
     return (
       <div className="scelta-giocatore">
@@ -15,11 +32,22 @@ export function SceltaGiocatore({ candidati, onConferma, onSalta, etichetta, mos
       <p>{etichetta}</p>
       <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
         {candidati.map((g) => (
-          <button key={g.id} type="button" className="chip" onClick={() => onConferma(g.id)}>
+          <button
+            key={g.id}
+            type="button"
+            className="chip"
+            aria-pressed={richiedeConferma ? selezionatoId === g.id : undefined}
+            onClick={() => (richiedeConferma ? setSelezionatoId(g.id) : onConferma(g.id))}
+          >
             {g.nome}
           </button>
         ))}
       </div>
+      {richiedeConferma && (
+        <button type="button" disabled={!selezionatoId} onClick={() => onConferma(selezionatoId)}>
+          Conferma
+        </button>
+      )}
       {mostraSalta && (
         <button type="button" onClick={onSalta}>
           {etichettaSalta}

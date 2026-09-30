@@ -103,6 +103,35 @@ test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['accecato'] })
 })
 
+test('l\'accecamento da Polpo Mannaro resta modificabile finché non si preme Avanti: ripensare il bersaglio lo annulla di nuovo', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const { rerender } = render(
+    <AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} puoEssereAccecato />,
+  )
+  const rrender = () =>
+    rerender(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} puoEssereAccecato />)
+
+  await user.click(screen.getByRole('button', { name: 'Piero' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === '1').condizioni).toContain('accecato')
+
+  // ripensa il bersaglio: l'accecamento appena provocato va tolto di nuovo,
+  // e l'esito del nuovo bersaglio riflette la sua vera aura (non "benevola"
+  // forzata da un accecamento che non doveva ancora valere)
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === '1').condizioni).not.toContain('accecato')
+  expect(giocatori.find((g) => g.id === '1').ultimaIndagine).toEqual({ targetId: '3', esito: 'malvagia', notte: 2 })
+})
+
 test('se il Mimo condivide questo ruoloSlug (due giocatori "veggente"), l\'esito si sincronizza su entrambi', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()

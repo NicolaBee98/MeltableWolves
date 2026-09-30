@@ -62,7 +62,7 @@ test('una volta avanzati oltre il primo passo, "Torna ai giocatori" non è più 
   )
   expect(screen.getByRole('button', { name: /torna ai giocatori/i })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
 })
@@ -103,12 +103,12 @@ test('assegna comunque il Villico a fine notte anche quando "assegna i ruoli rim
   while (screen.queryByRole('button', { name: 'Avanti' })) {
     await user.click(screen.getByRole('button', { name: 'Avanti' }))
   }
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
 })
 
-test('non forza il Villico a fine notte se un altro ruolo del mazzo non è ancora stato assegnato a nessuno (es. Spilungone)', async () => {
+test('se resta un solo giocatore senza ruolo e un solo altro ruolo del mazzo ancora da assegnare, con esattamente un posto libero, lo assegna d\'ufficio (nessuna vera scelta possibile, non ha senso lasciarlo misterioso)', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Elena', vivo: true, condizioni: [] }]
   const aggiornaGiocatore = vi.fn()
@@ -122,7 +122,27 @@ test('non forza il Villico a fine notte se un altro ruolo del mazzo non è ancor
 
   await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
 
-  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'villico' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'spilungone', storiaRuoli: ['spilungone'] })
+})
+
+test('non forza nessun ruolo se restano PIÙ giocatori senza ruolo di quanti posti liberi ha l\'unico altro ruolo pendente (scelta ancora reale)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Elena', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Bruno', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['villico', 'spilungone']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })
 
 test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
@@ -149,9 +169,9 @@ test('sull\'ultimo passo il pulsante diventa "Notte successiva" e fa ripartire d
 
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   expect(screen.getByText('Paladino')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Notte successiva' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È giorno nel villaggio' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(screen.getByText('Notte 2')).toBeInTheDocument()
   expect(screen.getByText('Paladino')).toBeInTheDocument()
@@ -198,7 +218,7 @@ test('con promemoriaRuoliMorti attivo, un ruolo morto con potere ricorrente most
 
   expect(screen.getByText(/☠️ chiama comunque pietro/i)).toBeInTheDocument()
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Notte successiva' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È giorno nel villaggio' })).toBeInTheDocument()
 })
 
 test('con promemoriaRuoliMorti disattivo (default), un ruolo morto con potere ricorrente non compare affatto', () => {
@@ -221,7 +241,7 @@ test('"Notte successiva" rimuove le condizioni protetto e inibito da tutti i gio
   const aggiornaGiocatore = vi.fn()
   render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['unto'] })
 })
@@ -318,10 +338,20 @@ test('un ruolo "ogni notte" (es. Addolorata) mostra il picker "chi ha questa car
 
   expect(screen.getByRole('group', { name: 'Chi ha questa carta' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(screen.queryByRole('group', { name: 'Chi ha questa carta' })).not.toBeInTheDocument()
   expect(container.querySelectorAll('.ruolo-illustrazione')).toHaveLength(1)
+})
+
+test('col legame stabilito, il Cavaliere mostra "È pronto a sacrificarsi per X" (soggetto l\'attore, non il bersaglio)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Fabio', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['cavaliere']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByText('🔗 È pronto a sacrificarsi per Marco.')).toBeInTheDocument()
 })
 
 test('un ruolo a titolare singolo con carta già distribuita a inizio partita (es. Cavaliere) non mostra l\'illustrazione due volte già alla prima notte', () => {
@@ -416,7 +446,7 @@ test('"Notte successiva" registra gli annunci dell\'alba nel log', async () => {
     />,
   )
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.', 'alba')
 })
@@ -427,7 +457,7 @@ test('"Notte successiva" azzera usiNotte per far ripartire i poteri della notte'
   const aggiornaGiocatore = vi.fn()
   render(<NightSequencerConNotte ruoliSelezionati={['mimo']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
 })
@@ -480,8 +510,8 @@ test('non blocca "Notte successiva" se non ci sono abbastanza giocatori per comp
       quantita={{ 'lupo-mannaro': 2 }}
     />,
   )
-  expect(screen.getByRole('button', { name: 'Notte successiva' })).not.toBeDisabled()
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  expect(screen.getByRole('button', { name: 'È giorno nel villaggio' })).not.toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
   // il lupo mannaro non identificato resta tale: nella notte 2 non c'è più
   // nessun passo da mostrare (nessun titolare, nulla da assegnare)
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
@@ -582,7 +612,7 @@ test('"Notte successiva" chiama onNotteConclusa', async () => {
     />,
   )
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
 
   expect(onNotteConclusa).toHaveBeenCalled()
 })
@@ -680,6 +710,41 @@ test('il passo "Lupo Mannaro" mostra già le illustrazioni di tutto il branco ri
   expect(screen.queryByRole('button', { name: 'Gino' })).not.toBeInTheDocument()
   expect(screen.getByText(/seleziona i lupi mannari rimanenti/i)).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Elsa' })).toBeInTheDocument()
+})
+
+test('selezionare più Lupi Mannari generici (ancora solo pendenti, non confermati) li mostra tutti insieme nella riga delle illustrazioni, non più separati dall\'illustrazione generica di AssegnaRuolo', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Gino', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Elsa', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Franco', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Greta', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro', 'cucciolo-di-lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 3 }}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  // un solo Lupo Mannaro selezionato: l'illustrazione generica di
+  // AssegnaRuolo resta l'unico ritratto per lui (oltre al Cucciolo)
+  await user.click(screen.getByRole('button', { name: 'Elsa' }))
+  expect(container.querySelector('.assegna-ruolo__illustrazione')).toBeInTheDocument()
+  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(1) // solo il Cucciolo
+
+  // un secondo Lupo Mannaro (ancora pendente, Avanti non premuto): ora
+  // entrambi vanno mostrati con un ritratto a testa nella riga, non più
+  // l'illustrazione generica separata
+  await user.click(screen.getByRole('button', { name: 'Franco' }))
+  expect(container.querySelector('.assegna-ruolo__illustrazione')).not.toBeInTheDocument()
+  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(3) // Cucciolo + Elsa + Franco
+
+  await user.click(screen.getByRole('button', { name: 'Greta' }))
+  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(4) // + Greta
 })
 
 test('"Branco dei Lupi" (dove il branco si riconosce e sceglie la vittima insieme) non mostra mai chip per riassegnare l\'identità: ogni Lupo Mannaro è già stato assegnato nei passi precedenti', async () => {
@@ -800,6 +865,18 @@ test('la Fattucchiera blocca il potere del bersaglio inibito: nessuna azione mos
   expect(screen.queryByRole('group', { name: 'Chi proteggere' })).not.toBeInTheDocument()
 })
 
+test('la Fattucchiera non blocca mai se stessa: se la sua attuale titolare porta ancora la condizione "inibito" (residuo di un cambio di "chi ha questa carta"), le chip di "chi inibire" restano comunque disponibili', () => {
+  const giocatori = [
+    { id: '1', nome: 'Caio', ruoloSlug: 'fattucchiera', vivo: true, condizioni: ['inibito'], poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['fattucchiera']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.queryByText(/il potere è inibito questa notte dalla fattucchiera/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('group', { name: 'Chi inibire' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
 test('senza inibizione il potere resta disponibile normalmente', () => {
   const giocatori = [
     { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], poteriUsati: [] },
@@ -907,9 +984,51 @@ test('Guardia e Guardia Mannara: assegnando le tre guardie insieme, l\'app scegl
     rerender(<NightSequencerConNotte {...props()} />)
   }
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
   rerender(<NightSequencerConNotte {...props()} />)
 
   const ruoli = giocatori.map((g) => g.ruoloSlug).sort()
   expect(ruoli).toEqual(['guardia', 'guardia', 'guardia-mannara'])
+})
+
+test('il Chupacabra che sbrana l\'unico Lupo Mannaro rimasto non perde la scelta appena fatta: il passo non deve rimontare solo perché uno dei passi precedenti (branco-lupi) sparisce dall\'elenco', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: '1', nome: 'Chuck', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '3', nome: 'Anna', vivo: true, condizioni: [] },
+  ]
+  const props = () => ({
+    ruoliSelezionati: ['chupacabra', 'lupo-mannaro'],
+    giocatori,
+    aggiornaGiocatore,
+    quantita: { chupacabra: 1, 'lupo-mannaro': 1 },
+  })
+  const { rerender } = render(<NightSequencerConNotte {...props()} />)
+  const rrender = () => rerender(<NightSequencerConNotte {...props()} />)
+
+  // avanza fino al passo del Chupacabra (dopo lupo-mannaro e branco-lupi)
+  while (!screen.queryByRole('heading', { name: /chupacabra/i })) {
+    await user.click(screen.getByRole('button', { name: 'Avanti' }))
+    rrender()
+  }
+
+  await user.click(within(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).getByRole('button', { name: 'Dario' }))
+  rrender()
+
+  expect(giocatori.find((g) => g.id === '2').vivo).toBe(false)
+  // niente remount: restiamo sullo stesso passo, con Dario ancora visibile
+  // (morto ma appena scelto) e marcato, non sparito con la scelta persa
+  expect(screen.getByRole('heading', { name: /chupacabra/i })).toBeInTheDocument()
+  const chipDario = within(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).getByRole('button', { name: 'Dario' })
+  expect(chipDario).toHaveAttribute('aria-pressed', 'true')
+
+  // e la scelta resta modificabile come da principio generale: cambiare
+  // bersaglio deve ancora poter risuscitare Dario
+  await user.click(within(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).getByRole('button', { name: 'Anna' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === '2').vivo).toBe(true)
 })
