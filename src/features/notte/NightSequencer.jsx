@@ -21,10 +21,10 @@ const ETICHETTA_LEGAME = {
 // il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
 // (pag. 18): puramente di presentazione, il narratore ricorda così di
 // coinvolgerlo, il potere reale resta del titolare del ruolo imitato
-function mimoDiQuestoPasso(giocatore, giocatori, step) {
+function mimoDiQuestoPasso(giocatore, giocatori, ruoliCoinvolti) {
   if (giocatore.legame?.tipo !== 'mimo') return false
   const bersaglio = giocatori.find((g) => g.id === giocatore.legame.targetId)
-  return Boolean(bersaglio) && step.ruoli.includes(bersaglio.ruoloSlug)
+  return Boolean(bersaglio) && ruoliCoinvolti.includes(bersaglio.ruoloSlug)
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
@@ -272,10 +272,15 @@ export function NightSequencer({
   // secondo (vedi conSelezioniRuoloApplicate più sotto e aggiornaGiocatoreConCommit)
   const giocatoriConPendenti = conSelezioniRuoloApplicate(giocatori)
 
+  // di norma i coinvolti sono solo i ruoli di questo passo (step.ruoli); un
+  // passo può allargare la vista con ruoliMostraCoinvolti (es. "Lupo
+  // Mannaro": qui si assegnano solo i Lupi generici, ma si vede l'intero
+  // branco già riconosciuto finora, come nel passo "Branco dei Lupi")
+  const ruoliCoinvolti = step.ruoliMostraCoinvolti ?? step.ruoli
   const giocatoriCoinvolti = step.condizione
     ? giocatoriConPendenti.filter((g) => g.condizioni.includes(step.condizione))
     : giocatoriConPendenti.filter(
-        (g) => step.ruoli.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, giocatoriConPendenti, step),
+        (g) => ruoliCoinvolti.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, giocatoriConPendenti, ruoliCoinvolti),
       )
 
   // i ruoli di questo passo che si assegnano a mano (indipendentemente dal
@@ -299,6 +304,14 @@ export function NightSequencer({
         )
       : []
   const ruoliPendenti = ruoliAssegnabili(ruoliAssegnabiliStep, giocatori, quantita)
+  // "Seleziona i lupi mannari rimanenti" invece del generico "Chi ha questa
+  // carta?" quando qui si vedono già altri lupi speciali riconosciuti (vedi
+  // ruoliMostraCoinvolti sul passo 'lupo-mannaro'): la domanda di default
+  // avrebbe poco senso davanti a un branco che si sta già mostrando al completo
+  const altriLupiSpecialiGiaRiconosciuti =
+    step.ruoliMostraCoinvolti?.length > 0 &&
+    giocatoriCoinvolti.some((g) => step.ruoliMostraCoinvolti.includes(g.ruoloSlug) && !step.ruoli.includes(g.ruoloSlug))
+  const domandaAssegnaRuolo = altriLupiSpecialiGiaRiconosciuti ? 'Seleziona i lupi mannari rimanenti.' : undefined
   // sottoinsieme di ruoliAssegnabiliStep con un solo titolare reale: è
   // l'unico caso in cui l'illustrazione di AssegnaRuolo qui sotto è
   // esattamente la stessa persona che comparirebbe in IllustrazioniCoinvolti
@@ -309,7 +322,13 @@ export function NightSequencer({
   // che solo IllustrazioniCoinvolti sa rendere).
   const ruoliAssegnabiliStepSingoli = ruoliAssegnabiliStep.filter((slug) => contaAssegnati(giocatori, slug) <= 1)
 
-  const attoreConLegame = giocatoriCoinvolti.find((g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo])
+  // solo se il legame è ancora quello di QUESTO passo (step.ruoli.includes),
+  // non un legame di un ruolo precedente rimasto per sbaglio sul giocatore
+  // (es. Chupacabra che un tempo era Apprendista): altrimenti il promemoria
+  // "è il suo maestro" comparirebbe su un passo che non c'entra nulla
+  const attoreConLegame = giocatoriCoinvolti.find(
+    (g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo] && step.ruoli?.includes(g.legame.tipo),
+  )
   const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
 
   const azione = AZIONI_NOTTURNE[step.id]
@@ -386,6 +405,12 @@ export function NightSequencer({
     aggiornaGiocatore(giocatoreId, {
       ruoloSlug: undefined,
       storiaRuoli: (g.storiaRuoli ?? []).filter((s) => s !== ruoloSlug),
+      // se questo ruolo aveva stabilito un legame (Apprendista/Cavaliere/
+      // Figlia dei Lupi), toglierlo dal titolare: altrimenti riassegnando
+      // più tardi lo stesso ruolo a un altro giocatore che RIPRENDE questo
+      // stesso ruoloSlug (o se questo giocatore lo riprende lui stesso più
+      // avanti) ricomparirebbe un legame mai davvero scelto questa volta
+      ...(g.legame?.tipo === ruoloSlug ? { legame: undefined } : {}),
     })
   }
 
@@ -571,6 +596,7 @@ export function NightSequencer({
           selezioni={selezioniRuolo}
           onCambiaSelezioni={setSelezioniRuolo}
           onRimuovi={rimuoviAssegnazione}
+          {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />
       )}
 

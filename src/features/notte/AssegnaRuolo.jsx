@@ -14,7 +14,15 @@ const GRUPPO_GUARDIE = ['guardia', 'guardia-mannara']
 // quelli ancora scoperti: il picker resta visibile per l'intera durata del
 // passo, anche a scelta già confermata, così il narratore può sempre
 // ripensarci finché non preme "Avanti" (mai un menù che sparisce da solo).
-export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCambiaSelezioni, onRimuovi }) {
+export function AssegnaRuolo({
+  ruoli,
+  giocatori,
+  quantita = {},
+  selezioni,
+  onCambiaSelezioni,
+  onRimuovi,
+  domanda = 'Chi ha questa carta?',
+}) {
   const [avviso, setAvviso] = useState(null)
   const modalitaGuardie = ruoli.length > 1 && ruoli.every((s) => GRUPPO_GUARDIE.includes(s))
   const opzioni = modalitaGuardie
@@ -99,7 +107,7 @@ export function AssegnaRuolo({ ruoli, giocatori, quantita = {}, selezioni, onCam
         </label>
       )}
       <p>
-        Chi ha questa carta?{' '}
+        {domanda}{' '}
         {selezionatiVisivi.length < capacita
           ? `Seleziona ${capacita - selezionatiVisivi.length} ${capacita - selezionatiVisivi.length === 1 ? 'giocatore' : 'giocatori'} in più, poi premi Avanti.`
           : 'Puoi ancora cambiare la scelta finché non premi Avanti.'}

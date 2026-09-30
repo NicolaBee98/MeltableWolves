@@ -241,6 +241,74 @@ test("mostra la selezione bersaglio per l'Apprendista alla prima notte", () => {
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
+test('cambiare chi interpreta l\'Apprendista resetta il legame (maestro) precedente: non deve "ricordare" un abbinamento di un giro precedente', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: 'a', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: 'b', nome: 'Bruno', vivo: true, condizioni: [] },
+    { id: 'c', nome: 'Carla', vivo: true, condizioni: [] },
+    { id: 'd', nome: 'Dino', vivo: true, condizioni: [] },
+  ]
+  const { rerender } = render(
+    <NightSequencerConNotte ruoliSelezionati={['apprendista']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+  )
+  const rrender = () =>
+    rerender(
+      <NightSequencerConNotte ruoliSelezionati={['apprendista']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+    )
+
+  // Anna apprendista, Carla maestra
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  rrender()
+  await user.click(within(screen.getByRole('group', { name: 'Chi seguire come maestro' })).getByRole('button', { name: 'Carla' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === 'a').legame).toEqual({ tipo: 'apprendista', targetId: 'c' })
+
+  // cambio idea: Bruno apprendista invece di Anna — nessun maestro pre-selezionato
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Bruno' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === 'a').legame).toBeUndefined()
+  expect(
+    within(screen.getByRole('group', { name: 'Chi seguire come maestro' })).queryByRole('button', { pressed: true }),
+  ).not.toBeInTheDocument()
+
+  // Bruno apprendista, Dino maestro
+  await user.click(within(screen.getByRole('group', { name: 'Chi seguire come maestro' })).getByRole('button', { name: 'Dino' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === 'b').legame).toEqual({ tipo: 'apprendista', targetId: 'd' })
+
+  // torno su Anna: non deve ricomparire né il vecchio A->C né il B->D di Bruno
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  rrender()
+  expect(giocatori.find((g) => g.id === 'b').legame).toBeUndefined()
+  expect(
+    within(screen.getByRole('group', { name: 'Chi seguire come maestro' })).queryByRole('button', { pressed: true }),
+  ).not.toBeInTheDocument()
+})
+
+test('il Chupacabra non mostra mai il promemoria del legame "è il suo maestro" (era un ruolo con legame in un giro precedente)', () => {
+  const giocatori = [
+    {
+      id: '1',
+      nome: 'Elio',
+      ruoloSlug: 'chupacabra',
+      vivo: true,
+      condizioni: [],
+      // legame residuo di un ruolo precedente (es. un Apprendista di cui
+      // Elio ha "ereditato" la carta): non deve confondersi col Chupacabra
+      legame: { tipo: 'apprendista', targetId: '2' },
+    },
+    { id: '2', nome: 'Fabio', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['chupacabra']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.queryByText(/è il suo maestro/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).toBeInTheDocument()
+})
+
 test('un ruolo "ogni notte" (es. Addolorata) mostra il picker "chi ha questa carta" solo la prima notte: dalla notte 2 il titolare è fisso e la sua illustrazione compare una volta sola', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] }]
@@ -583,6 +651,35 @@ test("l'illustrazione a figura intera del titolare compare anche nelle notti suc
   const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
   expect(illustrazioni).toHaveLength(1)
   expect(illustrazioni[0].src).toContain('Paladino.svg')
+})
+
+test('il passo "Lupo Mannaro" mostra già le illustrazioni di tutto il branco riconosciuto finora (es. il Cucciolo) e cambia la domanda in "Seleziona i lupi mannari rimanenti"', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Gino', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Elsa', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro', 'cucciolo-di-lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 1 }}
+    />,
+  )
+
+  // primo passo: il Cucciolo (già assegnato, si limita a mostrarsi); il
+  // secondo è "Lupo Mannaro", dove restano da assegnare solo i Lupi generici
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByRole('heading', { name: /^lupo mannaro/i })).toBeInTheDocument()
+
+  // il Cucciolo compare già tra le illustrazioni...
+  const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
+  expect([...illustrazioni].some((img) => img.src.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
+  // ...ma non è tra le chip assegnabili qui (il suo passo dedicato è già passato)
+  expect(screen.queryByRole('button', { name: 'Gino' })).not.toBeInTheDocument()
+  expect(screen.getByText(/seleziona i lupi mannari rimanenti/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Elsa' })).toBeInTheDocument()
 })
 
 test('"Branco dei Lupi" (dove il branco si riconosce e sceglie la vittima insieme) non mostra mai chip per riassegnare l\'identità: ogni Lupo Mannaro è già stato assegnato nei passi precedenti', async () => {

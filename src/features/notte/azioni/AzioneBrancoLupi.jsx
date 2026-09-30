@@ -19,6 +19,13 @@ function usiStanotte(giocatori, ruoli) {
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = [] }) {
   const [bersaglioInAttesaDiLupo, setBersaglioInAttesaDiLupo] = useState(null)
   const [bersaglioInAttesaDiTrasformazione, setBersaglioInAttesaDiTrasformazione] = useState(null)
+  // il colpo (col caso comune, un solo bersaglio possibile) resta
+  // modificabile finché non si preme "Avanti", come ogni altra azione con
+  // effetti reali (vedi AzioneChupacabra): registra ESATTAMENTE i campi
+  // toccati dal colpo, sul valore che avevano PRIMA, così cambiare
+  // bersaglio può annullarli tutti (non solo la morte diretta: Berserker,
+  // Ubriaco, Mezzosangue possono toccarne altri) prima di applicare il nuovo
+  const [colpoAttivo, setColpoAttivo] = useState(null) // { targetId, originali: { [id]: {...campi} } }
   const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_BRANCO.includes(g.ruoloSlug))
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,
@@ -33,7 +40,14 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
     return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
   }
 
-  if (usi >= limite) {
+  // con la vendetta del Cucciolo attiva (fino a due vittime distinte).
+  // annullare un colpo per rifarne un altro rischierebbe di disallineare il
+  // conteggio delle due sbranate, quindi lì un colpo resta definitivo. Nel
+  // caso comune (un solo colpo possibile) invece di bloccare del tutto,
+  // resta modificabile finché abbiamo la traccia per annullarlo (colpoAttivo);
+  // se non ce l'abbiamo (es. era già stato dato prima che questo passo
+  // esistesse) il colpo resta comunque definitivo, non essendoci nulla da annullare
+  if (usi >= limite && (vendettaAttiva || !colpoAttivo)) {
     return <p>Il branco ha già sbranato {limite === 2 ? 'le sue vittime' : 'una vittima'} questa notte.</p>
   }
 
@@ -51,11 +65,29 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
   }
 
   function finalizza(targetId, berserkerLupoSceltoId) {
+    // annulla il colpo precedente (se ancora annullabile) ripristinando
+    // esattamente i campi che aveva toccato, prima di applicarne uno nuovo
+    if (colpoAttivo) {
+      for (const [id, originali] of Object.entries(colpoAttivo.originali)) {
+        aggiornaGiocatore(id, originali)
+      }
+    }
     const patches = risolviAttaccoBranco(giocatori, targetId, round, ruoli, berserkerLupoSceltoId)
+    const originali = {}
     for (const [id, patch] of Object.entries(patches)) {
+      const attuale = giocatori.find((g) => g.id === id)
+      originali[id] = Object.fromEntries(Object.keys(patch).map((campo) => [campo, attuale?.[campo]]))
       aggiornaGiocatore(id, patch)
     }
-    segnaUsoBranco()
+    if (!vendettaAttiva) {
+      setColpoAttivo({ targetId, originali })
+    }
+    // conta come nuovo uso solo la vendetta (ogni colpo è definitivo, quindi
+    // ognuno va contato) o il primissimo colpo nel caso comune: sostituire
+    // un colpo già annullabile (colpoAttivo) non deve incrementare di nuovo
+    if (vendettaAttiva || !colpoAttivo) {
+      segnaUsoBranco()
+    }
     setBersaglioInAttesaDiLupo(null)
   }
 
@@ -91,6 +123,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
   }
 
   function confermaScelta(targetId) {
+    if (targetId === colpoAttivo?.targetId) return
     if (progenitorePuoTrasformare) {
       setBersaglioInAttesaDiTrasformazione(targetId)
       return

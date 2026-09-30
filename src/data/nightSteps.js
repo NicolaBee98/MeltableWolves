@@ -29,7 +29,19 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'lupo-mannaro-capobranco', titolo: 'Lupo Mannaro Capobranco', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-capobranco'] },
   { id: 'lupo-mannaro-progenitore', titolo: 'Lupo Mannaro Progenitore', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro-progenitore'] },
   { id: 'nonna', titolo: 'Nonna', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nonna'] },
-  { id: 'lupo-mannaro', titolo: 'Lupo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['lupo-mannaro'] },
+  {
+    id: 'lupo-mannaro',
+    titolo: 'Lupo Mannaro',
+    tipo: 'informativo',
+    primaNotteSolo: true,
+    ruoli: ['lupo-mannaro'],
+    // le illustrazioni mostrano l'intero branco (Cucciolo/Capobranco/
+    // Progenitore/Nonna già assegnati nei loro passi + i Lupi generici),
+    // come nel passo "Branco dei Lupi": qui il branco comincia a riconoscersi,
+    // non solo i Lupi "senza carta speciale" — ma resta assegnabile a mano
+    // solo 'lupo-mannaro' (vedi ruoli sopra), gli altri sono già fissati
+    ruoliMostraCoinvolti: RUOLI_BRANCO_LUPI,
+  },
   { id: 'criceto-malvagio', titolo: 'Criceto Malvagio', tipo: 'informativo', primaNotteSolo: true, ruoli: ['criceto-malvagio'] },
   { id: 'eremita', titolo: 'Eremita', tipo: 'informativo', primaNotteSolo: true, ruoli: ['eremita'] },
   { id: 'nano', titolo: 'Nano', tipo: 'informativo', primaNotteSolo: true, ruoli: ['nano'] },
