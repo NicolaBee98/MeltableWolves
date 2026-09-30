@@ -87,6 +87,9 @@ export function AzioneRivelaRuolo({
             </button>
           ))}
         </div>
+        <button type="button" onClick={() => setTargetInAttesaDiRuolo(null)}>
+          Annulla (cambia bersaglio)
+        </button>
       </div>
     )
   }

@@ -88,6 +88,35 @@ test('Cartomante: indagando un bersaglio senza ruolo ancora noto, chiede quale r
   })
 })
 
+test('Cartomante: scelto un bersaglio ignoto, "Annulla" torna alla scelta del bersaglio senza toccare i giocatori', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], storiaRuoli: [] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'villico']}
+      quantita={{ cartomante: 1, villico: 5 }}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.getByText(/ancora sconosciuta/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: /annulla/i }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
+})
+
 test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma Onnisciente, Suocera o Borgomastro (non sono carte in mano dall\'inizio)', async () => {
   const user = userEvent.setup()
   const giocatori = [
