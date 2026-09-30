@@ -2,15 +2,7 @@ import { useState } from 'react'
 import { ROLES } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
-import { RUOLI_RIVELAZIONE_ALLA_MORTE } from '../../../data/nightSteps'
-
-// Fantasma Onnisciente e Suocera (RUOLI_RIVELAZIONE_ALLA_MORTE) non sono mai
-// la carta segreta in mano a un giocatore vivo: si ricevono solo alla morte.
-// Il Borgomastro non è nemmeno una carta a sé: è un titolo assegnato per
-// elezione sopra il ruolo già posseduto (pag. 13), "questo giocatore
-// mantiene comunque il ruolo assegnatogli all'inizio della partita". Nessuno
-// dei tre può quindi essere la risposta a "che carta tiene in mano?".
-const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro']
+import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 
 function nomeRuolo(ruoloSlug) {
   return ROLES.find((r) => r.slug === ruoloSlug)?.nome ?? 'ruolo sconosciuto'

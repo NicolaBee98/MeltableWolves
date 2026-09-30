@@ -1,13 +1,7 @@
 import { nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { RUOLI_RIVELAZIONE_ALLA_MORTE } from '../../../data/nightSteps'
-
-// nessuno di questi è mai la carta segreta in mano a un giocatore vivo (vedi
-// lo stesso elenco in AzioneRivelaRuolo.jsx): Fantasma Onnisciente e Suocera
-// si ricevono solo alla morte, il Borgomastro è un titolo per elezione sopra
-// il ruolo già posseduto (pag. 13), non una carta a sé
-const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro']
+import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il
