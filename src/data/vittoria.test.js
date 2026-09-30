@@ -48,9 +48,21 @@ test('il Chupacabra vince se rimane l\'ultimo sopravvissuto', () => {
   expect(condizioniVittoria(giocatori)).toContain("Il Chupacabra è l'ultimo sopravvissuto: vince lui.")
 })
 
-test('il Criceto Malvagio vince se rimane l\'ultimo sopravvissuto', () => {
-  const giocatori = [{ id: '1', vivo: true, ruoloSlug: 'criceto-malvagio', condizioni: [] }]
-  expect(condizioniVittoria(giocatori)).toContain("Il Criceto Malvagio è l'ultimo sopravvissuto: vince lui.")
+test('il Criceto Malvagio ruba la vittoria ai Lupi Mannari se sono loro a vincere (non "ultimo sopravvissuto": quella condizione non è mai raggiungibile in pratica)', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'criceto-malvagio', condizioni: [] },
+  ]
+  const messaggi = condizioniVittoria(giocatori)
+  expect(messaggi).toContain('Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.')
+  expect(messaggi).not.toContain('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
+})
+
+test('senza il Criceto Malvagio, la vittoria dei Lupi Mannari resta quella normale', () => {
+  const giocatori = [{ id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] }]
+  expect(condizioniVittoria(giocatori)).toContain(
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  )
 })
 
 test('il Pifferaio vince quando tutti gli altri vivi sono ipnotizzati', () => {
