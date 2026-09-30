@@ -1,17 +1,23 @@
 import { ruoliAssegnabili } from './assegnazione'
 import { RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 
-// Ruoli la cui rivelazione diurna coincide con l'uso stesso del potere (si
-// rivelano "facendo" l'azione, non prima): hanno un evento dedicato che
-// chiede prima "chi è" e poi l'azione, invece di passare dal generico
-// "Rivelazione personaggio" (vedi ruoliRivelabili sotto).
-const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio']
+// Ruoli con un evento tutto loro invece del generico "Rivelazione
+// personaggio" (vedi ruoliRivelabili sotto): Alchimista/Boia/Scemo del
+// Villaggio perché la rivelazione diurna coincide con l'uso stesso del
+// potere (si rivelano "facendo" l'azione, non prima); l'Innocente perché,
+// pur non avendo un'azione a sé (è solo "mostra la carta"), è comunque
+// un'iniziativa che il giocatore prende quando vuole — un pulsante dedicato
+// evita il doppio passaggio "Rivelazione personaggio" -> unica opzione
+// disponibile.
+const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio', 'innocente']
 
-// Alchimista, Boia e Scemo del Villaggio si rivelano solo usando il
-// potere (rogo/esplosione, giustizia, rima sbagliata — pag. 5, 8, 20): la
-// loro identità non è mai assegnata prima. Disponibili finché il mazzo li
-// prevede e nessuno li ha già usati una volta (ruoliAssegnabili conta su
-// storiaRuoli, mai sottratto, quindi restano "assegnati" per sempre dopo).
+// Alchimista, Boia, Scemo del Villaggio e Innocente non hanno mai
+// un'identità assegnata prima: si rivelano solo tramite il loro evento
+// dedicato (rogo/esplosione, giustizia, rima sbagliata, o la semplice
+// dichiarazione dell'Innocente — pag. 5, 8, 20). Disponibili finché il
+// mazzo li prevede e nessuno li ha già usati una volta (ruoliAssegnabili
+// conta su storiaRuoli, mai sottratto, quindi restano "assegnati" per
+// sempre dopo).
 export function rivelazioneContestualeDisponibile(slug, ruoliSelezionati, giocatori, quantita) {
   if (!ruoliSelezionati.includes(slug)) return false
   return ruoliAssegnabili([slug], giocatori, quantita).length > 0
@@ -20,7 +26,7 @@ export function rivelazioneContestualeDisponibile(slug, ruoliSelezionati, giocat
 // Ruoli assegnabili tramite l'evento generico "Rivelazione personaggio":
 // tutti i ruoli a rivelazione diurna tranne il Borgomastro (un titolo
 // elettivo, non un'identità, con l'evento dedicato "Elezione Borgomastro")
-// e Alchimista/Boia (si rivelano solo usando il potere, vedi sopra: se
+// e quelli con un evento tutto loro (RIVELAZIONE_CONTESTUALE_AL_POTERE: se
 // venissero anche assegnabili qui, un narratore che li rivelasse da questo
 // menu per errore li segnerebbe "già assegnati" rendendo per sempre
 // indisponibile il loro evento dedicato).

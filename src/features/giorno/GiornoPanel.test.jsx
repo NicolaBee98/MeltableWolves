@@ -46,6 +46,7 @@ test('lo Scemo del Villaggio sbaglia la rima: si rivela e muore sul colpo nello 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
     ruoloSlug: 'scemo-del-villaggio',
@@ -86,6 +87,7 @@ test('assegnare il Fantasma Onnisciente a un morto chiama aggiornaGiocatore con 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Assegna il Fantasma Onnisciente' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { eFantasmaOnnisciente: true })
 })
@@ -102,6 +104,7 @@ test('la Suocera si rivela alla morte: assegna ruoloSlug:suocera al morto scelto
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] })
 })

@@ -43,6 +43,7 @@ function EventoDueGiocatori({
   escludiAttoreDaBersagli = false,
   onConferma,
   onAnnulla,
+  richiedeConferma = false,
 }) {
   const [attoreId, setAttoreId] = useState(null)
 
@@ -69,6 +70,7 @@ function EventoDueGiocatori({
       onSalta={onAnnulla}
       etichetta={etichettaBersaglio}
       etichettaSalta="Annulla"
+      richiedeConferma={richiedeConferma}
     />
   )
 }
@@ -158,6 +160,11 @@ export function EventiSpeciali({
         key: 'scemo',
         etichetta: 'Lo Scemo del Villaggio sbaglia la rima',
       },
+    inGiorno &&
+      rivelazioneContestualeDisponibile('innocente', ruoliSelezionati, giocatori, quantita) && {
+        key: 'innocente',
+        etichetta: "L'Innocente si rivela",
+      },
     inGiorno && unti.length > 0 && { key: 'unzione', etichetta: 'Morte per unzione' },
     contesto === 'esito' && bardoDisponibile(giocatori) && { key: 'bardo', etichetta: 'Il Bardo salta la notte' },
     contesto === 'alba' && galloDisponibile(giocatori) && {
@@ -223,6 +230,22 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
+            />
+          )}
+
+          {evento === 'innocente' && (
+            <EventoUnGiocatore
+              ruoloSlug="innocente"
+              candidati={nonAssegnati}
+              etichetta="Chi è l'Innocente"
+              messaggio="L'Innocente mostra la propria carta al villaggio, dimostrando la sua innocenza."
+              onConferma={(id) => {
+                onRivelazione('innocente', id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
@@ -267,6 +290,7 @@ export function EventiSpeciali({
                   }}
                   onSalta={() => setRuoloRivelazione(null)}
                   etichetta={`Chi è ${nomeRuolo(ruoloRivelazione)}?`}
+                  richiedeConferma
                 />
               </>
             ))}
@@ -283,6 +307,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
@@ -299,6 +324,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
@@ -333,6 +359,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
@@ -347,6 +374,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
@@ -361,6 +389,7 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
+              richiedeConferma
             />
           )}
 
