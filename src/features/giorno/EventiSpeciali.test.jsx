@@ -61,6 +61,7 @@ test('Lo Scemo del Villaggio sbaglia la rima: si rivela e muore nello stesso mom
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onScemoSbaglia).toHaveBeenCalledWith('1')
 })
@@ -111,7 +112,7 @@ test('Morte per unzione non è proposta se nessuno è unto', async () => {
   expect(screen.queryByRole('button', { name: 'Morte per unzione' })).not.toBeInTheDocument()
 })
 
-test('la Rivelazione personaggio propone solo i ruoli a scoperta diurna nel mazzo, poi solo i giocatori senza ruolo noto', async () => {
+test('L\'Innocente si rivela: propone solo i giocatori senza ruolo noto, richiede conferma', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' },
@@ -123,24 +124,24 @@ test('la Rivelazione personaggio propone solo i ruoli a scoperta diurna nel mazz
     quantita: { innocente: 1, villico: 1 },
   })
 
+  // l'Innocente ha un evento tutto suo, non passa dal generico "Rivelazione
+  // personaggio" (evita il doppio passaggio per un'unica opzione disponibile)
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
-  expect(screen.getByRole('button', { name: 'Innocente' })).toBeInTheDocument()
-
-  await user.click(screen.getByRole('button', { name: 'Innocente' }))
+  await user.click(screen.getByRole('button', { name: "L'Innocente si rivela" }))
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument() // ha già un ruolo noto
   await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onRivelazione).toHaveBeenCalledWith('innocente', '2')
 })
 
-test("la Rivelazione personaggio non propone Boia/Alchimista: si rivelano solo dal loro evento dedicato", async () => {
+test("la Rivelazione personaggio non propone Boia/Alchimista/Innocente: si rivelano solo dal loro evento dedicato", async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true }]
   setup({
     giocatori,
-    ruoliSelezionati: ['boia', 'alchimista', 'innocente'],
-    quantita: { boia: 1, alchimista: 1, innocente: 1 },
+    ruoliSelezionati: ['boia', 'alchimista', 'innocente', 'spilungone'],
+    quantita: { boia: 1, alchimista: 1, innocente: 1, spilungone: 1 },
   })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
@@ -148,7 +149,31 @@ test("la Rivelazione personaggio non propone Boia/Alchimista: si rivelano solo d
 
   expect(screen.queryByRole('button', { name: 'Boia' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Alchimista' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Innocente' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Innocente' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Spilungone' })).toBeInTheDocument()
+})
+
+test('Rivelazione personaggio (es. Spilungone): scelto il ruolo, la scelta del giocatore richiede conferma', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const { onRivelazione } = setup({
+    giocatori,
+    ruoliSelezionati: ['spilungone'],
+    quantita: { spilungone: 1 },
+  })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
+  await user.click(screen.getByRole('button', { name: 'Spilungone' }))
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(onRivelazione).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+
+  expect(onRivelazione).toHaveBeenCalledWith('spilungone', '1')
 })
 
 test('Il Boia giustizia chiede prima chi è il Boia, poi chi giustizia, senza bisogno di una rivelazione preventiva', async () => {
@@ -167,6 +192,8 @@ test('Il Boia giustizia chiede prima chi è il Boia, poi chi giustizia, senza bi
   expect(screen.getByText('Chi giustizia il Boia')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(onBoiaGiustizia).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '2')
 })
@@ -198,6 +225,7 @@ test('il Boia può giustiziare se stesso: resta tra i candidati del secondo pass
   expect(screen.getByRole('button', { name: 'Ivo' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '1')
 })
@@ -234,6 +262,7 @@ test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina co
   expect(screen.queryByRole('button', { name: 'Ivo' })).not.toBeInTheDocument() // non può trascinare sé stesso
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onAlchimistaEsplode).toHaveBeenCalledWith('1', '2')
 })
@@ -291,6 +320,7 @@ test('Assegna il Fantasma Onnisciente propone solo i giocatori morti, una sola v
   await user.click(screen.getByRole('button', { name: 'Assegna il Fantasma Onnisciente' }))
   expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onFantasmaOnnisciente).toHaveBeenCalledWith('1')
 })
@@ -319,6 +349,7 @@ test('La Suocera si rivela propone solo i morti di identità ancora ignota, in q
   await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
   expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
 })
@@ -367,6 +398,7 @@ test('Elezione Borgomastro è proposta in entrambi i contesti se il ruolo è nel
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Elezione Borgomastro' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onElezioneBorgomastro).toHaveBeenCalledWith('1')
 })
