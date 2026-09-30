@@ -122,9 +122,12 @@ export default function App() {
 
       {faseApp === 'mazzo' && (
         <section>
+          <button type="button" className="app__torna-indietro" onClick={() => setFaseApp('home')}>
+            ← Torna alla Home
+          </button>
           <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
           <button type="button" onClick={() => setFaseApp('giocatori')}>
-            Continua
+            Avanti
           </button>
         </section>
       )}
@@ -142,7 +145,7 @@ export default function App() {
             onEliminaTutti={svuotaGiocatori}
           />
           {giocatori.length !== totaleRuoliMazzo && (
-            <p className="app__avviso">
+            <p className="avviso">
               ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo.
             </p>
           )}

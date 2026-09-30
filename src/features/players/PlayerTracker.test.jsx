@@ -27,6 +27,13 @@ test('mostra i giocatori esistenti come card, con solo il nome', () => {
     giocatori: [{ id: '1', nome: 'Marco', ruoloSlug: undefined, vivo: true, condizioni: [] }],
   })
   expect(screen.getByText('Marco')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Giocatori (1)' })).toBeInTheDocument()
+})
+
+test('senza giocatori mostra un titolo di sezione e un messaggio esplicito (come Mazzo)', () => {
+  setup({ giocatori: [] })
+  expect(screen.getByRole('heading', { name: 'Giocatori (0)' })).toBeInTheDocument()
+  expect(screen.getByText(/nessun giocatore aggiunto/i)).toBeInTheDocument()
 })
 
 test('tenere premuto fino al riempimento completo chiama removeGiocatore con id del giocatore', () => {
@@ -69,7 +76,12 @@ test('"Elimina tutti i giocatori" chiede conferma prima di chiamare onEliminaTut
   await user.click(screen.getByRole('button', { name: 'Elimina tutti i giocatori' }))
   expect(onEliminaTutti).not.toHaveBeenCalled()
 
-  await user.click(screen.getByRole('button', { name: 'Sì, elimina tutti' }))
+  // il passo di conferma finale (irreversibile) è segnalato in rosso, come
+  // le altre azioni distruttive dell'app
+  const conferma = screen.getByRole('button', { name: 'Sì, elimina tutti' })
+  expect(conferma).toHaveClass('player-tracker__conferma-cta')
+
+  await user.click(conferma)
   expect(onEliminaTutti).toHaveBeenCalled()
 })
 

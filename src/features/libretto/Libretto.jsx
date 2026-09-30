@@ -234,8 +234,8 @@ function SezioneCondizioni() {
 export function Libretto({ onTornaAllaHome }) {
   return (
     <article className="libretto">
-      <button type="button" onClick={onTornaAllaHome} className="libretto__indietro">
-        ← Home
+      <button type="button" onClick={onTornaAllaHome} className="torna-alla-home">
+        ← Torna alla Home
       </button>
       <h2 className="libretto__titolo-gioco">Meltable Wolves</h2>
       <p className="libretto__sottotitolo">Regolamento</p>
