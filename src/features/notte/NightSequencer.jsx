@@ -30,30 +30,61 @@ function mimoDiQuestoPasso(giocatore, giocatori, ruoliCoinvolti) {
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
-// fianco: ogni notte, non solo quando il ruolo viene assegnato. Altezza
-// FISSA per tutti i passi (non si restringe più in base a quanti personaggi
-// ci sono, altrimenti con un branco numeroso ogni figura diventa via via più
-// piccola e stretta): con un gruppo numeroso la riga usa più spazio
-// orizzontale ed eventualmente scorre (overflow-x:auto sul contenitore),
-// invece di rimpicciolire tutti fino a diventare illeggibili. Restano
-// scalate diversamente TRA loro in base ad altezzaNaturalePersonaggio (una
-// Guardia, disegnata più bassa, resta più piccola di un Veggente, come
-// nell'artwork originale), solo non più in base al conteggio del gruppo.
-// Chi sta imitando (il Mimo) mostra SOLO la propria illustrazione, mai
-// anche quella del ruolo copiato: visivamente resta se stesso/a, il ruolo
-// reale è rappresentato dal vero titolare.
+// fianco: ogni notte, non solo quando il ruolo viene assegnato. Un unico
+// fattore di scala per TUTTI (mai diverso da uno all'altro, mai progressivo
+// "ognuno più stretto del precedente"), calcolato sulla larghezza reale
+// disponibile (il box della fase, misurata con ResizeObserver) così l'intero
+// gruppo ci sta sempre su una riga sola, senza dover scorrere. Restano
+// comunque scalati diversamente TRA loro in base ad altezzaNaturalePersonaggio
+// (una Guardia, disegnata più bassa, resta più piccola di un Veggente, come
+// nell'artwork originale) — quello non cambia mai, qualunque sia il fattore.
+// Chi sta imitando (il Mimo) mostra SOLO la propria illustrazione, mai anche
+// quella del ruolo copiato: visivamente resta se stesso/a, il ruolo reale è
+// rappresentato dal vero titolare.
 const ALTEZZA_MASSIMA_ILLUSTRAZIONE = 160
+const ALTEZZA_MINIMA_ILLUSTRAZIONE = 50
+// rapporto medio larghezza/altezza degli artwork di personaggi/ (misurato su
+// un campione: Progenitore 0.75, Nonna 0.66, Capobranco 0.92, Lupo Mannaro
+// 0.78): nessun dato di larghezza naturale è calibrato per-ruolo come lo è
+// l'altezza, quindi si stima la larghezza totale della riga con questa media
+const RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO = 0.78
+
 function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
+  const contenitoreRef = useRef(null)
+  const [larghezzaDisponibile, setLarghezzaDisponibile] = useState(320)
+
+  useEffect(() => {
+    const elemento = contenitoreRef.current
+    if (!elemento) return
+    const osservatore = new ResizeObserver((entries) => {
+      const larghezza = entries[0]?.contentRect.width
+      if (larghezza) setLarghezzaDisponibile(larghezza)
+    })
+    osservatore.observe(elemento)
+    return () => osservatore.disconnect()
+  }, [])
+
   if (giocatoriCoinvolti.length === 0) return null
   const naturaleMassima = Math.max(
     ...giocatoriCoinvolti.map((g) => altezzaNaturalePersonaggio(g.legame?.tipo === 'mimo' ? 'mimo' : g.ruoloSlug)),
   )
-  const scala = ALTEZZA_MASSIMA_ILLUSTRAZIONE / naturaleMassima
-  // una lieve sovrapposizione, costante, solo se il gruppo è numeroso: mai
-  // progressiva (niente più "ognuno più stretto del precedente")
-  const sovrapposizione = giocatoriCoinvolti.length > 4 ? ALTEZZA_MASSIMA_ILLUSTRAZIONE * 0.2 : 0
+  const numeroImmagini = giocatoriCoinvolti.length
+  // una lieve sovrapposizione, solo se il gruppo è numeroso, come frazione
+  // dell'altezza (non un valore assoluto): resta coerente qualunque sia
+  // l'altezza finale calcolata
+  const frazioneSovrapposizione = numeroImmagini > 4 ? 0.2 : 0
+  // altezza che fa stare l'intera riga (N immagini, con l'eventuale
+  // sovrapposizione) esattamente nella larghezza disponibile, invertendo la
+  // formula della larghezza totale: altezza * rapporto * [1 + (N-1)*(1-frazioneSovrapposizione)]
+  const divisore = RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO * (1 + (numeroImmagini - 1) * (1 - frazioneSovrapposizione))
+  const altezzaMassima = Math.min(
+    ALTEZZA_MASSIMA_ILLUSTRAZIONE,
+    Math.max(ALTEZZA_MINIMA_ILLUSTRAZIONE, larghezzaDisponibile / divisore),
+  )
+  const scala = altezzaMassima / naturaleMassima
+  const sovrapposizione = altezzaMassima * frazioneSovrapposizione
   return (
-    <div className="night-sequencer__illustrazioni">
+    <div className="night-sequencer__illustrazioni" ref={contenitoreRef}>
       {giocatoriCoinvolti.map((g, indice) => {
         const eMimo = g.legame?.tipo === 'mimo'
         const slug = eMimo ? 'mimo' : g.ruoloSlug
@@ -313,10 +344,14 @@ export function NightSequencer({
   // su contaAssegnati/storiaRuoli: altrimenti un secondo/terzo titolare
   // ancora solo selezionato (non confermato con Avanti) non farebbe uscire
   // il ruolo dalla modalità "singolo", e la sua illustrazione non
-  // comparirebbe nella riga finché non si conferma.
-  const ruoliAssegnabiliStepSingoli = ruoliAssegnabiliStep.filter(
-    (slug) => giocatoriConPendenti.filter((g) => g.ruoloSlug === slug).length <= 1,
-  )
+  // comparirebbe nella riga finché non si conferma. Con ruoliMostraCoinvolti
+  // (es. "Lupo Mannaro", che mostra tutto il branco già riconosciuto)
+  // AssegnaRuolo non mostra MAI la propria illustrazione (vedi
+  // illustrazioneSeparata più sotto): niente da escludere qui, ognuno va
+  // sempre mostrato nella riga collettiva, a partire dal primo selezionato.
+  const ruoliAssegnabiliStepSingoli = step.ruoliMostraCoinvolti
+    ? []
+    : ruoliAssegnabiliStep.filter((slug) => giocatoriConPendenti.filter((g) => g.ruoloSlug === slug).length <= 1)
 
   // solo se il legame è ancora quello di QUESTO passo (step.ruoli.includes),
   // non un legame di un ruolo precedente rimasto per sbaglio sul giocatore
@@ -622,6 +657,7 @@ export function NightSequencer({
           selezioni={selezioniRuolo}
           onCambiaSelezioni={setSelezioniRuolo}
           onRimuovi={rimuoviAssegnazione}
+          illustrazioneSeparata={!step.ruoliMostraCoinvolti}
           {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />
       )}
