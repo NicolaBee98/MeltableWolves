@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { risolviAttaccoBranco, berserkerLupiCandidati, RUOLI_IMMUNI_AL_BRANCO } from '../../../data/effettiNotte'
+import { risolviAttaccoBranco, berserkerLupiCandidati, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
 
 const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
@@ -31,7 +31,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
   // altrimenti la sua chip sparirebbe subito dopo il click invece di
   // restare visibile e cliccabile (vedi AzioneChupacabra)
   const vivi = giocatori.filter(
-    (g) => (g.vivo || g.id === colpoAttivo?.targetId) && !RUOLI_IMMUNI_AL_BRANCO.includes(g.ruoloSlug),
+    (g) => (g.vivo || g.id === colpoAttivo?.targetId) && !RUOLI_NON_SELEZIONABILI_DAL_BRANCO.includes(g.ruoloSlug),
   )
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,

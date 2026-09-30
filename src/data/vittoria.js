@@ -32,6 +32,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   const abitanti = vivi.length - lupiVivi.length - (suoceraNascosta ? 1 : 0)
   const chupacabraVivo = vivi.some((g) => g.ruoloSlug === 'chupacabra')
   const pifferaioVivo = vivi.some((g) => g.ruoloSlug === 'pifferaio')
+  const cricetoVivo = vivi.some((g) => g.ruoloSlug === 'criceto-malvagio')
 
   // vivi.length > 1: col solo Pifferaio rimasto in vita vale già la
   // condizione "ultimo sopravvissuto" qui sotto, per non duplicare l'annuncio
@@ -58,7 +59,14 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   }
 
   if (lupiVivi.length > 0 && lupiVivi.length >= abitanti) {
-    messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
+    // "Se i Lupi Mannari vincono, il Criceto Malvagio gli ruba la vittoria
+    // diventando l'unico vincitore" (roles.js): non è un alleato dei lupi,
+    // quindi non vince CON loro, vince AL POSTO loro
+    if (cricetoVivo) {
+      messaggi.push('Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.')
+    } else {
+      messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
+    }
   }
 
   return messaggi

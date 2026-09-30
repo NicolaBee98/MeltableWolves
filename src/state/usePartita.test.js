@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { usePartita } from './usePartita'
+import { ruoliAssegnabili } from '../data/assegnazione'
 
 beforeEach(() => {
   localStorage.clear()
@@ -211,6 +212,40 @@ test('aggiornaGiocatore(vivo:false) rimuove "accecato" dal Veggente quando muore
 
   const veggenteDopo = result.current.giocatori.find((g) => g.id === veggente.id)
   expect(veggenteDopo.condizioni).not.toContain('accecato')
+})
+
+test('aggiornaGiocatore(vivo:false) su un lupo fa maturare il Cucciolo in Lupo Mannaro semplice, senza far "riapparire" la sua vecchia carta tra i ruoli ancora da scoprire', () => {
+  const { result } = renderHook(() => usePartita())
+
+  act(() => {
+    result.current.addGiocatore('Cucciolo')
+    result.current.addGiocatore('Lupo')
+  })
+  const [cucciolo, lupo] = result.current.giocatori
+
+  act(() => {
+    result.current.aggiornaGiocatore(cucciolo.id, {
+      ruoloSlug: 'cucciolo-di-lupo-mannaro',
+      storiaRuoli: ['cucciolo-di-lupo-mannaro'],
+    })
+    result.current.aggiornaGiocatore(lupo.id, { ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'] })
+  })
+
+  act(() => {
+    result.current.aggiornaGiocatore(lupo.id, { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+  })
+
+  const cucciolomaturato = result.current.giocatori.find((g) => g.id === cucciolo.id)
+  expect(cucciolomaturato.ruoloSlug).toBe('lupo-mannaro')
+  // la storia non dimentica MAI la vecchia carta (contaAssegnati non la
+  // riconta più come "da assegnare"), altrimenti il Cartomante la
+  // riproporrebbe come ruolo ancora incognito per qualcun altro
+  expect(cucciolomaturato.storiaRuoli).toEqual(
+    expect.arrayContaining(['cucciolo-di-lupo-mannaro', 'lupo-mannaro']),
+  )
+  expect(ruoliAssegnabili(['cucciolo-di-lupo-mannaro'], result.current.giocatori, { 'cucciolo-di-lupo-mannaro': 1 })).toEqual(
+    [],
+  )
 })
 
 test('aggiornaGiocatore può assegnare il ruolo a un giocatore già esistente', () => {

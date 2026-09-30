@@ -44,19 +44,34 @@ test('non permette una seconda vittima nella stessa notte', () => {
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
 })
 
-test('Cortigiana, Nano e Criceto Malvagio non compaiono tra i bersagli proposti (immuni al branco)', () => {
+test('Cortigiana e Nano non compaiono tra i bersagli proposti (il branco non li nota nemmeno)', () => {
   const giocatori = [
     { id: '1', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [] },
     { id: '2', nome: 'Nino', ruoloSlug: 'nano', vivo: true, condizioni: [] },
-    { id: '3', nome: 'Cric', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [] },
     { id: '4', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
   ]
   render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={() => {}} round={1} ruoli={['lupo-mannaro']} />)
 
   expect(screen.queryByRole('button', { name: 'Cora' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Nino' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Cric' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+})
+
+test('il Criceto Malvagio compare tra i bersagli proposti (il branco lo nota e ci prova), ma sceglierlo non uccide nessuno', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Cric', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} ruoli={['lupo-mannaro']} />)
+
+  await user.click(screen.getByRole('button', { name: 'Cric' }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+  // il potere del branco risulta comunque usato per la notte: "nessuno muore"
+  // è un esito valido, non un bersaglio rifiutato
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: ['branco-lupi-sbrana'] })
 })
 
 test('il branco stordito dall\'Ubriaco non può cacciare quella notte', () => {

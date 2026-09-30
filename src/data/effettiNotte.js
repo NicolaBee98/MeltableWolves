@@ -2,11 +2,21 @@ import { fazioneDi } from './roles'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
-// direttamente dai lupi di notte (libretto pag. 12, 12, 18): esportata così
-// AzioneBrancoLupi.jsx la riusa per filtrare i candidati invece di
-// mantenerne una propria copia (rischio di scollegamento silenzioso se una
-// delle due cambia e l'altra no).
+// direttamente dai lupi di notte (libretto pag. 12, 12, 18): usata da
+// risolviAttaccoBranco per non applicare mai una morte a nessuno dei tre,
+// qualunque bersaglio scelga il branco.
 export const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
+
+// Cortigiana e Nano non compaiono nemmeno tra le chip da scegliere per il
+// branco: la Cortigiana perché la sua morte è sempre un effetto indiretto
+// (visita a un lupo, o il suo cliente sbranato — mai una scelta diretta del
+// branco), il Nano perché "non viene notato dai lupi durante la notte" (pag.
+// 12), letteralmente invisibile alla loro scelta. Il Criceto Malvagio invece
+// resta selezionabile (i lupi lo notano e provano a sbranarlo, semplicemente
+// falliscono — pag. 18: "non può essere ucciso da loro di notte", non "non
+// lo notano"): sceglierlo si traduce in "nessuno muore questa notte", non in
+// un bersaglio impossibile da scegliere.
+export const RUOLI_NON_SELEZIONABILI_DAL_BRANCO = ['cortigiana', 'nano']
 
 // Nano e Criceto Malvagio non possono morire di notte per il morso del
 // Chupacabra (libretto pag. 12, 18), a differenza della Cortigiana che ne è
