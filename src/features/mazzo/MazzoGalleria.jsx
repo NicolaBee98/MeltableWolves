@@ -24,8 +24,8 @@ export function MazzoGalleria({ onTornaAllaHome }) {
   return (
     <section className="mazzo-galleria">
       <div className="mazzo-galleria__header">
-        <button type="button" onClick={onTornaAllaHome} className="mazzo-galleria__indietro">
-          ← Home
+        <button type="button" onClick={onTornaAllaHome} className="torna-alla-home">
+          ← Torna alla Home
         </button>
         <button type="button" onClick={() => setSfogliaAperto(true)}>
           🎴 Sfoglia il mazzo

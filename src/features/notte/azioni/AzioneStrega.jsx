@@ -73,7 +73,7 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
       <div>
         <h3>Pozione vitale</h3>
         {giaUsataVitale ? (
-          <p>Pozione vitale già utilizzata.</p>
+          <p>Pozione vitale già utilizzata in questa partita.</p>
         ) : (
           <div className="scelta-giocatore">
             <p>Chi proteggere</p>
@@ -97,7 +97,7 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
       <div>
         <h3>Pozione mortale</h3>
         {giaUsataMortale ? (
-          <p>Pozione mortale già utilizzata.</p>
+          <p>Pozione mortale già utilizzata in questa partita.</p>
         ) : (
           <div className="scelta-giocatore">
             <p>Chi uccidere</p>

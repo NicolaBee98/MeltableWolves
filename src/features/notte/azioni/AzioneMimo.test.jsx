@@ -67,7 +67,7 @@ test('la carta già scelta (mimoRuoloScelto) resta modificabile: la chip corrisp
   expect(screen.getByRole('button', { name: 'Villico' })).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chiedere nulla', () => {
+test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chiedere nulla, ma resta un\'uscita per cambiare bersaglio', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true },
@@ -75,5 +75,43 @@ test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chied
   render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} />)
 
   expect(screen.getByText(/il mimo imita marco: ha assunto il ruolo di veggente/i)).toBeInTheDocument()
-  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /annulla/i })).toBeInTheDocument()
+})
+
+test('"Annulla (cambia bersaglio)" toglie il legame, in entrambe le fasi (bersaglio con ruolo noto, o ancora da comunicare)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const onScegliRuoloMimo = vi.fn()
+  const giocatoriConRuoloNoto = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true },
+  ]
+  const { rerender } = render(
+    <AzioneMimo
+      giocatori={giocatoriConRuoloNoto}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['mimo', 'veggente']}
+      onScegliRuoloMimo={onScegliRuoloMimo}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: /annulla/i }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
+
+  const giocatoriSenzaRuoloNoto = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  rerender(
+    <AzioneMimo
+      giocatori={giocatoriSenzaRuoloNoto}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['mimo', 'veggente']}
+      quantita={{ veggente: 1 }}
+      mimoRuoloScelto={null}
+      onScegliRuoloMimo={onScegliRuoloMimo}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: /annulla/i }))
+  expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
 })

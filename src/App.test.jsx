@@ -25,18 +25,28 @@ test('"Torna al mazzo" dai giocatori, e "Torna ai giocatori" dalla prima notte (
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
   expect(screen.getByRole('heading', { name: /nel mazzo \(1\)/i })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: /mimo/i })).toHaveAttribute('aria-pressed', 'true')
 
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
   await user.click(screen.getByRole('button', { name: /torna ai giocatori/i }))
   expect(screen.getByText('Anna')).toBeInTheDocument()
+})
+
+test('"← Torna alla Home" dalla composizione del mazzo riporta alla home', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: '← Torna alla Home' }))
+
+  expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 })
 
 test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi alla notte', async () => {
@@ -46,7 +56,7 @@ test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi all
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   expect(screen.getByRole('heading', { name: /nel mazzo/i })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   expect(screen.getByPlaceholderText('Nome giocatore')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
@@ -59,7 +69,7 @@ test('mostra un avviso non bloccante se il numero di giocatori non combacia con 
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   expect(screen.getByText(/hai 0 giocatori per 1 ruoli/i)).toBeInTheDocument()
 
@@ -74,7 +84,7 @@ test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Ladro' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   // mazzo: Ladro + Mimo = 2 ruoli, meno le 2 carte extra del Ladro = 0 attesi
   expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
@@ -91,7 +101,7 @@ test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel 
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
   await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
   await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   // mazzo: Mimo + Borgomastro + Fantasma Onnisciente = 3 ruoli, ma i due
   // titoli non aggiungono nessun giocatore: 1 atteso, non 3
@@ -105,7 +115,7 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
   await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
@@ -134,7 +144,7 @@ test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home, azzera il
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.getByText('Anna')).toBeInTheDocument()
 
@@ -149,7 +159,7 @@ test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home, azzera il
   expect(screen.getByRole('heading', { name: /nel mazzo/i })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
 
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   // il narratore rifà spesso partite con lo stesso gruppo: il nome resta
   // già in lista (con stato azzerato), non va riscritto da capo
   expect(screen.getByText('Anna')).toBeInTheDocument()
@@ -160,7 +170,7 @@ test('"Elimina tutti i giocatori" (con conferma) svuota la lista, per ripartire 
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByRole('button', { name: 'Continua' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.getByText('Anna')).toBeInTheDocument()
 

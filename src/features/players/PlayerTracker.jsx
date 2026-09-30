@@ -33,19 +33,24 @@ export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRior
 
   return (
     <section className="player-tracker">
+      <h3>Giocatori ({giocatori.length})</h3>
       <AddPlayerForm onAdd={addGiocatore} />
-      <div className="player-tracker__list">
-        {giocatori.map((giocatore) => (
-          <PlayerCard
-            key={giocatore.id}
-            giocatore={giocatore}
-            onRemove={removeGiocatore}
-            onDragStart={(e) => handleDragStart(e, giocatore.id)}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, giocatore.id)}
-          />
-        ))}
-      </div>
+      {giocatori.length === 0 ? (
+        <p className="player-tracker__vuoto">Nessun giocatore aggiunto.</p>
+      ) : (
+        <div className="player-tracker__list">
+          {giocatori.map((giocatore) => (
+            <PlayerCard
+              key={giocatore.id}
+              giocatore={giocatore}
+              onRemove={removeGiocatore}
+              onDragStart={(e) => handleDragStart(e, giocatore.id)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => handleDrop(e, giocatore.id)}
+            />
+          ))}
+        </div>
+      )}
       {/* i nomi restano da una partita all'altra (stesso gruppo al tavolo,
           vedi resetPartita): questo è l'unico modo esplicito per ripartire
           con persone diverse, quindi chiede conferma come le altre azioni
@@ -56,6 +61,7 @@ export function PlayerTracker({ giocatori, addGiocatore, removeGiocatore, onRior
             Eliminare tutti i {giocatori.length} giocatori?
             <button
               type="button"
+              className="player-tracker__conferma-cta"
               onClick={() => {
                 onEliminaTutti()
                 setConfermaElimina(false)

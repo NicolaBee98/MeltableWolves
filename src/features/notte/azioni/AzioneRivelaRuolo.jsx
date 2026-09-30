@@ -121,7 +121,7 @@ export function AzioneRivelaRuolo({
         ))}
       </div>
       {indagineStanotte && (
-        <p className="azione-indagine__esito">
+        <p className="azione-indagine__etichetta-esito">
           Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato)}
         </p>
       )}

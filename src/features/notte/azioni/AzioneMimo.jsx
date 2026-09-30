@@ -50,14 +50,29 @@ export function AzioneMimo({
 
   const target = giocatori.find((g) => g.id === mimo.legame.targetId)
 
+  // scegliere "chi imitare" applica subito il legame (non tocca il
+  // ruoloSlug del Mimo, quindi non fa sparire questo passo come farebbe la
+  // scelta della carta, vedi sopra): resta comunque un'uscita per cambiare
+  // bersaglio, come ogni altro passo a due fasi di questo file (Berserker,
+  // Progenitore, Cartomante/Medium)
+  function annullaBersaglio() {
+    onScegliRuoloMimo(null)
+    aggiornaGiocatore(mimo.id, { legame: undefined })
+  }
+
   // il bersaglio ha già un ruolo noto in app (assegnato altrove, non da
   // questa scelta): niente da chiedere qui, il Mimo lo scoprirà/adotterà
   // quando quel ruolo si sveglierà (vedi mimoDiQuestoPasso in NightSequencer)
   if (target?.ruoloSlug) {
     return (
-      <p>
-        Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(target.ruoloSlug)}.
-      </p>
+      <div className="azione-mimo">
+        <p>
+          Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(target.ruoloSlug)}.
+        </p>
+        <button type="button" onClick={annullaBersaglio}>
+          Annulla (cambia bersaglio)
+        </button>
+      </div>
     )
   }
 
@@ -91,6 +106,9 @@ export function AzioneMimo({
           </button>
         ))}
       </div>
+      <button type="button" onClick={annullaBersaglio}>
+        Annulla (cambia bersaglio)
+      </button>
     </div>
   )
 }

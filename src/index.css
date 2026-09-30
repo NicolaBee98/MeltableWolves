@@ -314,10 +314,6 @@ legend {
   margin-bottom: 0.5rem;
 }
 
-.mazzo-galleria__indietro {
-  background: var(--pal-azzurro);
-  color: var(--pal-blu-notte);
-}
 
 .mazzo-galleria__fazione h3 {
   margin-top: 1.25rem;
@@ -401,7 +397,10 @@ legend {
 
 /* Libretto: regolamento completo, una pagina continua */
 
-.libretto__indietro {
+/* pulsante di uscita condiviso dalle schermate di sola consultazione fuori
+   partita (Libretto, Galleria del mazzo): stesso ruolo ("torna alla Home"),
+   stesso stile ovunque compaia, invece di una classe duplicata per schermata */
+.torna-alla-home {
   background: var(--pal-azzurro);
   color: var(--pal-blu-notte);
   margin-bottom: 0.5rem;
@@ -576,19 +575,6 @@ legend {
   margin: 0;
 }
 
-.mazzo-builder__stepper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.4rem 0;
-  font-weight: 700;
-}
-
-.mazzo-builder__stepper span:last-of-type {
-  min-width: 1.5rem;
-  text-align: center;
-}
-
 /* colore del testo fisso (non var(--text)): l'avviso durante la notte
    userebbe il bianco di quella fase su questo sfondo chiaro sempre uguale,
    illeggibile (stesso bug già visto per Registro/impostazioni) */
@@ -711,6 +697,11 @@ legend {
   box-shadow: none;
 }
 
+.player-tracker__vuoto {
+  color: var(--text-soft);
+  margin: 0;
+}
+
 .player-tracker__conferma {
   display: flex;
   flex-direction: column;
@@ -718,6 +709,16 @@ legend {
   gap: 0.5rem;
   margin-top: 1rem;
   text-align: center;
+}
+
+/* il passo di conferma finale è il punto di massimo rischio (irreversibile):
+   merita lo stesso trattamento "danger" pieno del trigger qui sopra e della
+   conferma di "Nuova Partita" (.log-impostazioni__cta), non lo stile
+   di un bottone qualunque */
+.player-tracker__conferma-cta {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--pal-bianco);
 }
 
 /* Chip: pulsante-pillola usato per selezionare un giocatore al posto di
@@ -844,13 +845,6 @@ button.chip--fazione-sconosciuto {
   color: var(--pal-inchiostro);
 }
 
-.azione-indagine__chip-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-}
-
 .azione-indagine__etichetta-esito {
   font-size: 0.75rem;
   color: var(--text-soft);
@@ -913,7 +907,10 @@ button.chip--fazione-sconosciuto {
 }
 
 .night-sequencer__tipo,
-.night-sequencer__legame {
+.night-sequencer__legame,
+.night-sequencer__inibito,
+.night-sequencer__maledizione,
+.night-sequencer__promemoria-morto {
   font-style: italic;
   color: var(--text-soft);
 }
@@ -1038,6 +1035,20 @@ button.chip--fazione-sconosciuto {
 
 .alba-panel button {
   width: 100%;
+}
+
+/* banner di vittoria: festivo (verde/oro), non il trattamento "avviso"
+   (ambra/allerta) riusato altrove — è una buona notizia, non un warning */
+.alba-panel__vittoria {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  background: color-mix(in srgb, var(--pal-verde) 20%, white);
+  border: var(--border);
+  border-left: 6px solid var(--pal-verde);
+  border-radius: 8px;
+  color: var(--pal-inchiostro);
+  font-weight: 700;
 }
 
 /* Giorno / votazione */

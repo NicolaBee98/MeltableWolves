@@ -84,9 +84,7 @@ export function AlbaPanel({
         </>
       )}
       {borgomastroDaEleggere && (
-        <p className="alba-panel__promemoria">
-          ⚠️ Il villaggio deve eleggere un Borgomastro (menu "Eventi speciali").
-        </p>
+        <p className="avviso">⚠️ Il villaggio deve eleggere un Borgomastro (menu "Eventi speciali").</p>
       )}
       <button type="button" onClick={onVaiAlVoto}>
         Vai al voto
