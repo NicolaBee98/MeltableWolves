@@ -4,7 +4,23 @@ import {
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
+  RUOLI_NON_CARTA_SEGRETA,
 } from './eventiSpeciali'
+
+test('RUOLI_NON_CARTA_SEGRETA copre Fantasma Onnisciente, Suocera, Borgomastro e i 4 ruoli con un evento tutto loro (mai una carta segreta assegnabile da Mimo/Cartomante)', () => {
+  expect(RUOLI_NON_CARTA_SEGRETA).toEqual(
+    expect.arrayContaining([
+      'fantasma-onnisciente',
+      'suocera',
+      'borgomastro',
+      'alchimista',
+      'boia',
+      'scemo-del-villaggio',
+      'innocente',
+    ]),
+  )
+  expect(RUOLI_NON_CARTA_SEGRETA).toHaveLength(7)
+})
 
 test('ruoliRivelabili propone i ruoli a rivelazione diurna presenti nel mazzo e non ancora assegnati', () => {
   expect(ruoliRivelabili(['lantico', 'spilungone'], [], { lantico: 1, spilungone: 1 })).toEqual([

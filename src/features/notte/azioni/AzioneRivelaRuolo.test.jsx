@@ -117,7 +117,7 @@ test('Cartomante: scelto un bersaglio ignoto, "Annulla" torna alla scelta del be
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
-test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma Onnisciente, Suocera o Borgomastro (non sono carte in mano dall\'inizio)', async () => {
+test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma Onnisciente, Suocera, Borgomastro, o un ruolo con un evento tutto suo (Alchimista/Boia/Scemo del Villaggio/Innocente) — non sono mai carte in mano dall\'inizio', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
@@ -131,8 +131,28 @@ test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma O
       ruoloSlugAttore="cartomante"
       etichettaAttore="Cartomante"
       bersaglio="vivo"
-      ruoliSelezionati={['cartomante', 'villico', 'fantasma-onnisciente', 'suocera', 'borgomastro']}
-      quantita={{ cartomante: 1, villico: 5, 'fantasma-onnisciente': 1, suocera: 1, borgomastro: 1 }}
+      ruoliSelezionati={[
+        'cartomante',
+        'villico',
+        'fantasma-onnisciente',
+        'suocera',
+        'borgomastro',
+        'alchimista',
+        'boia',
+        'scemo-del-villaggio',
+        'innocente',
+      ]}
+      quantita={{
+        cartomante: 1,
+        villico: 5,
+        'fantasma-onnisciente': 1,
+        suocera: 1,
+        borgomastro: 1,
+        alchimista: 1,
+        boia: 1,
+        'scemo-del-villaggio': 1,
+        innocente: 1,
+      }}
     />,
   )
 
@@ -141,6 +161,10 @@ test('Cartomante: la carta di un bersaglio ignoto non può mai essere Fantasma O
   expect(screen.queryByRole('button', { name: 'Fantasma Onnisciente' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Suocera' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Borgomastro' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Alchimista' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Boia' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Scemo del Villaggio' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Innocente' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Villico' })).toBeInTheDocument()
 })
 

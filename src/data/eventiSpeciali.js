@@ -1,5 +1,5 @@
 import { ruoliAssegnabili } from './assegnazione'
-import { RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
+import { RUOLI_RIVELAZIONE_GIORNO, RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
 
 // Ruoli con un evento tutto loro invece del generico "Rivelazione
 // personaggio" (vedi ruoliRivelabili sotto): Alchimista/Boia/Scemo del
@@ -9,7 +9,21 @@ import { RUOLI_RIVELAZIONE_GIORNO } from './nightSteps'
 // un'iniziativa che il giocatore prende quando vuole — un pulsante dedicato
 // evita il doppio passaggio "Rivelazione personaggio" -> unica opzione
 // disponibile.
-const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio', 'innocente']
+export const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio', 'innocente']
+
+// Ruoli che non sono mai una carta segreta in mano a un giocatore vivo, in
+// nessun momento della partita: Fantasma Onnisciente/Suocera si ricevono
+// solo alla morte, il Borgomastro è un titolo elettivo sopra un ruolo già
+// posseduto, e i 4 di RIVELAZIONE_CONTESTUALE_AL_POTERE qui sopra si
+// rivelano solo tramite il loro evento dedicato. Nessuno dei sette può
+// quindi essere la risposta a "che ruolo/carta ha davvero questo
+// giocatore?" — usata sia dal Mimo (AzioneMimo.jsx, quando copia
+// un'identità ancora ignota) sia dalla Cartomante/Medium (AzioneRivelaRuolo.jsx):
+// se uno di questi finisse comunque assegnato per errore da lì, quel
+// giocatore diventerebbe per sempre irraggiungibile dal proprio evento
+// dedicato (es. un Alchimista "copiato" che non può più far esplodere se
+// stesso, pur restando bersaglio valido per l'esplosione di un altro).
+export const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro', ...RIVELAZIONE_CONTESTUALE_AL_POTERE]
 
 // Alchimista, Boia, Scemo del Villaggio e Innocente non hanno mai
 // un'identità assegnata prima: si rivelano solo tramite il loro evento
