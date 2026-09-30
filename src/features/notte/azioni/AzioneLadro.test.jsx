@@ -173,6 +173,59 @@ test('se il Mimo sta imitando il Ladro (stesso ruoloSlug), la scelta finale si s
   })
 })
 
+test('la scelta del Ladro resta modificabile finché non si preme Avanti: cambiare carta rimette in mazzo quella scartata prima', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const onCambiaQuantita = vi.fn((slug, valore) => {
+    quantita = { ...quantita, [slug]: valore }
+  })
+  let quantita = { ladro: 1, veggente: 1, paladino: 1 }
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+  ]
+  const { rerender } = render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={quantita}
+      onCambiaQuantita={onCambiaQuantita}
+    />,
+  )
+  const rrender = () =>
+    rerender(
+      <AzioneLadro
+        giocatori={giocatori}
+        aggiornaGiocatore={aggiornaGiocatore}
+        ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+        quantita={quantita}
+        onCambiaQuantita={onCambiaQuantita}
+      />,
+    )
+
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  rrender()
+
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('veggente')
+  expect(quantita.paladino).toBe(0)
+  expect(screen.getByRole('button', { name: 'Veggente' })).toHaveAttribute('aria-pressed', 'true')
+  // niente messaggio bloccante: resta tutto interattivo
+  expect(screen.queryByText(/il ladro ha già scelto/i)).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Paladino' }))
+  rrender()
+
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('paladino')
+  expect(giocatori.find((g) => g.id === '1').storiaRuoli).toEqual(['ladro', 'paladino'])
+  expect(giocatori.find((g) => g.id === '1').poteriUsati).toEqual(['ladro-scelta'])
+  // ora si scarta veggente (la carta non scelta), paladino torna in mazzo
+  // (è la carta che il Ladro ha scelto di diventare, non più quella scartata)
+  expect(quantita.veggente).toBe(0)
+  expect(quantita.paladino).toBe(1)
+})
+
 test('con il potere già usato mostra solo il messaggio', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: ['ladro-scelta'] }]
   render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
