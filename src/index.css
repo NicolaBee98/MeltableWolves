@@ -702,9 +702,12 @@ legend {
 .player-tracker__elimina-tutti {
   display: block;
   margin: 1rem auto 0;
+  /* azione distruttiva (svuota tutti i giocatori): va segnalata in rosso,
+     non nello stile "secondario" (border-soft/text-soft) usato altrove —
+     su questo sfondo (--bg è color della pelle) risultava quasi invisibile */
   background: transparent;
-  border-color: var(--border-soft);
-  color: var(--text-soft);
+  border-color: var(--danger);
+  color: var(--danger);
   box-shadow: none;
 }
 
@@ -826,7 +829,9 @@ button.chip--fazione-indipendente {
 }
 
 button.chip--fazione-sconosciuto {
-  background: var(--pal-giallo);
+  /* ocra (--pal-ambra), non il giallo freddo della palette: più leggibile
+     e coerente con gli altri toni caldi del mazzo */
+  background: var(--pal-ambra);
   color: var(--pal-inchiostro);
 }
 
@@ -1073,6 +1078,7 @@ button.chip--fazione-sconosciuto {
 }
 
 .votazione__nome-designato {
+  display: block;
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1.5rem;

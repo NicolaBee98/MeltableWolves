@@ -215,6 +215,38 @@ test('il Progenitore non ripropone la trasformazione se ha già usato il potere'
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
+test('senza vendetta, il colpo del branco resta modificabile finché non si preme Avanti: cambiare bersaglio resuscita il precedente e sbrana il nuovo', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const { rerender } = render(
+    <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={3} ruoli={['lupo-mannaro']} />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={3} ruoli={['lupo-mannaro']} />)
+
+  expect(giocatori.find((g) => g.id === '1').vivo).toBe(false)
+  // niente messaggio bloccante: il branco può ancora cambiare idea
+  expect(screen.queryByText(/il branco ha già sbranato/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Carlo' })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Carlo' }))
+  rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={3} ruoli={['lupo-mannaro']} />)
+
+  expect(giocatori.find((g) => g.id === '1').vivo).toBe(true)
+  expect(giocatori.find((g) => g.id === '1').causaMorte).toBeUndefined()
+  expect(giocatori.find((g) => g.id === '2').vivo).toBe(false)
+  // un solo colpo effettivo: usiNotte non raddoppia per la sostituzione
+  expect(giocatori.find((g) => g.id === '3').usiNotte).toEqual(['branco-lupi-sbrana'])
+})
+
 test('con la vendetta del Cucciolo attiva il branco può sbranare due vittime nella stessa notte', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn((id, patch) => {

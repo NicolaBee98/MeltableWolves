@@ -6,6 +6,12 @@
 export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, tipoLegame, etichetta }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const candidati = giocatori.filter((g) => g.vivo && g.id !== attore?.id)
+  // solo se il legame è di QUESTO tipo: chi interpreta l'attore può essere
+  // cambiato prima di Avanti (vedi rimuoviAssegnazione in NightSequencer),
+  // ma se il giocatore appena tolto da questo ruolo aveva già un legame di
+  // un ruolo precedente (es. un altro Apprendista con un altro maestro), non
+  // va scambiato per il legame di questo attore
+  const bersaglioAttuale = attore?.legame?.tipo === tipoLegame ? attore.legame.targetId : undefined
 
   function confermaScelta(targetId) {
     if (!attore) return
@@ -25,7 +31,7 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
             key={g.id}
             type="button"
             className="chip"
-            aria-pressed={attore?.legame?.targetId === g.id}
+            aria-pressed={bersaglioAttuale === g.id}
             onClick={() => confermaScelta(g.id)}
           >
             {g.nome}
