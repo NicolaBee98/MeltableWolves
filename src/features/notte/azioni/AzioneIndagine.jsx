@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { auraDi } from '../../../data/aura'
 import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo, RUOLO_CAUSA_ACCECAMENTO } from '../../../data/effettiNotte'
 
@@ -21,12 +22,27 @@ export function AzioneIndagine({
   const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
   const giaUsato = usatoStanotte(giocatori, ruoli, potere)
+  // l'accecamento dura "fino alla morte del Polpo" (permanente tra notti):
+  // se il Veggente era già cieco PRIMA di questo passo, resta tale per tutta
+  // la notte, qualunque bersaglio si scelga. Ma se è QUESTO stesso click a
+  // provocarlo (indagando il Polpo per la prima volta stanotte), va tenuto
+  // reversibile finché non si preme "Avanti": ripensare il bersaglio dopo
+  // deve annullarlo di nuovo, non lasciarlo agire già da subito su chi non
+  // ha ancora indagato nessuno.
+  const [accecatoAllIngresso] = useState(() => veggente?.condizioni?.includes('accecato') ?? false)
+  const [accecatoDaQuestaScelta, setAccecatoDaQuestaScelta] = useState(false)
 
   function confermaScelta(targetId) {
     if (veggente) {
       const target = giocatori.find((g) => g.id === targetId)
       if (target) {
-        const accecato = puoEssereAccecato && veggente.condizioni?.includes('accecato')
+        if (accecatoDaQuestaScelta) {
+          aggiornaGiocatore(veggente.id, {
+            condizioni: (veggente.condizioni ?? []).filter((c) => c !== 'accecato'),
+          })
+          setAccecatoDaQuestaScelta(false)
+        }
+        const accecato = puoEssereAccecato && accecatoAllIngresso
         const esito = accecato ? 'benevola' : auraDi(target.ruoloSlug)
         // ultimaIndagine è un dato del "ruolo", non del singolo corpo: va
         // sincronizzato su ogni giocatore che condivide questo ruoloSlug
@@ -39,6 +55,7 @@ export function AzioneIndagine({
         })
         if (puoEssereAccecato && !accecato && target.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO) {
           aggiornaGiocatore(veggente.id, { condizioni: [...(veggente.condizioni ?? []), 'accecato'] })
+          setAccecatoDaQuestaScelta(true)
         }
       }
     }

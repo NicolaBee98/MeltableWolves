@@ -90,8 +90,16 @@ test('Morte per unzione propone solo i vivi con la condizione "unto" e la propag
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
   expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Anna' }))
 
+  // scelta consequenziale (una morte): serve un "Conferma" esplicito, non
+  // basta il click sulla chip
+  const conferma = screen.getByRole('button', { name: 'Conferma' })
+  expect(conferma).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(onMorteUnzione).not.toHaveBeenCalled()
+  expect(conferma).not.toBeDisabled()
+
+  await user.click(conferma)
   expect(onMorteUnzione).toHaveBeenCalledWith('1')
 })
 

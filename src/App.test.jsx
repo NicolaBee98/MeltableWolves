@@ -118,7 +118,7 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
-  await user.click(screen.getByRole('button', { name: 'Notte successiva' }))
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
   expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Vai al voto' }))

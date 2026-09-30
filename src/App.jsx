@@ -126,7 +126,7 @@ export default function App() {
             ← Torna alla Home
           </button>
           <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
-          <button type="button" onClick={() => setFaseApp('giocatori')}>
+          <button type="button" className="mazzo-fase__avanti" onClick={() => setFaseApp('giocatori')}>
             Avanti
           </button>
         </section>

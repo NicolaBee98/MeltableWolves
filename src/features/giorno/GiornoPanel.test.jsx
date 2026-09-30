@@ -67,6 +67,7 @@ test('morte per unzione uccide l\'Unto e propaga la condizione ai vicini vivi', 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['unto'] })

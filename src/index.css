@@ -201,7 +201,10 @@ button:disabled {
   margin: 0 0 1rem;
   background: transparent;
   border-color: var(--border-soft);
-  color: var(--text-soft);
+  /* var(--text), non --text-soft: quel grigio chiaro pensato per un
+     dettaglio secondario ha contrasto insufficiente sul fondo chiaro delle
+     fasi di setup (grigio su rosa pelle, poco leggibile) */
+  color: var(--text);
   box-shadow: none;
   font-size: 0.85rem;
   padding: 0.4rem 0.85rem;
@@ -685,6 +688,12 @@ legend {
   margin: 1.5rem auto 0;
 }
 
+.mazzo-fase__avanti {
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0 0;
+}
+
 .player-tracker__elimina-tutti {
   display: block;
   margin: 1rem auto 0;
@@ -695,6 +704,12 @@ legend {
   border-color: var(--danger);
   color: var(--danger);
   box-shadow: none;
+}
+
+.player-tracker__istruzioni {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
 }
 
 .player-tracker__vuoto {
@@ -1033,7 +1048,11 @@ button.chip--fazione-sconosciuto {
   font-style: italic;
 }
 
-.alba-panel button {
+/* non le .chip: quelle vivono in Eventi Speciali (nidificato qui dentro,
+   niente portale) e devono restare alla dimensione standard di una chip
+   ovunque nell'app, non larghe come il box (bug reale osservato per le
+   chip di elezione del Borgomastro) */
+.alba-panel button:not(.chip) {
   width: 100%;
 }
 

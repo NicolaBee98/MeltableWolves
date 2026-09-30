@@ -91,9 +91,17 @@ export function AssegnaRuolo({
     setAvviso(null)
   }
 
+  // con un solo titolare (reale o pendente) l'illustrazione generica QUI è
+  // l'unico ritratto di quella persona, va tenuta; con più titolari (es. il
+  // Lupo Mannaro "generico", più copie) ognuno ha già il proprio ritratto in
+  // IllustrazioniCoinvolti (NightSequencer) — mostrarne anche uno generico
+  // qui darebbe due file separate invece di una sola. La modalità guardie fa
+  // eccezione: lì l'identità reale non si mostra mai, resta sempre generica.
+  const mostraIllustrazione = modalitaGuardie || selezionatiVisivi.length <= 1
+
   return (
     <div className="assegna-ruolo">
-      <RuoloIllustrazione slug={ruoloScelto} className="assegna-ruolo__illustrazione" />
+      {mostraIllustrazione && <RuoloIllustrazione slug={ruoloScelto} className="assegna-ruolo__illustrazione" />}
       {!modalitaGuardie && opzioni.length > 1 && (
         <label>
           Che ruolo mostra la carta?

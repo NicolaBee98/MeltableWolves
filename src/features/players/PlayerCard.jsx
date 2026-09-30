@@ -11,7 +11,7 @@ const DRAG_AND_DROP_SUPPORTATO = typeof document !== 'undefined' && 'draggable' 
 // far scattare per sbaglio in un tavolo affollato, quindi bisogna tenere
 // premuto finché il pulsante non si riempie tutto di rosso (funziona sia a
 // puntatore/tocco che da tastiera, tenendo premuto Invio/Spazio)
-const DURATA_PRESSIONE_MS = 700
+const DURATA_PRESSIONE_MS = 350
 
 export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop }) {
   const [eliminando, setEliminando] = useState(false)
