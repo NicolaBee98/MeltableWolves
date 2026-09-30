@@ -22,6 +22,7 @@ export function AssegnaRuolo({
   onCambiaSelezioni,
   onRimuovi,
   domanda = 'Chi ha questa carta?',
+  illustrazioneSeparata = true,
 }) {
   const [avviso, setAvviso] = useState(null)
   const modalitaGuardie = ruoli.length > 1 && ruoli.every((s) => GRUPPO_GUARDIE.includes(s))
@@ -91,13 +92,20 @@ export function AssegnaRuolo({
     setAvviso(null)
   }
 
-  // con un solo titolare (reale o pendente) l'illustrazione generica QUI è
-  // l'unico ritratto di quella persona, va tenuta; con più titolari (es. il
-  // Lupo Mannaro "generico", più copie) ognuno ha già il proprio ritratto in
-  // IllustrazioniCoinvolti (NightSequencer) — mostrarne anche uno generico
-  // qui darebbe due file separate invece di una sola. La modalità guardie fa
-  // eccezione: lì l'identità reale non si mostra mai, resta sempre generica.
-  const mostraIllustrazione = modalitaGuardie || selezionatiVisivi.length <= 1
+  // `illustrazioneSeparata=false` (passata da NightSequencer per i passi con
+  // ruoliMostraCoinvolti, es. "il branco si riconosce"): quel passo mostra
+  // già un ritratto per persona in un'unica riga sopra (IllustrazioniCoinvolti),
+  // quindi qui l'illustrazione generica va sempre nascosta, non solo quando
+  // c'è più di un titolare — altrimenti resterebbe comunque una seconda riga
+  // separata sotto quella collettiva, anche a zero o un solo titolare scelto.
+  // Negli altri passi (illustrazioneSeparata=true, il caso comune): con un
+  // solo titolare (reale o pendente) l'illustrazione generica QUI è l'unico
+  // ritratto di quella persona, va tenuta; con più titolari (es. il Lupo
+  // Mannaro "generico", più copie) ognuno ha già il proprio ritratto in
+  // IllustrazioniCoinvolti — mostrarne anche uno generico qui darebbe due
+  // file separate invece di una sola. La modalità guardie fa eccezione:
+  // lì l'identità reale non si mostra mai, resta sempre generica.
+  const mostraIllustrazione = illustrazioneSeparata && (modalitaGuardie || selezionatiVisivi.length <= 1)
 
   return (
     <div className="assegna-ruolo">

@@ -730,15 +730,15 @@ test('selezionare più Lupi Mannari generici (ancora solo pendenti, non conferma
   )
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
-  // un solo Lupo Mannaro selezionato: l'illustrazione generica di
-  // AssegnaRuolo resta l'unico ritratto per lui (oltre al Cucciolo)
+  // questo passo mostra già il branco al completo (ruoliMostraCoinvolti):
+  // l'illustrazione generica di AssegnaRuolo resta sempre nascosta qui,
+  // anche con un solo Lupo Mannaro selezionato, mai una seconda riga separata
   await user.click(screen.getByRole('button', { name: 'Elsa' }))
-  expect(container.querySelector('.assegna-ruolo__illustrazione')).toBeInTheDocument()
-  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(1) // solo il Cucciolo
+  expect(container.querySelector('.assegna-ruolo__illustrazione')).not.toBeInTheDocument()
+  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(2) // Cucciolo + Elsa
 
-  // un secondo Lupo Mannaro (ancora pendente, Avanti non premuto): ora
-  // entrambi vanno mostrati con un ritratto a testa nella riga, non più
-  // l'illustrazione generica separata
+  // un secondo Lupo Mannaro (ancora pendente, Avanti non premuto): si
+  // aggiunge alla stessa riga, sempre un ritratto a testa
   await user.click(screen.getByRole('button', { name: 'Franco' }))
   expect(container.querySelector('.assegna-ruolo__illustrazione')).not.toBeInTheDocument()
   expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(3) // Cucciolo + Elsa + Franco
@@ -797,6 +797,45 @@ test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coi
   expect(src.some((s) => s.includes('Lupo_Mannaro_1.svg'))).toBe(true)
   expect(src.some((s) => s.includes('Lupo_Mannaro_2.svg'))).toBe(true)
   expect(src.some((s) => s.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
+})
+
+test('con un branco numeroso tutte le illustrazioni condividono lo STESSO fattore di scala (mai uno diverso per ciascuna), calcolato sulla larghezza disponibile', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Gino', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Ada', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Bea', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Ciro', vivo: true, condizioni: [] },
+    { id: '5', nome: 'Dan', vivo: true, condizioni: [] },
+    { id: '6', nome: 'Ele', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro', 'cucciolo-di-lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 5 }}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  for (const nome of ['Ada', 'Bea', 'Ciro', 'Dan', 'Ele']) {
+    await user.click(screen.getByRole('button', { name: nome }))
+  }
+
+  const immagini = [...container.querySelectorAll('img.night-sequencer__illustrazione')]
+  expect(immagini).toHaveLength(6)
+  // altezza-resa / altezza-naturale deve essere IDENTICO per tutti (stesso
+  // fattore di scala), entro un margine di arrotondamento in virgola mobile
+  const ALTEZZE_NATURALI = { 'cucciolo-di-lupo-mannaro': 49.8, 'lupo-mannaro': 59.1 }
+  const fattori = immagini.map((img) => {
+    const altezzaResa = parseFloat(img.style.height)
+    const slug = img.src.includes('Cucciolo') ? 'cucciolo-di-lupo-mannaro' : 'lupo-mannaro'
+    return altezzaResa / ALTEZZE_NATURALI[slug]
+  })
+  const [primo, ...resto] = fattori
+  for (const fattore of resto) {
+    expect(fattore).toBeCloseTo(primo, 5)
+  }
 })
 
 test('quando il Mimo imita un ruolo che agisce, compare la sua illustrazione accanto a quella del vero titolare (mai una seconda copia del ruolo imitato per il Mimo stesso)', () => {
