@@ -91,60 +91,69 @@ test('Berserker sbranato con due lupi alla stessa distanza: il narratore sceglie
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
-test('con il Progenitore vivo e il potere non ancora usato, propone di trasformare il bersaglio invece di sbranarlo', async () => {
+test('con il Progenitore vivo e il potere non ancora usato: le chip restano tutte visibili, il pulsante del Progenitore compare sotto una volta scelto un bersaglio', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
-  const giocatori = [
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
     { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
   ]
-  render(
-    <AzioneBrancoLupi
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
-      round={2}
-      ruoli={['lupo-mannaro-progenitore']}
-    />,
+  const { rerender } = render(
+    <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />,
   )
+
+  // prima di scegliere un bersaglio, niente pulsante del Progenitore
+  expect(screen.queryByRole('button', { name: /progenitore/i })).not.toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  expect(aggiornaGiocatore).not.toHaveBeenCalled()
-  expect(screen.getByText(/il progenitore può trasformare anna/i)).toBeInTheDocument()
+  rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />)
 
-  await user.click(screen.getByRole('button', { name: 'Il Progenitore la trasforma in Lupo Mannaro' }))
+  // il click sbrana normalmente: le chip restano, Anna resta visibile e marcata
+  expect(giocatori.find((g) => g.id === '1').vivo).toBe(false)
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith(
-    '1',
-    expect.objectContaining({ ruoloSlug: 'lupo-mannaro' }),
-  )
-  expect(aggiornaGiocatore).toHaveBeenCalledWith(
-    '2',
-    expect.objectContaining({ poteriUsati: ['progenitore-trasforma'] }),
-  )
-  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+  const trasforma = screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' })
+  await user.click(trasforma)
+  rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />)
+
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
+  expect(giocatori.find((g) => g.id === '1').vivo).toBe(true)
+  expect(giocatori.find((g) => g.id === '2').poteriUsati).toEqual(['progenitore-trasforma'])
+  // la chip di Anna cambia stile (chip--trasformato), il pulsante diventa "Sbrana normalmente"
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveClass('chip--trasformato')
+  expect(screen.getByRole('button', { name: 'Sbrana normalmente' })).toBeInTheDocument()
 })
 
-test('la schermata di trasformazione del Progenitore ha un\'uscita: "Annulla" torna alla scelta del bersaglio', async () => {
+test('scegliere un bersaglio diverso mentre la trasformazione è attiva annulla la trasformazione (torna Lupo Mannaro) e sbrana normalmente il nuovo', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
-  const giocatori = [
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
-    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
   ]
-  render(
-    <AzioneBrancoLupi
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
-      round={2}
-      ruoli={['lupo-mannaro-progenitore']}
-    />,
+  const { rerender } = render(
+    <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />,
   )
+  const rrender = () =>
+    rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
-  await user.click(screen.getByRole('button', { name: /annulla/i }))
+  rrender()
+  await user.click(screen.getByRole('button', { name: /progenitore trasforma anna/i }))
+  rrender()
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
 
-  expect(aggiornaGiocatore).not.toHaveBeenCalled()
-  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Carlo' }))
+  rrender()
+
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('villico')
+  expect(giocatori.find((g) => g.id === '2').vivo).toBe(false)
+  expect(screen.getByRole('button', { name: 'Il Progenitore trasforma Carlo in Lupo Mannaro' })).toBeInTheDocument()
 })
 
 test('la schermata di parità del Berserker ha un\'uscita: "Annulla" torna alla scelta del bersaglio', async () => {
@@ -164,29 +173,33 @@ test('la schermata di parità del Berserker ha un\'uscita: "Annulla" torna alla 
   expect(screen.getByRole('button', { name: 'Bruno' })).toBeInTheDocument()
 })
 
-test('col Progenitore, scegliendo "sbrana normalmente" uccide come al solito', async () => {
+test('col Progenitore, cliccare di nuovo "Sbrana normalmente" torna a sbranare come al solito', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
-  const giocatori = [
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
     { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
   ]
-  render(
-    <AzioneBrancoLupi
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
-      round={2}
-      ruoli={['lupo-mannaro-progenitore']}
-    />,
+  const { rerender } = render(
+    <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />,
   )
+  const rrender = () =>
+    rerender(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro-progenitore']} />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rrender()
+  await user.click(screen.getByRole('button', { name: /progenitore trasforma anna/i }))
+  rrender()
   await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
+  rrender()
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+  expect(giocatori.find((g) => g.id === '1').vivo).toBe(false)
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('villico')
 })
 
-test('il Progenitore non ripropone la trasformazione se ha già usato il potere', async () => {
+test('il Progenitore non ripropone la trasformazione se ha già usato il potere: niente pulsante, si sbrana normalmente', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
   const giocatori = [
@@ -213,6 +226,7 @@ test('il Progenitore non ripropone la trasformazione se ha già usato il potere'
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+  expect(screen.queryByRole('button', { name: /progenitore/i })).not.toBeInTheDocument()
 })
 
 test('senza vendetta, il colpo del branco resta modificabile finché non si preme Avanti: cambiare bersaglio resuscita il precedente e sbrana il nuovo', async () => {

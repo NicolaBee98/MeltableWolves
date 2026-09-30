@@ -803,6 +803,15 @@ button.chip--malvagia {
   color: var(--pal-bianco);
 }
 
+/* branco dei Lupi: il Progenitore trasforma invece di sbranare (pag. 15).
+   La chip del bersaglio scelto e il pulsante del Progenitore condividono
+   questo colore quando la trasformazione è attiva, a colpo d'occhio
+   diverso dal normale "sbrana" (colore di aria-pressed di default) */
+button.chip--trasformato {
+  background: var(--pal-verde);
+  color: var(--pal-bianco);
+}
+
 /* Borgomastro/Fantasma Onnisciente: non sono carte distribuite come le
    altre all'inizio (titolo per elezione / si riceve solo alla morte), il
    colore diverso lo ricorda a colpo d'occhio nella composizione del mazzo */
