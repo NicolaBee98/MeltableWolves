@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { risolviAttaccoBranco, berserkerLupiCandidati, RUOLI_IMMUNI_AL_BRANCO } from '../../../data/effettiNotte'
 
 const POTERE = 'branco-lupi-sbrana'
@@ -18,15 +17,22 @@ function usiStanotte(giocatori, ruoli) {
 
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = [] }) {
   const [bersaglioInAttesaDiLupo, setBersaglioInAttesaDiLupo] = useState(null)
-  const [bersaglioInAttesaDiTrasformazione, setBersaglioInAttesaDiTrasformazione] = useState(null)
   // il colpo (col caso comune, un solo bersaglio possibile) resta
   // modificabile finché non si preme "Avanti", come ogni altra azione con
   // effetti reali (vedi AzioneChupacabra): registra ESATTAMENTE i campi
   // toccati dal colpo, sul valore che avevano PRIMA, così cambiare
-  // bersaglio può annullarli tutti (non solo la morte diretta: Berserker,
-  // Ubriaco, Mezzosangue possono toccarne altri) prima di applicare il nuovo
-  const [colpoAttivo, setColpoAttivo] = useState(null) // { targetId, originali: { [id]: {...campi} } }
-  const vivi = giocatori.filter((g) => g.vivo && !RUOLI_IMMUNI_AL_BRANCO.includes(g.ruoloSlug))
+  // bersaglio (o passare da "sbrana" a "trasforma" e viceversa) può
+  // annullarli tutti prima di applicare il nuovo. Le chip restano sempre
+  // tutte visibili e cliccabili (mai sovrascritte da una schermata separata,
+  // come chiesto): il Progenitore è un pulsante unico sotto di loro che
+  // agisce sul bersaglio già scelto, non un fork che le nasconde.
+  const [colpoAttivo, setColpoAttivo] = useState(null) // { targetId, tipo: 'sbrana'|'trasforma', originali }
+  // il bersaglio appena sbranato resta in lista (anche se non più vivo),
+  // altrimenti la sua chip sparirebbe subito dopo il click invece di
+  // restare visibile e cliccabile (vedi AzioneChupacabra)
+  const vivi = giocatori.filter(
+    (g) => (g.vivo || g.id === colpoAttivo?.targetId) && !RUOLI_IMMUNI_AL_BRANCO.includes(g.ruoloSlug),
+  )
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,
   )
@@ -34,7 +40,13 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
   const limite = vendettaAttiva ? 2 : 1
   const usi = usiStanotte(giocatori, ruoli)
   const progenitore = giocatori.find((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo)
-  const progenitorePuoTrasformare = Boolean(progenitore) && !(progenitore.poteriUsati ?? []).includes(POTERE_TRASFORMA)
+  // snapshot all'ingresso nel passo: usarla dal vivo farebbe sparire il
+  // pulsante di trasformazione nello stesso istante in cui lo si preme
+  // (il potere risulterebbe "già usato" a trasformazione appena applicata),
+  // impedendo di tornare indietro con "Sbrana normalmente" prima di Avanti
+  const [progenitorePuoTrasformare] = useState(
+    () => Boolean(progenitore) && !(progenitore.poteriUsati ?? []).includes(POTERE_TRASFORMA),
+  )
 
   if (storditi) {
     return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
@@ -64,7 +76,24 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
       })
   }
 
-  function finalizza(targetId, berserkerLupoSceltoId) {
+  // Lupo Mannaro Progenitore: una sola volta per partita, invece di sbranare
+  // la vittima scelta dal branco può trasformarla in Lupo Mannaro (pag. 15).
+  function patchTrasforma(targetId) {
+    const target = giocatori.find((g) => g.id === targetId)
+    if (!target || !progenitore) return {}
+    return {
+      [target.id]: { ruoloSlug: 'lupo-mannaro', storiaRuoli: [...(target.storiaRuoli ?? []), 'lupo-mannaro'] },
+      [progenitore.id]: { poteriUsati: [...(progenitore.poteriUsati ?? []), POTERE_TRASFORMA] },
+    }
+  }
+
+  function calcolaPatch(tipo, targetId, berserkerLupoSceltoId) {
+    return tipo === 'trasforma'
+      ? patchTrasforma(targetId)
+      : risolviAttaccoBranco(giocatori, targetId, round, ruoli, berserkerLupoSceltoId)
+  }
+
+  function applica(tipo, targetId, berserkerLupoSceltoId) {
     // annulla il colpo precedente (se ancora annullabile) ripristinando
     // esattamente i campi che aveva toccato, prima di applicarne uno nuovo
     if (colpoAttivo) {
@@ -72,7 +101,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
         aggiornaGiocatore(id, originali)
       }
     }
-    const patches = risolviAttaccoBranco(giocatori, targetId, round, ruoli, berserkerLupoSceltoId)
+    const patches = calcolaPatch(tipo, targetId, berserkerLupoSceltoId)
     const originali = {}
     for (const [id, patch] of Object.entries(patches)) {
       const attuale = giocatori.find((g) => g.id === id)
@@ -80,7 +109,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
       aggiornaGiocatore(id, patch)
     }
     if (!vendettaAttiva) {
-      setColpoAttivo({ targetId, originali })
+      setColpoAttivo({ targetId, tipo, originali })
     }
     // conta come nuovo uso solo la vendetta (ogni colpo è definitivo, quindi
     // ognuno va contato) o il primissimo colpo nel caso comune: sostituire
@@ -89,24 +118,6 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
       segnaUsoBranco()
     }
     setBersaglioInAttesaDiLupo(null)
-  }
-
-  // Lupo Mannaro Progenitore: una sola volta per partita, invece di sbranare
-  // la vittima scelta dal branco può trasformarla in Lupo Mannaro (pag. 15).
-  // Il narratore la sveglia in privato e le fa riconoscere il branco.
-  function trasforma(targetId) {
-    const target = giocatori.find((g) => g.id === targetId)
-    if (target && progenitore) {
-      aggiornaGiocatore(target.id, {
-        ruoloSlug: 'lupo-mannaro',
-        storiaRuoli: [...(target.storiaRuoli ?? []), 'lupo-mannaro'],
-      })
-      aggiornaGiocatore(progenitore.id, {
-        poteriUsati: [...(progenitore.poteriUsati ?? []), POTERE_TRASFORMA],
-      })
-    }
-    segnaUsoBranco()
-    setBersaglioInAttesaDiTrasformazione(null)
   }
 
   // Berserker: se i lupi vivi più vicini sono due (parità di distanza a
@@ -119,41 +130,27 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
       setBersaglioInAttesaDiLupo(targetId)
       return
     }
-    finalizza(targetId)
+    applica('sbrana', targetId)
   }
 
+  // scegliere una chip sbrana sempre normalmente: il Progenitore è
+  // un'opzione separata che si applica DOPO, sul bersaglio già scelto
+  // (pulsante qui sotto), non un fork che sostituisce le chip
   function confermaScelta(targetId) {
     if (targetId === colpoAttivo?.targetId) return
-    if (progenitorePuoTrasformare) {
-      setBersaglioInAttesaDiTrasformazione(targetId)
-      return
-    }
     procediConAttacco(targetId)
   }
 
-  if (bersaglioInAttesaDiTrasformazione) {
-    const nome = giocatori.find((g) => g.id === bersaglioInAttesaDiTrasformazione)?.nome
-    return (
-      <div className="azione-branco-lupi__progenitore">
-        <p>Il Progenitore può trasformare {nome} in Lupo Mannaro invece di sbranarla, una sola volta per partita.</p>
-        <button type="button" onClick={() => trasforma(bersaglioInAttesaDiTrasformazione)}>
-          Il Progenitore la trasforma in Lupo Mannaro
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const targetId = bersaglioInAttesaDiTrasformazione
-            setBersaglioInAttesaDiTrasformazione(null)
-            procediConAttacco(targetId)
-          }}
-        >
-          Sbrana normalmente
-        </button>
-        <button type="button" onClick={() => setBersaglioInAttesaDiTrasformazione(null)}>
-          Annulla (cambia bersaglio)
-        </button>
-      </div>
-    )
+  // il pulsante del Progenitore è un interruttore sul bersaglio corrente:
+  // trasforma invece di sbranare, o torna a sbranare (gestendo di nuovo
+  // l'eventuale parità del Berserker se il bersaglio lo richiede)
+  function toggleTrasformazione() {
+    if (!colpoAttivo) return
+    if (colpoAttivo.tipo === 'trasforma') {
+      procediConAttacco(colpoAttivo.targetId)
+    } else {
+      applica('trasforma', colpoAttivo.targetId)
+    }
   }
 
   if (bersaglioInAttesaDiLupo) {
@@ -166,7 +163,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
             key={g.id}
             type="button"
             className="chip"
-            onClick={() => finalizza(bersaglioInAttesaDiLupo, g.id)}
+            onClick={() => applica('sbrana', bersaglioInAttesaDiLupo, g.id)}
           >
             {g.nome}
           </button>
@@ -178,13 +175,36 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, round, ruoli = 
     )
   }
 
+  const bersaglioCorrente = colpoAttivo && giocatori.find((g) => g.id === colpoAttivo.targetId)
+
   return (
-    <SceltaGiocatore
-      candidati={vivi}
-      onConferma={confermaScelta}
-      onSalta={() => {}}
-      etichetta="Il branco sbrana"
-      mostraSalta={false}
-    />
+    <div className="scelta-giocatore">
+      <p>Il branco sbrana</p>
+      <div className="scelta-giocatore__chips" role="group" aria-label="Il branco sbrana">
+        {vivi.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className={`chip${colpoAttivo?.targetId === g.id && colpoAttivo.tipo === 'trasforma' ? ' chip--trasformato' : ''}`}
+            aria-pressed={colpoAttivo?.targetId === g.id}
+            onClick={() => confermaScelta(g.id)}
+          >
+            {g.nome}
+          </button>
+        ))}
+      </div>
+      {progenitorePuoTrasformare && bersaglioCorrente && (
+        <button
+          type="button"
+          className={colpoAttivo.tipo === 'trasforma' ? 'chip--trasformato' : ''}
+          aria-pressed={colpoAttivo.tipo === 'trasforma'}
+          onClick={toggleTrasformazione}
+        >
+          {colpoAttivo.tipo === 'trasforma'
+            ? 'Sbrana normalmente'
+            : `Il Progenitore trasforma ${bersaglioCorrente.nome} in Lupo Mannaro`}
+        </button>
+      )}
+    </div>
   )
 }
