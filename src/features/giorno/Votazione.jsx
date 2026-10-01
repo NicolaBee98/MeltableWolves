@@ -108,6 +108,7 @@ export function Votazione({
   quantita = {},
   onProsegui,
   onConcludiPartita = () => {},
+  round,
   variantiFaccia = true,
   mostraNomeRuolo = false,
   durataTimer = 60,
@@ -122,7 +123,7 @@ export function Votazione({
   // per L'Antico normale morte da Villico) ma salterebbe il passo di
   // conferma. Da rivedere se capita davvero in una partita reale.
   const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
-  const [anticoRivelatoId, setAnticoRivelatoId] = useState(null)
+  const [anticoRivelatoStato, setAnticoRivelatoId] = useState(null)
   // l'Alchimista ha bisogno di un secondo click (chi trascina con sé
   // nell'esplosione, pag. 5): attesaVittimaId mentre si sceglie, poi
   // l'esito finale una volta scelta la vittima
@@ -131,6 +132,40 @@ export function Votazione({
   // spareggio: la chip resta selezionabile/cambiabile finché non si preme
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
+  const [confermaRicomincia, setConfermaRicomincia] = useState(false)
+
+  // la scelta dello spareggio vale solo per il voto che l'ha generata: se si
+  // torna al voto (o si ricomincia) e i voti cambiano, non deve restare
+  // selezionato un vecchio candidato
+  function tornaAlVotoPulito() {
+    setDesignatoSpareggio(null)
+    tornaAlVoto()
+  }
+
+  const vittoria = condizioniVittoria(giocatori, quantita)
+  // partita già finita (es. Boia/Scemo hanno ucciso l'ultimo lupo durante il
+  // voto) o nessun vivo rimasto: il narratore deve poter concludere subito,
+  // senza dover prima completare un rogo che non serve più
+  const bannerVittoria =
+    vittoria.length > 0 ? (
+      <>
+        <ul className="alba-panel__vittoria">
+          {vittoria.map((testo) => (
+            <li key={testo}>🏆 {testo}</li>
+          ))}
+        </ul>
+        <button type="button" onClick={onConcludiPartita}>
+          Concludi partita
+        </button>
+      </>
+    ) : vivi.length === 0 ? (
+      <>
+        <p>Non è rimasto nessuno in vita.</p>
+        <button type="button" onClick={onConcludiPartita}>
+          Concludi partita
+        </button>
+      </>
+    ) : null
 
   if (fase === 'esito') {
     // l'esito si calcola sui candidati congelati al momento di "Vai all'esito",
@@ -138,11 +173,30 @@ export function Votazione({
     // cambia il pool e può svuotare la lista dei designati (vedi bug: rogo
     // che porta a uno spareggio senza nessuno indicato)
     const { vincitori: designati } = risultatoVotazione(voti, candidatiEsito)
+    // L'Antico sopravvissuto si deduce anche dallo stato già scritto sul
+    // giocatore (villaggioMaledettoFinoA di questo giorno), così dopo un
+    // reload l'esito risulta ancora confermato
+    const anticoRivelatoId =
+      anticoRivelatoStato ??
+      designati.find((id) => round !== undefined && giocatori.find((g) => g.id === id)?.villaggioMaledettoFinoA === round) ??
+      null
+    // il Cavaliere legato al designato si è immolato al suo posto (vedi
+    // risolviLegami): il designato è tornato vivo e il Cavaliere risulta
+    // morto per 'sacrificio' in questo giorno
+    const cavaliereImmolato =
+      round === undefined
+        ? undefined
+        : giocatori.find((g) => !g.vivo && g.causaMorte === 'sacrificio' && g.mortoNotte === round)
+    const protettoImmolatoId = cavaliereImmolato
+      ? designati.find((id) => giocatori.find((g) => g.id === id)?.vivo)
+      : undefined
+    const designatoSpareggioValido = designati.includes(designatoSpareggio) ? designatoSpareggio : null
     const morteConfermata =
       designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) ||
       spilungoneRivelatoId !== null ||
       anticoRivelatoId !== null ||
-      alchimistaEsploso !== null
+      alchimistaEsploso !== null ||
+      protettoImmolatoId !== undefined
 
     // Spilungone, L'Antico e Alchimista sono ruoli a rivelazione diurna
     // (pag. 5, 13): la loro identità non è quasi mai già nota all'app
@@ -162,7 +216,9 @@ export function Votazione({
       const target = giocatori.find((g) => g.id === id)
       if (target?.ruoloSlug === 'spilungone') {
         setSpilungoneRivelatoId(id)
-      } else if (target?.ruoloSlug === 'lantico') {
+      } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined) {
+        // già sbranato di notte (anticoSbranatoNotte definito) ha perso la sua
+        // prima vita: al rogo muore come chiunque altro, senza maledizione
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
       } else if (target?.ruoloSlug === 'alchimista') {
@@ -204,6 +260,15 @@ export function Votazione({
     }
 
     function renderEsitoDesignato(id) {
+      if (protettoImmolatoId === id) {
+        const nome = giocatori.find((g) => g.id === id)?.nome
+        return (
+          <p>
+            Il Cavaliere {cavaliereImmolato.nome} rivela la propria carta e si è immolato al posto di {nome}:{' '}
+            {nome} sopravvive al rogo.
+          </p>
+        )
+      }
       if (spilungoneRivelatoId === id) {
         const nome = giocatori.find((g) => g.id === id)?.nome
         return (
@@ -282,7 +347,12 @@ export function Votazione({
     // serve per il messaggio "Vittima designata" una volta risolto, uguale
     // a quello (già esistente) mostrato quando non c'è spareggio
     const vittimaSpareggioId =
-      designatoSpareggio ?? spilungoneRivelatoId ?? anticoRivelatoId ?? alchimistaEsploso?.alchimistaId ?? null
+      designatoSpareggioValido ??
+      spilungoneRivelatoId ??
+      anticoRivelatoId ??
+      alchimistaEsploso?.alchimistaId ??
+      protettoImmolatoId ??
+      null
 
     return (
       <section className="votazione votazione--esito">
@@ -315,6 +385,8 @@ export function Votazione({
               renderEsitoDesignato(spilungoneRivelatoId)
             ) : anticoRivelatoId !== null ? (
               renderEsitoDesignato(anticoRivelatoId)
+            ) : protettoImmolatoId !== undefined ? (
+              renderEsitoDesignato(protettoImmolatoId)
             ) : !morteConfermata ? (
               <div className="votazione__scelta-box">
                 <div className="scelta-giocatore__chips" role="group" aria-label="Chi muore nello spareggio">
@@ -323,14 +395,22 @@ export function Votazione({
                       key={id}
                       type="button"
                       className="chip"
-                      aria-pressed={designatoSpareggio === id}
+                      aria-pressed={designatoSpareggioValido === id}
                       onClick={() => setDesignatoSpareggio(id)}
                     >
                       {giocatori.find((g) => g.id === id)?.nome}
                     </button>
                   ))}
                 </div>
-                {designatoSpareggio && renderEsitoDesignato(designatoSpareggio)}
+                {/* via d'uscita se il tavolo non decide: il narratore sorteggia
+                    tra i candidati (resta comunque cambiabile prima di confermare) */}
+                <button
+                  type="button"
+                  onClick={() => setDesignatoSpareggio(designati[Math.floor(Math.random() * designati.length)])}
+                >
+                  Sorteggia tra i candidati
+                </button>
+                {designatoSpareggioValido && renderEsitoDesignato(designatoSpareggioValido)}
               </div>
             ) : null}
           </div>
@@ -338,28 +418,15 @@ export function Votazione({
         {/* una volta confermata la morte, il voto del giorno è chiuso: niente
             "Torna al voto" per evitare una seconda esecuzione lo stesso giorno */}
         {!morteConfermata && (
-          <button type="button" onClick={tornaAlVoto}>
+          <button type="button" onClick={tornaAlVotoPulito}>
             Torna al voto
           </button>
         )}
+        {bannerVittoria}
         {morteConfermata && (
-          <>
-            {condizioniVittoria(giocatori, quantita).length > 0 && (
-              <>
-                <ul className="alba-panel__vittoria">
-                  {condizioniVittoria(giocatori, quantita).map((testo) => (
-                    <li key={testo}>🏆 {testo}</li>
-                  ))}
-                </ul>
-                <button type="button" onClick={onConcludiPartita}>
-                  Concludi partita
-                </button>
-              </>
-            )}
-            <button type="button" onClick={onProsegui}>
-              È notte nel villaggio
-            </button>
-          </>
+          <button type="button" onClick={onProsegui}>
+            È notte nel villaggio
+          </button>
         )}
         <EventiSpeciali
           giocatori={giocatori}
@@ -423,9 +490,29 @@ export function Votazione({
           </li>
         ))}
       </ul>
-      <button type="button" onClick={ricominciaVotazione}>
-        Ricomincia votazione
-      </button>
+      {confermaRicomincia ? (
+        <p className="votazione__conferma">
+          Azzerare tutti i voti?{' '}
+          <button
+            type="button"
+            onClick={() => {
+              setDesignatoSpareggio(null)
+              setConfermaRicomincia(false)
+              ricominciaVotazione()
+            }}
+          >
+            Sì, ricomincia
+          </button>{' '}
+          <button type="button" onClick={() => setConfermaRicomincia(false)}>
+            Annulla
+          </button>
+        </p>
+      ) : (
+        <button type="button" onClick={() => setConfermaRicomincia(true)}>
+          Ricomincia votazione
+        </button>
+      )}
+      {bannerVittoria}
       {maxVoti > 0 && (
         <button type="button" onClick={() => vaiAEsito(vivi.map((g) => g.id))}>
           Vai all'esito

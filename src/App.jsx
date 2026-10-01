@@ -20,9 +20,9 @@ import { ruoliAttivi } from './data/nightSteps'
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
   const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
-  const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, resetPartita, svuotaGiocatori, impostaGiocatori } =
+  const { giocatori, addGiocatore, removeGiocatore, aggiornaGiocatore, annullaMorte, resetPartita, svuotaGiocatori, impostaGiocatori } =
     usePartita()
-  const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto } =
+  const { voti, fase, candidatiEsito, incrementaVoto, decrementaVoto, ricominciaVotazione, vaiAEsito, tornaAlVoto, rimuoviGiocatoreDaVotazione } =
     useVotazione()
   const notte = useNotte()
   // sotto-fase del registro (icona in LogPartita.jsx): quella delle
@@ -30,7 +30,7 @@ export default function App() {
   // altrove (home, mazzo, giocatori...) non ci sono eventi di partita da
   // rilevare, il valore di default non ha effetto
   const faseLog = ['notte', 'alba', 'giorno'].includes(faseApp) ? faseApp : 'notte'
-  const { eventi, aggiungiEvento, resetLog } = useLog(giocatori, notte.round, faseLog)
+  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto } = useLog(giocatori, notte.round, faseLog)
   const {
     mostraRuoliInVotazione,
     setMostraRuoliInVotazione,
@@ -70,14 +70,45 @@ export default function App() {
     setFaseApp('notte')
   }
 
-  function nuovaPartita() {
+  // azzera tutto ciò che è proprio della singola partita (ruoli, vivo/morto,
+  // condizioni, notte, votazione, log, mazzo) tenendo i nomi dei giocatori:
+  // lo stesso gruppo gioca più partite di fila, per cambiarlo c'è "Elimina
+  // tutti i giocatori". Usata sia dalla Home sia dalle Impostazioni.
+  function azzeraPartita() {
     resetPartita()
     resetMazzo()
     notte.resetNotte()
     ricominciaVotazione()
     resetLog()
+  }
+
+  function nuovaPartita() {
+    azzeraPartita()
     setFaseApp('home')
   }
+
+  function iniziaNuovaPartitaDaHome() {
+    azzeraPartita()
+    setFaseApp('mazzo')
+  }
+
+  // "Elimina tutti" riparte da zero con persone diverse: oltre ai
+  // giocatori va azzerato anche il resto della partita in corso
+  function eliminaTuttiIGiocatori() {
+    svuotaGiocatori()
+    notte.resetNotte()
+    ricominciaVotazione()
+    resetLog()
+  }
+
+  function rimuoviGiocatore(id) {
+    removeGiocatore(id)
+    rimuoviGiocatoreDaVotazione(id)
+  }
+
+  // partita già avviata: oltre la prima notte, o almeno un ruolo assegnato
+  // (round parte da 1: da solo non dice nulla)
+  const partitaAvviata = notte.round > 1 || notte.stepIndex > 0 || giocatori.some((g) => g.ruoloSlug)
 
   return (
     <main className={`app${faseApp === 'home' ? ' app--home' : ''}`} data-fase={faseApp}>
@@ -110,7 +141,7 @@ export default function App() {
 
       {faseApp === 'home' && (
         <Home
-          onNuovaPartita={() => setFaseApp('mazzo')}
+          onNuovaPartita={iniziaNuovaPartitaDaHome}
           onApriLibretto={() => setFaseApp('libretto')}
           onApriMazzo={() => setFaseApp('mazzo-galleria')}
         />
@@ -140,13 +171,15 @@ export default function App() {
           <PlayerTracker
             giocatori={giocatori}
             addGiocatore={addGiocatore}
-            removeGiocatore={removeGiocatore}
+            removeGiocatore={rimuoviGiocatore}
             onRiordina={impostaGiocatori}
-            onEliminaTutti={svuotaGiocatori}
+            onEliminaTutti={eliminaTuttiIGiocatori}
+            partitaAvviata={partitaAvviata}
           />
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="avviso">
-              ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo.
+              ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo (esclusi le 2 carte extra del
+              Ladro, il Borgomastro e il Fantasma Onnisciente, che non sono giocatori in più).
             </p>
           )}
           <button type="button" className="giocatori-fase__prosegui" onClick={() => setFaseApp('notte')}>
@@ -160,7 +193,11 @@ export default function App() {
           ruoliSelezionati={ruoliSelezionati}
           giocatori={giocatori}
           aggiornaGiocatore={aggiornaGiocatore}
-          impostaGiocatori={impostaGiocatori}
+          impostaGiocatori={(g) => {
+            sopprimiProssimoConfronto()
+            impostaGiocatori(g)
+          }}
+          annullaMorte={annullaMorte}
           quantita={quantita}
           onCambiaQuantita={setQuantita}
           registraEvento={aggiungiEvento}
@@ -181,6 +218,7 @@ export default function App() {
           giocatori={giocatori}
           round={notte.round - 1}
           aggiornaGiocatore={aggiornaGiocatore}
+          annullaMorte={annullaMorte}
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
           onVaiAlVoto={() => setFaseApp('giorno')}
@@ -201,6 +239,7 @@ export default function App() {
           vaiAEsito={vaiAEsito}
           tornaAlVoto={tornaAlVoto}
           aggiornaGiocatore={aggiornaGiocatore}
+          annullaMorte={annullaMorte}
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
           round={notte.round}

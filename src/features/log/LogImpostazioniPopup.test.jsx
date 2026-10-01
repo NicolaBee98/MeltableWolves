@@ -187,3 +187,18 @@ test('la X in alto a destra chiude il popup', async () => {
 
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 })
+
+test('il dialog è modale e Tab dall\'ultimo elemento torna al primo (focus trap)', async () => {
+  const user = userEvent.setup()
+  render(<LogImpostazioniPopup eventi={[]} />)
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+
+  const dialog = screen.getByRole('dialog')
+  expect(dialog).toHaveAttribute('aria-modal', 'true')
+
+  const bottoni = dialog.querySelectorAll('button, input')
+  bottoni[bottoni.length - 1].focus()
+  await user.tab()
+  expect(dialog.contains(document.activeElement)).toBe(true)
+  expect(document.activeElement).toBe(bottoni[0])
+})

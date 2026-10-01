@@ -1,5 +1,6 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
+import { annullaMorteCompleta } from './annullaMorte'
 
 export function GiornoPanel({
   giocatori,
@@ -12,6 +13,7 @@ export function GiornoPanel({
   vaiAEsito,
   tornaAlVoto,
   aggiornaGiocatore,
+  annullaMorte,
   ruoliSelezionati,
   quantita,
   round,
@@ -137,7 +139,7 @@ export function GiornoPanel({
   // innescate da quella morte (crepacuore del partner, eredità
   // dell'Apprendista...) — quelle restano da sistemare a mano dal narratore.
   function dichiaraAnnullaMorte(id) {
-    aggiornaGiocatore(id, { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+    annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)
   }
 
   return (
@@ -168,6 +170,7 @@ export function GiornoPanel({
         quantita={quantita}
         onProsegui={onProsegui}
         onConcludiPartita={onConcludiPartita}
+        round={round}
         mostraRuoli={mostraRuoli}
         variantiFaccia={variantiFaccia}
         mostraNomeRuolo={mostraNomeRuolo}

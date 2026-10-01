@@ -370,3 +370,91 @@ test('con mostraRuoli attivo ma ruoloSlug non assegnato mostra il punto interrog
   setup({ giocatori: giocatoriSenzaRuolo, mostraRuoli: true })
   expect(screen.getByRole('img', { name: 'Ruolo non ancora rivelato' })).toBeInTheDocument()
 })
+
+test('in fase voto, se la partita è già finita mostra il banner di vittoria e "Concludi partita"', async () => {
+  const user = userEvent.setup()
+  const onConcludiPartita = vi.fn()
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico' },
+    ],
+    onConcludiPartita,
+  })
+  expect(screen.getByText(/vince il Villaggio/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  expect(onConcludiPartita).toHaveBeenCalled()
+})
+
+test('"Ricomincia votazione" chiede conferma prima di azzerare i voti', async () => {
+  const user = userEvent.setup()
+  const { ricominciaVotazione } = setup()
+  await user.click(screen.getByRole('button', { name: 'Ricomincia votazione' }))
+  expect(ricominciaVotazione).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Sì, ricomincia' }))
+  expect(ricominciaVotazione).toHaveBeenCalled()
+})
+
+test('nello spareggio il narratore può sorteggiare tra i candidati (uscita dallo stallo)', async () => {
+  const user = userEvent.setup()
+  setup({ fase: 'esito', voti: { 1: 2, 2: 2 }, candidatiEsito: ['1', '2'] })
+  await user.click(screen.getByRole('button', { name: 'Sorteggia tra i candidati' }))
+  expect(screen.getByRole('button', { name: 'Dichiara morte sul rogo' })).toBeInTheDocument()
+})
+
+test('Cavaliere immolato al rogo: esito confermato con messaggio chiaro e "È notte", il designato sopravvive', () => {
+  setup({
+    fase: 'esito',
+    round: 2,
+    voti: { 1: 3 },
+    candidatiEsito: ['1', '2'],
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true },
+      { id: '2', nome: 'Marco', vivo: true },
+      { id: '3', nome: 'Luca', vivo: false, causaMorte: 'sacrificio', mortoNotte: 2 },
+    ],
+  })
+  expect(screen.getByText(/Luca rivela la propria carta e si è immolato al posto di Anna/)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Dichiara morte sul rogo' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+})
+
+test("L'Antico sopravvissuto risulta confermato anche dopo un reload (dedotto da villaggioMaledettoFinoA)", () => {
+  setup({
+    fase: 'esito',
+    round: 2,
+    voti: { 1: 3 },
+    candidatiEsito: ['1', '2'],
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', villaggioMaledettoFinoA: 2 },
+      { id: '2', nome: 'Marco', vivo: true },
+    ],
+  })
+  expect(screen.getByText(/è L'Antico, ma sopravvive/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+})
+
+test('"Torna al voto" azzera il designato dello spareggio', async () => {
+  const user = userEvent.setup()
+  const tornaAlVoto = vi.fn()
+  setup({ fase: 'esito', voti: { 1: 2, 2: 2 }, candidatiEsito: ['1', '2'], tornaAlVoto })
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.getByRole('button', { name: 'Dichiara morte sul rogo' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Torna al voto' }))
+  expect(tornaAlVoto).toHaveBeenCalled()
+})
+
+test("L'Antico già sbranato di notte muore al rogo come un Villico qualunque, senza rivelazione", async () => {
+  const user = userEvent.setup()
+  const { onRogo, onAnticoRivelazione } = setup({
+    fase: 'esito',
+    voti: { 1: 2 },
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lantico', anticoSbranatoNotte: 1 },
+      { id: '2', nome: 'Marco', vivo: true },
+    ],
+  })
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(onRogo).toHaveBeenCalledWith('1')
+  expect(onAnticoRivelazione).not.toHaveBeenCalled()
+})
