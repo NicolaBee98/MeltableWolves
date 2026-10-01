@@ -627,12 +627,26 @@ legend {
   width: auto;
 }
 
-.player-card[draggable='true'] {
+/* maniglia di riordino: touch-action none, altrimenti su touch il browser
+   scorre la pagina invece di mandare i pointermove */
+.player-card__maniglia {
   cursor: grab;
+  touch-action: none;
+  user-select: none;
+  padding: 0.4rem 0.5rem;
+  line-height: 1;
 }
 
-.player-card[draggable='true']:active {
-  cursor: grabbing;
+.player-card--trascinata {
+  opacity: 0.5;
+}
+
+.player-card--rilascio-prima {
+  box-shadow: -4px 0 0 var(--accent, currentColor);
+}
+
+.player-card--rilascio-dopo {
+  box-shadow: 4px 0 0 var(--accent, currentColor);
 }
 
 .player-card--uscendo {
@@ -1489,8 +1503,4 @@ button.chip--fazione-sconosciuto {
   }
 }
 
-/* riordino giocatori da touch: frecce su/giù */
-.player-card__sposta {
-  display: flex;
-  gap: 0.25rem;
-}
+

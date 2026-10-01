@@ -1,4 +1,4 @@
-import { ROLES } from './roles'
+import { ROLES, eLupo } from './roles'
 
 // applica una mappa {id: patch} (come quelle ritornate da risolviLegami/
 // risolviCortigiana) a una lista di giocatori, senza richiamare
@@ -65,13 +65,12 @@ export function risolviCortigiana(giocatori, round) {
       continue
     }
 
-    const clienteFazione = ROLES.find((r) => r.slug === cliente.ruoloSlug)?.fazione
     // muore se visita direttamente un Lupo Mannaro o il Chupacabra, oppure se
     // il cliente viene sbranato dal branco o ucciso dal Chupacabra quella
     // stessa notte — non se il cliente muore per la pozione mortale della
     // Strega o per qualunque altra causa (mortoDa distingue il "come", vedi
     // uccidiPatch in effettiNotte.js)
-    const clientePericoloso = clienteFazione === 'lupi' || cliente.ruoloSlug === 'chupacabra'
+    const clientePericoloso = eLupo(cliente.ruoloSlug) || cliente.ruoloSlug === 'chupacabra'
     const clienteSbranato = !cliente.vivo && (cliente.mortoDa === 'branco' || cliente.mortoDa === 'chupacabra')
     // è protetta solo se lo è il CLIENTE (Paladino o pozione vitale): la
     // protezione sulla Cortigiana stessa non conta, non è in casa

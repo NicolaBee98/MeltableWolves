@@ -1,4 +1,4 @@
-import { RUOLI_BRANCO_LUPI } from './nightSteps'
+import { eLupo } from './roles'
 import { viciniVivi } from './vicinanza'
 
 export function annunciAlba(giocatori, round) {
@@ -7,7 +7,7 @@ export function annunciAlba(giocatori, round) {
   const pastoriVivi = giocatori.filter((g) => g.vivo && g.ruoloSlug === 'pastore')
   const pastoreConLupoVicino = pastoriVivi.some((pastore) => {
     const { sinistra, destra } = viciniVivi(giocatori, pastore.id)
-    return [sinistra, destra].some((vicino) => vicino && RUOLI_BRANCO_LUPI.includes(vicino.ruoloSlug))
+    return [sinistra, destra].some((vicino) => vicino && eLupo(vicino.ruoloSlug))
   })
   if (pastoreConLupoVicino) {
     annunci.push('Si sentono dei belati.')

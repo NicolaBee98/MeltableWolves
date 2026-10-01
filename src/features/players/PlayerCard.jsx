@@ -1,17 +1,12 @@
 import { useState } from 'react'
 
-// riordino trascina-e-rilascia (drag & drop nativo HTML5, senza dipendenze):
-// l'intera card è la maniglia. Il drag HTML5 non scatta su touch, quindi ci
-// sono anche i pulsanti ▲/▼ (onSu/onGiu) come alternativa per tocco e tastiera.
-const DRAG_AND_DROP_SUPPORTATO = typeof document !== 'undefined' && 'draggable' in document.createElement('div')
-
 // tempo di pressione per rimuovere un giocatore: un tap secco è facile da
 // far scattare per sbaglio in un tavolo affollato, quindi bisogna tenere
 // premuto finché il pulsante non si riempie tutto di rosso (funziona sia a
 // puntatore/tocco che da tastiera, tenendo premuto Invio/Spazio)
 const DURATA_PRESSIONE_MS = 350
 
-export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop, onSu, onGiu }) {
+export function PlayerCard({ giocatore, onRemove, maniglia, classeExtra = '' }) {
   const [eliminando, setEliminando] = useState(false)
   // riempimento completato: la card si restringe e sfuma (CSS) prima di
   // sparire davvero, invece di scomparire di scatto nello stesso istante
@@ -45,24 +40,21 @@ export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDro
 
   return (
     <article
-      className={`player-card${uscendo ? ' player-card--uscendo' : ''}`}
-      draggable={DRAG_AND_DROP_SUPPORTATO && !uscendo}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
+      className={`player-card${uscendo ? ' player-card--uscendo' : ''}${classeExtra}`}
+      data-giocatore-id={giocatore.id}
       onAnimationEnd={completaRimozioneSeUscita}
     >
       <header className="player-card__header">
         <h3>{giocatore.nome}</h3>
-        {(onSu || onGiu) && (
-          <div className="player-card__sposta">
-            <button type="button" aria-label={`Sposta ${giocatore.nome} su`} disabled={!onSu} onClick={onSu}>
-              ▲
-            </button>
-            <button type="button" aria-label={`Sposta ${giocatore.nome} giù`} disabled={!onGiu} onClick={onGiu}>
-              ▼
-            </button>
-          </div>
+        {maniglia && (
+          <span
+            role="button"
+            className="player-card__maniglia"
+            aria-label={`Trascina per spostare ${giocatore.nome}`}
+            {...maniglia}
+          >
+            ⋮⋮
+          </span>
         )}
         <button
           type="button"

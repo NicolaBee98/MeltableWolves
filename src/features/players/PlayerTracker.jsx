@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AddPlayerForm } from './AddPlayerForm'
 import { PlayerCard } from './PlayerCard'
+import { useRiordina } from './useRiordina'
 
 // l'ordine dei giocatori riflette i posti a sedere intorno al tavolo: conta
 // per chi ha bisogno di sapere chi siede a fianco a chi (Untore, Pastore,
@@ -42,42 +43,14 @@ export function PlayerTracker({
     setVersione((v) => v + 1)
   }
 
-  function sposta(indice, delta) {
-    const riordinati = [...giocatori]
-    const [giocatore] = riordinati.splice(indice, 1)
-    riordinati.splice(indice + delta, 0, giocatore)
-    onRiordina(riordinati)
-  }
-
-  function handleDragStart(e, id) {
-    e.dataTransfer.setData('text/plain', id)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  function handleDrop(e, targetId) {
-    e.preventDefault()
-    const sourceId = e.dataTransfer.getData('text/plain')
-    if (!sourceId || sourceId === targetId) return
-
-    const sorgente = giocatori.find((g) => g.id === sourceId)
-    if (!sorgente) return
-    const senzaSorgente = giocatori.filter((g) => g.id !== sourceId)
-    const indiceTarget = senzaSorgente.findIndex((g) => g.id === targetId)
-    if (indiceTarget === -1) return
-    const riordinati = [
-      ...senzaSorgente.slice(0, indiceTarget),
-      sorgente,
-      ...senzaSorgente.slice(indiceTarget),
-    ]
-    onRiordina(riordinati)
-  }
+  const { maniglia, classe } = useRiordina(giocatori, onRiordina)
 
   return (
     <section className="player-tracker">
       <h3>Giocatori ({giocatori.length})</h3>
       <p className="player-tracker__istruzioni">
         Aggiungili nell'ordine in cui sono seduti al tavolo: alcuni ruoli (Untore, Pastore, Berserker...) dipendono da
-        chi siede a fianco a chi. Puoi correggere l'ordine in seguito trascinando una card o con le frecce ▲/▼.
+        chi siede a fianco a chi. Puoi correggere l'ordine in seguito trascinando la maniglia ⋮⋮ di una card.
       </p>
       <AddPlayerForm onAdd={richiediAggiunta} nomiEsistenti={giocatori.map((g) => g.nome)} />
       {daConfermare && (
@@ -96,16 +69,13 @@ export function PlayerTracker({
         <p className="player-tracker__vuoto">Nessun giocatore aggiunto.</p>
       ) : (
         <div className="player-tracker__list">
-          {giocatori.map((giocatore, indice) => (
+          {giocatori.map((giocatore) => (
             <PlayerCard
               key={`${giocatore.id}-${versione}`}
               giocatore={giocatore}
               onRemove={richiediRimozione}
-              onSu={indice > 0 ? () => sposta(indice, -1) : undefined}
-              onGiu={indice < giocatori.length - 1 ? () => sposta(indice, 1) : undefined}
-              onDragStart={(e) => handleDragStart(e, giocatore.id)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => handleDrop(e, giocatore.id)}
+              maniglia={maniglia(giocatore.id)}
+              classeExtra={classe(giocatore.id)}
             />
           ))}
         </div>

@@ -58,11 +58,15 @@ test('trascinare la card di un giocatore su un altro chiama onRiordina col nuovo
   const onRiordina = vi.fn()
   setup({ giocatori, onRiordina })
 
-  const dataTransfer = { data: {}, setData(k, v) { this.data[k] = v }, getData(k) { return this.data[k] } }
-  fireEvent.dragStart(screen.getByText('Anna').closest('article'), { dataTransfer })
-  fireEvent.drop(screen.getByText('Luca').closest('article'), { dataTransfer })
+  // jsdom non ha elementFromPoint: il "punto" è la card di Luca
+  document.elementFromPoint = vi.fn(() => screen.getByText('Luca'))
+  const maniglia = screen.getByRole('button', { name: 'Trascina per spostare Anna' })
+  fireEvent.pointerDown(maniglia, { pointerId: 1 })
+  fireEvent.pointerMove(maniglia, { pointerId: 1, clientX: 5, clientY: 300 })
+  expect(screen.getByText('Luca').closest('article')).toHaveClass('player-card--rilascio-dopo')
+  fireEvent.pointerUp(maniglia, { pointerId: 1 })
 
-  expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0], giocatori[2]])
+  expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[2], giocatori[0]])
 })
 
 test('"Elimina tutti i giocatori" chiede conferma prima di chiamare onEliminaTutti', async () => {
@@ -90,16 +94,27 @@ test('senza giocatori non mostra "Elimina tutti i giocatori" (niente da eliminar
   expect(screen.queryByRole('button', { name: 'Elimina tutti i giocatori' })).not.toBeInTheDocument()
 })
 
-test('le frecce ▲/▼ riordinano i giocatori (alternativa al drag su touch)', async () => {
-  const user = userEvent.setup()
+test('salendo il giocatore finisce prima del bersaglio, e non ci sono frecce ▲/▼', () => {
   const giocatori = [
     { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
     { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
   ]
   const onRiordina = vi.fn()
   setup({ giocatori, onRiordina })
-  await user.click(screen.getByRole('button', { name: 'Sposta Anna giù' }))
+  expect(screen.queryByRole('button', { name: /Sposta/ })).not.toBeInTheDocument()
+  document.elementFromPoint = vi.fn(() => screen.getByText('Anna'))
+  const maniglia = screen.getByRole('button', { name: 'Trascina per spostare Marco' })
+  fireEvent.pointerDown(maniglia, { pointerId: 1 })
+  fireEvent.pointerMove(maniglia, { pointerId: 1 })
+  fireEvent.pointerUp(maniglia, { pointerId: 1 })
   expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0]])
+})
+
+test('il trascinamento non avvia l\'eliminazione', () => {
+  const { removeGiocatore } = setup({ giocatori: [{ id: '1', nome: 'Marco', vivo: true, condizioni: [] }] })
+  fireEvent.pointerDown(screen.getByRole('button', { name: /Trascina per spostare Marco/ }), { pointerId: 1 })
+  expect(screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i }).querySelector('.player-card__elimina-riempimento').style.width).toBe('0%')
+  expect(removeGiocatore).not.toHaveBeenCalled()
 })
 
 test('a partita avviata aggiungere un giocatore chiede conferma', async () => {

@@ -1,10 +1,7 @@
 import { ruoliAssegnabili } from './assegnazione'
-import { ROLES } from './roles'
+import { ROLES, RUOLI_BRANCO_LUPI } from './roles'
 
-export const RUOLI_BRANCO_LUPI = [
-  'cucciolo-di-lupo-mannaro', 'lupo-mannaro', 'lupo-mannaro-capobranco',
-  'lupo-mannaro-progenitore', 'nonna',
-]
+export { RUOLI_BRANCO_LUPI }
 
 // Il Villico non ha alcuna azione o caratteristica da tracciare (pag. 5): non
 // ha senso chiedere al narratore di individuarlo carta per carta come gli

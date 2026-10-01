@@ -8,6 +8,14 @@ test('annuncia i belati se un pastore vivo ha un lupo come vicino vivo', () => {
   expect(annunciAlba(giocatori, 1)).toContain('Si sentono dei belati.')
 })
 
+test('non annuncia i belati se il vicino del pastore è una Mucca Mannara (non è un lupo)', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'pastore', vivo: true },
+    { id: '2', ruoloSlug: 'mucca-mannara', vivo: true },
+  ]
+  expect(annunciAlba(giocatori, 1)).not.toContain('Si sentono dei belati.')
+})
+
 test('non annuncia i belati se il pastore non ha lupi vicini', () => {
   const giocatori = [
     { id: '1', ruoloSlug: 'pastore', vivo: true },

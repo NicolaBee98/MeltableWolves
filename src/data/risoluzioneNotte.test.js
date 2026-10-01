@@ -66,6 +66,14 @@ test('la cortigiana muore se il cliente scelto è un lupo', () => {
   expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, visitaNotturna: null })
 })
 
+test('la cortigiana sopravvive se il cliente è un Gallo Mannaro (non è un lupo)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Marco', ruoloSlug: 'gallo-mannaro', vivo: true, condizioni: [] },
+  ]
+  expect(risolviCortigiana(giocatori, 4)['1']).toEqual({ visitaNotturna: null })
+})
+
 test('la cortigiana muore se il cliente è stato sbranato dal branco', () => {
   const giocatori = [
     { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },

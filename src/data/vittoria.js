@@ -1,5 +1,4 @@
-import { ROLES } from './roles'
-import { RUOLI_BRANCO_LUPI } from './nightSteps'
+import { ROLES, eLupo } from './roles'
 
 // La Suocera non è considerata in vita per le condizioni di vittoria (lo
 // dichiara esplicitamente il suo testoRegole in roles.js)
@@ -31,7 +30,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   // "mannari" (Mucca, Sciacallo, Gallo, Guardia Mannara, Veggente Mannaro,
   // Polpo) hanno fazione 'lupi' in roles.js ma non fanno numero qui, contano
   // tra il resto del villaggio
-  const lupiVivi = vivi.filter((g) => RUOLI_BRANCO_LUPI.includes(g.ruoloSlug))
+  const lupiVivi = vivi.filter((g) => eLupo(g.ruoloSlug))
   const abitanti = vivi.length - lupiVivi.length - (suoceraNascosta ? 1 : 0)
   const chupacabraVivo = vivi.some((g) => g.ruoloSlug === 'chupacabra')
   // la Suocera nascosta (ruolo mai rivelato) non è un giocatore "vero" per
