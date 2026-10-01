@@ -385,6 +385,9 @@ export function NightSequencer({
           (slug) =>
             ruoliSelezionati.includes(slug) &&
             !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug) &&
+            // una carta tolta dal mazzo (es. scartata dal Ladro) non si
+            // assegna a nessuno, nemmeno la prima notte
+            (quantita[slug] ?? 1) > 0 &&
             (round === 1 || ruoliAssegnabili([slug], giocatori, quantita).length > 0),
         )
       : []
@@ -608,7 +611,7 @@ export function NightSequencer({
       // riconoscimento, es. il branco) non ha nulla da fare qui, quindi
       // andrebbe avanti da solo invece di mostrare "Nessuna azione
       // richiesta" e richiedere un secondo click su Avanti
-      if (step.tipo === 'azione') return
+      if (step.tipo === 'azione' && !mostraAzione) return
     }
     vaiAlPasso(steps[indiceValido + 1].id)
   }
@@ -621,7 +624,7 @@ export function NightSequencer({
       commitSelezioniRuolo(conSelezioniRuoloApplicate(listaAggiornata()), aggiorna)
       setSelezioniRuolo({})
       // un passo con un'azione resta sul passo: l'azione si può usare subito
-      if (step.tipo === 'azione') return
+      if (step.tipo === 'azione' && !mostraAzione) return
     }
     autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
 

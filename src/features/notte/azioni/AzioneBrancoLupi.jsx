@@ -228,7 +228,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
             key={g.id}
             type="button"
             className={`chip${colpoAttivo?.targetId === g.id && colpoAttivo.tipo === 'trasforma' ? ' chip--trasformato' : ''}`}
-            aria-pressed={colpoAttivo?.targetId === g.id}
+            aria-pressed={colpoAttivo?.targetId === g.id || vittimeDefinitive.includes(g.id)}
             onClick={() => confermaScelta(g.id)}
           >
             {g.nome}

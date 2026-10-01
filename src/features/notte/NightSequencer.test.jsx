@@ -1251,3 +1251,35 @@ test('il Chupacabra che sbrana l\'unico Lupo Mannaro rimasto non perde la scelta
   rrender()
   expect(giocatori.find((g) => g.id === '2').vivo).toBe(true)
 })
+
+test('Ladro: dopo aver scelto chi ha la carta e premuto Avanti, la domanda "Chi ha questa carta?" non si ripete: si passa al passo dopo', async () => {
+  const user = userEvent.setup()
+  creaHarness(
+    [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['ladro', 'medium'],
+    { ladro: 1, medium: 1 },
+  )
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(screen.getByRole('heading', { name: /medium/i })).toBeInTheDocument()
+  expect(screen.queryByRole('group', { name: 'Cosa sceglie il Ladro' })).not.toBeInTheDocument()
+  // la domanda ora è per il Medium (Anna è già il Ladro, non è più candidata)
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+})
+
+test('un ruolo con quantità 0 (tolto dal mazzo) non compare tra le scelte "chi ha questa carta", nemmeno la prima notte', () => {
+  creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['veggente'] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['veggente'],
+    { veggente: 0 },
+  )
+  expect(screen.queryByRole('group', { name: 'Chi ha questa carta' })).not.toBeInTheDocument()
+})

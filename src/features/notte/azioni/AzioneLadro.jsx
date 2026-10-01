@@ -25,7 +25,9 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   // carta di un giocatore che la tiene già fisicamente (es. il bersaglio del
   // Mimo, assegnato un passo prima)
   const disponibili = ruoliAssegnabili(
-    ruoliSelezionati.filter((slug) => slug !== 'ladro'),
+    // il Borgomastro è una condizione data a un giocatore a voce (voto
+    // doppio), non una carta fisica del mazzo: mai tra le carte rimaste
+    ruoliSelezionati.filter((slug) => slug !== 'ladro' && slug !== 'borgomastro'),
     giocatori,
     quantita,
   )

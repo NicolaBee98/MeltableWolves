@@ -359,6 +359,9 @@ test('vendetta del Cucciolo: indicatore delle due vittime, la seconda non annull
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   rerender(<AzioneBrancoLupi {...props()} />)
   expect(screen.getByText(/vittima 2 di 2/i)).toBeInTheDocument()
+  // la prima vittima (definitiva) resta evidenziata mentre si sceglie la seconda
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'false')
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   rerender(<AzioneBrancoLupi {...props()} />)

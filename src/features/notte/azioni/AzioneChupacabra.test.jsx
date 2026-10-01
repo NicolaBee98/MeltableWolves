@@ -145,3 +145,19 @@ test('punta un non-lupo con lupi ancora vivi: messaggio "caccia fallita"', async
 
   expect(screen.getByText(/la caccia del chupacabra fallisce/i)).toBeInTheDocument()
 })
+
+test('il Gallo Mannaro non conta come lupo: sceglierlo (con un lupo vero ancora vivo) fa fallire la caccia', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Gallo', ruoloSlug: 'gallo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Lupo', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Gallo' }))
+
+  expect(screen.getByText(/non è un lupo/i)).toBeInTheDocument()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
+})
