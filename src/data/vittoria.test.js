@@ -1,7 +1,7 @@
 import { condizioniVittoria } from './vittoria'
 
-test('nessun messaggio se non ci sono giocatori vivi', () => {
-  expect(condizioniVittoria([])).toEqual([])
+test('nessun giocatore vivo: messaggio di fine partita senza vincitori', () => {
+  expect(condizioniVittoria([])).toHaveLength(1)
 })
 
 test('villaggio vince quando non ci sono più lupi vivi', () => {
@@ -167,4 +167,27 @@ test('una volta rivelata (morta), la Suocera conta come qualsiasi altro morto: n
   expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain(
     'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
   )
+})
+
+test('nessun vivo: la partita termina senza vincitori', () => {
+  const giocatori = [{ id: '1', vivo: false, ruoloSlug: 'villico', condizioni: [] }]
+  expect(condizioniVittoria(giocatori)).toEqual(['Non è rimasto nessun giocatore in vita: la partita termina senza vincitori.'])
+})
+
+test('Suocera nascosta non impedisce "ultimo sopravvissuto" del Chupacabra', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'chupacabra', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: undefined, condizioni: [] },
+    { id: '3', vivo: false, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain("Il Chupacabra è l'ultimo sopravvissuto: vince lui.")
+})
+
+test('Suocera nascosta non impedisce la vittoria del Pifferaio', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'pifferaio', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'villico', condizioni: ['ipnotizzato'] },
+    { id: '3', vivo: true, ruoloSlug: undefined, condizioni: [] },
+  ]
+  expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
 })

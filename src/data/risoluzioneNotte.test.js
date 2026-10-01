@@ -26,17 +26,18 @@ test('cavaliere si rivela e si immola al posto del bersaglio anche se questo vie
   ]
   const patch = risolviLegami(giocatori)
   expect(patch['2']).toEqual({ vivo: true, causaMorte: undefined })
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: 2, legame: null })
+  // al rogo il sacrificio non porta mortoNotte: non va riannunciato all'alba dopo
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined, legame: null })
 })
 
-test('cavaliere si immola comunque se il bersaglio muore per un\'altra causa (es. morte sul colpo)', () => {
+test('cavaliere salva il bersaglio da qualunque causa di morte (es. morte sul colpo)', () => {
   const giocatori = [
     { id: '1', nome: 'Luca', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
     { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'colpo' },
   ]
   const patch = risolviLegami(giocatori)
-  expect(patch['2']).toBeUndefined()
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined, legame: null })
+  expect(patch['2']).toMatchObject({ vivo: true })
+  expect(patch['1']).toMatchObject({ vivo: false, causaMorte: 'sacrificio' })
 })
 
 test('figlia dei lupi diventa lupo mannaro quando il genitore muore', () => {
@@ -113,4 +114,65 @@ test('la cortigiana sopravvive se il cliente è vivo e non è un lupo', () => {
 test('nessuna patch se la cortigiana non ha visitato nessuno', () => {
   const giocatori = [{ id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [] }]
   expect(risolviCortigiana(giocatori)).toEqual({})
+})
+
+const base = { vivo: true, condizioni: [] }
+
+test('legami: un attore morto non risolve il proprio legame', () => {
+  const giocatori = [
+    { ...base, id: '1', vivo: false, ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+    { ...base, id: '2', vivo: false, ruoloSlug: 'veggente', causaMorte: 'notte' },
+  ]
+  expect(risolviLegami(giocatori)).toEqual({})
+})
+
+test('Cavaliere salva da qualsiasi causa (es. Strega) e al rogo il sacrificio non ha mortoNotte', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+    { ...base, id: '2', vivo: false, ruoloSlug: 'veggente', causaMorte: 'rogo', mortoNotte: 2 },
+  ]
+  const patch = risolviLegami(giocatori)
+  expect(patch['2']).toMatchObject({ vivo: true })
+  expect(patch['1']).toMatchObject({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined })
+  giocatori[1].causaMorte = 'notte'
+  giocatori[1].mortoDa = 'strega'
+  expect(risolviLegami(giocatori)['2']).toMatchObject({ vivo: true })
+})
+
+test('Cavaliere e Apprendista sullo stesso bersaglio: l\'Apprendista non eredita se il Cavaliere salva', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '3' } },
+    { ...base, id: '2', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '3' } },
+    { ...base, id: '3', vivo: false, ruoloSlug: 'veggente', causaMorte: 'notte' },
+  ]
+  expect(risolviLegami(giocatori)['2']).toBeUndefined()
+})
+
+test('Apprendista con maestro senza ruolo noto resta legato', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } },
+    { ...base, id: '2', vivo: false },
+  ]
+  expect(risolviLegami(giocatori)['1']).toBeUndefined()
+})
+
+test('Cortigiana con cliente lupo protetto sopravvive; non protetto muore', () => {
+  const mk = (condizioni) => [
+    { ...base, id: '1', ruoloSlug: 'cortigiana', visitaNotturna: '2', condizioni: ['protetto'] },
+    { ...base, id: '2', ruoloSlug: 'lupo-mannaro', condizioni },
+  ]
+  expect(risolviCortigiana(mk(['protetto']), 1)['1']).toEqual({ visitaNotturna: null })
+  expect(risolviCortigiana(mk([]), 1)['1']).toMatchObject({ vivo: false })
+})
+
+test('più Cortigiane (Mimo) vengono risolte ognuna col proprio cliente', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cortigiana', visitaNotturna: '3' },
+    { ...base, id: '2', ruoloSlug: 'cortigiana', visitaNotturna: '4' },
+    { ...base, id: '3', ruoloSlug: 'lupo-mannaro' },
+    { ...base, id: '4', ruoloSlug: 'villico' },
+  ]
+  const patch = risolviCortigiana(giocatori, 1)
+  expect(patch['1']).toMatchObject({ vivo: false })
+  expect(patch['2']).toEqual({ visitaNotturna: null })
 })

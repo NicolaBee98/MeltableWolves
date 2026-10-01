@@ -1,4 +1,4 @@
-import { fazioneDi } from './roles'
+import { RUOLI_BRANCO_LUPI } from './nightSteps'
 import { viciniVivi } from './vicinanza'
 
 export function annunciAlba(giocatori, round) {
@@ -7,7 +7,7 @@ export function annunciAlba(giocatori, round) {
   const pastoriVivi = giocatori.filter((g) => g.vivo && g.ruoloSlug === 'pastore')
   const pastoreConLupoVicino = pastoriVivi.some((pastore) => {
     const { sinistra, destra } = viciniVivi(giocatori, pastore.id)
-    return [sinistra, destra].some((vicino) => vicino && fazioneDi(vicino) === 'lupi')
+    return [sinistra, destra].some((vicino) => vicino && RUOLI_BRANCO_LUPI.includes(vicino.ruoloSlug))
   })
   if (pastoreConLupoVicino) {
     annunci.push('Si sentono dei belati.')
@@ -34,6 +34,11 @@ export function annunciAlba(giocatori, round) {
   }
   for (const g of giocatori.filter((g) => (g.condizioni ?? []).includes('trasformato'))) {
     annunci.push(`${g.nome} è stato trasformato in maiale dalla Maga.`)
+  }
+
+  // L'Antico sbranato di notte (flag `anticoSbranatoNotte`, vedi uccidiPatch)
+  for (const g of giocatori.filter((g) => g.anticoSbranatoNotte === round)) {
+    annunci.push(`${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive (ora gioca da Villico).`)
   }
 
   for (const g of giocatori.filter((g) => g.causaMorte === 'sacrificio' && g.mortoNotte === round)) {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-notte'
 const DEFAULT_NOTTE = { round: 1, stepIndex: 0 }
@@ -6,7 +7,9 @@ const DEFAULT_NOTTE = { round: 1, stepIndex: 0 }
 function loadNotte() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : DEFAULT_NOTTE
+    const parsed = raw ? JSON.parse(raw) : null
+    // validazione minima: dati corrotti o di uno schema vecchio → stato iniziale
+    return Number.isInteger(parsed?.round) && Number.isInteger(parsed?.stepIndex) ? parsed : DEFAULT_NOTTE
   } catch {
     return DEFAULT_NOTTE
   }
@@ -16,7 +19,7 @@ export function useNotte() {
   const [notte, setNotte] = useState(loadNotte)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notte))
+    salvaLocale(STORAGE_KEY, JSON.stringify(notte))
   }, [notte])
 
   function avanti(totalePassi) {

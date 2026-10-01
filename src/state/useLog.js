@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { rilevaEventi } from '../data/log'
+import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-log'
 
@@ -41,7 +42,7 @@ export function useLog(giocatori, round, fase = 'notte') {
   }, [giocatori, round, fase])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(eventi))
+    salvaLocale(STORAGE_KEY, JSON.stringify(eventi))
   }, [eventi])
 
   // fase esplicita: per i messaggi registrati "in anticipo" rispetto alla
@@ -56,5 +57,11 @@ export function useLog(giocatori, round, fase = 'notte') {
     sopprimiProssimoConfrontoRef.current = true
   }
 
-  return { eventi, aggiungiEvento, resetLog }
+  // Indietro/annullamenti reimpostano i giocatori a uno stato precedente: non
+  // sono eventi di partita, il prossimo confronto va saltato
+  function sopprimiProssimoConfronto() {
+    sopprimiProssimoConfrontoRef.current = true
+  }
+
+  return { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto }
 }

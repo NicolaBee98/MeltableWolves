@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-fase-app'
 const DEFAULT_FASE = 'home'
@@ -15,7 +16,7 @@ export function useFaseApp() {
   const [faseApp, setFaseApp] = useState(loadFase)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, faseApp)
+    salvaLocale(STORAGE_KEY, faseApp)
   }, [faseApp])
 
   return [faseApp, setFaseApp]

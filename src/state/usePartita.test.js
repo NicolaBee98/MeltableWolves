@@ -262,3 +262,91 @@ test('aggiornaGiocatore può assegnare il ruolo a un giocatore già esistente', 
 
   expect(result.current.giocatori[0].ruoloSlug).toBe('paladino')
 })
+
+const mk = (id, extra = {}) => ({ id, nome: id, vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [], ...extra })
+function montaCon(giocatori) {
+  localStorage.setItem('meltable-wolves-partita', JSON.stringify(giocatori))
+  return renderHook(() => usePartita())
+}
+
+test('catena fino a punto fisso: il Cavaliere sacrificato per crepacuore innesca la sua vendetta/eredità', () => {
+  // A innamorata di B; B ha un Apprendista legato. Muore A -> crepacuore di B -> l'Apprendista eredita il ruolo di B
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+    mk('B', { ruoloSlug: 'veggente', condizioni: ['innamorato'] }),
+    mk('C', { ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: 'B' } }),
+  ])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'rogo' }))
+  expect(result.current.giocatori.find((g) => g.id === 'B').vivo).toBe(false)
+  expect(result.current.giocatori.find((g) => g.id === 'C')).toMatchObject({ ruoloSlug: 'veggente', legame: null })
+})
+
+test('crepacuore di un lupo innesca la maturazione del Cucciolo', () => {
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+    mk('B', { ruoloSlug: 'lupo-mannaro', condizioni: ['innamorato'] }),
+    mk('C', { ruoloSlug: 'cucciolo-di-lupo-mannaro' }),
+  ])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'rogo' }))
+  expect(result.current.giocatori.find((g) => g.id === 'C').ruoloSlug).toBe('lupo-mannaro')
+})
+
+test('annullaMorte disfa crepacuore, maturazione e ruolo ereditato', () => {
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'lupo-mannaro', condizioni: ['innamorato'] }),
+    mk('B', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+    mk('C', { ruoloSlug: 'cucciolo-di-lupo-mannaro' }),
+    mk('D', { ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: 'A' } }),
+  ])
+  const prima = result.current.giocatori
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  expect(result.current.giocatori.find((g) => g.id === 'B').vivo).toBe(false)
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori).toEqual(prima)
+})
+
+test('annullaMorte senza snapshot (dopo ricaricamento) rimette almeno vivo e pulisce la causa', () => {
+  const { result } = montaCon([mk('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1, mortoDa: 'branco' })])
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori[0]).toMatchObject({ vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined })
+})
+
+test('annullaMorte ripristina il ruolo originale dell\'Antico dopo il flag anticoSbranatoNotte', () => {
+  const { result } = montaCon([mk('A', { ruoloSlug: 'lantico', storiaRuoli: ['lantico'] })])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: true, anticoSbranatoNotte: 1 }))
+  expect(result.current.giocatori[0].anticoSbranatoNotte).toBe(1)
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori[0].anticoSbranatoNotte).toBeUndefined()
+})
+
+test('Cavaliere salva dal rogo senza far morire di crepacuore il partner', () => {
+  const { result } = montaCon([
+    mk('K', { ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: 'X' } }),
+    mk('X', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+    mk('Y', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+  ])
+  act(() => result.current.aggiornaGiocatore('X', { vivo: false, causaMorte: 'rogo', mortoNotte: 3 }))
+  const g = (id) => result.current.giocatori.find((p) => p.id === id)
+  expect(g('X').vivo).toBe(true)
+  expect(g('Y').vivo).toBe(true)
+  expect(g('K')).toMatchObject({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined })
+})
+
+test('removeGiocatore ripulisce legami pendenti e il partner innamorato orfano', () => {
+  const { result } = montaCon([
+    mk('A', { condizioni: ['innamorato'] }),
+    mk('B', { condizioni: ['innamorato', 'unto'], legame: { tipo: 'apprendista', targetId: 'A' } }),
+  ])
+  act(() => result.current.removeGiocatore('A'))
+  expect(result.current.giocatori).toHaveLength(1)
+  expect(result.current.giocatori[0]).toMatchObject({ legame: null, condizioni: ['unto'] })
+})
+
+test('un localStorage che lancia non manda in crash il salvataggio', () => {
+  const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('quota')
+  })
+  const { result } = renderHook(() => usePartita())
+  expect(() => act(() => result.current.addGiocatore('Anna'))).not.toThrow()
+  spy.mockRestore()
+})

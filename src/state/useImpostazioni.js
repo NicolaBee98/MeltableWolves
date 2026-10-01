@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-impostazioni'
 const STORAGE_KEY_VARIANTI = 'meltable-wolves-varianti-faccia'
@@ -60,27 +61,27 @@ export function useImpostazioni() {
   const [varianteMedium, setVarianteMedium] = useState(() => loadBooleano(STORAGE_KEY_VARIANTE_MEDIUM, false))
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(mostraRuoliInVotazione))
+    salvaLocale(STORAGE_KEY, String(mostraRuoliInVotazione))
   }, [mostraRuoliInVotazione])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_VARIANTI, String(variantiFaccia))
+    salvaLocale(STORAGE_KEY_VARIANTI, String(variantiFaccia))
   }, [variantiFaccia])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_NOME_RUOLO, String(mostraNomeRuolo))
+    salvaLocale(STORAGE_KEY_NOME_RUOLO, String(mostraNomeRuolo))
   }, [mostraNomeRuolo])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_DURATA_TIMER, String(durataTimer))
+    salvaLocale(STORAGE_KEY_DURATA_TIMER, String(durataTimer))
   }, [durataTimer])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_PROMEMORIA_MORTI, String(promemoriaRuoliMorti))
+    salvaLocale(STORAGE_KEY_PROMEMORIA_MORTI, String(promemoriaRuoliMorti))
   }, [promemoriaRuoliMorti])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_VARIANTE_MEDIUM, String(varianteMedium))
+    salvaLocale(STORAGE_KEY_VARIANTE_MEDIUM, String(varianteMedium))
   }, [varianteMedium])
 
   return {

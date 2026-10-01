@@ -80,3 +80,10 @@ test('resetNotte riporta round 1 e passo 0', () => {
   expect(result.current.round).toBe(1)
   expect(result.current.stepIndex).toBe(0)
 })
+
+test('stato salvato corrotto: ripiega sullo stato iniziale', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 'x' }))
+  const { result } = renderHook(() => useNotte())
+  expect(result.current.round).toBe(1)
+  expect(result.current.stepIndex).toBe(0)
+})

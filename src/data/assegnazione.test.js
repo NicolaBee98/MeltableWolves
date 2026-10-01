@@ -63,3 +63,16 @@ test('assegnaGuardiaMannaraCasuale non fa nulla se è già stata scelta', () => 
   assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, { guardia: 2, 'guardia-mannara': 1 })
   expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })
+
+test('contaAssegnati: il Mimo che copia un ruolo non lo conta due volte', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', storiaRuoli: ['mimo', 'lupo-mannaro'] },
+  ]
+  expect(contaAssegnati(giocatori, 'lupo-mannaro')).toBe(1)
+  expect(contaAssegnati(giocatori, 'mimo')).toBe(1)
+})
+
+test('contaAssegnati: storiaRuoli [] (salvataggi vecchi) ripiega su ruoloSlug', () => {
+  expect(contaAssegnati([{ id: '1', ruoloSlug: 'paladino', storiaRuoli: [] }], 'paladino')).toBe(1)
+})

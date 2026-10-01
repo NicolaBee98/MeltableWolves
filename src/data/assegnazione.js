@@ -2,7 +2,13 @@ export function contaAssegnati(giocatori, slug) {
   // conta su "storiaRuoli" (mai sottratto), non su ruoloSlug corrente: un
   // ruolo già assegnato non torna mai "da assegnare", anche se chi lo teneva
   // cambia carta in seguito (es. Addolorata che scambia ruolo col morto)
-  return giocatori.filter((g) => (g.storiaRuoli ?? [g.ruoloSlug]).includes(slug)).length
+  return giocatori.filter((g) => {
+    // [] (salvataggi vecchi) vale come "nessuna storia": ripiega su ruoloSlug
+    const storia = g.storiaRuoli?.length ? g.storiaRuoli : [g.ruoloSlug]
+    // il Mimo che copia un ruolo non consuma una carta: la carta è del bersaglio
+    if (storia.includes('mimo') && slug !== 'mimo') return false
+    return storia.includes(slug)
+  }).length
 }
 
 export function ruoliAssegnabili(ruoli, giocatori, quantita) {
@@ -16,11 +22,21 @@ export function ruoliAssegnabili(ruoli, giocatori, quantita) {
 // questa funzione ne sceglie una a caso per l'app (serve comunque un
 // ruoloSlug reale per aura/fazione/vittoria), senza mostrarlo da nessuna
 // parte al narratore.
+// Fisher-Yates: sort(() => random - 0.5) non è uniforme
+function mescola(lista) {
+  const a = [...lista]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export function assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, quantita) {
   const daAssegnare = (quantita['guardia-mannara'] ?? 0) - contaAssegnati(giocatori, 'guardia-mannara')
   if (daAssegnare <= 0) return
   const guardieSenzaTradimento = giocatori.filter((g) => g.ruoloSlug === 'guardia')
-  const scelte = [...guardieSenzaTradimento].sort(() => Math.random() - 0.5).slice(0, daAssegnare)
+  const scelte = mescola(guardieSenzaTradimento).slice(0, daAssegnare)
   for (const g of scelte) {
     aggiornaGiocatore(g.id, {
       ruoloSlug: 'guardia-mannara',

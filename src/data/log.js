@@ -1,3 +1,5 @@
+import { nomeRuolo, ruoloPerDisplay } from './roles'
+
 const ETICHETTA_CAUSA = {
   notte: ' di notte',
   rogo: ' al rogo',
@@ -44,8 +46,11 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       }
     }
 
-    if (prima.ruoloSlug !== giocatore.ruoloSlug) {
-      eventi.push({ round, fase, messaggio: `${giocatore.nome} ha assunto il ruolo di ${giocatore.ruoloSlug}` })
+    // niente log per la prima assegnazione (undefined → ruolo) né per
+    // guardia → guardia-mannara: il narratore non sa chi è la traditrice
+    const dopoDisplay = ruoloPerDisplay(giocatore.ruoloSlug)
+    if (prima.ruoloSlug && giocatore.ruoloSlug && ruoloPerDisplay(prima.ruoloSlug) !== dopoDisplay) {
+      eventi.push({ round, fase, messaggio: `${giocatore.nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}` })
     }
   }
 

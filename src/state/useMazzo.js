@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ROLES } from '../data/roles'
 import { maxQuantita } from '../data/quantitaRuoli'
+import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-mazzo'
 const DEFAULT_MAZZO = { quantita: {} }
@@ -20,7 +21,7 @@ export function useMazzo() {
   const [mazzo, setMazzo] = useState(loadMazzo)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mazzo))
+    salvaLocale(STORAGE_KEY, JSON.stringify(mazzo))
   }, [mazzo])
 
   function setQuantita(slug, valore) {

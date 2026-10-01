@@ -41,8 +41,10 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
   const target = giocatori.find((g) => g.id === targetId)
   if (!target || RUOLI_IMMUNI_AL_BRANCO.includes(target.ruoloSlug)) return {}
 
-  // Mezzosangue: non muore, diventa lupo mannaro (pag. 18)
+  // Mezzosangue: non muore, diventa lupo mannaro (pag. 18) — ma se è protetto
+  // il morso non lo raggiunge, quindi non si trasforma
   if (target.ruoloSlug === 'mezzosangue') {
+    if (target.condizioni.includes('protetto')) return {}
     return {
       [target.id]: {
         ruoloSlug: 'lupo-mannaro',
@@ -126,17 +128,29 @@ export function propagaUnzione(giocatori, idMorto) {
 // Chupacabra, non se la Strega lo avvelena, vedi risolviCortigiana).
 export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoDa } = {}) {
   if (!ignoraProtezione && giocatore.condizioni.includes('protetto')) return null
-  // L'Antico ha due vite: se perde la prima di notte, sopravvive e si rivela
-  // "senza conseguenze", continuando a giocare da Villico normale (pag. 16)
-  if (giocatore.ruoloSlug === 'lantico') {
-    return { vivo: true, ruoloSlug: 'villico', storiaRuoli: [...(giocatore.storiaRuoli ?? []), 'villico'] }
+  // L'Antico ha due vite: se perde la prima di notte sopravvive "senza
+  // conseguenze" (pag. 16), ma NON in silenzio: resta 'lantico' con il flag
+  // `anticoSbranatoNotte: round` (vivo, vita sola), così annunciAlba lo fa
+  // emergere all'alba (vedi alba.js) e la UI lo rivela e lo converte in
+  // Villico. Se il flag c'è già, la seconda vita è persa: muore normalmente.
+  if (giocatore.ruoloSlug === 'lantico' && giocatore.anticoSbranatoNotte === undefined) {
+    return { vivo: true, anticoSbranatoNotte: round }
   }
   return { vivo: false, causaMorte: 'notte', mortoNotte: round, mortoDa }
 }
 
 export function resuscitaPatch(giocatore, round) {
   if (giocatore.vivo) return null
-  return { vivo: true, condizioni: [...giocatore.condizioni, 'resuscitato'], resuscitatoNotte: round }
+  return {
+    vivo: true,
+    causaMorte: undefined,
+    mortoNotte: undefined,
+    mortoDa: undefined,
+    // la Cortigiana non deve ritrovarsi con una visita di prima della morte
+    visitaNotturna: null,
+    condizioni: giocatore.condizioni.includes('resuscitato') ? giocatore.condizioni : [...giocatore.condizioni, 'resuscitato'],
+    resuscitatoNotte: round,
+  }
 }
 
 export function usatoStanotte(giocatori, ruoli, potereSlug) {
@@ -168,17 +182,18 @@ export function aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlug, p
 // ponytail: assume una sola coppia di innamorati in gioco (nessun partnerId è
 // tracciato). Se il narratore ne crea più di una a mano, muoiono tutti insieme
 // al primo lutto: da rivedere con un legame per-coppia se servirà davvero.
-// ponytail: il partner erdita il mortoNotte di chi ha innescato il lutto, così
-// compare all'alba se il decesso scatenante era notturno — ma compare anche se
-// era un rogo (causaMorte resta 'crepacuore', non tracciamo il "tipo" del
-// trigger): raro, da rivedere se servirà davvero distinguerlo.
+// Il partner eredita il mortoNotte di chi ha innescato il lutto (compare
+// all'alba se il decesso era notturno), tranne per un rogo: il rogo ha
+// mortoNotte = round del giorno, e il partner verrebbe riannunciato come
+// morto "di notte" (UI: serve che AlbaPanel non mostri causaMorte
+// 'crepacuore' con mortoNotte undefined — già così con mortoNotte === round).
 export function applicaCrepacuore(giocatori, idAppenaMorto) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
   if (!morto?.condizioni?.includes('innamorato')) return giocatori
 
   return giocatori.map((g) =>
     g.id !== idAppenaMorto && g.vivo && g.condizioni.includes('innamorato')
-      ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.mortoNotte }
+      ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte }
       : g,
   )
 }

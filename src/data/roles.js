@@ -50,7 +50,7 @@ export const ROLES = [
   { slug: 'ladro', nome: 'Ladro', fazione: 'sconosciuto', notturno: true,
     testoRegole: "Nel creare il mazzo vanno aggiunte due carte extra. La prima notte il *Ladro* guarda le due carte rimaste e sceglie se assumere il ruolo di una di queste o diventare un semplice *Villico*. Se le due carte rappresentano entrambe *Lupi Mannari* è necessario scambiare la propria carta." },
   { slug: 'lantico', nome: "L'Antico", fazione: 'villaggio', notturno: false,
-    testoRegole: "È dotato di due vite. Se perde la sua prima vita al rogo, si rivela ed infligge una maledizione al villaggio bloccando tutti i poteri notturni per una notte (vedi **Maledetto**). Se invece perde la sua prima vita di notte, si rivela all'alba senza conseguenze. Continua poi a giocare come un normale *Villico*." },
+    testoRegole: "È dotato di due vite. Se perde la sua prima vita al rogo, si rivela ed infligge una maledizione al villaggio bloccando per una notte i poteri notturni dei ruoli del villaggio (i lupi e i ruoli malvagi o indipendenti agiscono normalmente) (vedi **Maledetto**). Se invece perde la sua prima vita di notte, si rivela all'alba senza conseguenze. Continua poi a giocare come un normale *Villico*." },
   { slug: 'lupo-mannaro', nome: 'Lupo Mannaro', fazione: 'lupi', notturno: true,
     testoRegole: "Ogni notte si sveglia e insieme al suo branco sceglie una vittima da sbranare. I *Lupi Mannari* vincono se rimangono in numero pari o superiore al villaggio." },
   { slug: 'lupo-mannaro-capobranco', nome: 'Lupo Mannaro Capobranco', fazione: 'lupi', notturno: true,
