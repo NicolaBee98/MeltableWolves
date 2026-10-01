@@ -64,3 +64,19 @@ test('nessun annuncio se non ci sono condizioni particolari', () => {
   const giocatori = [{ id: '1', ruoloSlug: 'villico', vivo: true }]
   expect(annunciAlba(giocatori, 1)).toEqual([])
 })
+
+test("L'Antico sbranato di notte emerge all'alba", () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lantico', condizioni: [], anticoSbranatoNotte: 2 }]
+  expect(annunciAlba(giocatori, 2).some((a) => a.includes("L'Antico"))).toBe(true)
+  expect(annunciAlba(giocatori, 3)).toEqual([])
+})
+
+test('Pastore: belati solo con un lupo del branco vicino, non con la Guardia Mannara', () => {
+  const mk = (slug) => [
+    { id: '1', vivo: true, ruoloSlug: 'pastore', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: slug, condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  expect(annunciAlba(mk('guardia-mannara'), 1)).not.toContain('Si sentono dei belati.')
+  expect(annunciAlba(mk('lupo-mannaro'), 1)).toContain('Si sentono dei belati.')
+})

@@ -8,7 +8,7 @@ export const CONDIZIONI = [
   { slug: 'ipnotizzato', nome: 'Ipnotizzato',
     descrizione: "Un giocatore apprende di essere sotto ipnosi durante l'azione del Pifferaio. Non influisce sui poteri o sulle azioni del ruolo." },
   { slug: 'maledetto', nome: 'Maledetto',
-    descrizione: "Si applica quando il villaggio manda al rogo L'Antico. La notte successiva il narratore non sveglia alcun ruolo con potere attivo; l'effetto non si applica ai poteri passivi." },
+    descrizione: "Si applica quando il villaggio manda al rogo L'Antico. La notte successiva il narratore non sveglia i ruoli buoni (villaggio) con potere attivo; i lupi e i ruoli malvagi o indipendenti agiscono normalmente. L'effetto non si applica ai poteri passivi." },
   { slug: 'trasformato', nome: 'Trasformato',
     descrizione: "All'alba il narratore annuncia quale giocatore è stato trasformato in maiale dalla Maga. Per il giorno successivo potrà esprimersi solo con grugniti e gesti. Non perde il diritto di voto." },
   { slug: 'morto-sul-colpo', nome: 'Morto sul colpo',

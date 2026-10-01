@@ -35,12 +35,15 @@ test('uccidiPatch ritorna null se il giocatore è protetto', () => {
   expect(uccidiPatch({ condizioni: ['protetto'] }, 3)).toBeNull()
 })
 
-test("uccidiPatch: L'Antico non muore di notte, sopravvive e diventa Villico (prima vita)", () => {
+test("uccidiPatch: L'Antico non muore di notte, sopravvive col flag anticoSbranatoNotte (non si converte in silenzio)", () => {
   expect(uccidiPatch({ ruoloSlug: 'lantico', condizioni: [], storiaRuoli: ['lantico'] }, 3)).toEqual({
     vivo: true,
-    ruoloSlug: 'villico',
-    storiaRuoli: ['lantico', 'villico'],
+    anticoSbranatoNotte: 3,
   })
+})
+
+test("uccidiPatch: L'Antico già sbranato una volta muore alla seconda", () => {
+  expect(uccidiPatch({ ruoloSlug: 'lantico', condizioni: [], anticoSbranatoNotte: 2 }, 3)).toMatchObject({ vivo: false })
 })
 
 test("uccidiPatch: L'Antico protetto non consuma la sua prima vita (il morso non ha effetto)", () => {
@@ -50,9 +53,30 @@ test("uccidiPatch: L'Antico protetto non consuma la sua prima vita (il morso non
 test('resuscitaPatch riporta in vita un giocatore morto e marca la notte della resurrezione', () => {
   expect(resuscitaPatch({ vivo: false, condizioni: [] }, 3)).toEqual({
     vivo: true,
+    causaMorte: undefined,
+    mortoNotte: undefined,
+    mortoDa: undefined,
+    visitaNotturna: null,
     condizioni: ['resuscitato'],
     resuscitatoNotte: 3,
   })
+})
+
+test('resuscitaPatch non duplica "resuscitato"', () => {
+  expect(resuscitaPatch({ vivo: false, condizioni: ['resuscitato'] }, 3).condizioni).toEqual(['resuscitato'])
+})
+
+test('Mezzosangue protetto non viene morso: resta mezzosangue', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'mezzosangue', vivo: true, condizioni: ['protetto'], storiaRuoli: ['mezzosangue'] }]
+  expect(risolviAttaccoBranco(giocatori, '1', 1, [])).toEqual({})
+})
+
+test('crepacuore per un rogo non eredita mortoNotte (niente riannuncio come morto notturno)', () => {
+  const giocatori = [
+    { id: '1', vivo: false, causaMorte: 'rogo', mortoNotte: 2, condizioni: ['innamorato'] },
+    { id: '2', vivo: true, condizioni: ['innamorato'] },
+  ]
+  expect(applicaCrepacuore(giocatori, '1')[1]).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoNotte: undefined })
 })
 
 test('resuscitaPatch ritorna null se il giocatore è già vivo', () => {

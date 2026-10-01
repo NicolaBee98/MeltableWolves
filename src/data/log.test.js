@@ -48,7 +48,7 @@ test('rileva un cambio di ruolo', () => {
   const precedenti = [{ id: '1', nome: 'Sara', vivo: true, condizioni: [], ruoloSlug: 'apprendista' }]
   const correnti = [{ id: '1', nome: 'Sara', vivo: true, condizioni: [], ruoloSlug: 'veggente' }]
   expect(rilevaEventi(precedenti, correnti, 2, 'notte')).toEqual([
-    { round: 2, fase: 'notte', messaggio: 'Sara ha assunto il ruolo di veggente' },
+    { round: 2, fase: 'notte', messaggio: 'Sara ha assunto il ruolo di Veggente' },
   ])
 })
 
@@ -60,4 +60,11 @@ test('nessun evento se nulla è cambiato', () => {
 test('ignora i giocatori nuovi (non presenti prima)', () => {
   const correnti = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
   expect(rilevaEventi([], correnti, 1, 'notte')).toEqual([])
+})
+
+test('log: la Guardia Mannara non viene mai rivelata e la prima assegnazione non è un evento', () => {
+  const g = (ruoloSlug) => [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug }]
+  expect(rilevaEventi(g(undefined), g('guardia-mannara'), 1, 'notte')).toEqual([])
+  expect(rilevaEventi(g('guardia'), g('guardia-mannara'), 1, 'notte')).toEqual([])
+  expect(rilevaEventi(g('villico'), g('veggente'), 1, 'notte')[0].messaggio).toBe('Anna ha assunto il ruolo di Veggente')
 })

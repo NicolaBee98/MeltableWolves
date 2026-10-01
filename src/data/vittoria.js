@@ -11,7 +11,10 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   const vivi = giocatori.filter(contaComeVivo)
   const messaggi = []
 
-  if (vivi.length === 0) return messaggi
+  if (vivi.length === 0) {
+    messaggi.push('Non è rimasto nessun giocatore in vita: la partita termina senza vincitori.')
+    return messaggi
+  }
 
   // La Suocera resta "?" per tutta la partita finché non muore (vedi
   // nightSteps.js): finché nessuno l'ha ancora rivelata l'app non sa CHI
@@ -31,25 +34,28 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   const lupiVivi = vivi.filter((g) => RUOLI_BRANCO_LUPI.includes(g.ruoloSlug))
   const abitanti = vivi.length - lupiVivi.length - (suoceraNascosta ? 1 : 0)
   const chupacabraVivo = vivi.some((g) => g.ruoloSlug === 'chupacabra')
+  // la Suocera nascosta (ruolo mai rivelato) non è un giocatore "vero" per
+  // "ultimo sopravvissuto" e Pifferaio: è l'unico vivo senza ruoloSlug
+  const viviVeri = suoceraNascosta ? vivi.filter((g) => g.ruoloSlug) : vivi
   const pifferaioVivo = vivi.some((g) => g.ruoloSlug === 'pifferaio')
   const cricetoVivo = vivi.some((g) => g.ruoloSlug === 'criceto-malvagio')
 
-  // vivi.length > 1: col solo Pifferaio rimasto in vita vale già la
+  // viviVeri.length > 1: col solo Pifferaio rimasto in vita vale già la
   // condizione "ultimo sopravvissuto" qui sotto, per non duplicare l'annuncio
   if (
     pifferaioVivo &&
-    vivi.length > 1 &&
-    vivi.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))
+    viviVeri.length > 1 &&
+    viviVeri.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))
   ) {
     messaggi.push('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
   }
 
-  if (vivi.length === 1) {
-    const ultimo = ROLES.find((r) => r.slug === vivi[0].ruoloSlug)
+  if (viviVeri.length === 1) {
+    const ultimo = ROLES.find((r) => r.slug === viviVeri[0].ruoloSlug)
     if (ultimo?.vinceUltimoSopravvissuto) messaggi.push(`Il ${ultimo.nome} è l'ultimo sopravvissuto: vince lui.`)
   }
 
-  if (vivi.length === 2 && vivi.every((g) => (g.condizioni ?? []).includes('innamorato'))) {
+  if (viviVeri.length === 2 && viviVeri.every((g) => (g.condizioni ?? []).includes('innamorato'))) {
     messaggi.push('Gli innamorati sono gli unici superstiti: vincono loro.')
   }
 
