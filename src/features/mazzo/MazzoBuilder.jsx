@@ -136,6 +136,13 @@ export function MazzoBuilder({ quantita, setQuantita }) {
         </p>
       )}
 
+      {((quantita.borgomastro ?? 0) > 0 || (quantita['fantasma-onnisciente'] ?? 0) > 0) && (
+        <p className="mazzo-builder__nota-ladro">
+          ℹ️ Borgomastro e Fantasma Onnisciente fanno parte del conteggio qui sopra ma non sono ruoli in più per i
+          giocatori: nella schermata giocatori non vengono contati (come le 2 carte extra del Ladro).
+        </p>
+      )}
+
       {FAZIONI_ORDINE.map((fazione) => {
         const disponibili = ROLES.filter(
           (ruolo) =>

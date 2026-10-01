@@ -142,3 +142,8 @@ test('con il Ladro nel mazzo mostra la nota sulle due carte extra (si scelgono l
   expect(screen.getByText('Nel mazzo (3)')).toBeInTheDocument()
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 })
+
+test('con Borgomastro o Fantasma nel mazzo spiega perché non contano come giocatori (coerente con l\'avviso giocatori)', () => {
+  setup({ quantita: { villico: 2, borgomastro: 1 } })
+  expect(screen.getByText(/non sono ruoli in più per i giocatori/i)).toBeInTheDocument()
+})

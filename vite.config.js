@@ -18,7 +18,9 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.js',
-      registerType: 'autoUpdate',
+      // 'prompt' + nessun onNeedRefresh in main.jsx: la nuova versione si
+      // attiva al prossimo avvio, senza reload forzato a metà partita
+      registerType: 'prompt',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       },

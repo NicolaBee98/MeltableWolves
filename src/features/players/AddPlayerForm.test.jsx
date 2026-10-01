@@ -31,3 +31,14 @@ test('non chiama onAdd se il nome è vuoto', async () => {
 
   expect(onAdd).not.toHaveBeenCalled()
 })
+
+test('un nome già presente (anche con maiuscole diverse) non viene aggiunto e mostra un avviso', async () => {
+  const user = userEvent.setup()
+  const onAdd = vi.fn()
+  render(<AddPlayerForm onAdd={onAdd} nomiEsistenti={['Marco']} />)
+
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'marco{Enter}')
+
+  expect(onAdd).not.toHaveBeenCalled()
+  expect(screen.getByRole('alert')).toHaveTextContent(/già un giocatore/)
+})

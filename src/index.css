@@ -30,6 +30,10 @@
   --pal-grigio: #868086;
   --pal-bianco: #ffffff;
   --pal-viola: #ae80b0;
+  /* varianti scurite per i fondi dei bottoni con testo bianco: la palette
+     ufficiale darebbe 3.2:1 (viola) e 4.0:1 (verde), qui 5.35:1 e 4.96:1 */
+  --pal-viola-scuro: #8a5a8c;
+  --pal-verde-scuro: #587a2c;
 
   /* Ruoli semantici: i componenti usano questi, mai i --pal-* direttamente,
      così ogni fase (vedi [data-fase] più sotto) può ritingere l'intera UI
@@ -38,7 +42,7 @@
   --surface: var(--pal-bianco);
   --surface-soft: color-mix(in srgb, var(--pal-pelle) 55%, white);
   --text: var(--pal-inchiostro);
-  --text-soft: color-mix(in srgb, var(--pal-inchiostro) 60%, white);
+  --text-soft: color-mix(in srgb, var(--pal-inchiostro) 90%, white); /* >= 4.5:1 su pelle, ambra e azzurro */
   --accent: var(--pal-rosso);
   --accent-contrast: var(--pal-bianco);
   --accent-soft: color-mix(in srgb, var(--pal-rosso) 12%, white);
@@ -62,8 +66,8 @@
   --surface: var(--pal-inchiostro);
   --surface-soft: color-mix(in srgb, var(--pal-blu-notte) 45%, var(--pal-inchiostro));
   --text: var(--pal-bianco);
-  --text-soft: var(--pal-azzurro);
-  --accent: var(--pal-viola);
+  --text-soft: color-mix(in srgb, var(--pal-azzurro) 60%, white); /* 5.7:1 su blu notte */
+  --accent: var(--pal-viola-scuro);
   --accent-contrast: var(--pal-bianco);
   --accent-soft: color-mix(in srgb, var(--pal-viola) 20%, var(--pal-inchiostro));
 }
@@ -92,7 +96,7 @@
 /* Mazzo / giocatori: fase di preparazione, verde come crescita/costruzione */
 [data-fase='mazzo'],
 [data-fase='giocatori'] {
-  --accent: var(--pal-verde);
+  --accent: var(--pal-verde-scuro);
   --accent-soft: color-mix(in srgb, var(--pal-verde) 12%, white);
 }
 
@@ -126,7 +130,8 @@ p {
 
 .app {
   max-width: 480px;
-  min-height: 100vh;
+  min-height: 100vh; /* fallback */
+  min-height: 100dvh;
   margin: 0 auto;
   padding: 1.25rem 1rem 3rem;
   transition: background-color 0.3s ease;
@@ -824,7 +829,7 @@ button.chip--malvagia {
    questo colore quando la trasformazione è attiva, a colpo d'occhio
    diverso dal normale "sbrana" (colore di aria-pressed di default) */
 button.chip--trasformato {
-  background: var(--pal-verde);
+  background: var(--pal-verde-scuro);
   color: var(--pal-bianco);
 }
 
@@ -849,7 +854,7 @@ button.chip--fazione-lupi {
 }
 
 button.chip--fazione-indipendente {
-  background: var(--pal-verde);
+  background: var(--pal-verde-scuro);
   color: var(--pal-bianco);
 }
 
@@ -1312,6 +1317,22 @@ button.chip--fazione-sconosciuto {
   font-size: 0.85rem;
 }
 
+/* a 360px il pulsante fisso con l'etichetta intera finisce sopra il logo:
+   sotto i 420px resta solo l'icona (il nome accessibile è in aria-label) */
+@media (max-width: 420px) {
+  .log-impostazioni__testo {
+    display: none;
+  }
+}
+
+/* focus da tastiera sempre visibile: i bottoni hanno già bordo scuro e
+   ombra, quindi un anello a doppio colore resta leggibile su ogni fase */
+:focus-visible {
+  outline: 3px solid var(--pal-giallo);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--pal-inchiostro);
+}
+
 .log-impostazioni__chiudi {
   position: absolute;
   top: 1rem;
@@ -1454,4 +1475,22 @@ button.chip--fazione-sconosciuto {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+}
+
+/* Timer spareggio: a 0 il tempo lampeggia in rosso */
+.timer-spareggio--scaduto p {
+  color: var(--danger);
+  animation: timer-scaduto 0.6s ease-in-out 3;
+}
+
+@keyframes timer-scaduto {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* riordino giocatori da touch: frecce su/giù */
+.player-card__sposta {
+  display: flex;
+  gap: 0.25rem;
 }

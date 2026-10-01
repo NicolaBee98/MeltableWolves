@@ -89,3 +89,39 @@ test('senza giocatori non mostra "Elimina tutti i giocatori" (niente da eliminar
   setup({ giocatori: [], onEliminaTutti: vi.fn() })
   expect(screen.queryByRole('button', { name: 'Elimina tutti i giocatori' })).not.toBeInTheDocument()
 })
+
+test('le frecce ▲/▼ riordinano i giocatori (alternativa al drag su touch)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const onRiordina = vi.fn()
+  setup({ giocatori, onRiordina })
+  await user.click(screen.getByRole('button', { name: 'Sposta Anna giù' }))
+  expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0]])
+})
+
+test('a partita avviata aggiungere un giocatore chiede conferma', async () => {
+  const user = userEvent.setup()
+  const { addGiocatore } = setup({ partitaAvviata: true })
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Giulia{Enter}')
+  expect(addGiocatore).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Sì, procedi' }))
+  expect(addGiocatore).toHaveBeenCalledWith('Giulia')
+})
+
+test('a partita avviata rimuovere un giocatore chiede conferma e annullando non rimuove', () => {
+  const { removeGiocatore } = setup({
+    partitaAvviata: true,
+    giocatori: [{ id: '1', nome: 'Marco', vivo: true, condizioni: [] }],
+  })
+  const bottone = screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i })
+  fireEvent.pointerDown(bottone)
+  fireEvent.transitionEnd(bottone.querySelector('.player-card__elimina-riempimento'), { propertyName: 'width' })
+  fireEvent.animationEnd(bottone.closest('article'))
+  expect(removeGiocatore).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Annulla' }))
+  expect(screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i })).toBeInTheDocument()
+  expect(removeGiocatore).not.toHaveBeenCalled()
+})
