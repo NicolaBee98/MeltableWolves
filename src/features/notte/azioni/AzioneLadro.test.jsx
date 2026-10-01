@@ -231,3 +231,21 @@ test('con il potere già usato mostra solo il messaggio', () => {
   render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
   expect(screen.getByText(/il ladro ha già scelto/i)).toBeInTheDocument()
 })
+
+test('le carte candidate sono i ruoli fisici nel mazzo con quantità residua: Villico incluso, Borgomastro escluso, ruolo a quantità 0 escluso', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [] }]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'villico', 'borgomastro', 'veggente', 'paladino']}
+      quantita={{ ladro: 1, villico: 3, borgomastro: 1, veggente: 1, paladino: 0 }}
+    />,
+  )
+  const [select1] = screen.getAllByRole('combobox')
+  const opzioni = Array.from(select1.options).map((o) => o.value)
+  expect(opzioni).toContain('villico')
+  expect(opzioni).toContain('veggente')
+  expect(opzioni).not.toContain('borgomastro')
+  expect(opzioni).not.toContain('paladino')
+})

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { fazioneDi } from '../../../data/roles'
+import { eLupo } from '../../../data/roles'
 import { uccidiPatch, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
 import { annullaColpo } from './annullaColpo'
 
@@ -23,7 +23,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   )
   // calcolato con il bersaglio ancora tra i vivi: se il colpo ha appena
   // ucciso l'ultimo lupo, cambiare bersaglio non deve poter uccidere un non-lupo
-  const nessunLupoVivo = !candidati.some((g) => fazioneDi(g) === 'lupi')
+  const nessunLupoVivo = !candidati.some((g) => eLupo(g.ruoloSlug))
 
   function confermaScelta(targetId) {
     if (targetId === target) return
@@ -33,7 +33,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
     setAvviso(null)
     const bersaglio = giocatori.find((g) => g.id === targetId)
     if (bersaglio) {
-      if (fazioneDi(bersaglio) !== 'lupi' && !nessunLupoVivo) {
+      if (!eLupo(bersaglio.ruoloSlug) && !nessunLupoVivo) {
         setAvviso(`${bersaglio.nome} non è un lupo: la caccia del Chupacabra fallisce.`)
       } else {
         const patch = uccidiPatch(bersaglio, round, { mortoDa: 'chupacabra' })
