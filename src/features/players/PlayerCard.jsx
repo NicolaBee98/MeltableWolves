@@ -1,10 +1,8 @@
 import { useState } from 'react'
 
 // riordino trascina-e-rilascia (drag & drop nativo HTML5, senza dipendenze):
-// l'intera card è la maniglia, niente handle/frecce separate da mostrare.
-// Su browser/dispositivi senza supporto (es. touch, che non genera
-// dragstart) la card semplicemente non è trascinabile: nessun fallback,
-// il narratore può comunque rimuovere e riaggiungere per riordinare.
+// l'intera card è la maniglia. Il drag HTML5 non scatta su touch, quindi ci
+// sono anche i pulsanti ▲/▼ (onSu/onGiu) come alternativa per tocco e tastiera.
 const DRAG_AND_DROP_SUPPORTATO = typeof document !== 'undefined' && 'draggable' in document.createElement('div')
 
 // tempo di pressione per rimuovere un giocatore: un tap secco è facile da
@@ -13,14 +11,14 @@ const DRAG_AND_DROP_SUPPORTATO = typeof document !== 'undefined' && 'draggable' 
 // puntatore/tocco che da tastiera, tenendo premuto Invio/Spazio)
 const DURATA_PRESSIONE_MS = 350
 
-export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop }) {
+export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDrop, onSu, onGiu }) {
   const [eliminando, setEliminando] = useState(false)
   // riempimento completato: la card si restringe e sfuma (CSS) prima di
   // sparire davvero, invece di scomparire di scatto nello stesso istante
   const [uscendo, setUscendo] = useState(false)
 
   function iniziaEliminazione(e) {
-    if (e.type === 'keydown' && e.repeat) return
+    if (e.type === 'keydown' && (e.repeat || !['Enter', ' '].includes(e.key))) return
     setEliminando(true)
   }
 
@@ -56,6 +54,16 @@ export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDro
     >
       <header className="player-card__header">
         <h3>{giocatore.nome}</h3>
+        {(onSu || onGiu) && (
+          <div className="player-card__sposta">
+            <button type="button" aria-label={`Sposta ${giocatore.nome} su`} disabled={!onSu} onClick={onSu}>
+              ▲
+            </button>
+            <button type="button" aria-label={`Sposta ${giocatore.nome} giù`} disabled={!onGiu} onClick={onGiu}>
+              ▼
+            </button>
+          </div>
+        )}
         <button
           type="button"
           className="player-card__elimina"
@@ -66,6 +74,7 @@ export function PlayerCard({ giocatore, onRemove, onDragStart, onDragOver, onDro
           onPointerCancel={annullaEliminazione}
           onKeyDown={iniziaEliminazione}
           onKeyUp={annullaEliminazione}
+          onBlur={annullaEliminazione}
         >
           <span
             className="player-card__elimina-riempimento"
