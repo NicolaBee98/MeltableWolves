@@ -70,3 +70,19 @@ test('la durata arriva dalle impostazioni (durataSecondi), non da un input nella
 
   expect(screen.getByText('00:30')).toBeInTheDocument()
 })
+
+test('a 0 si ferma, segnala "Tempo scaduto" e vibra se il dispositivo lo supporta', () => {
+  const vibrate = vi.fn()
+  navigator.vibrate = vibrate
+  render(<TimerSpareggio durataSecondi={2} />)
+
+  fireEvent.click(screen.getByRole('button', { name: 'Avvia' }))
+  act(() => {
+    vi.advanceTimersByTime(3000)
+  })
+
+  expect(screen.getByText('Tempo scaduto')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Avvia' })).toBeInTheDocument()
+  expect(vibrate).toHaveBeenCalledTimes(1)
+  delete navigator.vibrate
+})

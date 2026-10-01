@@ -199,6 +199,7 @@ export function EventiSpeciali({
         <div
           className="eventi-speciali__popup"
           role="dialog"
+          aria-modal="true"
           aria-label="Eventi speciali"
           ref={dialogRef}
           tabIndex={-1}
@@ -397,7 +398,7 @@ export function EventiSpeciali({
             <EventoUnGiocatore
               candidati={morti}
               etichetta="Chi va riportato in vita"
-              messaggio="Corregge una morte dichiarata per errore. Non annulla da sola eventuali conseguenze già innescate (es. crepacuore del partner): quelle vanno sistemate a mano."
+              messaggio="Corregge una morte dichiarata per errore. Annulla anche le conseguenze già innescate (es. crepacuore del partner)."
               onConferma={(id) => {
                 onAnnullaMorte(id)
                 chiudi()

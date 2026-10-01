@@ -41,14 +41,16 @@ export function LogImpostazioniPopup({
         ref={triggerRef}
         className="log-impostazioni__icona"
         aria-pressed={aperto}
+        aria-label="Registro e impostazioni"
         onClick={() => setAperto((a) => !a)}
       >
-        <span aria-hidden="true">📜</span> Registro e impostazioni
+        <span aria-hidden="true">📜</span> <span className="log-impostazioni__testo">Registro e impostazioni</span>
       </button>
       {aperto && (
         <div
           className="log-impostazioni__popup"
           role="dialog"
+          aria-modal="true"
           aria-label="Registro e impostazioni"
           ref={dialogRef}
           tabIndex={-1}

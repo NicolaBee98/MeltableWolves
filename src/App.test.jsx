@@ -179,3 +179,20 @@ test('"Elimina tutti i giocatori" (con conferma) svuota la lista, per ripartire 
 
   expect(screen.queryByText('Anna')).not.toBeInTheDocument()
 })
+
+test('Nuova Partita dalla Home si comporta come dalle Impostazioni: azzera il mazzo ma tiene i nomi dei giocatori', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
+  await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
+  await user.click(screen.getByRole('button', { name: /torna alla home/i }))
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByText('Anna')).toBeInTheDocument()
+})

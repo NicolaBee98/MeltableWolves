@@ -92,3 +92,9 @@ test('ricominciaVotazione riporta la fase a voto', () => {
   })
   expect(result.current.fase).toBe('voto')
 })
+
+test('stato salvato corrotto: ripiega sullo stato iniziale', () => {
+  localStorage.setItem('meltable-wolves-votazione', JSON.stringify({ voti: 5, fase: 'voto' }))
+  const { result } = renderHook(() => useVotazione())
+  expect(result.current.voti).toEqual({})
+})
