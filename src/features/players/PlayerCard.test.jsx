@@ -54,12 +54,11 @@ test('Tab non avvia l\'eliminazione, Invio sì; il blur la annulla', () => {
   expect(riempimento.style.width).toBe('0%')
 })
 
-test('i pulsanti ▲/▼ chiamano onSu/onGiu', () => {
-  const onSu = vi.fn()
-  const onGiu = vi.fn()
-  render(<PlayerCard giocatore={giocatore} onRemove={() => {}} onSu={onSu} onGiu={onGiu} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Sposta Marco su' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Sposta Marco giù' }))
-  expect(onSu).toHaveBeenCalled()
-  expect(onGiu).toHaveBeenCalled()
+test('la maniglia ha aria-label, niente frecce, e il suo pointerdown non avvia l\'eliminazione', () => {
+  const onPointerDown = vi.fn()
+  render(<PlayerCard giocatore={giocatore} onRemove={() => {}} maniglia={{ onPointerDown }} />)
+  expect(screen.queryByRole('button', { name: /Sposta/ })).not.toBeInTheDocument()
+  fireEvent.pointerDown(screen.getByRole('button', { name: 'Trascina per spostare Marco' }))
+  expect(onPointerDown).toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: /tieni premuto/i }).querySelector('.player-card__elimina-riempimento').style.width).toBe('0%')
 })

@@ -176,6 +176,15 @@ export const CARATTERISTICA_ICONA = {
   tocca: 'icona_necessario_toccare_giocatore',
 }
 
+// Definizione unica di "lupo" (vittoria, Pastore, Cortigiana, Berserker,
+// Chupacabra): NON la fazione 'lupi', che comprende anche Guardia Mannara,
+// Gallo, Sciacallo, Mucca, Veggente Mannaro e Polpo.
+export const RUOLI_BRANCO_LUPI = [
+  'cucciolo-di-lupo-mannaro', 'lupo-mannaro', 'lupo-mannaro-capobranco',
+  'lupo-mannaro-progenitore', 'nonna',
+]
+export const eLupo = (slug) => RUOLI_BRANCO_LUPI.includes(slug)
+
 export function fazioneDi(giocatore) {
   return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
 }

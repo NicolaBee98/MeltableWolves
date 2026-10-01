@@ -222,6 +222,14 @@ test('berserkerLupiCandidati ritorna entrambi i lupi a parità di distanza', () 
   expect(berserkerLupiCandidati(giocatori, '2').map((g) => g.id).sort()).toEqual(['1', '3'])
 })
 
+test('berserkerLupiCandidati non considera lupo un Gallo Mannaro', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'gallo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+  ]
+  expect(berserkerLupiCandidati(giocatori, '2')).toEqual([])
+})
+
 test('risolviAttaccoBranco: se non ci sono lupi vivi vicini, il Berserker muore senza altre conseguenze', () => {
   const giocatori = [{ id: '1', ruoloSlug: 'berserker', vivo: true, condizioni: [] }]
   const patch = risolviAttaccoBranco(giocatori, '1', 4, RUOLI_BRANCO)

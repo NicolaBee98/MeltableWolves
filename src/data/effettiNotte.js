@@ -1,4 +1,4 @@
-import { fazioneDi } from './roles'
+import { fazioneDi, eLupo } from './roles'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
@@ -28,7 +28,7 @@ export const RUOLI_IMMUNI_AL_CHUPACABRA = ['nano', 'criceto-malvagio']
 // di distanza (un lupo a sinistra e uno a destra) ne ritorna due, e tocca al
 // narratore scegliere (vedi risolviAttaccoBranco più sotto)
 export function berserkerLupiCandidati(giocatori, targetId) {
-  return viciniPiuViciniChe(giocatori, targetId, (g) => g.vivo && fazioneDi(g) === 'lupi')
+  return viciniPiuViciniChe(giocatori, targetId, (g) => g.vivo && eLupo(g.ruoloSlug))
 }
 
 // Applica il morso del branco a un bersaglio, comprese le reazioni
