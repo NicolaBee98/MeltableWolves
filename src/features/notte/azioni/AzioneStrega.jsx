@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { aggiungiCondizionePatch, uccidiPatch } from '../../../data/effettiNotte'
+import { annullaColpo } from './annullaColpo'
 
 // le pozioni sono uniche per l'intera partita (non per notte): una volta
 // davvero utilizzata (notte precedente, già scritta su giocatori) resta
@@ -8,7 +9,7 @@ import { aggiungiCondizionePatch, uccidiPatch } from '../../../data/effettiNotte
 // stato "già usata" solo una volta, al montaggio del passo (mai più durante
 // i click successivi), così un click su questa stessa notte non nasconde
 // subito le chip.
-export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
+export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round }) {
   const strega = giocatori.find((g) => g.ruoloSlug === 'strega')
   const poteriUsati = strega?.poteriUsati ?? []
   const vivi = giocatori.filter((g) => g.vivo)
@@ -18,6 +19,12 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
   const [giaUsataMortale] = useState(() => poteriUsati.includes('strega-pozione-mortale'))
   const [targetVitale, setTargetVitale] = useState(null)
   const [targetMortale, setTargetMortale] = useState(null)
+  // true solo se la pozione ha DAVVERO aggiunto/applicato qualcosa: se il
+  // bersaglio era già protetto (Paladino) o la pozione non ha avuto effetto,
+  // cambiando bersaglio non c'è niente da togliere (non va tolta la
+  // protezione del Paladino)
+  const [protezioneDataDaStrega, setProtezioneDataDaStrega] = useState(false)
+  const [colpoMortaleApplicato, setColpoMortaleApplicato] = useState(false)
 
   function segnaPotereUsato(chiave) {
     if (!strega) return
@@ -26,20 +33,33 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
     aggiornaGiocatore(strega.id, { poteriUsati: [...poteriCorrenti, chiave] })
   }
 
+  // deselezione: la pozione torna disponibile, come se non l'avesse mai usata
+  function rilasciaPotere(chiave) {
+    if (!strega) return
+    aggiornaGiocatore(strega.id, { poteriUsati: (strega.poteriUsati ?? []).filter((p) => p !== chiave) })
+  }
+
+  function togliProtezioneDataDaStrega() {
+    const vecchio = protezioneDataDaStrega && giocatori.find((g) => g.id === targetVitale)
+    if (vecchio) aggiornaGiocatore(vecchio.id, { condizioni: vecchio.condizioni.filter((c) => c !== 'protetto') })
+  }
+
   function usaPozioneVitale(targetId) {
     if (!strega) return
-    // toglie la protezione data in un click precedente di questa notte, se
-    // il narratore ha ripensato il bersaglio
-    if (targetVitale && targetVitale !== targetId) {
-      const vecchio = giocatori.find((g) => g.id === targetVitale)
-      if (vecchio) aggiornaGiocatore(targetVitale, { condizioni: vecchio.condizioni.filter((c) => c !== 'protetto') })
+    togliProtezioneDataDaStrega()
+    setAvvisoVitale(null)
+    if (targetVitale === targetId) {
+      setTargetVitale(null)
+      setProtezioneDataDaStrega(false)
+      rilasciaPotere('strega-pozione-vitale')
+      return
     }
     setTargetVitale(targetId)
     const target = giocatori.find((g) => g.id === targetId)
     const patch = target && aggiungiCondizionePatch(target, 'protetto')
+    setProtezioneDataDaStrega(Boolean(patch))
     if (patch) {
       aggiornaGiocatore(targetId, patch)
-      setAvvisoVitale(null)
     } else {
       setAvvisoVitale(`${target.nome} era già protetto/a: la pozione non ha avuto alcun effetto.`)
     }
@@ -48,20 +68,23 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, round }) {
 
   function usaPozioneMortale(targetId) {
     if (!strega) return
-    // annulla la morte data in un click precedente di questa notte, se il
-    // narratore ha ripensato il bersaglio (nessun altro potere mortale ha
-    // ancora agito stanotte a questo punto della sequenza: la Strega è
-    // sempre il primo dei poteri mortali, vedi nightSteps.js)
-    if (targetMortale && targetMortale !== targetId) {
-      aggiornaGiocatore(targetMortale, { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined })
+    // annulla la morte data in un click precedente di questa notte (con la
+    // sua catena), se il narratore ha ripensato il bersaglio o deseleziona
+    if (targetMortale && colpoMortaleApplicato) annullaColpo(targetMortale, aggiornaGiocatore, annullaMorte)
+    setAvvisoMortale(null)
+    if (targetMortale === targetId) {
+      setTargetMortale(null)
+      setColpoMortaleApplicato(false)
+      rilasciaPotere('strega-pozione-mortale')
+      return
     }
     setTargetMortale(targetId)
     const target = giocatori.find((g) => g.id === targetId)
     // la pozione mortale ignora la protezione: non è bloccata da "protetto"
     const patch = target && uccidiPatch(target, round, { ignoraProtezione: true })
+    setColpoMortaleApplicato(Boolean(patch))
     if (patch) {
       aggiornaGiocatore(targetId, patch)
-      setAvvisoMortale(null)
     } else {
       setAvvisoMortale(`La pozione non ha avuto alcun effetto su ${target.nome}.`)
     }

@@ -55,3 +55,14 @@ test("mostra il pulsante Salta: interrogare è un'opzione, non un obbligo", () =
 
   expect(screen.getByRole('button', { name: 'Salta' })).toBeInTheDocument()
 })
+
+test('l\'esito malvagio si risponde "sì" (aura malvagia), non "è un lupo": vale anche per Eremita e Chupacabra', () => {
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'inquisitore', vivo: true, condizioni: [], poteriUsati: [], ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 2 } },
+    { id: '2', nome: 'Chiara', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneInquisitore giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
+
+  expect(screen.getByText(/rispondi all'inquisitore: sì \(aura malvagia\)/i)).toBeInTheDocument()
+  expect(screen.queryByText(/è un lupo/i)).not.toBeInTheDocument()
+})

@@ -22,6 +22,18 @@ export function AzioneCondizioneDoppia({
   const [condizionatiAllIngresso] = useState(() => new Set(vivi.filter((g) => g.condizioni.includes(condizione)).map((g) => g.id)))
   const [coppiaSessione, setCoppiaSessione] = useState(null)
 
+  // toglie la condizione a chi era nella coppia di QUESTA sessione (mai a chi
+  // la aveva già da prima): la coppia viene sciolta dalla deselezione
+  function annullaScelta() {
+    ;(coppiaSessione ?? [])
+      .filter((id) => !condizionatiAllIngresso.has(id))
+      .forEach((id) => {
+        const g = giocatori.find((x) => x.id === id)
+        if (g) aggiornaGiocatore(id, { condizioni: g.condizioni.filter((c) => c !== condizione) })
+      })
+    setCoppiaSessione(null)
+  }
+
   function confermaScelta(idA, idB) {
     const coppia = [idA, idB]
     // toglie la condizione a chi era stato scelto in una coppia precedente
@@ -43,5 +55,5 @@ export function AzioneCondizioneDoppia({
     segnaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
   }
 
-  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onSalta={() => {}} etichetta={etichetta} />
+  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onAnnulla={annullaScelta} onSalta={() => {}} etichetta={etichetta} />
 }

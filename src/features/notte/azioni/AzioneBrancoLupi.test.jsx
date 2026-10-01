@@ -304,3 +304,65 @@ test('con la vendetta del Cucciolo attiva il branco può sbranare due vittime ne
   expect(giocatori.find((g) => g.id === '2').vivo).toBe(false)
   expect(giocatori.find((g) => g.id === '3').vendettaCucciolo).toBe(false)
 })
+
+test('feedback quando il morso non ha effetto: protetto e Criceto Malvagio', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'] },
+    { id: '2', nome: 'Cri', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} ruoli={['lupo-mannaro']} />)
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.getByText(/il morso non ha effetto su anna: è protetto/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Cri' }))
+  expect(screen.getByText(/il morso non ha effetto su cri: il criceto malvagio/i)).toBeInTheDocument()
+})
+
+test('cambiare bersaglio annulla la morte con annullaMorte (catena inclusa), non con un semplice vivo:true', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(
+    <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} ruoli={['lupo-mannaro']} />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  expect(annullaMorte).toHaveBeenCalledWith('1')
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true }))
+})
+
+test('vendetta del Cucciolo: indicatore delle due vittime, la seconda non annulla la prima, messaggio finale al plurale', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], vendettaCucciolo: true },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const annullaMorte = vi.fn()
+  const props = () => ({ giocatori, aggiornaGiocatore, annullaMorte, round: 2, ruoli: ['lupo-mannaro'] })
+  const { rerender } = render(<AzioneBrancoLupi {...props()} />)
+
+  expect(screen.getByText(/vendetta del cucciolo.*vittima 1 di 2/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  expect(screen.getByText(/vittima 2 di 2/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+
+  expect(annullaMorte).not.toHaveBeenCalled()
+  expect(screen.getByText(/ha già sbranato le sue vittime/i)).toBeInTheDocument()
+})

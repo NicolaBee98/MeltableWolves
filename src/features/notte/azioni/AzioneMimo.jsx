@@ -1,4 +1,4 @@
-import { nomeRuolo } from '../../../data/roles'
+import { nomeRuolo, ruoloPerDisplay } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
@@ -61,7 +61,7 @@ export function AzioneMimo({
     return (
       <div className="azione-mimo">
         <p>
-          Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(target.ruoloSlug)}.
+          Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
         </p>
         <button type="button" onClick={annullaBersaglio}>
           Annulla (cambia bersaglio)

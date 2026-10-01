@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte, notteBloccata, villaggioMaledetto, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { passiNotte, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
@@ -27,6 +28,33 @@ function mimoDiQuestoPasso(giocatore, giocatori, ruoliCoinvolti) {
   if (giocatore.legame?.tipo !== 'mimo') return false
   const bersaglio = giocatori.find((g) => g.id === giocatore.legame.targetId)
   return Boolean(bersaglio) && ruoliCoinvolti.includes(bersaglio.ruoloSlug)
+}
+
+// giocatori coinvolti in un passo, in base allo stato `lista`: di norma i
+// titolari dei ruoli del passo (più il Mimo che li imita), o chi ha la
+// condizione per i passi "di gruppo" (innamorati, ipnotizzati)
+function filtraCoinvolti(step, lista) {
+  if (step.condizione) return lista.filter((g) => g.condizioni.includes(step.condizione))
+  const ruoliCoinvolti = step.ruoliMostraCoinvolti ?? step.ruoli
+  return lista.filter((g) => ruoliCoinvolti.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, lista, ruoliCoinvolti))
+}
+
+// se il passo corrente non è più tra quelli calcolati (il suo titolare ha
+// cambiato ruolo o è morto mentre il narratore ci era sopra: Ladro, Addolorata,
+// Mimo...) lo si rimette al suo posto, nell'ordine di NIGHT_STEPS: la
+// schermata resta visibile fino ad "Avanti"
+function conPassoCorrente(steps, id) {
+  if (!id || steps.some((s) => s.id === id)) return steps
+  const passo = NIGHT_STEPS.find((s) => s.id === id)
+  if (!passo) return steps
+  const posizione = NIGHT_STEPS.indexOf(passo)
+  const indice = steps.findIndex((s) => NIGHT_STEPS.indexOf(s) > posizione)
+  return indice < 0 ? [...steps, passo] : [...steps.slice(0, indice), passo, ...steps.slice(indice)]
+}
+
+function quantitaUguali(a, b) {
+  const chiavi = new Set([...Object.keys(a), ...Object.keys(b)])
+  return [...chiavi].every((k) => a[k] === b[k])
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
@@ -66,7 +94,7 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
 
   if (giocatoriCoinvolti.length === 0) return null
   const naturaleMassima = Math.max(
-    ...giocatoriCoinvolti.map((g) => altezzaNaturalePersonaggio(g.legame?.tipo === 'mimo' ? 'mimo' : g.ruoloSlug)),
+    ...giocatoriCoinvolti.map((g) => altezzaNaturalePersonaggio(g.legame?.tipo === 'mimo' ? 'mimo' : ruoloPerDisplay(g.ruoloSlug))),
   )
   const numeroImmagini = giocatoriCoinvolti.length
   // una lieve sovrapposizione, solo se il gruppo è numeroso, come frazione
@@ -87,12 +115,20 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
     <div className="night-sequencer__illustrazioni" ref={contenitoreRef}>
       {giocatoriCoinvolti.map((g, indice) => {
         const eMimo = g.legame?.tipo === 'mimo'
-        const slug = eMimo ? 'mimo' : g.ruoloSlug
+        // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
+        const slug = eMimo ? 'mimo' : ruoloPerDisplay(g.ruoloSlug)
         return (
           <span key={g.id} className="night-sequencer__illustrazione-slot">
             <RuoloIllustrazione
               slug={slug}
-              variante={eMimo ? undefined : variantePerGiocatore(giocatori, g.id)}
+              variante={
+                eMimo
+                  ? undefined
+                  : variantePerGiocatore(
+                      giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) })),
+                      g.id,
+                    )
+              }
               className="night-sequencer__illustrazione"
               style={{
                 height: altezzaNaturalePersonaggio(slug) * scala,
@@ -111,6 +147,7 @@ export function NightSequencer({
   giocatori,
   aggiornaGiocatore,
   impostaGiocatori = () => {},
+  annullaMorte = null,
   quantita = {},
   onCambiaQuantita = () => {},
   registraEvento = () => {},
@@ -124,59 +161,66 @@ export function NightSequencer({
   varianteMedium = false,
   onTornaAiGiocatori,
 }) {
-  // il Bardo (dopo un rogo) e la maledizione de L'Antico (pag. 10, 25) non
-  // sopprimono solo i poteri attivi: bloccano la notte intera. Niente
-  // passi, si passa dritti all'alba (che mostrerà correttamente "nessuno è
-  // morto questa notte", visto che nessun potere ha potuto agire)
+  // il Bardo (dopo un rogo) non sopprime solo i poteri attivi: blocca la
+  // notte intera. Niente passi, si passa dritti all'alba (che mostrerà
+  // correttamente "nessuno è morto questa notte", visto che nessun potere ha
+  // potuto agire). La maledizione de L'Antico (pag. 25) è invece diversa:
+  // blocca solo i poteri del villaggio, filtrati da passiNotte, e la notte si
+  // svolge (vedi `maledetto` più sotto)
   const bloccata = notteBloccata(giocatori, round)
   const maledetto = villaggioMaledetto(giocatori, round)
-  const steps = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti })
-  const indiceValido = steps.length > 0 ? Math.min(stepIndex, steps.length - 1) : 0
+  const stepsCalcolati = bloccata ? [] : passiNotte(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti })
 
-  // pila di stati precedenti per "Indietro": un elemento per passo visitato
-  // (non per singola modifica). Se durante un passo capitano più modifiche
-  // (es. il Ladro: identità + due carte di scarto + scelta finale), contano
-  // come UN solo "prima" da ripristinare, non una per ciascuna — altrimenti
-  // "Indietro" premuto lo stesso numero di volte che si crede necessario per
-  // tornare "all'inizio del passo" in realtà annulla solo l'ultima modifica.
-  // Così: se il passo corrente ha già almeno un'azione compiuta, il primo
-  // "Indietro" annulla TUTTE le modifiche fatte in questo passo e resta sullo
-  // stesso passo; se invece non ne ha ancora, il primo "Indietro" torna al
-  // passo precedente mostrando le sue modifiche già fatte, e solo un
-  // secondo "Indietro" le annulla (non persistito: non deve sopravvivere a
-  // un refresh, e si azzera a ogni nuova notte)
-  // stato (non ref): deve rientrare in un nuovo render subito, altrimenti
-  // "disabled" sul pulsante Indietro resterebbe indietro di un render
-  // rispetto al push appena fatto dall'effect qui sotto
+  // "ingresso": il passo corrente ANCORATO ALL'ID (non alla posizione) più lo
+  // stato com'era quando ci si è entrati. La lista dei passi si ricalcola a
+  // ogni render e cambia durante la notte (un'azione uccide o cambia ruolo a
+  // un titolare: Strega, Branco, Ladro, Addolorata, Mimo...): con un indice
+  // posizionale la schermata saltava passi. stepIndex di App serve solo a
+  // ripartire dopo un ricaricamento. Lo stato d'ingresso permette poi a
+  // "Indietro" di riaprire un passo da zero, completamente modificabile.
+  // { round, id, giocatori, quantita, titolari } (giocatori undefined = appena
+  // avanzati, va ancora fotografato con lo stato già aggiornato)
+  const [ingresso, setIngresso] = useState(null)
+  const idDaIndice = stepsCalcolati[Math.min(stepIndex, stepsCalcolati.length - 1)]?.id
+  const idPasso = ingresso?.round === round ? ingresso.id : idDaIndice
+  const steps = conPassoCorrente(stepsCalcolati, idPasso)
+  const indiceValido = steps.length > 0 ? Math.max(0, steps.findIndex((s) => s.id === idPasso)) : 0
+  const idStep = steps[indiceValido]?.id
+
+  if (idStep && (ingresso?.round !== round || ingresso.giocatori === undefined)) {
+    // fotografia dello stato all'ingresso nel passo (set durante il render: React
+    // lo rielabora subito, senza mostrare un frame con l'ingresso mancante).
+    // `titolari`: chi c'era all'ingresso, così il passo resta coerente anche
+    // se poi un titolare cambia ruolo (vedi giocatoriCoinvolti)
+    setIngresso({
+      round,
+      id: idStep,
+      giocatori,
+      quantita,
+      titolari: filtraCoinvolti(steps[indiceValido], giocatori).map((g) => g.id),
+    })
+  }
+
+  // pila di passi già lasciati con "Avanti" (ognuno con il suo stato
+  // d'ingresso). "Indietro": se nel passo corrente è già stato modificato
+  // qualcosa, annulla TUTTE le modifiche del passo e lo riapre da zero; se
+  // invece è ancora intatto, torna al passo precedente RIAPRENDOLO da zero
+  // (stato d'ingresso ripristinato: così ogni scelta è di nuovo modificabile,
+  // senza stati locali o "già utilizzato" rimasti a metà). Non persistito: non
+  // deve sopravvivere a un refresh, e si azzera a ogni nuova notte
   const [storico, setStorico] = useState([])
-  const ultimoStatoRef = useRef({ stepIndex: indiceValido, giocatori })
-  // true se per il passo corrente è già stata pushata una voce di storico:
-  // le modifiche successive sullo STESSO passo aggiornano solo il
-  // riferimento "corrente", senza aggiungerne altre
-  const vocePushataPerPassoRef = useRef(false)
+  // incrementato quando si riapre il passo: rimonta le azioni, azzerando il
+  // loro stato locale (bersagli scelti, "già usato" catturato al montaggio...)
+  const [versione, setVersione] = useState(0)
+  const modificato =
+    Boolean(ingresso?.giocatori) &&
+    ingresso.round === round &&
+    (ingresso.giocatori !== giocatori || !quantitaUguali(ingresso.quantita, quantita))
 
   useEffect(() => {
     setStorico([])
-    ultimoStatoRef.current = { stepIndex: 0, giocatori }
-    vocePushataPerPassoRef.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
-
-  useEffect(() => {
-    const ultimo = ultimoStatoRef.current
-    const passoCambiato = ultimo.stepIndex !== indiceValido
-    if (passoCambiato) {
-      setStorico((prev) => [...prev, ultimo])
-      ultimoStatoRef.current = { stepIndex: indiceValido, giocatori }
-      vocePushataPerPassoRef.current = false
-    } else if (ultimo.giocatori !== giocatori) {
-      if (!vocePushataPerPassoRef.current) {
-        setStorico((prev) => [...prev, ultimo])
-        vocePushataPerPassoRef.current = true
-      }
-      ultimoStatoRef.current = { stepIndex: indiceValido, giocatori }
-    }
-  }, [indiceValido, giocatori])
 
   // selezioni non ancora confermate per il passo corrente di assegnazione
   // ruolo: si accumulano mentre si spunta chi ha ogni variante di carta, e
@@ -184,31 +228,28 @@ export function NightSequencer({
   // per singolo click, così "Indietro" le scarta gratis senza toccare i giocatori)
   const [selezioniRuolo, setSelezioniRuolo] = useState({})
 
-  useEffect(() => {
-    setSelezioniRuolo({})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [indiceValido])
-
   // stesso principio di selezioniRuolo, per il Mimo: "che carta ha davvero
   // il bersaglio" cambia il ruoloSlug del Mimo stesso, che farebbe sparire
   // subito il passo "mimo" dall'elenco (il suo unico ruolo coinvolto non
-  // sarebbe più 'mimo'), facendo "saltare" la schermata al passo successivo
-  // nel bel mezzo della scelta. Restando solo una scelta locale finché non
-  // si preme Avanti, il passo non si tocca e la scelta resta modificabile.
+  // sarebbe più 'mimo'). Restando solo una scelta locale finché non si preme
+  // Avanti, la scelta resta modificabile.
   const [mimoRuoloScelto, setMimoRuoloScelto] = useState(null)
 
+  // all'ingresso in un nuovo passo (non per un semplice cambio di indice)
   useEffect(() => {
+    setSelezioniRuolo({})
     setMimoRuoloScelto(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [indiceValido])
+  }, [idStep])
 
-  function commitMimoSeSelezionato() {
+  // applica i commit pendenti di questo passo tramite `aggiorna` (di norma
+  // aggiornaGiocatore, o il tracciatore di passaAllaNotteSuccessiva)
+  function commitMimoSeSelezionato(lista = giocatori, aggiorna = aggiornaGiocatore) {
     if (!mimoRuoloScelto) return
-    const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
-    const target = mimo && giocatori.find((g) => g.id === mimo.legame?.targetId)
+    const mimo = lista.find((g) => g.ruoloSlug === 'mimo')
+    const target = mimo && lista.find((g) => g.id === mimo.legame?.targetId)
     if (mimo && target) {
-      aggiornaGiocatore(mimo.id, { ruoloSlug: mimoRuoloScelto, storiaRuoli: [...(mimo.storiaRuoli ?? []), mimoRuoloScelto] })
-      aggiornaGiocatore(target.id, {
+      aggiorna(mimo.id, { ruoloSlug: mimoRuoloScelto, storiaRuoli: [...(mimo.storiaRuoli ?? []), mimoRuoloScelto] })
+      aggiorna(target.id, {
         ruoloSlug: mimoRuoloScelto,
         storiaRuoli: [...(target.storiaRuoli ?? []), mimoRuoloScelto],
       })
@@ -216,24 +257,45 @@ export function NightSequencer({
     setMimoRuoloScelto(null)
   }
 
+  function ripristinaQuantita(da) {
+    for (const slug of new Set([...Object.keys(da), ...Object.keys(quantita)])) {
+      if (da[slug] !== quantita[slug]) onCambiaQuantita(slug, da[slug] ?? 1)
+    }
+  }
+
+  // riporta lo stato (giocatori e quantità) a com'era all'ingresso del passo
+  // `vecchio` e ne azzera ogni stato locale
+  function riapriDa(vecchio) {
+    if (vecchio.giocatori !== giocatori) impostaGiocatori(vecchio.giocatori)
+    ripristinaQuantita(vecchio.quantita)
+    setVersione((v) => v + 1)
+    setSelezioniRuolo({})
+    setMimoRuoloScelto(null)
+  }
+
   function vaiIndietro() {
+    if (modificato) {
+      riapriDa(ingresso)
+      return
+    }
     if (storico.length === 0) return
     const precedente = storico[storico.length - 1]
     setStorico(storico.slice(0, -1))
-    ultimoStatoRef.current = precedente
-    if (precedente.giocatori !== giocatori) {
-      impostaGiocatori(precedente.giocatori)
-    }
-    if (precedente.stepIndex !== indiceValido) {
-      indietro()
-    }
+    setIngresso(precedente)
+    riapriDa(precedente)
+    indietro()
+  }
+
+  // lascia il passo corrente (ricordandone l'ingresso) per quello con id `id`
+  function vaiAlPasso(id) {
+    setStorico((prev) => [...prev, ingresso])
+    setIngresso({ round, id })
+    avanti(steps.length)
   }
 
   if (bloccata) {
     const bardo = giocatori.find((g) => g.notteBloccataFinoA === round && g.ruoloSlug === 'bardo')
-    const messaggio = bardo
-      ? 'Questa notte non si svolge per i poteri del Bardo.'
-      : 'Questa notte non si svolge: il villaggio è maledetto.'
+    const messaggio = bardo ? 'Questa notte non si svolge per i poteri del Bardo.' : 'Questa notte non si svolge.'
 
     function vaiAllAlba() {
       registraEvento(bardo ? `${bardo.nome} fa saltare la notte con il suo gesto segreto (Bardo).` : messaggio)
@@ -263,8 +325,9 @@ export function NightSequencer({
     // altro ruolo del mazzo può essere "in attesa", altrimenti passiNotte
     // avrebbe già generato un passo per assegnarlo.
     function vaiAllAlbaSenzaPassi() {
-      autoAssegnaRuoliRimasti()
-      for (const messaggio of annunciAlba(giocatori, round)) {
+      const [aggiorna, listaAggiornata] = creaTracciatore()
+      autoAssegnaRuoliRimasti(giocatori, aggiorna)
+      for (const messaggio of annunciAlba(listaAggiornata(), round)) {
         registraEvento(messaggio, 'alba')
       }
       onNotteConclusa()
@@ -296,12 +359,14 @@ export function NightSequencer({
   // passo può allargare la vista con ruoliMostraCoinvolti (es. "Lupo
   // Mannaro": qui si assegnano solo i Lupi generici, ma si vede l'intero
   // branco già riconosciuto finora, come nel passo "Branco dei Lupi")
-  const ruoliCoinvolti = step.ruoliMostraCoinvolti ?? step.ruoli
-  const giocatoriCoinvolti = step.condizione
-    ? giocatoriConPendenti.filter((g) => g.condizioni.includes(step.condizione))
-    : giocatoriConPendenti.filter(
-        (g) => ruoliCoinvolti.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, giocatoriConPendenti, ruoliCoinvolti),
-      )
+  // più chi era titolare all'ingresso nel passo e ha poi cambiato ruolo (il
+  // Ladro che sceglie, l'Addolorata che scambia, il Mimo che copia): resta
+  // coinvolto, e la sua azione resta sullo schermo, fino ad "Avanti"
+  const coinvoltiCorrenti = new Set(filtraCoinvolti(step, giocatoriConPendenti).map((g) => g.id))
+  const titolariIngresso = step.condizione || ingresso?.id !== step.id ? [] : (ingresso.titolari ?? [])
+  const giocatoriCoinvolti = giocatoriConPendenti.filter(
+    (g) => coinvoltiCorrenti.has(g.id) || (titolariIngresso.includes(g.id) && g.ruoloSlug),
+  )
 
   // i ruoli di questo passo che si assegnano a mano (indipendentemente dal
   // fatto che siano già tutti assegnati o no): usato per decidere SE
@@ -417,17 +482,17 @@ export function NightSequencer({
     return risultato
   }
 
-  function commitSelezioniRuolo(giocatoriConRuoli) {
+  function commitSelezioniRuolo(giocatoriConRuoli, aggiorna = aggiornaGiocatore) {
     for (const [slug, ids] of Object.entries(selezioniRuolo)) {
       for (const id of ids) {
         const storiaRuoli = giocatoriConRuoli.find((g) => g.id === id)?.storiaRuoli ?? []
-        aggiornaGiocatore(id, { ruoloSlug: slug, storiaRuoli })
+        aggiorna(id, { ruoloSlug: slug, storiaRuoli })
       }
     }
     // "le tre guardie" si scelgono come gruppo unico (vedi AssegnaRuolo):
     // appena il gruppo è completo, ne sceglie una a caso come traditrice,
     // senza mai chiederlo al narratore
-    assegnaGuardiaMannaraCasuale(giocatoriConRuoli, aggiornaGiocatore, quantita)
+    assegnaGuardiaMannaraCasuale(giocatoriConRuoli, aggiorna, quantita)
   }
 
   const ciSonoSelezioniDaConfermare = Object.values(selezioniRuolo).some((ids) => ids.length > 0)
@@ -464,6 +529,31 @@ export function NightSequencer({
     aggiornaGiocatore(id, patch)
   }
 
+  // come aggiornaGiocatoreConCommit, per chi reimposta l'intera lista (le
+  // azioni la ricevono già con le selezioni pendenti applicate: vanno
+  // confermate e azzerate, altrimenti verrebbero riapplicate due volte)
+  function impostaGiocatoriConCommit(nuovi) {
+    impostaGiocatori(nuovi)
+    if (ciSonoSelezioniDaConfermare) {
+      commitSelezioniRuolo(conSelezioniRuoloApplicate(giocatori))
+      setSelezioniRuolo({})
+    }
+  }
+
+  // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
+  // lanciate dentro lo stesso click (setState funzionale) non si riflettono in
+  // modo sincrono. Il tracciatore le applica anche a una copia locale, così
+  // ciò che viene dopo (Villici automatici, Cortigiana, annunci dell'alba)
+  // lavora sullo stato davvero aggiornato e non su quello vecchio
+  function creaTracciatore() {
+    let corrente = giocatori
+    const aggiorna = (id, patch) => {
+      aggiornaGiocatore(id, patch)
+      corrente = corrente.map((g) => (g.id === id ? { ...g, ...patch } : g))
+    }
+    return [aggiorna, () => corrente]
+  }
+
   // il Villico non si sceglie a mano (vedi RUOLI_NON_ASSEGNABILI_MANUALMENTE):
   // a fine notte, chi è rimasto senza ruolo lo diventa in automatico — ma
   // solo se ogni altro ruolo del mazzo è già stato assegnato a qualcuno. Se
@@ -476,18 +566,18 @@ export function NightSequencer({
   // c'è nessuna vera scelta da fare (nessun altro candidato possibile),
   // quindi non ha senso lasciarli misteriosi solo perché il narratore non è
   // ancora passato dal passo dedicato a quel ruolo.
-  function autoAssegnaRuoliRimasti() {
-    const senzaRuolo = giocatori.filter((g) => !g.ruoloSlug)
+  function autoAssegnaRuoliRimasti(lista, aggiorna) {
+    const senzaRuolo = lista.filter((g) => !g.ruoloSlug)
     if (senzaRuolo.length === 0) return
 
     const ruoliNonVillicoPendenti = ruoliSelezionati.filter(
-      (slug) => slug !== 'villico' && ruoliAssegnabili([slug], giocatori, quantita).length > 0,
+      (slug) => slug !== 'villico' && ruoliAssegnabili([slug], lista, quantita).length > 0,
     )
 
     let ruoloDaAssegnare = 'villico'
     if (ruoliNonVillicoPendenti.length === 1) {
       const [slug] = ruoliNonVillicoPendenti
-      const capacitaResidua = (quantita[slug] ?? 1) - contaAssegnati(giocatori, slug)
+      const capacitaResidua = (quantita[slug] ?? 1) - contaAssegnati(lista, slug)
       if (capacitaResidua !== senzaRuolo.length) return
       ruoloDaAssegnare = slug
     } else if (ruoliNonVillicoPendenti.length > 1) {
@@ -495,7 +585,7 @@ export function NightSequencer({
     }
 
     senzaRuolo.forEach((g) => {
-      aggiornaGiocatore(g.id, { ruoloSlug: ruoloDaAssegnare, storiaRuoli: [...(g.storiaRuoli ?? []), ruoloDaAssegnare] })
+      aggiorna(g.id, { ruoloSlug: ruoloDaAssegnare, storiaRuoli: [...(g.storiaRuoli ?? []), ruoloDaAssegnare] })
     })
   }
 
@@ -519,54 +609,45 @@ export function NightSequencer({
       // andrebbe avanti da solo invece di mostrare "Nessuna azione
       // richiesta" e richiedere un secondo click su Avanti
       if (step.tipo === 'azione') return
-      avanti(steps.length)
-      return
     }
-    avanti(steps.length)
+    vaiAlPasso(steps[indiceValido + 1].id)
   }
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta) return
-    commitMimoSeSelezionato()
-    if (ciSonoSelezioniDaConfermare && step.tipo === 'azione') {
-      confermaSelezioniRestandoSulPasso()
-      return
-    }
+    const [aggiorna, listaAggiornata] = creaTracciatore()
+    commitMimoSeSelezionato(giocatori, aggiorna)
     if (ciSonoSelezioniDaConfermare) {
-      confermaSelezioniRestandoSulPasso()
+      commitSelezioniRuolo(conSelezioniRuoloApplicate(listaAggiornata()), aggiorna)
+      setSelezioniRuolo({})
+      // un passo con un'azione resta sul passo: l'azione si può usare subito
+      if (step.tipo === 'azione') return
     }
-    autoAssegnaRuoliRimasti()
-    // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
-    // appena lanciate da autoAssegnaRuoliRimasti (setState funzionale) non si
-    // riflettono qui in modo sincrono. Va bene solo perché risolviCortigiana
-    // e la pulizia qui sotto non dipendono mai da un ruoloSlug appena
-    // diventato 'villico' (o dall'unico altro ruolo rimasto) — se in futuro
-    // dovessero, andrebbe ricalcolato esplicitamente chi è rimasto senza
-    // ruolo invece di riusare "giocatori".
-    const giocatoriConRuoli = giocatori
+    autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
 
-    giocatoriConRuoli.forEach((g) => {
+    // risolviLegami (Apprendista/Cavaliere/Figlia dei Lupi) è ora applicata
+    // in modo generico da usePartita a ogni morte, notte o rogo che sia:
+    // qui resta solo risolviCortigiana, che dipende specificamente
+    // dall'esito della caccia di QUESTA notte. Va prima della pulizia delle
+    // condizioni: serve ancora sapere se il cliente era protetto.
+    const patchRisoluzione = risolviCortigiana(listaAggiornata(), round)
+    for (const [id, patch] of Object.entries(patchRisoluzione)) {
+      aggiorna(id, patch)
+    }
+
+    listaAggiornata().forEach((g) => {
       const condizioniRipulite = g.condizioni.filter((c) => c !== 'protetto' && c !== 'inibito')
       const cambiaCondizioni = condizioniRipulite.length !== g.condizioni.length
       const cambiaUsi = (g.usiNotte ?? []).length > 0
       if (cambiaCondizioni || cambiaUsi) {
-        aggiornaGiocatore(g.id, {
+        aggiorna(g.id, {
           ...(cambiaCondizioni ? { condizioni: condizioniRipulite } : {}),
           ...(cambiaUsi ? { usiNotte: [] } : {}),
         })
       }
     })
 
-    // risolviLegami (Apprendista/Cavaliere/Figlia dei Lupi) è ora applicata
-    // in modo generico da usePartita a ogni morte, notte o rogo che sia:
-    // qui resta solo risolviCortigiana, che dipende specificamente
-    // dall'esito della caccia di QUESTA notte.
-    const patchRisoluzione = risolviCortigiana(giocatoriConRuoli, round)
-    for (const [id, patch] of Object.entries(patchRisoluzione)) {
-      aggiornaGiocatore(id, patch)
-    }
-
-    for (const messaggio of annunciAlba(giocatoriConRuoli, round)) {
+    for (const messaggio of annunciAlba(listaAggiornata(), round)) {
       registraEvento(messaggio, 'alba')
     }
 
@@ -577,7 +658,8 @@ export function NightSequencer({
   // via di fuga per "ho dimenticato un giocatore": ha senso solo prima che
   // sia successo qualunque cosa questa partita (altrimenti si rischia di
   // rimuovere qualcuno con già un ruolo/condizioni assegnati a metà notte)
-  const puoTornareAiGiocatori = onTornaAiGiocatori && round === 1 && indiceValido === 0 && storico.length === 0
+  const puoTornareAiGiocatori =
+    onTornaAiGiocatori && round === 1 && indiceValido === 0 && storico.length === 0 && !modificato
 
   return (
     <section className="night-sequencer">
@@ -607,7 +689,7 @@ export function NightSequencer({
           stato locale dell'azione (bug reale osservato: la scelta del
           Chupacabra si "resettava" da sola dopo aver sbranato l'ultimo lupo,
           niente più possibilità di ripensare il bersaglio) */}
-      <div key={`${round}-${step.id}`} className="night-sequencer__contenuto">
+      <div key={`${round}-${step.id}-${versione}`} className="night-sequencer__contenuto">
       <h2 className="night-sequencer__ruolo" aria-live="polite" aria-atomic="true">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
@@ -688,6 +770,8 @@ export function NightSequencer({
           <azione.Componente
             giocatori={giocatoriConPendenti}
             aggiornaGiocatore={aggiornaGiocatoreConCommit}
+            impostaGiocatori={impostaGiocatoriConCommit}
+            annullaMorte={annullaMorte}
             round={round}
             ruoliSelezionati={ruoliSelezionati}
             quantita={quantita}
@@ -709,7 +793,7 @@ export function NightSequencer({
       </div>
 
       <div className="night-sequencer__nav">
-        <button type="button" onClick={vaiIndietro} disabled={storico.length === 0}>
+        <button type="button" onClick={vaiIndietro} disabled={storico.length === 0 && !modificato}>
           Indietro
         </button>
         {ultimoPasso ? (

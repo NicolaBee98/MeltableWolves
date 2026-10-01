@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NightSequencer } from './NightSequencer'
@@ -560,7 +561,7 @@ test('"Indietro" durante un\'azione già compiuta la annulla restando sullo stes
   expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
 })
 
-test('"Indietro" senza azione sul passo corrente torna al passo precedente mostrando la sua azione già fatta; solo un secondo "Indietro" la annulla', async () => {
+test('"Indietro" senza azione sul passo corrente torna al passo precedente RIAPRENDOLO da zero (stato d\'ingresso ripristinato, di nuovo modificabile)', async () => {
   const user = userEvent.setup()
   let giocatori = [
     { id: '1', nome: 'Pietro', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: [] },
@@ -588,16 +589,195 @@ test('"Indietro" senza azione sul passo corrente torna al passo precedente mostr
   rerender(<NightSequencerConNotte {...props()} />)
   expect(screen.getByRole('heading', { name: /veggente/i })).toBeInTheDocument()
 
-  // primo Indietro: torna al passo del Paladino, protetto ancora presente
+  // Indietro dal Veggente (intatto): torna al Paladino riaperto da zero,
+  // protezione tolta e scelta di nuovo disponibile
   await user.click(screen.getByRole('button', { name: 'Indietro' }))
   rerender(<NightSequencerConNotte {...props()} />)
   expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
-  expect(giocatori.find((g) => g.id === '1').condizioni).toContain('protetto')
-
-  // secondo Indietro: ora annulla anche l'azione del Paladino
-  await user.click(screen.getByRole('button', { name: 'Indietro' }))
-  rerender(<NightSequencerConNotte {...props()} />)
   expect(giocatori.find((g) => g.id === '1').condizioni).not.toContain('protetto')
+  expect(
+    within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Pietro' }),
+  ).toHaveAttribute('aria-pressed', 'false')
+})
+
+// harness con stato reale (giocatori e quantita in useState, come in App) per i
+// test sul passo ancorato all'id: ogni azione scrive davvero. `stato` espone
+// sempre l'ultimo stato renderizzato; `rerender` resta per leggibilità (no-op)
+function creaHarness(giocatoriIniziali, ruoliSelezionati, quantitaIniziale = {}, extra = {}) {
+  const stato = {}
+  function Harness() {
+    const [giocatori, setGiocatori] = useState(giocatoriIniziali)
+    const [quantita, setQuantita] = useState(quantitaIniziale)
+    stato.giocatori = giocatori
+    stato.quantita = quantita
+    return (
+      <NightSequencerConNotte
+        ruoliSelezionati={ruoliSelezionati}
+        giocatori={giocatori}
+        quantita={quantita}
+        aggiornaGiocatore={(id, patch) => setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)))}
+        impostaGiocatori={setGiocatori}
+        onCambiaQuantita={(slug, n) => setQuantita((prev) => ({ ...prev, [slug]: n }))}
+        {...extra}
+      />
+    )
+  }
+  render(<Harness />)
+  return { stato, rerender: () => {} }
+}
+
+test('la Strega che uccide il Veggente (un passo precedente che sparisce) non fa saltare la schermata né il Branco', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Vera', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Sara', ruoloSlug: 'strega', vivo: true, condizioni: [], poteriUsati: [] },
+      { id: '3', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    ],
+    ['veggente', 'strega', 'lupo-mannaro'],
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
+  expect(screen.getByRole('heading', { name: /strega/i })).toBeInTheDocument()
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Vera' }))
+  h.rerender()
+  // il passo del Veggente non c'è più, ma la schermata resta quella della Strega
+  expect(screen.getByRole('heading', { name: /strega/i })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
+  expect(screen.getByRole('heading', { name: /branco dei lupi/i })).toBeInTheDocument()
+})
+
+test('il Ladro che sceglie una carta (cambia ruolo) resta sul proprio passo e Avanti non salta il successivo; Indietro ripristina anche le carte scartate', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Luca', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+      { id: '2', nome: 'Anna', vivo: true, condizioni: [] },
+    ],
+    ['ladro', 'veggente', 'paladino', 'medium'],
+    { ladro: 1, veggente: 1, paladino: 1, medium: 1 },
+  )
+
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  h.rerender()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('veggente')
+  expect(h.stato.quantita.paladino).toBe(0)
+  // il Ladro non è più 'ladro' ma il passo e la sua azione restano
+  expect(screen.getByRole('heading', { name: /ladro/i })).toBeInTheDocument()
+  expect(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).toBeInTheDocument()
+
+  // "Indietro" (passo modificato) lo riapre da zero: ruolo e carte ripristinati, una volta sola
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  h.rerender()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('ladro')
+  expect(h.stato.quantita.paladino).toBe(1)
+  expect(h.stato.quantita.veggente).toBe(1)
+
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  h.rerender()
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
+  // il passo dopo il Ladro è il Medium (steps: ladro, medium, veggente), non saltato
+  expect(screen.getByRole('heading', { name: /medium/i })).toBeInTheDocument()
+})
+
+test('Addolorata: dopo "Scambia" il passo resta e "Annulla scambio" è raggiungibile', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Ada', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['addolorata'] },
+      { id: '2', nome: 'Rosa', ruoloSlug: 'paladino', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2, storiaRuoli: ['paladino'] },
+    ],
+    ['addolorata', 'paladino'],
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Scambia' }))
+  h.rerender()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('paladino')
+  expect(screen.getByRole('button', { name: 'Annulla scambio' })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Annulla scambio' }))
+  h.rerender()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('addolorata')
+  expect(screen.getByRole('button', { name: 'Scambia' })).toBeInTheDocument()
+})
+
+test('Mimo: Avanti dopo aver scelto la carta del bersaglio non salta il passo successivo', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], storiaRuoli: ['mimo'], legame: { tipo: 'mimo', targetId: '2' } },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['mimo', 'paladino', 'veggente'],
+  )
+
+  await user.click(within(screen.getByRole('group', { name: 'Che carta ha il bersaglio del Mimo' })).getByRole('button', { name: 'Veggente' }))
+  h.rerender()
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
+
+  expect(h.stato.giocatori.map((g) => g.ruoloSlug)).toEqual(['veggente', 'veggente'])
+  // steps: mimo, paladino, veggente: il successivo è il Paladino
+  expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
+})
+
+test('Indietro riapre un passo con Strega già usata: la pozione è di nuovo scegliibile, non "già utilizzata"', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'strega', vivo: true, condizioni: [], poteriUsati: [] },
+      { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+      { id: '3', nome: 'Chiara', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
+    ],
+    ['strega', 'chupacabra'],
+  )
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }))
+  h.rerender()
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
+  expect(screen.getByRole('heading', { name: /chupacabra/i })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  h.rerender()
+  expect(screen.getByRole('heading', { name: /strega/i })).toBeInTheDocument()
+  expect(screen.queryByText(/pozione vitale già utilizzata/i)).not.toBeInTheDocument()
+  expect(h.stato.giocatori[0].poteriUsati).toEqual([])
+  expect(h.stato.giocatori[1].condizioni).toEqual([])
+  expect(
+    within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }),
+  ).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('alla fine della notte la Cortigiana uccisa è già considerata negli annunci dell\'alba (stato aggiornato, non lo snapshot vecchio)', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 1 }))
+  const user = userEvent.setup()
+  const registraEvento = vi.fn()
+  // il Pastore sente i belati solo se un lupo gli è accanto: con la
+  // Cortigiana ancora viva in mezzo no, una volta morta sì
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Paolo', ruoloSlug: 'pastore', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '3' },
+      { id: '3', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    ],
+    ['cortigiana', 'lupo-mannaro'],
+    {},
+    { registraEvento },
+  )
+
+  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
+
+  expect(h.stato.giocatori.find((g) => g.id === '2').vivo).toBe(false)
+  expect(registraEvento).toHaveBeenCalledWith('Si sentono dei belati.', 'alba')
 })
 
 test('"Notte successiva" chiama onNotteConclusa', async () => {
@@ -663,11 +843,11 @@ test('con la notte bloccata dal Bardo mostra il suo avviso invece dei passi, e "
   expect(onNotteConclusa).toHaveBeenCalled()
 })
 
-test("con la notte bloccata da L'Antico (non più Bardo) mostra l'avviso generico", () => {
+test("con la notte bloccata senza Bardo mostra l'avviso generico (la maledizione de L'Antico non blocca la notte: filtra solo i poteri del villaggio)", () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], notteBloccataFinoA: 1 }]
   render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByText(/il villaggio è maledetto/i)).toBeInTheDocument()
+  expect(screen.getByText(/questa notte non si svolge\./i)).toBeInTheDocument()
 })
 
 test("l'illustrazione a figura intera del titolare compare anche nelle notti successive alla prima", () => {

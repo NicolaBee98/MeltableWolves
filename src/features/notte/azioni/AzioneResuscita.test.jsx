@@ -21,7 +21,10 @@ test("resuscita il bersaglio morto e marca il potere come usato sull'attore", as
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: true, condizioni: ['resuscitato'], resuscitatoNotte: 2 })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith(
+    '2',
+    expect.objectContaining({ vivo: true, condizioni: ['resuscitato'], resuscitatoNotte: 2 }),
+  )
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['guaritore-resuscita'] })
 })
 
@@ -88,4 +91,35 @@ test('mostra solo i giocatori morti come candidati', () => {
     />,
   )
   expect(screen.queryByText('Anna')).not.toBeInTheDocument()
+})
+
+test('cambiare bersaglio annulla la resurrezione reimpostando lo stato (impostaGiocatori), senza rilanciare la catena di una nuova morte', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const impostaGiocatori = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 2 },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+  ]
+  render(
+    <AzioneResuscita
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      impostaGiocatori={impostaGiocatori}
+      potereSlug="guaritore-resuscita"
+      ruoloSlugAttore="guaritore"
+      round={2}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false }))
+  const ripristinati = impostaGiocatori.mock.calls[0][0]
+  const anna = ripristinati.find((g) => g.id === '2')
+  expect(anna.vivo).toBe(false)
+  expect(anna.causaMorte).toBe('notte')
+  expect(anna.condizioni).toEqual([])
 })

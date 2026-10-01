@@ -138,3 +138,13 @@ test('"Annulla (cambia bersaglio)" toglie il legame, in entrambe le fasi (bersag
   expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
 })
+
+test('se il bersaglio è la Guardia Mannara il Mimo vede "Guardia": il narratore non sa chi è', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'guardia-mannara', vivo: true },
+  ]
+  render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo']} />)
+
+  expect(screen.getByText(/ha assunto il ruolo di guardia\./i)).toBeInTheDocument()
+})

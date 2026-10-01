@@ -19,15 +19,16 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
   const indagineStanotte = inquisitore?.ultimaIndagine?.notte === round ? inquisitore.ultimaIndagine : null
   const giaUsato = Boolean(indagineStanotte)
 
-  if (potereEsauritoAllIngresso) {
-    return <p>Ha perso il proprio potere dopo un'indagine inutile su un'aura benevola.</p>
-  }
-
+  // (prima del return anticipato: gli hook non vanno dopo un return)
   // true se un click PRECEDENTE di questa stessa notte (non ancora "Avanti",
   // quindi ancora ripensabile) ha già segnato il potere perso: serve per
   // sapere se un ripensamento successivo deve esplicitamente toglierlo
   // (altrimenti resterebbe scritto da un click precedente sullo stesso passo)
   const [poterePersoInQuestoPasso, setPoterePersoInQuestoPasso] = useState(false)
+
+  if (potereEsauritoAllIngresso) {
+    return <p>Ha perso il proprio potere dopo un'indagine inutile su un'aura benevola.</p>
+  }
 
   function confermaScelta(targetId) {
     if (inquisitore) {
@@ -84,7 +85,7 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
       </div>
       {giaUsato && indagineStanotte && (
         <p className="azione-indagine__etichetta-esito">
-          Rispondi all'Inquisitore: {indagineStanotte.esito === 'malvagia' ? 'è un lupo 🐺' : 'non è un lupo 🕊️'}
+          Rispondi all'Inquisitore: {indagineStanotte.esito === 'malvagia' ? 'sì (aura malvagia) 🐺' : 'no (aura benevola) 🕊️'}
         </p>
       )}
       <button type="button" onClick={salta}>

@@ -1,6 +1,7 @@
 import { annunciAlba } from '../../data/alba'
 import { condizioniVittoria } from '../../data/vittoria'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
+import { annullaMorteCompleta } from '../giorno/annullaMorte'
 
 // solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
@@ -10,6 +11,7 @@ export function AlbaPanel({
   giocatori,
   round,
   aggiornaGiocatore,
+  annullaMorte,
   ruoliSelezionati = [],
   quantita = {},
   onVaiAlVoto,
@@ -46,10 +48,23 @@ export function AlbaPanel({
     onGalloSaltaGiorno()
   }
 
-  // corregge una morte dichiarata per errore: vedi lo stesso handler in
-  // GiornoPanel.jsx (qui serve per un decesso notturno visto solo all'alba)
+  // L'Antico sbranato di notte ha perso la prima vita ma sopravvive: all'alba
+  // si rivela e da qui gioca da Villico (una sola vita, nessun potere).
+  // Resta `anticoSbranatoNotte`: l'annuncio dell'alba continua a comparire
+  const anticiDaRivelare = giocatori.filter(
+    (g) => g.vivo && g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === round,
+  )
+
+  function dichiaraAnticoRivelato(id) {
+    const antico = giocatori.find((g) => g.id === id)
+    aggiornaGiocatore(id, { ruoloSlug: 'villico', storiaRuoli: [...(antico?.storiaRuoli ?? []), 'villico'] })
+  }
+
+  // corregge una morte dichiarata per errore (anche la sua catena: crepacuore,
+  // Cucciolo, Apprendista...): qui serve per un decesso notturno visto solo
+  // all'alba
   function dichiaraAnnullaMorte(id) {
-    aggiornaGiocatore(id, { vivo: true, causaMorte: undefined, mortoNotte: undefined })
+    annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)
   }
 
   return (
@@ -71,6 +86,17 @@ export function AlbaPanel({
           ))}
         </ul>
       )}
+      {anticiDaRivelare.map((g) => (
+        <div key={g.id} className="alba-panel__antico">
+          <p>
+            {g.nome} è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio e da ora gioca da
+            Villico (una sola vita, nessun potere).
+          </p>
+          <button type="button" onClick={() => dichiaraAnticoRivelato(g.id)}>
+            Conferma la rivelazione di {g.nome}
+          </button>
+        </div>
+      ))}
       {vittoria.length > 0 && (
         <>
           <ul className="alba-panel__vittoria">
