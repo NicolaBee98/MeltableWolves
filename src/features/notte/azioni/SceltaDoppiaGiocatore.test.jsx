@@ -56,3 +56,48 @@ test('con meno di due candidati mostra un pulsante Chiudi che chiama onSalta', a
   await user.click(screen.getByRole('button', { name: 'Chiudi' }))
   expect(onSalta).toHaveBeenCalled()
 })
+
+test('un terzo click avvisa "al massimo 2" invece di essere ignorato in silenzio', async () => {
+  const user = userEvent.setup()
+  render(
+    <SceltaDoppiaGiocatore
+      candidati={[
+        { id: '1', nome: 'Anna' },
+        { id: '2', nome: 'Marco' },
+        { id: '3', nome: 'Luca' },
+      ]}
+      onConferma={() => {}}
+      onSalta={() => {}}
+      etichetta="Chi unire"
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(screen.getByText(/al massimo 2 giocatori/i)).toBeInTheDocument()
+})
+
+test('deselezionare uno dei due dopo la conferma chiama onAnnulla', async () => {
+  const user = userEvent.setup()
+  const onAnnulla = vi.fn()
+  render(
+    <SceltaDoppiaGiocatore
+      candidati={[
+        { id: '1', nome: 'Anna' },
+        { id: '2', nome: 'Marco' },
+      ]}
+      onConferma={() => {}}
+      onAnnulla={onAnnulla}
+      onSalta={() => {}}
+      etichetta="Chi unire"
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(onAnnulla).toHaveBeenCalledTimes(1)
+})

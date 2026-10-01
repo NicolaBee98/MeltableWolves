@@ -1,14 +1,22 @@
 import { useState } from 'react'
 
-export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichetta, selezionatiIniziali = [] }) {
+// onAnnulla (opzionale): chiamato quando si toglie un giocatore da una coppia
+// già confermata, così chi la usa può disfare ciò che onConferma aveva applicato
+export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalta, etichetta, selezionatiIniziali = [] }) {
   const [selezionati, setSelezionati] = useState(selezionatiIniziali)
+  const [avviso, setAvviso] = useState(null)
 
   function toggleSelezione(id) {
+    setAvviso(null)
     if (selezionati.includes(id)) {
+      if (selezionati.length === 2) onAnnulla?.()
       setSelezionati(selezionati.filter((s) => s !== id))
       return
     }
-    if (selezionati.length >= 2) return
+    if (selezionati.length >= 2) {
+      setAvviso('Puoi scegliere al massimo 2 giocatori: deseleziona qualcuno per cambiare la scelta.')
+      return
+    }
     const nuovi = [...selezionati, id]
     setSelezionati(nuovi)
     if (nuovi.length === 2) onConferma(nuovi[0], nuovi[1])
@@ -41,6 +49,7 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onSalta, etichett
           </button>
         ))}
       </div>
+      {avviso && <p className="avviso">⚠️ {avviso}</p>}
     </div>
   )
 }

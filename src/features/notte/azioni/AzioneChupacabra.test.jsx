@@ -102,3 +102,46 @@ test('il Chupacabra non può sbranare se stesso: non compare tra i propri candid
   expect(screen.queryByRole('button', { name: 'Gino' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
+
+test('nessunLupoVivo è calcolato sullo stato PRIMA del colpo: dopo aver ucciso l\'ultimo lupo, cambiare bersaglio su un non-lupo non uccide', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Chiara', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const annullaMorte = vi.fn((id) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, vivo: true } : g))
+  })
+  const props = () => ({ giocatori, aggiornaGiocatore, annullaMorte, round: 2 })
+  const { rerender } = render(<AzioneChupacabra {...props()} />)
+
+  await user.click(screen.getByRole('button', { name: 'Lia' }))
+  rerender(<AzioneChupacabra {...props()} />)
+  expect(giocatori[1].vivo).toBe(false)
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneChupacabra {...props()} />)
+
+  expect(annullaMorte).toHaveBeenCalledWith('2')
+  expect(giocatori[2].vivo).toBe(true)
+  expect(screen.getByText(/anna non è un lupo/i)).toBeInTheDocument()
+})
+
+test('punta un non-lupo con lupi ancora vivi: messaggio "caccia fallita"', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Chiara', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(screen.getByText(/la caccia del chupacabra fallisce/i)).toBeInTheDocument()
+})

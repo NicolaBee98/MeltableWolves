@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { ROLES } from '../../../data/roles'
+import { ROLES, ruoloPerDisplay } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 
 function nomeRuolo(ruoloSlug) {
-  return ROLES.find((r) => r.slug === ruoloSlug)?.nome ?? 'ruolo sconosciuto'
+  return ROLES.find((r) => r.slug === ruoloPerDisplay(ruoloSlug))?.nome ?? 'ruolo sconosciuto'
 }
 
 // Usato da Cartomante (bersaglio vivo, "alternativa al Veggente" ma rivela

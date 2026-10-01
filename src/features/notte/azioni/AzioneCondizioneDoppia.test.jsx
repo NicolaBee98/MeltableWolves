@@ -120,3 +120,24 @@ test('il Pifferaio (ipnotizzato è cumulativo tra notti): scegliere una nuova co
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['ipnotizzato'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('5', { condizioni: ['ipnotizzato'] })
 })
+
+test('deselezionare uno dei due dopo la conferma toglie la condizione a chi era nella coppia (stato e UI allineati)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <AzioneCondizioneDoppia
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="innamorato"
+      etichetta="Chi unire"
+      ruoloSlugAttore="sacerdote"
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+})

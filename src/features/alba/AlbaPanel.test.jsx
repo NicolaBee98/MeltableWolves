@@ -148,3 +148,47 @@ test('Annulla morte giocatore riporta in vita chi era stato dichiarato morto per
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: true, causaMorte: undefined, mortoNotte: undefined })
 })
+
+test("L'Antico sbranato di notte: l'evento conferma la rivelazione e lo converte in Villico (una vita, nessun potere), lasciando il flag", async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lantico', storiaRuoli: ['lantico'], anticoSbranatoNotte: 2, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={aggiornaGiocatore} onVaiAlVoto={() => {}} />)
+
+  await user.click(screen.getByRole('button', { name: /conferma la rivelazione di anna/i }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'] })
+})
+
+test("senza L'Antico sbranato (o già rivelato) non compare l'evento di rivelazione", () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], anticoSbranatoNotte: 2, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'lantico', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={() => {}} onVaiAlVoto={() => {}} />)
+
+  expect(screen.queryByRole('button', { name: /conferma la rivelazione/i })).not.toBeInTheDocument()
+})
+
+test('Annulla morte all\'alba usa annullaMorte (disfa la catena) più la patch sul giocatore', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, causaMorte: 'notte', mortoNotte: 2, ruoloSlug: 'villico', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  render(
+    <AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} onVaiAlVoto={() => {}} />,
+  )
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Annulla morte giocatore' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(annullaMorte).toHaveBeenCalledWith('1')
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true }))
+})

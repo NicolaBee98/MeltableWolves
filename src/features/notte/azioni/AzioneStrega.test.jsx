@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneStrega } from './AzioneStrega'
 
@@ -69,4 +69,49 @@ test('nasconde la pozione già usata', () => {
 
   expect(screen.getByText(/pozione vitale già utilizzata/i)).toBeInTheDocument()
   expect(screen.getAllByRole('button', { name: 'Anna' })).toHaveLength(1)
+})
+
+test('pozione vitale su un bersaglio già protetto (Paladino): cambiando bersaglio la protezione del Paladino non viene tolta', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const g = [
+    giocatori[0],
+    { ...giocatori[1], condizioni: ['protetto'] },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneStrega giocatori={g} aggiornaGiocatore={aggiornaGiocatore} />)
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }))
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['protetto'] })
+})
+
+test('la pozione vitale si può non usare: cliccare di nuovo lo stesso bersaglio toglie la protezione e restituisce la pozione', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  const chip = () => within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' })
+
+  await user.click(chip())
+  await user.click(chip())
+
+  expect(chip()).toHaveAttribute('aria-pressed', 'false')
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+})
+
+test('cambiare o togliere il bersaglio della pozione mortale annulla la morte con annullaMorte (catena inclusa)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+  const chip = () => within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Anna' })
+
+  await user.click(chip())
+  await user.click(chip())
+
+  expect(annullaMorte).toHaveBeenCalledWith('2')
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: true }))
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
 })
