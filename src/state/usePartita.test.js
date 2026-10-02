@@ -305,6 +305,18 @@ test('annullaMorte disfa crepacuore, maturazione e ruolo ereditato', () => {
   expect(result.current.giocatori).toEqual(prima)
 })
 
+test('annullaMorte toglie all\'Apprendista i poteri usati ereditati dal maestro', () => {
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'guaritore', poteriUsati: ['guaritore-resuscita'] }),
+    mk('D', { ruoloSlug: 'apprendista', poteriUsati: [], legame: { tipo: 'apprendista', targetId: 'A' } }),
+  ])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  expect(result.current.giocatori.find((g) => g.id === 'D').poteriUsati).toEqual(['guaritore-resuscita'])
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori.find((g) => g.id === 'D').ruoloSlug).toBe('apprendista')
+  expect(result.current.giocatori.find((g) => g.id === 'D').poteriUsati).toEqual([])
+})
+
 test('annullaMorte senza snapshot (dopo ricaricamento) rimette almeno vivo e pulisce la causa', () => {
   const { result } = montaCon([mk('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1, mortoDa: 'branco' })])
   act(() => result.current.annullaMorte('A'))

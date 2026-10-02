@@ -67,7 +67,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // la Guardia Mannara si sveglia insieme a TUTTE le Guardie (pag. 8): la sua
   // carta è indistinguibile dalla loro, quindi il narratore deve chiamarle
   // tutte insieme, senza sapere quale in realtà "tradisce" il branco
-  { id: 'guardia-mannara', titolo: 'Le Guardie si riconoscono', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'] },
+  { id: 'guardia-mannara', titolo: 'Le Guardie si riconoscono', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia' },
   { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
 
   // --- Ogni notte, poteri non mortali (pag. 28) ---
@@ -105,6 +105,8 @@ const STEPS_CON_RUOLO_DEDICATO = [
     // solo la vittima
     assegnabile: false,
     ruoli: RUOLI_BRANCO_LUPI,
+    // icona del titolo (più ruoli nel passo: senza, sarebbe il punto interrogativo)
+    iconaSlug: 'lupo-mannaro',
   },
   { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
   { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato' },

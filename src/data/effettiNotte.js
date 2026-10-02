@@ -82,6 +82,79 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
   return patches
 }
 
+// Effetti "speciali" di un colpo notturno (branco o Chupacabra) sul bersaglio,
+// da spiegare al narratore PRIMA di premere Avanti (testo sullo schermo) e da
+// mettere nel registro solo quando il colpo è definitivo (testo `log`).
+// `patches`: l'esito calcolato (vuoto = nessun effetto, protetto o immune).
+// Usa i testi dei ruoli: Berserker, Mezzosangue, Cavaliere, Cortigiana,
+// Cucciolo (maturazione/vendetta alla morte di un lupo).
+export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
+  const target = giocatori.find((g) => g.id === targetId)
+  const patchTarget = patches[targetId]
+  if (!target || !patchTarget) return []
+  const muore = patchTarget.vivo === false
+  const avvisi = []
+
+  // il Cavaliere salva il bersaglio (qualunque sia la causa di morte) e muore al suo posto
+  const cavalieri = giocatori.filter(
+    (g) => g.vivo && g.id !== targetId && [g.legame, g.legameMimo].some((l) => l?.tipo === 'cavaliere' && l.targetId === targetId),
+  )
+  if (muore && cavalieri.length > 0) {
+    const nomi = cavalieri.map((c) => c.nome).join(', ')
+    avvisi.push({
+      testo: `Il Cavaliere si immola al posto di ${target.nome}: muore ${nomi}, ${target.nome} si salva.`,
+      log: `${target.nome} è stato colpito ${mortoDa === 'chupacabra' ? 'dal Chupacabra' : 'dal branco'} ma il Cavaliere ${nomi} si immola al suo posto.`,
+    })
+  }
+
+  if (target.ruoloSlug === 'berserker' && muore) {
+    const lupi = Object.entries(patches).filter(([id, p]) => id !== targetId && p.vivo === false).map(([id]) => giocatori.find((g) => g.id === id)?.nome)
+    avvisi.push({
+      testo: lupi.length
+        ? `Il Berserker sbranato: ${lupi.join(', ')} (il lupo più vicino) morirà con lui.`
+        : 'Il Berserker sbranato: nessun lupo vivo da portare con sé.',
+      log: lupi.length
+        ? `Il Berserker ${target.nome} è stato sbranato e uccide lottando ${lupi.join(', ')}.`
+        : `Il Berserker ${target.nome} è stato sbranato (nessun lupo vivo da portare con sé).`,
+    })
+  }
+
+  if (target.ruoloSlug === 'mezzosangue' && patchTarget.ruoloSlug === 'lupo-mannaro') {
+    avvisi.push({
+      testo: `Il Mezzosangue sbranato non muore: ${target.nome} diventa Lupo Mannaro.`,
+      log: `Il Mezzosangue ${target.nome} è stato sbranato e diventa Lupo Mannaro.`,
+    })
+  }
+
+  // la Cortigiana muore se il cliente è sbranato (e non c'è nessuno a salvarlo)
+  if (muore && cavalieri.length === 0) {
+    for (const c of giocatori.filter((g) => g.ruoloSlug === 'cortigiana' && g.vivo && g.visitaNotturna === targetId)) {
+      avvisi.push({
+        testo: `${target.nome} era il cliente della Cortigiana ${c.nome}: sbranato, anche lei morirà.`,
+        log: `La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato sbranato.`,
+      })
+    }
+  }
+
+  // alla morte del primo lupo il Cucciolo matura; il Cucciolo ucciso scatena la vendetta
+  if (muore && cavalieri.length === 0) {
+    if (target.ruoloSlug === 'cucciolo-di-lupo-mannaro') {
+      avvisi.push({
+        testo: `Il Cucciolo ${target.nome} è ucciso: il branco sbranerà due persone per vendetta.`,
+        log: `Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco (due vittime).`,
+      })
+    } else if (eLupo(target.ruoloSlug)) {
+      for (const c of giocatori.filter((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro')) {
+        avvisi.push({
+          testo: `Morto un lupo, il Cucciolo ${c.nome} diventa adulto: perde la vendetta.`,
+          log: `Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}.`,
+        })
+      }
+    }
+  }
+  return avvisi
+}
+
 // "Se viene ucciso, i lupi mannari sbranano due persone in una notte per
 // vendetta" (pag. 13): il regolamento non limita la causa della morte del
 // Cucciolo al morso del branco (a differenza di Berserker/Ubriaco, che

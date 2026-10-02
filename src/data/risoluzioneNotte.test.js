@@ -9,6 +9,17 @@ test('apprendista eredita il ruolo del maestro quando muore', () => {
   expect(patch['1']).toEqual({ ruoloSlug: 'veggente', legame: null })
 })
 
+test('apprendista che eredita un Guaritore/Sciacallo già usato riceve la carta senza potere; se non usato, lo può usare', () => {
+  for (const [ruolo, potere] of [['guaritore', 'guaritore-resuscita'], ['sciacallo-mannaro', 'sciacallo-mannaro-resuscita']]) {
+    const mk = (poteriUsati) => [
+      { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'apprendista', targetId: '2' } },
+      { id: '2', nome: 'Marco', ruoloSlug: ruolo, vivo: false, condizioni: [], poteriUsati },
+    ]
+    expect(risolviLegami(mk([potere]))['1'].poteriUsati).toEqual([potere])
+    expect(risolviLegami(mk([]))['1'].poteriUsati).toBeUndefined()
+  }
+})
+
 test('cavaliere muore al posto del bersaglio se sbranato di notte', () => {
   const giocatori = [
     { id: '1', nome: 'Luca', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },

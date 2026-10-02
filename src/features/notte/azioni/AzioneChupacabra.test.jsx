@@ -179,3 +179,22 @@ test('cliccare di nuovo la chip premuta deseleziona: annulla la morte e toglie l
   expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'false')
   expect(aggiornaGiocatore).toHaveBeenLastCalledWith('3', { usiNotte: [] })
 })
+
+test('lupo mangiato: avviso sull\'effetto (Cortigiana col cliente-lupo, Cucciolo) e testo per il registro passato a impostaEventiAvanti; deselezionando sparisce', async () => {
+  const user = userEvent.setup()
+  const impostaEventiAvanti = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Pia', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '1' },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} impostaEventiAvanti={impostaEventiAvanti} />)
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.getByText(/cliente della Cortigiana Pia/)).toBeInTheDocument()
+  expect(impostaEventiAvanti).toHaveBeenLastCalledWith('chupacabra', [expect.stringMatching(/Cortigiana Pia muore/)])
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.queryByText(/cliente della Cortigiana Pia/)).not.toBeInTheDocument()
+  expect(impostaEventiAvanti).toHaveBeenLastCalledWith('chupacabra', [])
+})
