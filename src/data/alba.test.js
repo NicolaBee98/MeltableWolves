@@ -50,7 +50,7 @@ test("non annuncia il messaggio dell'ambasciatore se l'indagine è di una notte 
 
 test('annuncia un giocatore tornato in vita questa notte', () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, resuscitatoNotte: 2 }]
-  expect(annunciAlba(giocatori, 2)).toContain('Anna è tornato in vita.')
+  expect(annunciAlba(giocatori, 2)).toContain('Anna è stato resuscitato.')
 })
 
 test('non annuncia una resurrezione di una notte diversa', () => {

@@ -205,10 +205,9 @@ button:disabled {
   display: block;
   margin: 0 0 1rem;
   background: transparent;
-  border-color: var(--border-soft);
-  /* var(--text), non --text-soft: quel grigio chiaro pensato per un
-     dettaglio secondario ha contrasto insufficiente sul fondo chiaro delle
-     fasi di setup (grigio su rosa pelle, poco leggibile) */
+  /* testo e bordo scuri (--text, inchiostro su pelle ~11:1) invece di
+     un bordo grigio chiaro: leggibili sul fondo pelle delle fasi di setup */
+  border-color: var(--text);
   color: var(--text);
   box-shadow: none;
   font-size: 0.85rem;
@@ -409,8 +408,10 @@ legend {
    partita (Libretto, Galleria del mazzo): stesso ruolo ("torna alla Home"),
    stesso stile ovunque compaia, invece di una classe duplicata per schermata */
 .torna-alla-home {
-  background: var(--pal-azzurro);
-  color: var(--pal-blu-notte);
+  background: transparent;
+  border-color: var(--text);
+  color: var(--text);
+  box-shadow: none;
   margin-bottom: 0.5rem;
 }
 
@@ -1503,3 +1504,30 @@ textarea:focus-visible {
 }
 
 
+
+/* PulsanteTieni: hold-to-confirm. Sfondo chiaro con testo scuro (leggibile
+   sia sul fondo sia sul riempimento giallo, che cresce da sinistra) */
+.pulsante-tieni {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pulsante-tieni__riempimento {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--pal-giallo);
+}
+
+.pulsante-tieni__testo {
+  position: relative;
+}
+
+.pulsante-tieni__testo small {
+  font-weight: 600;
+  font-size: 0.75em;
+}
