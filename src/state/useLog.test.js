@@ -11,7 +11,7 @@ test('nessun evento al primo montaggio', () => {
   expect(result.current.eventi).toEqual([])
 })
 
-test('rileva un cambiamento tra due render successivi', () => {
+test('di notte i cambiamenti non si registrano da soli (anteprime), solo con confermaLog', () => {
   const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
   const { result, rerender } = renderHook(({ giocatori, round }) => useLog(giocatori, round), {
     initialProps: { giocatori: vivo, round: 1 },
@@ -19,43 +19,76 @@ test('rileva un cambiamento tra due render successivi', () => {
 
   const morto = [{ ...vivo[0], vivo: false }]
   rerender({ giocatori: morto, round: 1 })
+  expect(result.current.eventi).toEqual([])
 
+  // anteprima annullata (Indietro): nessun falso evento di resurrezione
+  rerender({ giocatori: vivo, round: 1 })
+  act(() => result.current.confermaLog())
+  expect(result.current.eventi).toEqual([])
+
+  rerender({ giocatori: morto, round: 1 })
+  act(() => result.current.confermaLog())
   expect(result.current.eventi).toEqual([{ round: 1, fase: 'notte', messaggio: 'Anna è morto/a' }])
+  // già confermato: nessun doppione
+  act(() => result.current.confermaLog())
+  expect(result.current.eventi).toHaveLength(1)
+})
+
+test('l\'ingresso nell\'alba conferma gli ultimi cambiamenti della notte (round della notte)', () => {
+  const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
+  const { result, rerender } = renderHook(({ giocatori, round, fase }) => useLog(giocatori, round, fase), {
+    initialProps: { giocatori: vivo, round: 1, fase: 'notte' },
+  })
+
+  rerender({ giocatori: [{ ...vivo[0], vivo: false, causaMorte: 'notte' }], round: 2, fase: 'alba' })
+
+  expect(result.current.eventi).toEqual([{ round: 1, fase: 'notte', messaggio: 'Anna è morto/a di notte' }])
+})
+
+test('il riferimento confermato persiste dopo un refresh a metà notte', () => {
+  const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
+  const { rerender, unmount } = renderHook(({ giocatori }) => useLog(giocatori, 1), { initialProps: { giocatori: vivo } })
+  rerender({ giocatori: [{ ...vivo[0], vivo: false }] })
+  unmount()
+
+  // dopo il refresh i giocatori caricati contengono l'anteprima non confermata
+  const { result } = renderHook(() => useLog([{ ...vivo[0], vivo: false }], 1))
+  act(() => result.current.confermaLog())
+  expect(result.current.eventi).toEqual([{ round: 1, fase: 'notte', messaggio: 'Anna è morto/a' }])
+})
+
+test('di giorno round e fase si etichettano col giorno (round-1), non con la notte successiva', () => {
+  const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
+  const { result, rerender } = renderHook(({ giocatori, fase }) => useLog(giocatori, 3, fase), {
+    initialProps: { giocatori: vivo, fase: 'giorno' },
+  })
+  rerender({ giocatori: [{ ...vivo[0], vivo: false, causaMorte: 'rogo' }], fase: 'giorno' })
+
+  expect(result.current.eventi).toEqual([{ round: 2, fase: 'rogo', messaggio: 'Anna è morto/a al rogo' }])
 })
 
 test('lo stato persiste in localStorage tra due montaggi', () => {
   const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
-  const { rerender, unmount } = renderHook(({ giocatori, round }) => useLog(giocatori, round), {
+  const { result: r1, rerender, unmount } = renderHook(({ giocatori, round }) => useLog(giocatori, round), {
     initialProps: { giocatori: vivo, round: 1 },
   })
   const morto = [{ ...vivo[0], vivo: false }]
   rerender({ giocatori: morto, round: 1 })
+  act(() => r1.current.confermaLog())
   unmount()
 
   const { result: result2 } = renderHook(() => useLog(morto, 1))
   expect(result2.current.eventi).toEqual([{ round: 1, fase: 'notte', messaggio: 'Anna è morto/a' }])
 })
 
-test('un cambiamento ai giocatori che coincide con l\'incremento del round viene attribuito al round appena concluso', () => {
-  const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: ['protetto'], ruoloSlug: 'villico' }]
-  const { result, rerender } = renderHook(({ giocatori, round }) => useLog(giocatori, round), {
-    initialProps: { giocatori: vivo, round: 1 },
-  })
-
-  const senzaProtezione = [{ ...vivo[0], condizioni: [] }]
-  rerender({ giocatori: senzaProtezione, round: 2 })
-
-  expect(result.current.eventi).toEqual([{ round: 1, fase: 'notte', messaggio: 'Anna ha perso la condizione "protetto"' }])
-})
-
 test('la fase passata all\'hook marca gli eventi rilevati (es. "giorno" per un rogo)', () => {
   const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
   const { result, rerender } = renderHook(({ giocatori, round, fase }) => useLog(giocatori, round, fase), {
-    initialProps: { giocatori: vivo, round: 1, fase: 'giorno' },
+    initialProps: { giocatori: vivo, round: 2, fase: 'giorno' },
   })
 
   const morto = [{ ...vivo[0], vivo: false, causaMorte: 'colpo' }]
-  rerender({ giocatori: morto, round: 1, fase: 'giorno' })
+  rerender({ giocatori: morto, round: 2, fase: 'giorno' })
 
   expect(result.current.eventi).toEqual([{ round: 1, fase: 'giorno', messaggio: 'Anna è morto/a sul colpo' }])
 })

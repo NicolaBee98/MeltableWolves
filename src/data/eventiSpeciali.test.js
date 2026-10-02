@@ -145,3 +145,9 @@ test('conseguenzeMorte ricorda crepacuore (più coppie), legami, Antico, Alchimi
   const dopo = gs.map((g) => (g.id === '1' ? { ...g, vivo: false } : g.id === '2' ? { ...g, vivo: false, causaMorte: 'crepacuore' } : g))
   expect(conseguenzeMorte(dopo, '1')).toEqual(['È morto anche Bea (crepacuore).'])
 })
+
+test('candidatiRivelazione include chi ha già il ruolo (Ladro, Apprendista) finché non ha usato il potere', () => {
+  const dalLadro = { id: '1', nome: 'A', vivo: true, ruoloSlug: 'boia', poteriUsati: [] }
+  const usato = { id: '2', nome: 'B', vivo: true, ruoloSlug: 'boia', poteriUsati: ['boia-giustizia'] }
+  expect(candidatiRivelazione('boia', ['boia'], [dalLadro, usato], { boia: 1 }).map((g) => g.id)).toEqual(['1'])
+})

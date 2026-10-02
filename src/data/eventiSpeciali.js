@@ -47,7 +47,9 @@ export function candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita
     (g) =>
       g.vivo &&
       ((titolare && !g.ruoloSlug) ||
-        (g.ruoloSlug === slug && eMimoCopiante(g) && !(g.poteriUsati ?? []).includes(POTERE_RIVELAZIONE[slug]))),
+        // ruolo già noto e potere non ancora speso: Mimo copiante, ma anche
+        // chi l'ha preso dal Ladro o ereditato dall'Apprendista
+        (g.ruoloSlug === slug && !(g.poteriUsati ?? []).includes(POTERE_RIVELAZIONE[slug]))),
   )
 }
 
@@ -113,7 +115,7 @@ export function conseguenzeMorte(giocatori, id) {
   else if (eLupo(t.ruoloSlug) && giocatori.some((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'))
     out.push('Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
   if (t.ruoloSlug === 'lantico' && t.anticoSbranatoNotte === undefined)
-    out.push("L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte nessun potere si sveglia.")
+    out.push("L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si svegliano.")
   if (t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
   if (t.ruoloSlug === 'spilungone') out.push('Lo Spilungone si rivela e non muore al primo rogo.')
   return out

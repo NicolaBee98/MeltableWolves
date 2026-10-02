@@ -80,3 +80,13 @@ test('il Mimo che sceglie chi imitare: "Il Mimo Sara imita Veggente (Marco)", po
     'Sara (Mimo) è morto/a al rogo',
   )
 })
+
+test('rivelazioni diurne, Antico, Borgomastro e Fantasma entrano nel registro; di notte (Ladro) no', () => {
+  const p = { id: '1', nome: 'Anna', vivo: true, condizioni: [], storiaRuoli: [] }
+  const msgs = (c, fase) => rilevaEventi([p], [{ ...p, ...c }], 2, fase).map((e) => e.messaggio)
+  expect(msgs({ ruoloSlug: 'innocente', storiaRuoli: ['innocente'] }, 'giorno')).toEqual(['Anna si è rivelato/a: è Innocente'])
+  expect(msgs({ ruoloSlug: 'boia', storiaRuoli: ['boia'] }, 'notte')).toEqual([])
+  expect(msgs({ ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'] }, 'giorno')[0]).toMatch(/L'Antico/)
+  expect(msgs({ eBorgomastro: true }, 'alba')).toEqual(['Anna è stato/a eletto/a Borgomastro'])
+  expect(msgs({ eFantasmaOnnisciente: true }, 'giorno')).toEqual(['Anna riceve la carta del Fantasma Onnisciente'])
+})

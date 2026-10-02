@@ -135,6 +135,9 @@ export function Votazione({
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
   const [confermaRicomincia, setConfermaRicomincia] = useState(false)
+  // "Si rivela: è lo Spilungone/L'Antico" non si applica al primo click: prima
+  // una conferma esplicita (come per le scelte degli Eventi speciali)
+  const [rivelazioneInConferma, setRivelazioneInConferma] = useState(null)
 
   // la scelta dello spareggio vale solo per il voto che l'ha generata: se si
   // torna al voto (o si ricomincia) e i voti cambiano, non deve restare
@@ -285,7 +288,7 @@ export function Votazione({
         return (
           <p>
             {nome} rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora
-            gioca da Villico. Il villaggio è maledetto: la notte successiva nessun potere si sveglierà.
+            gioca da Villico. Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno.
           </p>
         )
       }
@@ -319,6 +322,28 @@ export function Votazione({
         const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug
         const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug
         const puoEssereAlchimista = rivelabileOra('alchimista') && !target?.ruoloSlug
+        if (rivelazioneInConferma?.id === id) {
+          const nomeRuolo = rivelazioneInConferma.slug === 'spilungone' ? 'lo Spilungone' : "L'Antico"
+          return (
+            <div className="votazione__designato-azioni">
+              <p>
+                Confermi: {target?.nome} è {nomeRuolo}?
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setRivelazioneInConferma(null)
+                  rivelaEDesigna(id, rivelazioneInConferma.slug)
+                }}
+              >
+                Conferma
+              </button>
+              <button type="button" onClick={() => setRivelazioneInConferma(null)}>
+                Annulla
+              </button>
+            </div>
+          )
+        }
         return (
           <div className="votazione__designato-azioni">
             <PromemoriaMorte giocatori={giocatori} id={id} />
@@ -326,12 +351,12 @@ export function Votazione({
               Dichiara morte sul rogo
             </button>
             {puoEssereSpilungone && (
-              <button type="button" onClick={() => rivelaEDesigna(id, 'spilungone')}>
+              <button type="button" onClick={() => setRivelazioneInConferma({ id, slug: 'spilungone' })}>
                 Si rivela: è lo Spilungone
               </button>
             )}
             {puoEssereLantico && (
-              <button type="button" onClick={() => rivelaEDesigna(id, 'lantico')}>
+              <button type="button" onClick={() => setRivelazioneInConferma({ id, slug: 'lantico' })}>
                 Si rivela: è L'Antico
               </button>
             )}

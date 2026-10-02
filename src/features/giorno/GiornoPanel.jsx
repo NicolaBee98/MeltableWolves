@@ -151,6 +151,11 @@ export function GiornoPanel({
 
   return (
     <section className="giorno-panel">
+      {/* round = notte successiva: il giorno N si numera round-1 (come l'alba) */}
+      <h2 className="titolo-fase">
+        {fase === 'esito' ? 'Rogo' : 'Giorno'}
+        {round !== undefined && ` ${round - 1}`}
+      </h2>
       <Votazione
         giocatori={giocatori}
         voti={voti}

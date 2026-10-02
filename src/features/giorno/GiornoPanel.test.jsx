@@ -152,3 +152,13 @@ test('la prop mostraRuoli passa a Votazione: con mostraRuoli mostra icona di ruo
   })
   expect(screen.getByRole('img', { name: 'Lupo Mannaro' })).toBeInTheDocument()
 })
+
+test('titolo di schermata: "Giorno N" al voto e "Rogo N" all\'esito, con N = round-1 (la notte successiva ha già incrementato)', () => {
+  const { unmount } = render(
+    <GiornoPanel {...{ giocatori: [{ id: '1', nome: 'Anna', vivo: true }], voti: {}, fase: 'voto', round: 3, ruoliSelezionati: [], quantita: {} }} />,
+  )
+  expect(screen.getByRole('heading', { name: 'Giorno 2' })).toBeInTheDocument()
+  unmount()
+  setup({ round: 3 })
+  expect(screen.getByRole('heading', { name: 'Rogo 2' })).toBeInTheDocument()
+})

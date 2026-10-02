@@ -126,6 +126,9 @@ test('un designato di ruolo ancora ignoto può rivelarsi Spilungone o L\'Antico 
 
   expect(screen.getByRole('button', { name: 'Si rivela: è lo Spilungone' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: "Si rivela: è L'Antico" }))
+  // conferma esplicita: il primo click non applica nulla
+  expect(onAnticoRivelazione).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   // non onRivelazione + onAnticoRivelazione separati: due aggiornaGiocatore
   // in sequenza sulla stessa persona si perderebbero a vicenda lo

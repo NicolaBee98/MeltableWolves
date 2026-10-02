@@ -13,6 +13,12 @@ const ETICHETTA_CAUSA = {
   sacrificio: ': il Cavaliere si è rivelato e immolato al posto della vittima',
 }
 
+// ruoli che si rivelano solo di giorno/all'alba (vedi eventiSpeciali.js): il
+// registro li annota quando entrano in storiaRuoli fuori dalla notte (di
+// notte lo stesso campo si scrive anche per un Ladro o un Mimo, non è una
+// rivelazione). L'Antico ha un testo suo (prima vita).
+const RUOLI_RIVELAZIONE_DIURNA = ['boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'spilungone', 'suocera']
+
 // "fase" (notte/alba/giorno/rogo) è la sotto-fase del giorno di gioco a cui
 // appartiene l'evento (per l'icona nel registro, vedi LogPartita.jsx): quella
 // passata dal chiamante (App.jsx, dedotta dalla schermata su cui si trova il
@@ -39,6 +45,27 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       eventi.push({ round, fase, messaggio: `${nome} è tornato/a in vita` })
     }
 
+    // rivelazioni diurne, elezione del Borgomastro, Fantasma Onnisciente
+    const storiaPrima = prima.storiaRuoli ?? []
+    const nuoviInStoria = (giocatore.storiaRuoli ?? []).filter((r) => !storiaPrima.includes(r))
+    const anticoRivelato =
+      (fase !== 'notte' && nuoviInStoria.includes('lantico')) ||
+      (prima.ruoloSlug === 'lantico' && giocatore.ruoloSlug === 'villico')
+    if (anticoRivelato) {
+      eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e gioca da Villico` })
+    }
+    if (fase !== 'notte') {
+      for (const slug of nuoviInStoria.filter((r) => RUOLI_RIVELAZIONE_DIURNA.includes(r))) {
+        eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è ${nomeRuolo(slug)}` })
+      }
+    }
+    if (!prima.eBorgomastro && giocatore.eBorgomastro) {
+      eventi.push({ round, fase, messaggio: `${nome} è stato/a eletto/a Borgomastro` })
+    }
+    if (!prima.eFantasmaOnnisciente && giocatore.eFantasmaOnnisciente) {
+      eventi.push({ round, fase, messaggio: `${nome} riceve la carta del Fantasma Onnisciente` })
+    }
+
     const condizioniPrima = prima.condizioni ?? []
     const condizioniDopo = giocatore.condizioni ?? []
     for (const condizione of condizioniDopo) {
@@ -55,7 +82,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     // niente log per la prima assegnazione (undefined → ruolo) né per
     // guardia → guardia-mannara: il narratore non sa chi è la traditrice
     const dopoDisplay = ruoloPerDisplay(giocatore.ruoloSlug)
-    if (prima.ruoloSlug && giocatore.ruoloSlug && ruoloPerDisplay(prima.ruoloSlug) !== dopoDisplay) {
+    if (!anticoRivelato && prima.ruoloSlug && giocatore.ruoloSlug && ruoloPerDisplay(prima.ruoloSlug) !== dopoDisplay) {
       // Mimo che sceglie chi imitare: "chi imita chi" (mai la Guardia Mannara: dopoDisplay)
       const bersaglio = giocatore.legame?.tipo === 'mimo' && correnti.find((g) => g.id === giocatore.legame.targetId)
       eventi.push({

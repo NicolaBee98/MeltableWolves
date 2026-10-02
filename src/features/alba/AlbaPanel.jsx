@@ -99,7 +99,7 @@ export function AlbaPanel({
 
   return (
     <section className="alba-panel">
-      <h2>Alba</h2>
+      <h2 className="titolo-fase">Alba {round}</h2>
       {morti.length === 0 ? (
         <p>Nessuno è morto questa notte.</p>
       ) : (
