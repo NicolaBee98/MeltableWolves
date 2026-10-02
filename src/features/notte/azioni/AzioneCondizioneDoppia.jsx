@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SceltaDoppiaGiocatore } from './SceltaDoppiaGiocatore'
+import { segnaUsoStanotte } from '../../../data/effettiNotte'
 
 // la coppia scelta resta modificabile finché non si preme "Avanti" (stesso
 // principio di AzioneCondizioneSingola): niente più gate che nasconde le
@@ -13,10 +14,11 @@ export function AzioneCondizioneDoppia({
   escludiAttore = false,
   attoreId,
 }) {
-  // `attoreId`: quale titolare agisce (titolare e Mimo scelgono ognuno la
-  // propria coppia, vedi NightSequencer)
+  // `attoreId` (solo Sacerdote, scelta della prima notte): quale titolare agisce,
+  // titolare e Mimo scelgono ognuno la propria coppia. Senza (Pifferaio, ogni
+  // notte) la scelta è unica e condivisa tra tutti i titolari.
   const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const altriAttori = giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore && g.id !== attore?.id)
+  const altriAttori = !attoreId ? [] : giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore && g.id !== attore?.id)
   const vivi = giocatori.filter((g) => g.vivo && (!escludiAttore || g.id !== attore?.id))
   // chi aveva già la condizione PRIMA di questo passo (es. il Pifferaio:
   // ipnotizzato è cumulativo tra notti, mai ripulito) non va mai toccato da
@@ -40,7 +42,7 @@ export function AzioneCondizioneDoppia({
   function annullaScelta() {
     togliA(coppiaSessione ?? [])
     setCoppiaSessione(null)
-    if (attore) aggiornaGiocatore(attore.id, { sceltaNotte: { ...attore.sceltaNotte, [condizione]: undefined } })
+    if (attoreId && attore) aggiornaGiocatore(attore.id, { sceltaNotte: { ...attore.sceltaNotte, [condizione]: undefined } })
   }
 
   function confermaScelta(idA, idB) {
@@ -56,7 +58,9 @@ export function AzioneCondizioneDoppia({
         aggiornaGiocatore(id, { condizioni: [...target.condizioni, condizione] })
       }
     }
-    if (attore) {
+    if (!attoreId) {
+      segnaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
+    } else if (attore) {
       aggiornaGiocatore(attore.id, { usiNotte: [...(attore.usiNotte ?? []), ruoloSlugAttore] })
       aggiornaGiocatore(attore.id, { sceltaNotte: { ...attore.sceltaNotte, [condizione]: coppia } })
     }
