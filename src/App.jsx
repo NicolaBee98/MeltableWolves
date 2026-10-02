@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Home } from './features/home/Home'
 import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { MazzoGalleria } from './features/mazzo/MazzoGalleria'
@@ -30,7 +31,12 @@ export default function App() {
   // altrove (home, mazzo, giocatori...) non ci sono eventi di partita da
   // rilevare, il valore di default non ha effetto
   const faseLog = ['notte', 'alba', 'giorno'].includes(faseApp) ? faseApp : 'notte'
-  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto } = useLog(giocatori, notte.round, faseLog)
+  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, confermaLog } = useLog(giocatori, notte.round, faseLog)
+  // cambiando schermata si riparte dall'alto (altrimenti resta lo scroll
+  // della schermata precedente)
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [faseApp])
   const {
     mostraRuoliInVotazione,
     setMostraRuoliInVotazione,
@@ -112,32 +118,34 @@ export default function App() {
 
   return (
     <main className={`app${faseApp === 'home' ? ' app--home' : ''}`} data-fase={faseApp}>
-      <h1 className="app__titolo">
-        {faseApp === 'home' ? (
-          <img src="/assets/titolo/Titolo.svg" alt="Meltable Wolves" className="app__logo app__logo--home" />
-        ) : (
-          <img src="/assets/titolo/Titolo_in_linea.svg" alt="Meltable Wolves" className="app__logo app__logo--inline" />
-        )}
-      </h1>
+      <header className="app__header">
+        <h1 className="app__titolo">
+          {faseApp === 'home' ? (
+            <img src="/assets/titolo/Titolo.svg" alt="Meltable Wolves" className="app__logo app__logo--home" />
+          ) : (
+            <img src="/assets/titolo/Titolo_in_linea.svg" alt="Meltable Wolves" className="app__logo app__logo--inline" />
+          )}
+        </h1>
 
-      {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
-        <LogImpostazioniPopup
-          eventi={eventi}
-          onNuovaPartita={nuovaPartita}
-          mostraRuoliInVotazione={mostraRuoliInVotazione}
-          onCambiaMostraRuoliInVotazione={setMostraRuoliInVotazione}
-          variantiFaccia={variantiFaccia}
-          onCambiaVariantiFaccia={setVariantiFaccia}
-          mostraNomeRuolo={mostraNomeRuolo}
-          onCambiaMostraNomeRuolo={setMostraNomeRuolo}
-          durataTimer={durataTimer}
-          onCambiaDurataTimer={setDurataTimer}
-          promemoriaRuoliMorti={promemoriaRuoliMorti}
-          onCambiaPromemoriaRuoliMorti={setPromemoriaRuoliMorti}
-          varianteMedium={varianteMedium}
-          onCambiaVarianteMedium={setVarianteMedium}
-        />
-      )}
+        {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
+          <LogImpostazioniPopup
+            eventi={eventi}
+            onNuovaPartita={nuovaPartita}
+            mostraRuoliInVotazione={mostraRuoliInVotazione}
+            onCambiaMostraRuoliInVotazione={setMostraRuoliInVotazione}
+            variantiFaccia={variantiFaccia}
+            onCambiaVariantiFaccia={setVariantiFaccia}
+            mostraNomeRuolo={mostraNomeRuolo}
+            onCambiaMostraNomeRuolo={setMostraNomeRuolo}
+            durataTimer={durataTimer}
+            onCambiaDurataTimer={setDurataTimer}
+            promemoriaRuoliMorti={promemoriaRuoliMorti}
+            onCambiaPromemoriaRuoliMorti={setPromemoriaRuoliMorti}
+            varianteMedium={varianteMedium}
+            onCambiaVarianteMedium={setVarianteMedium}
+          />
+        )}
+      </header>
 
       {faseApp === 'home' && (
         <Home
@@ -206,6 +214,7 @@ export default function App() {
           quantita={quantita}
           onCambiaQuantita={setQuantita}
           registraEvento={aggiungiEvento}
+          confermaLog={confermaLog}
           round={notte.round}
           stepIndex={notte.stepIndex}
           avanti={notte.avanti}
