@@ -144,6 +144,7 @@ export function AlbaPanel({
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         contesto="alba"
+        round={round}
         onRivelazione={dichiaraRivelazione}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}

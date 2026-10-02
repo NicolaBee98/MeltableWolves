@@ -202,3 +202,11 @@ const RUOLI_INDISTINGUIBILI = { 'guardia-mannara': 'guardia' }
 export function ruoloPerDisplay(slug) {
   return RUOLI_INDISTINGUIBILI[slug] ?? slug
 }
+
+// Icona del giocatore: L'Antico rivelato continua a giocare da Villico
+// (ruoloSlug 'villico') ma resta riconoscibile con la sua testa; gli altri
+// ruoli "cambiati" (Ladro, Mimo...) restano com'è.
+export function ruoloIconaGiocatore(g) {
+  if (g.ruoloSlug === 'villico' && (g.storiaRuoli ?? []).includes('lantico')) return 'lantico'
+  return ruoloPerDisplay(g.ruoloSlug)
+}

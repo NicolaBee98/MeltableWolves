@@ -135,41 +135,15 @@ test('L\'Innocente si rivela: propone solo i giocatori senza ruolo noto, richied
   expect(onRivelazione).toHaveBeenCalledWith('innocente', '2')
 })
 
-test("il menu ha una voce per ogni personaggio a rivelazione diurna generico (Spilungone, L'Antico), non un generico \"Rivelazione personaggio\"", async () => {
+test("Spilungone e L'Antico non hanno una voce generica di rivelazione fuori dall'alba (si rivelano dal rogo/alla morte)", async () => {
   const user = userEvent.setup()
   setup({
     giocatori: [{ id: '1', nome: 'Anna', vivo: true }],
     ruoliSelezionati: ['spilungone', 'lantico'],
     quantita: { spilungone: 1, lantico: 1 },
+    contesto: 'esito',
   })
-
-  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  expect(screen.queryByRole('button', { name: 'Rivelazione personaggio' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Spilungone si rivela' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: "L'Antico si rivela" })).toBeInTheDocument()
-})
-
-test('Spilungone si rivela: la scelta del giocatore richiede conferma e non mostra l\'illustrazione a figura intera', async () => {
-  const user = userEvent.setup()
-  const giocatori = [
-    { id: '1', nome: 'Anna', vivo: true },
-    { id: '2', nome: 'Marco', vivo: true },
-  ]
-  const { onRivelazione } = setup({
-    giocatori,
-    ruoliSelezionati: ['spilungone'],
-    quantita: { spilungone: 1 },
-  })
-
-  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Spilungone si rivela' }))
-  expect(document.querySelector('.eventi-speciali__popup img')).toBeNull()
-
-  await user.click(screen.getByRole('button', { name: 'Anna' }))
-  expect(onRivelazione).not.toHaveBeenCalled()
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
-
-  expect(onRivelazione).toHaveBeenCalledWith('spilungone', '1')
+  expect(screen.queryByRole('button', { name: /eventi speciali/i })).not.toBeInTheDocument()
 })
 
 test('Il Boia giustizia chiede prima chi è il Boia, poi chi giustizia, senza bisogno di una rivelazione preventiva', async () => {
@@ -399,19 +373,34 @@ test('Elezione Borgomastro è proposta in entrambi i contesti se il ruolo è nel
   expect(onElezioneBorgomastro).toHaveBeenCalledWith('1')
 })
 
-test("L'Antico si rivela propone anche i morti di notte senza ruolo noto (sbranato stanotte), non quelli al rogo", async () => {
+test("L'Antico si rivela (alba) propone solo i morti della notte appena conclusa con ruolo ignoto: non vivi, non morti di notti vecchie, non morti al rogo", async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Tizio', vivo: false, causaMorte: 'notte', mortoNotte: 2 },
-    { id: '2', nome: 'Caio', vivo: false, causaMorte: 'rogo', mortoNotte: 1 },
+    { id: '2', nome: 'Caio', vivo: false, causaMorte: 'rogo', mortoNotte: 2 },
     { id: '3', nome: 'Sempronio', vivo: true },
+    { id: '4', nome: 'Mevio', vivo: false, causaMorte: 'notte', mortoNotte: 1 },
   ]
-  const { onRivelazione } = setup({ giocatori, contesto: 'alba', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
+  const { onRivelazione } = setup({ giocatori, round: 2, contesto: 'alba', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
-  expect(screen.queryByRole('button', { name: 'Caio' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Sempronio' })).toBeInTheDocument()
+  for (const nome of ['Caio', 'Sempronio', 'Mevio']) {
+    expect(screen.queryByRole('button', { name: nome })).not.toBeInTheDocument()
+  }
   await user.click(screen.getByRole('button', { name: 'Tizio' }))
   await user.click(screen.getByRole('button', { name: /conferma/i }))
   expect(onRivelazione).toHaveBeenCalledWith('lantico', '1')
+})
+
+test("L'Alchimista esplode (esito) propone come attore solo il condannato di oggi (candidatiRogo)", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({ giocatori, candidatiRogo: ['2'], ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Alchimista esplode" }))
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })

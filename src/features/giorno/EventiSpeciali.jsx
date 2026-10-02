@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { useDialogA11y } from '../../components/useDialogA11y'
-import { nomeRuolo } from '../../data/roles'
+import { ruoliAssegnabili } from '../../data/assegnazione'
 import {
-  ruoliRivelabili,
   rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
@@ -104,6 +103,8 @@ export function EventiSpeciali({
   ruoliSelezionati,
   quantita,
   contesto,
+  round,
+  candidatiRogo,
   onRivelazione,
   onBoiaGiustizia,
   onAlchimistaEsplode,
@@ -122,12 +123,22 @@ export function EventiSpeciali({
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
   const morti = giocatori.filter((g) => !g.vivo)
   const mortiSenzaRuoloNoto = morti.filter((g) => !g.ruoloSlug)
-  // L'Antico sbranato di notte non è davvero morto: se il ruolo del morto era
-  // ignoto, il narratore può rivelare che era lui (vedi dichiaraAnticoSbranato)
-  const mortiDiNotteSenzaRuoloNoto = mortiSenzaRuoloNoto.filter((g) => g.causaMorte === 'notte' && g.mortoNotte !== undefined)
+  // L'Antico si rivela solo alla morte: di notte (all'alba, senza conseguenze,
+  // vedi dichiaraAnticoSbranato) può essere solo chi è morto nella notte appena
+  // conclusa, con ruolo ignoto o già 'lantico' ma non ancora rivelato. Al
+  // rogo si rivela dalla Votazione (chip del designato), non da qui.
+  const anticoAssegnabile = ruoliSelezionati.includes('lantico') && ruoliAssegnabili(['lantico'], giocatori, quantita).length > 0
+  const candidatiAntico = morti.filter(
+    (g) =>
+      g.causaMorte === 'notte' &&
+      g.mortoNotte === round &&
+      ((!g.ruoloSlug && anticoAssegnabile) || (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined)),
+  )
+  // Alchimista (come lo Spilungone, che si rivela solo dal chip del designato
+  // in Votazione) esplode solo al rogo: attore = solo il condannato di oggi
+  const candidatiAlchimista = candidatiRogo ? nonAssegnati.filter((g) => candidatiRogo.includes(g.id)) : nonAssegnati
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
-  const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
   // sul rogo (pag. 13), quindi solo finché nessuno la tiene già
   const mostraFantasma =
@@ -143,15 +154,13 @@ export function EventiSpeciali({
     mortiSenzaRuoloNoto.length > 0
 
   const menuEventi = [
-    // una voce per ciascun ruolo a rivelazione diurna "generico" (Spilungone,
-    // L'Antico): gli altri hanno già il loro evento dedicato qui sotto
-    ...rivelabili.map((slug) => ({ key: `rivela:${slug}`, etichetta: `${nomeRuolo(slug)} si rivela` })),
+    contesto === 'alba' && candidatiAntico.length > 0 && { key: 'antico', etichetta: "L'Antico si rivela" },
     inGiorno &&
       rivelazioneContestualeDisponibile('boia', ruoliSelezionati, giocatori, quantita) && {
         key: 'boia',
         etichetta: 'Il Boia giustizia',
       },
-    inGiorno &&
+    contesto === 'esito' &&
       rivelazioneContestualeDisponibile('alchimista', ruoliSelezionati, giocatori, quantita) && {
         key: 'alchimista',
         etichetta: "L'Alchimista esplode",
@@ -262,12 +271,12 @@ export function EventiSpeciali({
             />
           )}
 
-          {evento?.startsWith('rivela:') && (
+          {evento === 'antico' && (
             <EventoUnGiocatore
-              candidati={evento === 'rivela:lantico' ? [...nonAssegnati, ...mortiDiNotteSenzaRuoloNoto] : nonAssegnati}
-              etichetta={`Chi è ${nomeRuolo(evento.slice(7))}?`}
+              candidati={candidatiAntico}
+              etichetta="Chi è L'Antico?"
               onConferma={(id) => {
-                onRivelazione(evento.slice(7), id)
+                onRivelazione('lantico', id)
                 chiudi()
               }}
               onAnnulla={chiudi}
@@ -292,7 +301,7 @@ export function EventiSpeciali({
 
           {evento === 'alchimista' && (
             <EventoDueGiocatori
-              candidatiAttore={nonAssegnati}
+              candidatiAttore={candidatiAlchimista}
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è l'Alchimista"
               etichettaBersaglio="Chi trascina con sé l'Alchimista"

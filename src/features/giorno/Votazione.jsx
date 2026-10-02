@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
 import { CONDIZIONI } from '../../data/conditions'
-import { ROLES, ruoloPerDisplay } from '../../data/roles'
+import { ROLES, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
 import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
@@ -25,8 +25,8 @@ function BadgeCondizioni({ condizioni = [] }) {
 // diurna non ancora rivelati (RUOLI_RIVELAZIONE_GIORNO): mostra comunque il
 // punto interrogativo invece di sparire, per segnalare "identità non nota
 // ancora" e non "nessuna informazione qui"
-function BadgeRuolo({ ruoloSlug, variante }) {
-  const slugVisibile = ruoloPerDisplay(ruoloSlug)
+function BadgeRuolo({ giocatore, variante }) {
+  const slugVisibile = ruoloIconaGiocatore(giocatore)
   const ruolo = ROLES.find((r) => r.slug === slugVisibile)
   return (
     <RuoloIcona
@@ -58,7 +58,7 @@ function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo 
           <li key={g.id}>
             {mostraRuoli && (
               <BadgeRuolo
-                ruoloSlug={g.ruoloSlug}
+                giocatore={g}
                 variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
               />
             )}
@@ -433,6 +433,7 @@ export function Votazione({
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
           contesto="esito"
+          candidatiRogo={designati}
           onScemoSbaglia={onScemoSbaglia}
           onMorteUnzione={onMorteUnzione}
           onRivelazione={onRivelazione}
@@ -463,7 +464,7 @@ export function Votazione({
           <li key={g.id}>
             {mostraRuoli && (
               <BadgeRuolo
-                ruoloSlug={g.ruoloSlug}
+                giocatore={g}
                 variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
               />
             )}
