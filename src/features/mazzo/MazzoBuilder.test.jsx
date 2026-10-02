@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MazzoBuilder } from './MazzoBuilder'
+import { useMazzo } from '../../state/useMazzo'
 
 function setup(overrides = {}) {
   const props = {
@@ -146,4 +147,24 @@ test('con il Ladro nel mazzo mostra la nota sulle due carte extra (si scelgono l
 test('con Borgomastro o Fantasma nel mazzo spiega perché non contano come giocatori (coerente con l\'avviso giocatori)', () => {
   setup({ quantita: { villico: 2, borgomastro: 1 } })
   expect(screen.getByText(/non sono ruoli in più per i giocatori/i)).toBeInTheDocument()
+})
+
+test('con lo stato vero, ogni ruolo (Cortigiana inclusa) esce dai disponibili finita la dissolvenza', () => {
+  function Mazzo() {
+    const { quantita, setQuantita } = useMazzo()
+    return <MazzoBuilder quantita={quantita} setQuantita={setQuantita} />
+  }
+  vi.useFakeTimers()
+  try {
+    render(<Mazzo />)
+    for (const nome of ['Cortigiana', 'Paladino']) fireEvent.click(screen.getByRole('button', { name: nome }))
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+    expect(screen.queryByRole('button', { name: 'Cortigiana' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /cortigiana ✕/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Paladino' })).not.toBeInTheDocument()
+  } finally {
+    vi.useRealTimers()
+  }
 })

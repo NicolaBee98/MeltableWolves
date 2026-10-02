@@ -31,7 +31,7 @@ export default function App() {
   // altrove (home, mazzo, giocatori...) non ci sono eventi di partita da
   // rilevare, il valore di default non ha effetto
   const faseLog = ['notte', 'alba', 'giorno'].includes(faseApp) ? faseApp : 'notte'
-  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, confermaLog } = useLog(giocatori, notte.round, faseLog)
+  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, confermaLog, annullaLogPasso } = useLog(giocatori, notte.round, faseLog)
   // cambiando schermata si riparte dall'alto (altrimenti resta lo scroll
   // della schermata precedente)
   useEffect(() => {
@@ -65,6 +65,12 @@ export default function App() {
     (quantita.ladro > 0 ? 2 : 0) -
     (quantita.borgomastro > 0 ? 1 : 0) -
     (quantita['fantasma-onnisciente'] > 0 ? 1 : 0)
+  // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo
+  const esclusi = [
+    quantita.ladro > 0 && 'le 2 carte extra del Ladro',
+    quantita.borgomastro > 0 && 'il Borgomastro',
+    quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente',
+  ].filter(Boolean)
   const ruoliSelezionati = ruoliAttivi(
     ruoliInMazzo.map((r) => r.slug),
     giocatori,
@@ -186,8 +192,8 @@ export default function App() {
           />
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="avviso">
-              ⚠️ Servono {totaleRuoliMazzo} giocatori, ce ne sono {giocatori.length} (esclusi le 2 carte extra del
-              Ladro, il Borgomastro e il Fantasma Onnisciente, che non sono giocatori in più).
+              ⚠️ {totaleRuoliMazzo === 1 ? 'Serve 1 giocatore' : `Servono ${totaleRuoliMazzo} giocatori`}, ce ne sono {giocatori.length}
+              {esclusi.length > 0 && ` (esclusi ${esclusi.join(', ')}, che non sono giocatori in più)`}.
             </p>
           )}
           <button
@@ -215,6 +221,7 @@ export default function App() {
           onCambiaQuantita={setQuantita}
           registraEvento={aggiungiEvento}
           confermaLog={confermaLog}
+          annullaLogPasso={annullaLogPasso}
           round={notte.round}
           stepIndex={notte.stepIndex}
           avanti={notte.avanti}
