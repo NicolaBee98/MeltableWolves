@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
-import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
+import { RuoloIcona } from '../../components/RuoloIcona'
 import { useDialogA11y } from '../../components/useDialogA11y'
 import { nomeRuolo } from '../../data/roles'
 import {
@@ -14,10 +14,9 @@ import {
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
 // chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
 // Borgomastro, Fantasma Onnisciente.
-function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = false }) {
+function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = false }) {
   return (
     <>
-      {ruoloSlug && <RuoloIllustrazione slug={ruoloSlug} className="eventi-speciali__illustrazione" />}
       {messaggio && <p>{messaggio}</p>}
       <SceltaGiocatore
         candidati={candidati}
@@ -35,7 +34,6 @@ function EventoUnGiocatore({ ruoloSlug, candidati, etichetta, messaggio, onConfe
 // quindi si sceglie solo tra chi non ha ancora un ruolo assegnato), poi
 // "chi subisce l'azione" (un giocatore qualunque). Usata da Boia e Alchimista.
 function EventoDueGiocatori({
-  ruoloSlug,
   candidatiAttore,
   candidatiBersaglio,
   etichettaAttore,
@@ -50,8 +48,7 @@ function EventoDueGiocatori({
   if (!attoreId) {
     return (
       <>
-        {ruoloSlug && <RuoloIllustrazione slug={ruoloSlug} className="eventi-speciali__illustrazione" />}
-        <SceltaGiocatore
+          <SceltaGiocatore
           candidati={candidatiAttore}
           onConferma={setAttoreId}
           onSalta={onAnnulla}
@@ -120,7 +117,6 @@ export function EventiSpeciali({
   onAnnullaMorte,
 }) {
   const [evento, setEvento] = useState(null)
-  const [ruoloRivelazione, setRuoloRivelazione] = useState(null)
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
@@ -144,7 +140,9 @@ export function EventiSpeciali({
     mortiSenzaRuoloNoto.length > 0
 
   const menuEventi = [
-    rivelabili.length > 0 && { key: 'rivelazione', etichetta: 'Rivelazione personaggio' },
+    // una voce per ciascun ruolo a rivelazione diurna "generico" (Spilungone,
+    // L'Antico): gli altri hanno già il loro evento dedicato qui sotto
+    ...rivelabili.map((slug) => ({ key: `rivela:${slug}`, etichetta: `${nomeRuolo(slug)} si rivela` })),
     inGiorno &&
       rivelazioneContestualeDisponibile('boia', ruoliSelezionati, giocatori, quantita) && {
         key: 'boia',
@@ -183,7 +181,6 @@ export function EventiSpeciali({
 
   function chiudi() {
     setEvento(null)
-    setRuoloRivelazione(null)
   }
 
   const { dialogRef, triggerRef } = useDialogA11y(Boolean(evento), chiudi)
@@ -222,7 +219,6 @@ export function EventiSpeciali({
 
           {evento === 'scemo' && (
             <EventoUnGiocatore
-              ruoloSlug="scemo-del-villaggio"
               candidati={nonAssegnati}
               etichetta="Chi è lo Scemo del Villaggio"
               messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
@@ -237,7 +233,6 @@ export function EventiSpeciali({
 
           {evento === 'innocente' && (
             <EventoUnGiocatore
-              ruoloSlug="innocente"
               candidati={nonAssegnati}
               etichetta="Chi è l'Innocente"
               messaggio="L'Innocente mostra la propria carta al villaggio, dimostrando la sua innocenza."
@@ -264,41 +259,21 @@ export function EventiSpeciali({
             />
           )}
 
-          {evento === 'rivelazione' &&
-            (!ruoloRivelazione ? (
-              <>
-                <p>Che ruolo si rivela?</p>
-                <div className="scelta-giocatore__chips" role="group" aria-label="Che ruolo si rivela">
-                  {rivelabili.map((slug) => (
-                    <button key={slug} type="button" className="chip" onClick={() => setRuoloRivelazione(slug)}>
-                      <RuoloIcona slug={slug} size={22} />
-                      {nomeRuolo(slug)}
-                    </button>
-                  ))}
-                </div>
-                <button type="button" onClick={chiudi}>
-                  Annulla
-                </button>
-              </>
-            ) : (
-              <>
-                <RuoloIllustrazione slug={ruoloRivelazione} className="eventi-speciali__illustrazione" />
-                <SceltaGiocatore
-                  candidati={nonAssegnati}
-                  onConferma={(id) => {
-                    onRivelazione(ruoloRivelazione, id)
-                    chiudi()
-                  }}
-                  onSalta={() => setRuoloRivelazione(null)}
-                  etichetta={`Chi è ${nomeRuolo(ruoloRivelazione)}?`}
-                  richiedeConferma
-                />
-              </>
-            ))}
+          {evento?.startsWith('rivela:') && (
+            <EventoUnGiocatore
+              candidati={nonAssegnati}
+              etichetta={`Chi è ${nomeRuolo(evento.slice(7))}?`}
+              onConferma={(id) => {
+                onRivelazione(evento.slice(7), id)
+                chiudi()
+              }}
+              onAnnulla={chiudi}
+              richiedeConferma
+            />
+          )}
 
           {evento === 'boia' && (
             <EventoDueGiocatori
-              ruoloSlug="boia"
               candidatiAttore={nonAssegnati}
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
@@ -314,7 +289,6 @@ export function EventiSpeciali({
 
           {evento === 'alchimista' && (
             <EventoDueGiocatori
-              ruoloSlug="alchimista"
               candidatiAttore={nonAssegnati}
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è l'Alchimista"
@@ -366,7 +340,6 @@ export function EventiSpeciali({
 
           {evento === 'fantasma' && (
             <EventoUnGiocatore
-              ruoloSlug="fantasma-onnisciente"
               candidati={morti}
               etichetta="Chi riceve la carta"
               messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
@@ -381,7 +354,6 @@ export function EventiSpeciali({
 
           {evento === 'suocera' && (
             <EventoUnGiocatore
-              ruoloSlug="suocera"
               candidati={mortiSenzaRuoloNoto}
               etichetta="Chi era la Suocera"
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
