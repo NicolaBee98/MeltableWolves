@@ -13,6 +13,7 @@ import {
   berserkerLupiCandidati,
   propagaUnzione,
   aggiornaTuttiConRuolo,
+  avvisiColpo,
 } from './effettiNotte'
 
 const RUOLI_BRANCO = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
@@ -397,4 +398,27 @@ test("l'accecamento del Veggente resta finché è vivo un altro Polpo (Mimo-Polp
   expect(rimuoviAccecamentoSeMortoPolpo(giocatori, '1')).toBe(giocatori)
   const solo = giocatori.map((x) => (x.id === '2' ? { ...x, vivo: false } : x))
   expect(rimuoviAccecamentoSeMortoPolpo(solo, '2')[2].condizioni).toEqual([])
+})
+
+describe('avvisiColpo', () => {
+  const g = (id, ruoloSlug, extra = {}) => ({ id, nome: `N${id}`, ruoloSlug, vivo: true, condizioni: [], ...extra })
+
+  test('Mezzosangue sbranato: diventa lupo; Cortigiana col cliente sbranato: muore; nessun effetto, nessun avviso', () => {
+    const lista = [g('1', 'mezzosangue'), g('2', 'cortigiana', { visitaNotturna: '3' }), g('3', 'villico')]
+    const mezzo = risolviAttaccoBranco(lista, '1', 1, ['lupo-mannaro'])
+    expect(avvisiColpo(lista, '1', mezzo, 'branco')[0].testo).toMatch(/Mezzosangue.*diventa Lupo Mannaro/)
+    const cliente = risolviAttaccoBranco(lista, '3', 1, ['lupo-mannaro'])
+    expect(avvisiColpo(lista, '3', cliente, 'branco')[0].log).toMatch(/Cortigiana N2 muore/)
+    expect(avvisiColpo(lista, '3', {}, 'branco')).toEqual([])
+  })
+
+  test('Cavaliere legato al bersaglio: si immola; lupo mangiato dal Chupacabra: il Cucciolo matura', () => {
+    const lista = [g('1', 'villico'), g('2', 'cavaliere', { legame: { tipo: 'cavaliere', targetId: '1' } })]
+    const patch = { 1: uccidiPatch(lista[0], 1, { mortoDa: 'branco' }) }
+    expect(avvisiColpo(lista, '1', patch, 'branco')[0].testo).toMatch(/Cavaliere si immola al posto di N1/)
+
+    const lupi = [g('1', 'lupo-mannaro'), g('2', 'cucciolo-di-lupo-mannaro')]
+    const mangiato = { 1: uccidiPatch(lupi[0], 1, { mortoDa: 'chupacabra' }) }
+    expect(avvisiColpo(lupi, '1', mangiato, 'chupacabra')[0].testo).toMatch(/Cucciolo N2 diventa adulto/)
+  })
 })

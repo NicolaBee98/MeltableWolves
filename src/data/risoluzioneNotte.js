@@ -51,7 +51,15 @@ export function risolviLegami(giocatori) {
 
       // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta
       if (legame.tipo === 'apprendista' && target.ruoloSlug) {
-        patch[attore.id] = { ...patch[attore.id], ruoloSlug: target.ruoloSlug, [campo]: null }
+        // l'Apprendista scambia la carta: i poteri già usati dal maestro (pozioni
+        // della Strega, resurrezione di Guaritore/Sciacallo...) restano usati
+        const usati = target.poteriUsati ?? []
+        patch[attore.id] = {
+          ...patch[attore.id],
+          ruoloSlug: target.ruoloSlug,
+          [campo]: null,
+          ...(usati.length ? { poteriUsati: [...new Set([...(attore.poteriUsati ?? []), ...usati])] } : {}),
+        }
       }
 
       if (legame.tipo === 'figlia-dei-lupi') {

@@ -166,8 +166,11 @@ export function usePartita() {
         const prima = snap.prima.find((p) => p.id === g.id)
         const dopo = snap.dopo.find((p) => p.id === g.id)
         if (!prima || !(g.id === id || invariatoDopoMorte(g, dopo))) return g
-        // l'uso del potere (scritto dopo la morte) lo gestisce chi annulla
-        return { ...prima, usiNotte: g.usiNotte, poteriUsati: g.poteriUsati }
+        // l'uso del potere (scritto dopo la morte) lo gestisce chi annulla; se
+        // invece non è cambiato dopo la morte (es. i poteri ereditati
+        // dall'Apprendista) torna com'era
+        const uso = (campo) => (g[campo] === dopo?.[campo] ? prima[campo] : g[campo])
+        return { ...prima, usiNotte: uso('usiNotte'), poteriUsati: uso('poteriUsati') }
       })
     })
   }

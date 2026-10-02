@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { eLupo } from '../../../data/roles'
-import { uccidiPatch, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
+import { uccidiPatch, avvisiColpo, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
 import { annullaColpo } from './annullaColpo'
 
 const RUOLI = ['chupacabra']
@@ -11,11 +11,20 @@ const POTERE = 'chupacabra-caccia'
 // lupi (vedi nightSteps.js): nessun altro potere mortale tocca ancora il suo
 // bersaglio a questo punto della notte, quindi annullare la morte data a un
 // click precedente per ripensare il bersaglio è sicuro.
-export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo }) {
+export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
   const chupacabra = giocatori.find((g) => g.ruoloSlug === 'chupacabra')
   const [target, setTarget] = useState(null)
   const [colpito, setColpito] = useState(false)
   const [avviso, setAvviso] = useState(null)
+  // effetti speciali della morte del bersaglio (Cortigiana, Cucciolo, Cavaliere):
+  // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
+  const [avvisiEffetti, setAvvisiEffetti] = useState([])
+  const logEffetti = avvisiEffetti.map((a) => a.log).join('\n')
+  useEffect(() => {
+    impostaEventiAvanti?.('chupacabra', logEffetti ? logEffetti.split('\n') : [])
+    return () => impostaEventiAvanti?.('chupacabra', [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logEffetti])
   // il bersaglio appena colpito resta in lista anche se non è più vivo,
   // altrimenti la sua chip sparirebbe subito dopo il click
   const candidati = giocatori.filter(
@@ -39,6 +48,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
     setTarget(null)
     setColpito(false)
     setAvviso(null)
+    setAvvisiEffetti([])
   }
 
   function confermaScelta(targetId) {
@@ -48,6 +58,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
     setTarget(targetId)
     setColpito(false)
     setAvviso(null)
+    setAvvisiEffetti([])
     const bersaglio = giocatori.find((g) => g.id === targetId)
     if (bersaglio) {
       if (!eLupo(bersaglio.ruoloSlug) && !nessunLupoVivo) {
@@ -57,6 +68,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         if (patch) {
           aggiornaGiocatore(targetId, patch)
           setColpito(true)
+          setAvvisiEffetti(avvisiColpo(giocatori, targetId, { [targetId]: patch }, 'chupacabra'))
         } else {
           setAvviso(`${bersaglio.nome} è protetto/a: la caccia non ha alcun effetto.`)
         }
@@ -88,6 +100,9 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
           ))}
       </div>
       {avviso && <p className="avviso">⚠️ {avviso}</p>}
+      {avvisiEffetti.map((a) => (
+        <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
+      ))}
     </div>
   )
 }

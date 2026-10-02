@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
 
@@ -231,4 +231,45 @@ test('Cartomante: la carta di un bersaglio ignoto si cambia e si deseleziona (to
   expect(giocatori[1].storiaRuoli).toEqual([])
   expect(giocatori[0].ultimaIndagine).toBeNull()
   expect(giocatori[0].usiNotte).toEqual([])
+})
+
+test('Cartomante: una Guardia con la Mannara nel mazzo chiede quale carta è e memorizza il ruolo reale scambiando con la traditrice scelta dall\'app', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [], usiNotte: [], storiaRuoli: ['cartomante'] },
+    { id: '2', nome: 'Gaia', ruoloSlug: 'guardia', vivo: true, condizioni: [], storiaRuoli: ['guardia'] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'guardia-mannara', vivo: true, condizioni: [], storiaRuoli: ['guardia-mannara'] },
+  ]
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  }
+  const el = () => (
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={1}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'guardia', 'guardia-mannara']}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+    />
+  )
+  const { rerender } = render(el())
+  await user.click(screen.getByRole('button', { name: 'Gaia' }))
+  rerender(el())
+  // la carta ha ancora un'incertezza: si chiede quale delle due è
+  await user.click(within(screen.getByRole('group', { name: 'Che ruolo era' })).getByRole('button', { name: 'Guardia Mannara' }))
+  rerender(el())
+  const ruolo = (id) => giocatori.find((g) => g.id === id).ruoloSlug
+  expect(ruolo('2')).toBe('guardia-mannara')
+  expect(ruolo('3')).toBe('guardia')
+  expect(giocatori.find((g) => g.id === '2').guardiaDistinta).toBe(true)
+  expect(giocatori.find((g) => g.id === '1').ultimaIndagine.ruoloRivelato).toBe('guardia-mannara')
+
+  // cambiando idea (è una Guardia buona) torna tutto com'era
+  await user.click(within(screen.getByRole('group', { name: 'Che ruolo era' })).getByRole('button', { name: 'Guardia' }))
+  rerender(el())
+  expect(ruolo('2')).toBe('guardia')
+  expect(ruolo('3')).toBe('guardia-mannara')
 })

@@ -866,6 +866,21 @@ test('con la notte bloccata dal Bardo mostra il suo avviso invece dei passi, e "
   expect(onNotteConclusa).toHaveBeenCalled()
 })
 
+test('notte bloccata dal Bardo: "Indietro" annulla il gesto (toglie il blocco e il potere consumato) e la notte si svolge', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'bardo', vivo: true, condizioni: [], poteriUsati: ['bardo-salta-notte'], notteBloccataFinoA: 1 },
+      { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    ],
+    ['bardo', 'veggente'],
+  )
+  await user.click(screen.getByRole('button', { name: /Indietro/ }))
+  expect(h.stato.giocatori[0].poteriUsati).toEqual([])
+  expect(h.stato.giocatori[0].notteBloccataFinoA).toBeUndefined()
+  expect(screen.queryByText(/questa notte non si svolge/i)).not.toBeInTheDocument()
+})
+
 test("con la notte bloccata senza Bardo mostra l'avviso generico (la maledizione de L'Antico non blocca la notte: filtra solo i poteri del villaggio)", () => {
   const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], notteBloccataFinoA: 1 }]
   render(<NightSequencerConNotte ruoliSelezionati={['villico']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
@@ -1332,6 +1347,89 @@ test('il Chupacabra che sbrana l\'unico Lupo Mannaro rimasto non perde la scelta
   expect(giocatori.find((g) => g.id === '2').vivo).toBe(true)
 })
 
+test('Ladro assegnato nello stesso passo: dopo la scelta della carta la chip del Ladro, i select e la scelta restano visibili e modificabili fino ad Avanti', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['ladro', 'veggente', 'paladino', 'medium'],
+    { ladro: 1, veggente: 1, paladino: 1, medium: 1 },
+  )
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  await user.selectOptions(screen.getByLabelText('Prima carta'), 'veggente')
+  await user.selectOptions(screen.getByLabelText('Seconda carta'), 'paladino')
+  const scelta = () => within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' }))
+  await user.click(scelta().getByRole('button', { name: 'Veggente' }))
+
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('veggente')
+  // il passo resta coerente: chip del Ladro (deselezionabile), select e scelta
+  expect(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByLabelText('Prima carta')).toBeInTheDocument()
+  expect(scelta().getByRole('button', { name: 'Veggente' })).toHaveAttribute('aria-pressed', 'true')
+  // la scelta è ancora modificabile
+  await user.click(scelta().getByRole('button', { name: 'Paladino' }))
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('paladino')
+})
+
+test('il contatore "Passo X di N" non riparte né cambia totale quando il passo del Ladro sparisce dopo Avanti', async () => {
+  const user = userEvent.setup()
+  creaHarness(
+    [
+      { id: '1', nome: 'Luca', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+      { id: '2', nome: 'Anna', vivo: true, condizioni: [] },
+    ],
+    ['ladro', 'veggente', 'paladino', 'medium'],
+    { ladro: 1, veggente: 1, paladino: 1, medium: 1 },
+  )
+  const passo = () => document.querySelector('.night-sequencer__passo').textContent
+  const prima = passo()
+  const totale = prima.match(/di (\d+)/)[1]
+  expect(prima).toMatch(/^Passo 1 di/)
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(passo()).toBe(`Passo 2 di ${totale}`)
+})
+
+test('il passo "Branco dei Lupi" ha nel titolo l\'icona del lupo mannaro, non il punto interrogativo', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={[{ id: '1', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] }]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  const icona = screen.getByRole('heading', { name: /branco dei lupi/i }).querySelector('img')
+  expect(icona.src).toContain('Lupo_Mannaro')
+})
+
+test('Branco: il Berserker sbranato mostra l\'avviso con l\'effetto e lo registra solo con Avanti (insieme a confermaLog)', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const registraEvento = vi.fn()
+  const confermaLog = vi.fn()
+  creaHarness(
+    [
+      { id: '1', nome: 'Bea', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+      { id: '3', nome: 'Zoe', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+    ],
+    ['berserker', 'lupo-mannaro', 'chupacabra'],
+    {},
+    { registraEvento, confermaLog },
+  )
+  await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Bea' }))
+  expect(screen.getByText(/Il Berserker sbranato: Lia \(il lupo più vicino\) morirà con lui/)).toBeInTheDocument()
+  // niente registro al click della chip
+  expect(registraEvento).not.toHaveBeenCalled()
+
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(confermaLog).toHaveBeenCalled()
+  expect(registraEvento).toHaveBeenCalledWith('Il Berserker Bea è stato sbranato e uccide lottando Lia.')
+})
+
 test('Ladro: dopo aver scelto chi ha la carta e premuto Avanti, la domanda "Chi ha questa carta?" non si ripete: si passa al passo dopo', async () => {
   const user = userEvent.setup()
   creaHarness(
@@ -1410,6 +1508,36 @@ test('Ladro dopo un refresh a metà passo: il passo si riapre dall\'ingresso sal
   expect(chip).toHaveAttribute('aria-pressed', 'true')
   await user.click(chip)
   expect(chip).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('refresh a metà passo: la selezione pendente si ripristina e Indietro la scarta; senza modifiche Indietro è disabilitato (con motivo)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const ingresso = { round: 1, id: 'veggente', giocatori, quantita: {}, titolari: [] }
+  localStorage.setItem(
+    'meltable-wolves-notte',
+    JSON.stringify({ round: 1, stepIndex: 0, ingresso: { ...ingresso, pendenti: { selezioniRuolo: { veggente: ['1'] }, mimoRuoloScelto: null } } }),
+  )
+  creaHarness(giocatori, ['veggente'])
+  const anna = () => within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' })
+  expect(anna()).toHaveAttribute('aria-pressed', 'true')
+  await user.click(screen.getByRole('button', { name: 'Indietro' }))
+  expect(anna()).toHaveAttribute('aria-pressed', 'false')
+  expect(screen.getByRole('button', { name: 'Indietro' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Indietro' })).toHaveAttribute('title', expect.stringMatching(/nulla da annullare/i))
+})
+
+test('refresh a metà passo senza modifiche: "Indietro" è disabilitato fin dall\'inizio (lo stato ricaricato è una copia, non una modifica)', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
+  localStorage.setItem(
+    'meltable-wolves-notte',
+    JSON.stringify({ round: 1, stepIndex: 0, ingresso: { round: 1, id: 'veggente', giocatori, quantita: {}, titolari: [] } }),
+  )
+  creaHarness(JSON.parse(JSON.stringify(giocatori)), ['veggente'])
+  expect(screen.getByRole('button', { name: 'Indietro' })).toBeDisabled()
 })
 
 test('il passo delle Guardie mostra insieme Guardia_1, Guardia_2 e la Guardia Mannara (in coda, senza legarle ai giocatori)', () => {

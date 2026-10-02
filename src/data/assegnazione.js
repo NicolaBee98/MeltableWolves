@@ -55,3 +55,34 @@ export function assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, quant
     })
   }
 }
+
+// Guardia/Guardia Mannara: l'app sceglie a caso la traditrice (vedi sopra), ma
+// finché nessuno ha visto la carta vera quel giocatore ha ancora un grado di
+// incertezza. La Cartomante la vede: `guardiaDistinta` segna chi è già stato
+// chiarito. Il Mimo che copia una Guardia non è una carta Guardia.
+export function guardiaIncerta(g, ruoliSelezionati, quantita) {
+  return (
+    (g.ruoloSlug === 'guardia' || g.ruoloSlug === 'guardia-mannara') &&
+    !g.guardiaDistinta &&
+    !eMimoCopiante(g) &&
+    ruoliSelezionati.includes('guardia-mannara') &&
+    (quantita['guardia-mannara'] ?? 1) > 0
+  )
+}
+
+// La carta di `targetId` è `slug` (guardia o guardia-mannara): se l'app l'aveva
+// assegnata diversamente, scambia con un'altra guardia non ancora chiarita
+// (quella che l'app aveva scelto per `slug`). Ritorna {id: patch}.
+export function distinguiGuardia(giocatori, targetId, slug) {
+  const target = giocatori.find((g) => g.id === targetId)
+  const scambia = (g, nuovo) => ({
+    ruoloSlug: nuovo,
+    storiaRuoli: (g.storiaRuoli ?? []).map((s) => (s === g.ruoloSlug ? nuovo : s)),
+  })
+  const patch = { [targetId]: { ...scambia(target, slug), guardiaDistinta: true } }
+  if (target.ruoloSlug !== slug) {
+    const altro = giocatori.find((g) => g.id !== targetId && g.ruoloSlug === slug && !g.guardiaDistinta && !eMimoCopiante(g))
+    if (altro) patch[altro.id] = scambia(altro, target.ruoloSlug)
+  }
+  return patch
+}

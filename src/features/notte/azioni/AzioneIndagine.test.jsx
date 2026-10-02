@@ -103,6 +103,25 @@ test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['accecato'] })
 })
 
+test('indagare il Polpo Mannaro acceca ENTRAMBI i titolari (Veggente e Mimo-Veggente) e lo mostra; un titolare inibito non riceve l\'indagine', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: ['inibito'] },
+    { id: '3', nome: 'Mia', ruoloSlug: 'veggente', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '1' } },
+    { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} puoEssereAccecato />)
+
+  await user.click(screen.getByRole('button', { name: 'Piero' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['inibito', 'accecato'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['accecato'] })
+  // l'indagine la riceve solo chi non è inibito
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ultimaIndagine: expect.anything() }))
+})
+
 test('l\'accecamento da Polpo Mannaro resta modificabile finché non si preme Avanti: ripensare il bersaglio lo annulla di nuovo', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn((id, patch) => {

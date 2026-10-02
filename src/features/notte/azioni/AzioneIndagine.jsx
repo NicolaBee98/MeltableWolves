@@ -19,7 +19,13 @@ export function AzioneIndagine({
 }) {
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
-  const veggente = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
+  // titolare e Mimo che lo copia giocano insieme: scelta e accecamento sono
+  // condivisi. Un attore inibito dalla Fattucchiera non riceve l'indagine (la
+  // fa chi non lo è); se lo sono tutti, il passo non arriva nemmeno qui.
+  const attori = giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore)
+  const inibiti = attori.filter((g) => (g.condizioni ?? []).includes('inibito'))
+  const attivi = attori.filter((g) => !inibiti.includes(g))
+  const veggente = attivi[0] ?? attori[0]
   const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !vivoAIngresso(g) : vivoAIngresso(g) && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
   const giaUsato = usatoStanotte(giocatori, ruoli, potere)
@@ -30,16 +36,18 @@ export function AzioneIndagine({
   // reversibile finché non si preme "Avanti": ripensare il bersaglio dopo
   // deve annullarlo di nuovo, non lasciarlo agire già da subito su chi non
   // ha ancora indagato nessuno.
-  const [accecatoAllIngresso] = useState(() => veggente?.condizioni?.includes('accecato') ?? false)
+  const [accecatoAllIngresso] = useState(() => attori.some((g) => (g.condizioni ?? []).includes('accecato')))
   const [accecatoDaQuestaScelta, setAccecatoDaQuestaScelta] = useState(false)
 
   // click sulla chip già scelta: toglie l'indagine, l'eventuale accecamento
   // provocato da questa scelta e il segno di potere usato
+  function togliAccecamento() {
+    attori.forEach((g) => aggiornaGiocatore(g.id, { condizioni: (g.condizioni ?? []).filter((c) => c !== 'accecato') }))
+    setAccecatoDaQuestaScelta(false)
+  }
+
   function annullaScelta() {
-    if (veggente && accecatoDaQuestaScelta) {
-      aggiornaGiocatore(veggente.id, { condizioni: (veggente.condizioni ?? []).filter((c) => c !== 'accecato') })
-      setAccecatoDaQuestaScelta(false)
-    }
+    if (veggente && accecatoDaQuestaScelta) togliAccecamento()
     aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, { ultimaIndagine: undefined })
     annullaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
   }
@@ -48,12 +56,7 @@ export function AzioneIndagine({
     if (veggente) {
       const target = giocatori.find((g) => g.id === targetId)
       if (target) {
-        if (accecatoDaQuestaScelta) {
-          aggiornaGiocatore(veggente.id, {
-            condizioni: (veggente.condizioni ?? []).filter((c) => c !== 'accecato'),
-          })
-          setAccecatoDaQuestaScelta(false)
-        }
+        if (accecatoDaQuestaScelta) togliAccecamento()
         const accecato = puoEssereAccecato && accecatoAllIngresso
         const esito = accecato ? 'benevola' : auraDi(target.ruoloSlug)
         // ultimaIndagine è un dato del "ruolo", non del singolo corpo: va
@@ -62,11 +65,10 @@ export function AzioneIndagine({
         // sempre per-persona fisica: l'accecamento si applica solo
         // all'attore che ha effettivamente indagato, senza toccare le
         // condizioni altrui di un eventuale secondo attore con lo stesso ruolo.
-        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, {
-          ultimaIndagine: { targetId, esito, notte: round },
-        })
+        attivi.forEach((g) => aggiornaGiocatore(g.id, { ultimaIndagine: { targetId, esito, notte: round } }))
+        // il Polpo acceca TUTTI i titolari (Veggente e Mimo-Veggente) fino alla sua morte
         if (puoEssereAccecato && !accecato && target.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO) {
-          aggiornaGiocatore(veggente.id, { condizioni: [...(veggente.condizioni ?? []), 'accecato'] })
+          attori.forEach((g) => aggiornaGiocatore(g.id, { condizioni: [...(g.condizioni ?? []).filter((c) => c !== 'accecato'), 'accecato'] }))
           setAccecatoDaQuestaScelta(true)
         }
       }
@@ -102,6 +104,12 @@ export function AzioneIndagine({
           )
         })}
       </div>
+      {attori.some((g) => (g.condizioni ?? []).includes('accecato')) && (
+        <p>🐙 Accecat{attori.length > 1 ? 'i' : 'o'} dal Polpo Mannaro: {attori.map((g) => g.nome).join(', ')}.</p>
+      )}
+      {inibiti.length > 0 && attivi.length > 0 && (
+        <p>🚫 Inibito dalla Fattucchiera: {inibiti.map((g) => g.nome).join(', ')} (non riceve l'indagine).</p>
+      )}
       {giaUsato && indagineStanotte && (
         <p className="azione-indagine__etichetta-esito">
           Aura {indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { risolviAttaccoBranco, berserkerLupiCandidati, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
+import { useEffect, useState } from 'react'
+import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
 import { annullaColpo, eColpoLetale } from './annullaColpo'
 
 const POTERE = 'branco-lupi-sbrana'
@@ -26,7 +26,7 @@ function senzaUltimiUsi(usi, n) {
   return copia
 }
 
-export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo }) {
+export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
   // { targetId, sostituisce }: parità del Berserker in attesa della scelta del narratore
   const [attesaLupo, setAttesaLupo] = useState(null)
   const bersaglioInAttesaDiLupo = attesaLupo?.targetId
@@ -41,6 +41,15 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
   const [colpi, setColpi] = useState([])
   // feedback sull'ultimo morso: perché non ha avuto effetto, o cosa comporta
   const [esito, setEsito] = useState(null)
+  // effetti speciali dei morsi (Berserker, Mezzosangue, Cavaliere, Cortigiana...):
+  // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
+  const avvisiMorsi = colpi.flatMap((c) => c.avvisi ?? [])
+  const logMorsi = avvisiMorsi.map((a) => a.log).join('\n')
+  useEffect(() => {
+    impostaEventiAvanti?.('branco', logMorsi ? logMorsi.split('\n') : [])
+    return () => impostaEventiAvanti?.('branco', [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logMorsi])
   // vendetta già attiva prima di cominciare (Cucciolo morto in precedenza):
   // se invece l'ha fatta scattare il primo colpo, disfarlo la disattiva
   const [vendettaIniziale] = useState(() => giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo))
@@ -166,7 +175,8 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
       aggiornaGiocatore(id, patch)
     }
     setEsito(descriviEsito(targetId, patches))
-    setColpi([...restano, { targetId, tipo, originali, letali, consumaVendetta }])
+    const avvisi = tipo === 'trasforma' ? [] : avvisiColpo(giocatori, targetId, patches, 'branco')
+    setColpi([...restano, { targetId, tipo, originali, letali, consumaVendetta, avvisi }])
     if (!sostituisce) segnaUsoBranco(consumaVendetta)
     else if (consumaVendetta) {
       giocatori.filter((g) => ruoli.includes(g.ruoloSlug)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
@@ -254,6 +264,9 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
       </div>
       {vendettaAttiva && colpi.length >= 2 && <p>Il branco ha già sbranato le sue vittime questa notte.</p>}
       {esito && <p className="avviso">⚠️ {esito}</p>}
+      {avvisiMorsi.map((a) => (
+        <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
+      ))}
       {progenitorePuoTrasformare && bersaglioCorrente && (
         <button
           type="button"
