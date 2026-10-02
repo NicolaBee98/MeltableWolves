@@ -1,4 +1,4 @@
-import { ROLES } from './roles'
+import { ROLES, eLupo } from './roles'
 
 const RAPPORTO_LUPI_CONSIGLIATO = 5
 const MAX_INDIPENDENTI = 2
@@ -20,7 +20,7 @@ export function validaMazzo(quantita) {
   const avvisi = []
   const ruoli = espandiRuoli(quantita)
 
-  const numLupi = ruoli.filter((r) => r.fazione === 'lupi').length
+  const numLupi = ruoli.filter((r) => eLupo(r.slug)).length
   if (numLupi === 0) {
     avvisi.push('Nessun lupo mannaro nel mazzo.')
   } else if (numLupi < Math.floor(ruoli.length / RAPPORTO_LUPI_CONSIGLIATO)) {

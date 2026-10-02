@@ -36,3 +36,7 @@ test('Guardia Mannara con le Guardie presenti non genera l\'avviso dedicato', ()
   const avvisi = validaMazzo({ 'guardia-mannara': 1, guardia: 2 })
   expect(avvisi).not.toContain('Guardia Mannara richiede la presenza delle Guardie nel mazzo.')
 })
+
+test('i ruoli di fazione lupi che non sono lupi (Gallo Mannaro) non contano come lupi', () => {
+  expect(validaMazzo({ 'gallo-mannaro': 1, villico: 4 })).toContain('Nessun lupo mannaro nel mazzo.')
+})
