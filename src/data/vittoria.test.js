@@ -209,3 +209,21 @@ test('due innamorati di coppie diverse non vincono come superstiti', () => {
   ]
   expect(condizioniVittoria(giocatori).join(' ')).not.toMatch(/innamorati/i)
 })
+
+test('un solo banner: Pifferaio solo, Pifferaio con ipnotizzati, innamorati soli, Criceto solo non fanno vincere anche il Villaggio', () => {
+  const v = (id, ruoloSlug, condizioni = [], extra = {}) => ({ id, vivo: true, ruoloSlug, condizioni, ...extra })
+  const casi = [
+    [[v('1', 'pifferaio')], /Pifferaio è l'ultimo/],
+    [[v('1', 'pifferaio'), v('2', 'villico', ['ipnotizzato'])], /Pifferaio ha ipnotizzato/],
+    [[v('1', 'villico', ['innamorato']), v('2', 'villico', ['innamorato'])], /innamorati/],
+    [[v('1', 'lupo-mannaro', ['innamorato']), v('2', 'villico', ['innamorato'])], /innamorati/],
+    [[v('1', 'criceto-malvagio')], /Criceto Malvagio è l'ultimo/],
+    [[v('1', 'criceto-malvagio'), v('2', 'criceto-malvagio')], /Criceto Malvagio e il Mimo/],
+    [[v('1', 'chupacabra')], /Chupacabra è l'ultimo/],
+  ]
+  for (const [giocatori, atteso] of casi) {
+    const messaggi = condizioniVittoria(giocatori)
+    expect(messaggi).toHaveLength(1)
+    expect(messaggi[0]).toMatch(atteso)
+  }
+})

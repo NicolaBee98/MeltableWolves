@@ -92,7 +92,8 @@ export function borgomastroDisponibile(ruoliSelezionati, giocatori) {
 // Promemoria per il narratore: conseguenze note della morte sul colpo / al
 // rogo di `id` (stringhe già pronte). Se è ancora vivo sono previsioni; se è
 // già morto resta solo il crepacuore dei partner, il resto è già applicato.
-export function conseguenzeMorte(giocatori, id) {
+// `fatto`: stesse righe al passato, per il riepilogo dopo la conferma
+export function conseguenzeMorte(giocatori, id, fatto = false) {
   const t = giocatori.find((g) => g.id === id)
   if (!t) return []
   const nome = (x) => giocatori.find((g) => g.id === x)?.nome
@@ -104,16 +105,20 @@ export function conseguenzeMorte(giocatori, id) {
   if (!t.vivo) {
     return partner.filter((g) => g.causaMorte === 'crepacuore').map((g) => `È morto anche ${g.nome} (crepacuore).`)
   }
-  const out = partner.filter((g) => g.vivo).map((g) => `Morirà anche ${g.nome} (crepacuore).`)
+  const out = partner.filter((g) => g.vivo).map((g) => (fatto ? `È morto anche ${g.nome} (crepacuore).` : `Morirà anche ${g.nome} (crepacuore).`))
   const legati = (tipo) =>
     giocatori.filter((g) => g.vivo && ['legame', 'legameMimo'].some((c) => g[c]?.tipo === tipo && g[c].targetId === id))
   legati('cavaliere').forEach((g) => out.push(`Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`))
-  legati('apprendista').forEach((g) => out.push(`L'Apprendista ${g.nome} erediterà il suo ruolo.`))
-  legati('figlia-dei-lupi').forEach((g) => out.push(`La Figlia dei Lupi ${g.nome} diventa Lupo Mannaro.`))
+  legati('apprendista').forEach((g) =>
+    out.push(fatto ? `L'Apprendista ${g.nome} ha ereditato il suo ruolo.` : `L'Apprendista ${g.nome} erediterà il suo ruolo.`),
+  )
+  legati('figlia-dei-lupi').forEach((g) =>
+    out.push(fatto ? `La Figlia dei Lupi ${g.nome} è diventata Lupo Mannaro.` : `La Figlia dei Lupi ${g.nome} diventa Lupo Mannaro.`),
+  )
   if (t.ruoloSlug === 'cucciolo-di-lupo-mannaro' && !giocatori.some((g) => g.vendettaInnescata))
     out.push('Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.')
   else if (eLupo(t.ruoloSlug) && giocatori.some((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'))
-    out.push('Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
+    out.push(fatto ? 'Morto un lupo: il Cucciolo è diventato Lupo Mannaro adulto.' : 'Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
   if (t.ruoloSlug === 'lantico' && t.anticoSbranatoNotte === undefined)
     out.push("L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si svegliano.")
   if (t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")

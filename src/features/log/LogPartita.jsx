@@ -2,6 +2,7 @@ import { iconaPath } from '../../data/assetRuoli'
 
 // icona a sinistra di ogni riga, per riconoscere a colpo d'occhio la
 // sotto-fase (notte/alba/giorno/rogo) senza dover leggere il testo
+const NOME_FASE = { notte: 'Notte', alba: 'Alba', giorno: 'Giorno', rogo: 'Rogo' }
 const ICONA_FASE = {
   notte: 'icona_notte',
   alba: 'icona_alba',
@@ -43,7 +44,10 @@ export function LogPartita({ eventi }) {
                 {ICONA_FASE[evento.fase] && (
                   <img src={iconaPath(ICONA_FASE[evento.fase])} alt="" aria-hidden="true" className="log-partita__icona-fase" />
                 )}
-                {evento.messaggio}
+                <span>
+                  {NOME_FASE[evento.fase] && <strong>{NOME_FASE[evento.fase]}: </strong>}
+                  {evento.messaggio}
+                </span>
               </li>
             ))}
           </ul>

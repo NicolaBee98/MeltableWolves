@@ -37,6 +37,8 @@ test('Nuova Partita chiede conferma con una UI coerente (non window.confirm) e n
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
 
   expect(screen.getByText(/iniziare una nuova partita/i)).toBeInTheDocument()
+  // i giocatori restano: il testo non deve dire che vanno persi
+  expect(screen.getByText(/i giocatori restano/i)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Annulla' }))
 
   expect(onNuovaPartita).not.toHaveBeenCalled()

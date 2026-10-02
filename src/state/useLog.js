@@ -40,6 +40,8 @@ export function useLog(giocatori, round, fase = 'notte') {
   const giocatoriRef = useRef(giocatori)
   giocatoriRef.current = giocatori
   const faseRef = useRef(fase)
+  // passo notturno a cui appartengono le voci scritte adesso (vedi confermaLog)
+  const passoRef = useRef(undefined)
   const roundNotteRef = useRef(round)
   // resetLog() e il reset di "giocatori"/"round" (Nuova Partita) avvengono
   // nello stesso batch: senza questo, l'effetto qui sotto confronterebbe la
@@ -55,8 +57,8 @@ export function useLog(giocatori, round, fase = 'notte') {
 
   // confronta i giocatori con l'ultimo stato confermato, registra gli eventi
   // e aggiorna il riferimento
-  function registra(g, roundEvento, faseEvento) {
-    const nuovi = rilevaEventi(confermatiRef.current, g, roundEvento, faseEvento)
+  function registra(g, roundEvento, faseEvento, passo) {
+    const nuovi = rilevaEventi(confermatiRef.current, g, roundEvento, faseEvento).map((e) => (passo ? { ...e, passo } : e))
     if (nuovi.length > 0) setEventi((prev) => [...prev, ...nuovi])
     imposta(g)
   }
@@ -89,15 +91,34 @@ export function useLog(giocatori, round, fase = 'notte') {
     salvaLocale(STORAGE_KEY, JSON.stringify(eventi))
   }, [eventi])
 
-  function confermaLog() {
-    registra(giocatoriRef.current, roundEtichetta(round, fase), fase)
+  // passo (opzionale, es. "2-veggente"): marca le voci scritte all'Avanti di
+  // quel passo, così annullaLogPasso le può togliere se si torna indietro
+  function confermaLog(passo) {
+    passoRef.current = passo
+    registra(giocatoriRef.current, roundEtichetta(round, fase), fase, passo)
+  }
+
+  // Indietro a `passo`: toglie le voci scritte all'Avanti di quel passo e dei
+  // successivi (sono tutte dopo la prima voce marcata). Non persiste tra i
+  // refresh dell'app: le voci già salvate restano marcate, e il marcatore
+  // passoRef si perde (le nuove voci non sarebbero più annullabili).
+  function annullaLogPasso(passo) {
+    passoRef.current = undefined
+    setEventi((prev) => {
+      const i = prev.findIndex((e) => e.passo === passo)
+      return i === -1 ? prev : prev.slice(0, i)
+    })
   }
 
   // fase esplicita: per i messaggi registrati "in anticipo" rispetto alla
   // schermata su cui si trova il narratore (es. gli annunci dell'alba,
   // scritti da NightSequencer mentre è ancora sulla notte, vedi App.jsx)
   function aggiungiEvento(messaggio, faseEsplicita) {
-    setEventi((prev) => [...prev, { round: roundEtichetta(round, fase), fase: faseEsplicita ?? fase, messaggio }])
+    const passo = passoRef.current
+    setEventi((prev) => [
+      ...prev,
+      { round: roundEtichetta(round, fase), fase: faseEsplicita ?? fase, messaggio, ...(passo && { passo }) },
+    ])
   }
 
   function resetLog() {
@@ -111,5 +132,5 @@ export function useLog(giocatori, round, fase = 'notte') {
     sopprimiProssimoConfrontoRef.current = true
   }
 
-  return { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, confermaLog }
+  return { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, confermaLog, annullaLogPasso }
 }
