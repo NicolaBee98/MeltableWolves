@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { eLupo, nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 
@@ -19,7 +18,6 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
     (g) => g.ruoloSlug === 'ladro' || ((g.poteriUsati ?? []).includes(POTERE) && (g.storiaRuoli ?? []).includes('ladro')),
   )
   const ladro = attori[0]
-  const [giaUsatoAllIngresso] = useState(() => (ladro?.poteriUsati ?? []).includes(POTERE))
   const usato = (ladro?.poteriUsati ?? []).includes(POTERE)
   const [carta1, carta2] = ladro?.scartoLadro ?? []
   // solo carte non ancora in mano a nessuno ("tra quelle non assegnate a
@@ -42,10 +40,6 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   ]
   const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2)
   const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1)
-
-  if (giaUsatoAllIngresso) {
-    return <p>Il Ladro ha già scelto.</p>
-  }
 
   if (!ladro) return null
 

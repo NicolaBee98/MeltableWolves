@@ -362,3 +362,8 @@ test('aggiornaTuttiConRuolo accetta una funzione (giocatore) => patch per campi 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['a', 'x'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { poteriUsati: ['b', 'x'] })
 })
+
+test("uccidiPatch: L'Antico già rivelato (Villico con storiaRuoli 'lantico', prima vita persa al rogo o di notte) muore davvero", () => {
+  const rivelatoAlRogo = { ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], condizioni: [], villaggioMaledettoFinoA: 1 }
+  expect(uccidiPatch(rivelatoAlRogo, 2)).toMatchObject({ vivo: false, causaMorte: 'notte' })
+})

@@ -622,9 +622,10 @@ function creaHarness(giocatoriIniziali, ruoliSelezionati, quantitaIniziale = {},
       />
     )
   }
-  render(<Harness />)
-  return { stato, rerender: () => {} }
+  const { container } = render(<Harness />)
+  return { stato, container, rerender: () => {} }
 }
+const creaHarnessConContainer = creaHarness
 
 test('la Strega che uccide il Veggente (un passo precedente che sparisce) non fa saltare la schermata né il Branco', async () => {
   localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
@@ -925,6 +926,73 @@ test('selezionare più Lupi Mannari generici (ancora solo pendenti, non conferma
 
   await user.click(screen.getByRole('button', { name: 'Greta' }))
   expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(4) // + Greta
+})
+
+test('i Lupi Mannari selezionati (pendenti) usano illustrazioni diverse Lupo_Mannaro_1..N, una per ciascuno', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Elsa', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Franco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Greta', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 3 }}
+    />,
+  )
+  for (const nome of ['Elsa', 'Franco', 'Greta']) await user.click(screen.getByRole('button', { name: nome }))
+
+  const src = [...container.querySelectorAll('img.night-sequencer__illustrazione')].map((img) => img.src.split('/').pop())
+  expect(src).toEqual(['Lupo_Mannaro_1.svg', 'Lupo_Mannaro_2.svg', 'Lupo_Mannaro_3.svg'])
+})
+
+test('Veggente copiato dal Mimo: selezionare/deselezionare le chip di "Chi ha questa carta?" non cambia le illustrazioni a figura intera (calcolate all\'ingresso nel passo)', async () => {
+  const user = userEvent.setup()
+  const { container } = creaHarnessConContainer(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '2' } },
+      { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['veggente'] },
+    ],
+    ['veggente'],
+    { veggente: 2 },
+  )
+  const immagini = () =>
+    [...container.querySelectorAll('img.night-sequencer__illustrazione, img.assegna-ruolo__illustrazione')].map((img) => img.src.split('/').pop())
+  const prima = immagini()
+  expect(prima).toEqual(['Mimo.svg', 'Veggente.svg'])
+
+  const chip = (nome) => within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: nome })
+  await user.click(chip('Marco'))
+  expect(immagini()).toEqual(prima)
+  await user.click(chip('Sara'))
+  expect(immagini()).toEqual(prima)
+  await user.click(chip('Marco'))
+  expect(immagini()).toEqual(prima)
+})
+
+test('la Strega che usa la pozione mortale su se stessa: fino ad Avanti il passo non mostra la sua morte (titolo, illustrazione, azione restano)', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const { container, stato } = creaHarnessConContainer(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'strega', vivo: true, condizioni: [], poteriUsati: [] },
+      { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    ],
+    ['strega'],
+  )
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Sara' }))
+  expect(stato.giocatori[0].vivo).toBe(false)
+
+  expect(screen.getByRole('heading', { name: /strega \(sara\)/i }).textContent).not.toMatch(/☠/)
+  expect(screen.queryByText(/chiama comunque/i)).not.toBeInTheDocument()
+  expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(1)
+  // l'azione resta, la scelta si può ancora ripensare
+  await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Sara' }))
+  expect(stato.giocatori[0].vivo).toBe(true)
 })
 
 test('"Branco dei Lupi" (dove il branco si riconosce e sceglie la vittima insieme) non mostra mai chip per riassegnare l\'identità: ogni Lupo Mannaro è già stato assegnato nei passi precedenti', async () => {
@@ -1307,4 +1375,27 @@ test('riassegnare la Strega da Anna a Bruno dopo una pozione ripulisce Anna (pot
   expect(anna.ruoloSlug).toBeUndefined()
   expect(anna.poteriUsati).toBeUndefined()
   expect(anna.usiNotte).toBeUndefined()
+})
+
+test('Ladro dopo un refresh a metà passo: il passo si riapre dall\'ingresso salvato, la scelta già fatta è mostrata e modificabile (niente "già scelto")', async () => {
+  const user = userEvent.setup()
+  const prima = { id: '1', nome: 'Luca', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] }
+  const quantitaIngresso = { ladro: 1, veggente: 1, paladino: 1, medium: 1 }
+  localStorage.setItem(
+    'meltable-wolves-notte',
+    JSON.stringify({ round: 1, stepIndex: 0, ingresso: { round: 1, id: 'ladro', giocatori: [prima], quantita: quantitaIngresso, titolari: ['1'] } }),
+  )
+  // stato persistito DOPO la scelta del Veggente (il Ladro non è più 'ladro')
+  creaHarness(
+    [{ ...prima, ruoloSlug: 'veggente', poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro', 'veggente'] }],
+    ['ladro', 'veggente', 'paladino', 'medium'],
+    { ladro: 1, veggente: 1, paladino: 0, medium: 1 },
+  )
+
+  expect(screen.getByRole('heading', { name: /ladro/i })).toBeInTheDocument()
+  expect(screen.queryByText(/il ladro ha già scelto/i)).not.toBeInTheDocument()
+  const chip = within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' })
+  expect(chip).toHaveAttribute('aria-pressed', 'true')
+  await user.click(chip)
+  expect(chip).toHaveAttribute('aria-pressed', 'false')
 })

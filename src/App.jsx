@@ -30,7 +30,7 @@ export default function App() {
   // altrove (home, mazzo, giocatori...) non ci sono eventi di partita da
   // rilevare, il valore di default non ha effetto
   const faseLog = ['notte', 'alba', 'giorno'].includes(faseApp) ? faseApp : 'notte'
-  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto } = useLog(giocatori, notte.round, faseLog)
+  const { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, troncaLog } = useLog(giocatori, notte.round, faseLog)
   const {
     mostraRuoliInVotazione,
     setMostraRuoliInVotazione,
@@ -65,8 +65,31 @@ export default function App() {
   )
 
   function proseguiAllaNotte() {
+    notte.svuotaFineNotte()
     daRipulireCambioNotte(giocatori).forEach(({ id, condizioni }) => aggiornaGiocatore(id, { condizioni }))
     ricominciaVotazione()
+    setFaseApp('notte')
+  }
+
+  // fine notte: ricorda l'ultimo passo (stato dei giocatori, mazzo, punto del
+  // log) per poter tornare indietro dall'Alba; vale finché non si va al voto
+  function concludiNotte(fineNotte) {
+    notte.salvaFineNotte({ ...fineNotte, lunghezzaLog: eventi.length })
+    setFaseApp('alba')
+  }
+
+  // "← Torna alla notte": ripristina giocatori, mazzo, round/passo e toglie dal
+  // log gli eventi scritti da lì in poi (annunci dell'alba compresi)
+  function tornaAllaNotte() {
+    const fine = notte.fineNotte
+    if (!fine) return
+    sopprimiProssimoConfronto()
+    impostaGiocatori(fine.giocatori)
+    for (const slug of new Set([...Object.keys(fine.quantita), ...Object.keys(quantita)])) {
+      if (fine.quantita[slug] !== quantita[slug]) setQuantita(slug, fine.quantita[slug] ?? 0)
+    }
+    troncaLog(fine.lunghezzaLog)
+    notte.tornaAllaNotte()
     setFaseApp('notte')
   }
 
@@ -211,10 +234,16 @@ export default function App() {
           avanti={notte.avanti}
           indietro={notte.indietro}
           nuovaNotte={notte.nuovaNotte}
-          onNotteConclusa={() => setFaseApp('alba')}
+          onNotteConclusa={concludiNotte}
+          ingressoSalvato={notte.ingressoSalvato}
+          salvaIngresso={notte.salvaIngresso}
           promemoriaRuoliMorti={promemoriaRuoliMorti}
           varianteMedium={varianteMedium}
-          onTornaAiGiocatori={() => setFaseApp('giocatori')}
+          onTornaAiGiocatori={() => {
+            // l'ingresso salvato ha la vecchia lista di giocatori: da scartare
+            notte.salvaIngresso(undefined)
+            setFaseApp('giocatori')
+          }}
         />
       )}
 
@@ -226,7 +255,11 @@ export default function App() {
           annullaMorte={annullaMorte}
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
-          onVaiAlVoto={() => setFaseApp('giorno')}
+          onVaiAlVoto={() => {
+            notte.svuotaFineNotte()
+            setFaseApp('giorno')
+          }}
+          onTornaAllaNotte={notte.fineNotte ? tornaAllaNotte : undefined}
           onGalloSaltaGiorno={proseguiAllaNotte}
           onConcludiPartita={nuovaPartita}
         />

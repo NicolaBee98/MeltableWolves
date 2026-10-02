@@ -226,10 +226,28 @@ test('la scelta del Ladro resta modificabile finché non si preme Avanti: cambia
   expect(quantita.paladino).toBe(1)
 })
 
-test('con il potere già usato mostra solo il messaggio', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: ['ladro-scelta'] }]
-  render(<AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro']} />)
-  expect(screen.getByText(/il ladro ha già scelto/i)).toBeInTheDocument()
+test('con la scelta già fatta (es. dopo un refresh a metà passo) la mostra e resta modificabile, mai "già scelto"', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    {
+      id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, poteriUsati: ['ladro-scelta'],
+      storiaRuoli: ['ladro', 'veggente'], scartoLadro: ['veggente', 'paladino'],
+    },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
+      quantita={{ veggente: 1, paladino: 0 }}
+    />,
+  )
+  expect(screen.queryByText(/il ladro ha già scelto/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Veggente' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'ladro', poteriUsati: [] }))
 })
 
 test('le carte candidate sono i ruoli fisici nel mazzo con quantità residua: Villico incluso, Borgomastro escluso, ruolo a quantità 0 escluso', () => {
