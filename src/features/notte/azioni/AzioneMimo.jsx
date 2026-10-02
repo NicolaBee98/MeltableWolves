@@ -1,7 +1,12 @@
 import { nomeRuolo, ruoloPerDisplay } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
-import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
+
+// il Mimo non può copiare sé stesso, il Borgomastro (un titolo dato dal voto)
+// né il Fantasma Onnisciente; tutte le altre carte del mazzo ancora non
+// assegnate sì (anche Boia, Alchimista, Scemo, Innocente, Suocera) e la
+// Guardia Mannara è una carta distinta: il Mimo guarda la carta vera
+const NON_IMITABILI = ['mimo', 'borgomastro', 'fantasma-onnisciente']
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il
@@ -24,7 +29,7 @@ export function AzioneMimo({
   ruoliSelezionati = [],
   quantita = {},
   mimoRuoloScelto,
-  onScegliRuoloMimo,
+  onScegliRuoloMimo = () => {},
 }) {
   const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
   if (!mimo) return null
@@ -48,7 +53,7 @@ export function AzioneMimo({
       onConferma={(targetId) =>
         targetId === mimo.legame?.targetId
           ? annullaBersaglio()
-          : aggiornaGiocatore(mimo.id, { legame: { tipo: 'mimo', targetId } })
+          : (onScegliRuoloMimo(null), aggiornaGiocatore(mimo.id, { legame: { tipo: 'mimo', targetId } }))
       }
       onSalta={() => {}}
       etichetta="Chi imitare"
@@ -59,8 +64,8 @@ export function AzioneMimo({
   if (!mimo.legame) return sceltaBersaglio
 
   // il bersaglio ha già un ruolo noto in app (assegnato altrove, non da
-  // questa scelta): niente da chiedere qui, il Mimo lo scoprirà/adotterà
-  // quando quel ruolo si sveglierà (vedi mimoDiQuestoPasso in NightSequencer)
+  // questa scelta): niente da chiedere qui, con Avanti il Mimo lo copia
+  // (vedi commitMimoSeSelezionato in NightSequencer)
   if (target?.ruoloSlug) {
     return (
       <div className="azione-mimo">
@@ -78,7 +83,7 @@ export function AzioneMimo({
   const opzioni = [
     ...new Set([
       ...ruoliAssegnabili(
-        ruoliSelezionati.filter((slug) => slug !== 'mimo' && !RUOLI_NON_CARTA_SEGRETA.includes(slug)),
+        ruoliSelezionati.filter((slug) => !NON_IMITABILI.includes(slug)),
         giocatori,
         quantita,
       ),

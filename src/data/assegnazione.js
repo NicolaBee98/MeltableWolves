@@ -12,9 +12,11 @@ export function contaAssegnati(giocatori, slug) {
   return giocatori.filter((g) => {
     // [] (salvataggi vecchi) vale come "nessuna storia": ripiega su ruoloSlug
     const storia = g.storiaRuoli?.length ? g.storiaRuoli : [g.ruoloSlug]
-    // il Mimo che copia un ruolo non consuma una carta: la carta è del bersaglio
-    if (storia.includes('mimo') && slug !== 'mimo') return false
-    return storia.includes(slug)
+    // il Mimo che copia un ruolo non consuma una carta: la carta è del
+    // bersaglio. Contano solo i ruoli fino alla carta Mimo inclusa (chi era
+    // Ladro e ha scelto la carta Mimo ha storia [ladro, mimo]: il Ladro conta)
+    const i = storia.indexOf('mimo')
+    return (i < 0 ? storia : storia.slice(0, i + 1)).includes(slug)
   }).length
 }
 
@@ -42,7 +44,9 @@ function mescola(lista) {
 export function assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, quantita) {
   const daAssegnare = (quantita['guardia-mannara'] ?? 0) - contaAssegnati(giocatori, 'guardia-mannara')
   if (daAssegnare <= 0) return
-  const guardieSenzaTradimento = giocatori.filter((g) => g.ruoloSlug === 'guardia')
+  // il Mimo che copia la Guardia non è una carta Guardia: mai traditrice
+  // (se copia esplicitamente 'guardia-mannara' lo è già, con quello slug)
+  const guardieSenzaTradimento = giocatori.filter((g) => g.ruoloSlug === 'guardia' && !eMimoCopiante(g))
   const scelte = mescola(guardieSenzaTradimento).slice(0, daAssegnare)
   for (const g of scelte) {
     aggiornaGiocatore(g.id, {

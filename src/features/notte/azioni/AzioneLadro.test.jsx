@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneLadro } from './AzioneLadro'
 
@@ -143,34 +143,31 @@ test('la carta già scelta nel primo select non è più selezionabile nel second
   expect(Array.from(select2.options).map((o) => o.value)).not.toContain('veggente')
 })
 
-test('se il Mimo sta imitando il Ladro (stesso ruoloSlug), la scelta finale si scrive su entrambi, non solo sul primo trovato', async () => {
+test('se il Mimo imita il Ladro sceglie dopo di lui, tra le carte rimaste: la scelta del Ladro non tocca il Mimo', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
-  const giocatori = [
+  let giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['mimo', 'ladro'], legame: { tipo: 'mimo', targetId: '2' }, scartoLadro: ['veggente', 'paladino'] },
     { id: '2', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
   ]
-  render(
-    <AzioneLadro
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
-      ruoliSelezionati={['ladro', 'veggente', 'paladino']}
-      quantita={{ ladro: 1, veggente: 1, paladino: 1 }}
-    />,
-  )
-
-  await user.click(screen.getByRole('button', { name: 'Resta Villico' }))
-
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
-    ruoloSlug: 'villico',
-    storiaRuoli: ['mimo', 'ladro', 'villico'],
-    poteriUsati: ['ladro-scelta'],
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
   })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', {
-    ruoloSlug: 'villico',
-    storiaRuoli: ['ladro', 'villico'],
-    poteriUsati: ['ladro-scelta'],
-  })
+  const props = { aggiornaGiocatore, ruoliSelezionati: ['ladro', 'veggente', 'paladino'], quantita: { ladro: 1, veggente: 1, paladino: 1 } }
+  const { rerender } = render(<AzioneLadro giocatori={giocatori} {...props} />)
+
+  // prima il Ladro vero (Anna): il Mimo non ha ancora la sua scelta
+  expect(screen.queryByRole('group', { name: 'Cosa sceglie il Mimo' })).not.toBeInTheDocument()
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  expect(giocatori[1]).toMatchObject({ ruoloSlug: 'veggente', storiaRuoli: ['ladro', 'veggente'] })
+  expect(giocatori[0].ruoloSlug).toBe('ladro')
+
+  // poi il Mimo: solo la carta rimasta (Paladino) o Villico
+  rerender(<AzioneLadro giocatori={giocatori} {...props} />)
+  const gruppoMimo = screen.getByRole('group', { name: 'Cosa sceglie il Mimo' })
+  expect(within(gruppoMimo).queryByRole('button', { name: 'Veggente' })).not.toBeInTheDocument()
+  await user.click(within(gruppoMimo).getByRole('button', { name: 'Paladino' }))
+  expect(giocatori[0]).toMatchObject({ ruoloSlug: 'paladino', storiaRuoli: ['mimo', 'ladro', 'paladino'] })
+  expect(giocatori[1].ruoloSlug).toBe('veggente')
 })
 
 test('la scelta del Ladro resta modificabile finché non si preme Avanti: cambiare carta rimette in mazzo quella scartata prima', async () => {

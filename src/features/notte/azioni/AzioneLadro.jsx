@@ -1,5 +1,5 @@
 import { eLupo, nomeRuolo } from '../../../data/roles'
-import { ruoliAssegnabili } from '../../../data/assegnazione'
+import { ruoliAssegnabili, eMimoCopiante } from '../../../data/assegnazione'
 
 const POTERE = 'ladro-scelta'
 
@@ -17,8 +17,12 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   const attori = giocatori.filter(
     (g) => g.ruoloSlug === 'ladro' || ((g.poteriUsati ?? []).includes(POTERE) && (g.storiaRuoli ?? []).includes('ladro')),
   )
-  const ladro = attori[0]
-  const usato = (ladro?.poteriUsati ?? []).includes(POTERE)
+  // il Ladro vero sceglie per primo; il Mimo che lo imita (se c'è) subito
+  // dopo, tra le carte rimaste
+  const ladro = attori.find((g) => !eMimoCopiante(g)) ?? attori[0]
+  const mimo = attori.find((g) => g !== ladro)
+  const haScelto = (g) => (g?.poteriUsati ?? []).includes(POTERE)
+  const usato = haScelto(ladro)
   const [carta1, carta2] = ladro?.scartoLadro ?? []
   // solo carte non ancora in mano a nessuno ("tra quelle non assegnate a
   // nessuno", come dice il testo sotto): altrimenti si potrebbe scartare la
@@ -52,25 +56,29 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   // se resta Villico, si scartano entrambe.
   const scartate = (scelta) => (scelta === carta1 ? [carta2] : scelta === carta2 ? [carta1] : [carta1, carta2])
 
-  // la scelta resta modificabile finché non si preme "Avanti": un'unica
-  // funzione annulla la scelta precedente (identità, storiaRuoli, poteriUsati,
-  // carte scartate rimesse nel mazzo) e applica la nuova; `nuova` null =
-  // deselezione, si torna a "non ha scelto". Se il Mimo imita il Ladro (stesso
-  // ruoloSlug, vedi AzioneMimo.jsx) la scelta va scritta su ENTRAMBI (attori).
-  // `scarto`: nuove carte candidate, se si sta cambiando anche quelle.
+  // scrive la scelta di UN attore, annullando la sua precedente (identità,
+  // storiaRuoli, poteriUsati); `nuova` null = deselezione, torna a "non ha
+  // scelto". `scarto`: nuove carte candidate, se si sta cambiando anche quelle.
+  function scrivi(g, nuova, scarto) {
+    const precedente = haScelto(g) ? g.ruoloSlug : null
+    const storia = (g.storiaRuoli ?? []).filter((s) => s !== precedente)
+    const poteri = (g.poteriUsati ?? []).filter((p) => p !== POTERE)
+    aggiornaGiocatore(g.id, {
+      ...(scarto ? { scartoLadro: scarto } : {}),
+      ...(nuova
+        ? { ruoloSlug: nuova, storiaRuoli: [...storia, nuova], poteriUsati: [...poteri, POTERE] }
+        : { ruoloSlug: 'ladro', storiaRuoli: storia, poteriUsati: poteri }),
+    })
+  }
+
+  // la scelta resta modificabile finché non si preme "Avanti": annulla la
+  // scelta precedente del Ladro e applica la nuova, rimettendo nel mazzo le
+  // carte scartate prima. Se cambia la scelta del Ladro, quella del Mimo
+  // (fatta tra le carte che restavano) decade e va rifatta.
   function imposta(nuova, scarto) {
     const precedente = usato ? ladro.ruoloSlug : null
 
-    attori.forEach((g) => {
-      const storia = (g.storiaRuoli ?? []).filter((s) => s !== precedente)
-      const poteri = (g.poteriUsati ?? []).filter((p) => p !== POTERE)
-      aggiornaGiocatore(g.id, {
-        ...(scarto ? { scartoLadro: scarto } : {}),
-        ...(nuova
-          ? { ruoloSlug: nuova, storiaRuoli: [...storia, nuova], poteriUsati: [...poteri, POTERE] }
-          : { ruoloSlug: 'ladro', storiaRuoli: storia, poteriUsati: poteri }),
-      })
-    })
+    attori.forEach((g) => scrivi(g, g === ladro ? nuova : null, scarto))
 
     // quantità nette: la stessa carta rimessa e riscartata non cambia nulla
     const delta = {}
@@ -95,6 +103,15 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   function scegli(ruoloSlug) {
     imposta(usato && ruoloSlug === ladro.ruoloSlug ? null : ruoloSlug)
   }
+
+  // il Mimo che imita il Ladro scambia la propria carta con una di quelle
+  // rimaste dopo il Ladro (una sola, o entrambe se il Ladro resta Villico).
+  // Quella carta è già fuori dal mazzo (scartata nel conto del Ladro): il
+  // Mimo la copia, non la occupa
+  function scegliMimo(ruoloSlug) {
+    scrivi(mimo, haScelto(mimo) && ruoloSlug === mimo.ruoloSlug ? null : ruoloSlug)
+  }
+  const rimaste = usato ? scartate(ladro.ruoloSlug) : []
 
   return (
     <div className="azione-ladro">
@@ -156,6 +173,25 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
                 Resta Villico
               </button>
             )}
+          </div>
+        </>
+      )}
+
+      {mimo && usato && (
+        <>
+          <p>Ora sceglie {mimo.nome} (Mimo, imita il Ladro), tra le carte rimaste.</p>
+          <div className="scelta-giocatore__chips" role="group" aria-label="Cosa sceglie il Mimo">
+            {[...rimaste, 'villico'].map((slug) => (
+              <button
+                key={slug}
+                type="button"
+                className="chip"
+                aria-pressed={haScelto(mimo) && mimo.ruoloSlug === slug}
+                onClick={() => scegliMimo(slug)}
+              >
+                {slug === 'villico' ? 'Resta Villico' : nomeRuolo(slug)}
+              </button>
+            ))}
           </div>
         </>
       )}

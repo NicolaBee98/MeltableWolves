@@ -47,29 +47,6 @@ test('con bersaglio scelto ma senza ruolo noto, propone le carte del mazzo (Vill
   expect(aggiornaGiocatore).not.toHaveBeenCalled()
 })
 
-test('non propone mai Alchimista/Boia/Scemo del Villaggio/Innocente tra le carte: si rivelano solo dal loro evento dedicato, non sono mai una carta segreta da copiare', () => {
-  const giocatori = [
-    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
-    { id: '2', nome: 'Marco', vivo: true },
-  ]
-  render(
-    <AzioneMimo
-      giocatori={giocatori}
-      aggiornaGiocatore={() => {}}
-      ruoliSelezionati={['mimo', 'alchimista', 'boia', 'scemo-del-villaggio', 'innocente', 'veggente']}
-      quantita={{ alchimista: 1, boia: 1, 'scemo-del-villaggio': 1, innocente: 1, veggente: 1 }}
-      mimoRuoloScelto={null}
-      onScegliRuoloMimo={() => {}}
-    />,
-  )
-
-  expect(screen.queryByRole('button', { name: 'Alchimista' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Boia' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Scemo del Villaggio' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Innocente' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Veggente' })).toBeInTheDocument()
-})
-
 test('la carta già scelta (mimoRuoloScelto) resta modificabile: la chip corrispondente è marcata attiva', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
@@ -173,4 +150,44 @@ test('cliccando di nuovo la chip del bersaglio scelto la deseleziona: toglie il 
 
   expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
+})
+
+test('propone anche Boia, Alchimista, Scemo, Innocente, Suocera e Guardia Mannara, ma mai Mimo, Borgomastro e Fantasma Onnisciente', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const ruoli = ['mimo', 'boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'suocera', 'guardia-mannara', 'borgomastro', 'fantasma-onnisciente']
+  render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={ruoli} quantita={{}} />)
+
+  for (const nome of ['Boia', 'Alchimista', 'Scemo del Villaggio', 'Innocente', 'Suocera', 'Guardia Mannara']) {
+    expect(screen.getByRole('button', { name: nome })).toBeInTheDocument()
+  }
+  for (const nome of ['Mimo', 'Borgomastro', 'Fantasma Onnisciente']) {
+    expect(screen.queryByRole('button', { name: nome })).not.toBeInTheDocument()
+  }
+})
+
+test('cambiare bersaglio azzera la carta già scelta (non si trascina al nuovo bersaglio)', async () => {
+  const user = userEvent.setup()
+  const onScegliRuoloMimo = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+    { id: '3', nome: 'Nina', vivo: true },
+  ]
+  render(
+    <AzioneMimo
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['mimo', 'veggente']}
+      quantita={{ veggente: 1 }}
+      mimoRuoloScelto="veggente"
+      onScegliRuoloMimo={onScegliRuoloMimo}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Nina' }))
+
+  expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
 })

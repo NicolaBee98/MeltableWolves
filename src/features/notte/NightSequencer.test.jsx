@@ -91,7 +91,7 @@ test('assegna comunque il Villico a fine notte anche quando "assegna i ruoli rim
   // giocatori avanzati devono comunque ricevere un ruolo a fine notte
   const user = userEvent.setup()
   const giocatori = [
-    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '1', nome: 'Sara', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
     { id: '3', nome: 'Elena', vivo: true, condizioni: [] },
   ]
@@ -801,7 +801,7 @@ test('"Notte successiva" chiama onNotteConclusa', async () => {
 
 test('il Mimo compare anche nel passo del ruolo che sta imitando', () => {
   const giocatori = [
-    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
+    { id: '1', nome: 'Sara', ruoloSlug: 'paladino', storiaRuoli: ['mimo', 'paladino'], legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
     { id: '2', nome: 'Marco', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
   ]
   render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
@@ -811,7 +811,7 @@ test('il Mimo compare anche nel passo del ruolo che sta imitando', () => {
 
 test('il Mimo non compare in un passo del ruolo che NON sta imitando', () => {
   const giocatori = [
-    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
+    { id: '1', nome: 'Sara', ruoloSlug: 'veggente', storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '2' }, vivo: true, condizioni: [] },
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
     { id: '3', nome: 'Elena', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
   ]
@@ -1538,4 +1538,62 @@ test('Sacerdote e Mimo che lo copia: ognuno unisce la propria coppia, sciogliere
   // il Mimo scioglie la sua coppia: Pietro resta innamorato (scelto anche da Sam), Sam no
   await user.click(chip('Mia', 'Sam'))
   expect(innamorati()).toEqual(['Pietro', 'Rita'])
+})
+
+test('Mimo: Avanti senza aver scelto la carta lo converte in Villico, senza legame (il "percorso 2" non esiste)', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], storiaRuoli: ['mimo'], legame: { tipo: 'mimo', targetId: '2' } },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['mimo', 'paladino'],
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(h.stato.giocatori[0]).toMatchObject({ ruoloSlug: 'villico', storiaRuoli: ['mimo', 'villico'] })
+  expect(h.stato.giocatori[0].legame).toBeUndefined()
+  expect(h.stato.giocatori[1].ruoloSlug).toBeUndefined()
+})
+
+test('Mimo: se il narratore toglie la carta al bersaglio, il Mimo non tiene una carta "stale" (torna da scegliere)', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'paladino', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'paladino'], legame: { tipo: 'mimo', targetId: '2' } },
+      { id: '2', nome: 'Marco', ruoloSlug: 'paladino', vivo: true, condizioni: [], storiaRuoli: ['paladino'] },
+      { id: '3', nome: 'Elena', vivo: true, condizioni: [] },
+    ],
+    ['mimo', 'paladino'],
+  )
+
+  const chi = () => within(screen.getByRole('group', { name: 'Chi ha questa carta' }))
+  // la chip del Mimo non c'è nella schermata del ruolo imitato
+  expect(chi().queryByRole('button', { name: 'Sara' })).not.toBeInTheDocument()
+  await user.click(chi().getByRole('button', { name: 'Marco' }))
+  expect(h.stato.giocatori[0]).toMatchObject({ ruoloSlug: 'mimo', storiaRuoli: ['mimo'] })
+})
+
+test('Ladro che sceglie la carta Mimo (tra le due in più): dopo il suo passo si torna al passo del Mimo per scegliere chi copiare', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['mimo', 'paladino'] },
+      { id: '2', nome: 'Bob', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['veggente'] },
+    ],
+    ['mimo', 'ladro', 'veggente', 'paladino'],
+    { mimo: 1, ladro: 1, veggente: 1, paladino: 1 },
+  )
+
+  // il Mimo non è assegnato a nessun giocatore: si può passare oltre
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByRole('heading', { name: /ladro/i })).toBeInTheDocument()
+
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Mimo' }))
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('mimo')
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(screen.getByRole('heading', { name: /^mimo \(anna\)/i })).toBeInTheDocument()
+  expect(screen.getByText('Chi imitare')).toBeInTheDocument()
 })
