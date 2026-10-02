@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { EventiSpeciali } from './EventiSpeciali'
 
@@ -196,24 +196,23 @@ test('Il Boia giustizia: "Annulla" chiude il popup senza dichiarare nulla (nient
   expect(onBoiaGiustizia).not.toHaveBeenCalled()
 })
 
-test('il Boia può giustiziare se stesso: resta tra i candidati del secondo passo (caso limite ammesso)', async () => {
+test('Boia, secondo passo: nessuna preselezione, Conferma disabilitato e il Boia non è tra i candidati', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Ivo', vivo: true },
     { id: '2', nome: 'Anna', vivo: true },
   ]
-  const { onBoiaGiustizia } = setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+  setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
-  expect(screen.getByRole('button', { name: 'Ivo' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Ivo' }))
-  await user.click(screen.getByRole('button', { name: 'Conferma' }))
-
-  expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '1')
+  const gruppo = screen.getByRole('group', { name: 'Chi giustizia il Boia' })
+  expect(within(gruppo).queryByRole('button', { name: 'Ivo' })).not.toBeInTheDocument()
+  expect(within(gruppo).getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+  expect(screen.getByRole('button', { name: 'Conferma' })).toBeDisabled()
 })
 
 test('"Chi è il Boia" propone solo i giocatori senza ruolo ancora noto, non tutti i vivi', async () => {

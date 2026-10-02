@@ -51,7 +51,10 @@ function EventoDueGiocatori({
   if (!attoreId) {
     return (
       <>
+        {/* key diversa dal secondo passo: altrimenti React riusa lo stato e la
+            chip scelta come attore resterebbe preselezionata come bersaglio */}
         <SceltaGiocatore
+          key="attore"
           candidati={candidatiAttore}
           onConferma={setAttoreId}
           onSalta={onAnnulla}
@@ -66,6 +69,7 @@ function EventoDueGiocatori({
   const bersagli = escludiAttoreDaBersagli ? candidatiBersaglio.filter((g) => g.id !== attoreId) : candidatiBersaglio
   return (
     <SceltaGiocatore
+      key="bersaglio"
       candidati={bersagli}
       onConferma={(id) => onConferma(attoreId, id)}
       onSalta={onAnnulla}
@@ -310,6 +314,7 @@ export function EventiSpeciali({
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
               etichettaBersaglio="Chi giustizia il Boia"
+              escludiAttoreDaBersagli
               onConferma={(boiaId, id) =>
                 applica(`${nome(boiaId)} si è rivelato/a: è il Boia e giustizia ${nome(id)}.`, () => onBoiaGiustizia(boiaId, id))
               }

@@ -5,7 +5,8 @@ import { ROLES, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
 import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
-import { PromemoriaMorte } from './PromemoriaMorte'
+import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
+import { conseguenzeMorte } from '../../data/eventiSpeciali'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
@@ -138,6 +139,9 @@ export function Votazione({
   // "Si rivela: è lo Spilungone/L'Antico" non si applica al primo click: prima
   // una conferma esplicita (come per le scelte degli Eventi speciali)
   const [rivelazioneInConferma, setRivelazioneInConferma] = useState(null)
+  // riepilogo (al passato) delle conseguenze della morte appena dichiarata,
+  // calcolato prima di applicarla: dopo la conferma l'anteprima sparirebbe
+  const [riepilogoMorte, setRiepilogoMorte] = useState({})
 
   // la scelta dello spareggio vale solo per il voto che l'ha generata: se si
   // torna al voto (o si ricomincia) e i voti cambiano, non deve restare
@@ -186,12 +190,12 @@ export function Votazione({
       designati.find((id) => round !== undefined && giocatori.find((g) => g.id === id)?.villaggioMaledettoFinoA === round) ??
       null
     // il Cavaliere legato al designato si è immolato al suo posto (vedi
-    // risolviLegami): il designato è tornato vivo e il Cavaliere risulta
-    // morto per 'sacrificio' in questo giorno
+    // risolviLegami): il designato è tornato vivo e il Cavaliere porta il
+    // marcatore sacrificioRogoRound di questo giorno (mortoNotte resta vuoto)
     const cavaliereImmolato =
       round === undefined
         ? undefined
-        : giocatori.find((g) => !g.vivo && g.causaMorte === 'sacrificio' && g.mortoNotte === round)
+        : giocatori.find((g) => !g.vivo && g.causaMorte === 'sacrificio' && g.sacrificioRogoRound === round)
     const protettoImmolatoId = cavaliereImmolato
       ? designati.find((id) => giocatori.find((g) => g.id === id)?.vivo)
       : undefined
@@ -229,8 +233,19 @@ export function Votazione({
       } else if (target?.ruoloSlug === 'alchimista') {
         setAlchimistaInAttesaVittimaId(id)
       } else {
+        setRiepilogoMorte((r) => ({ ...r, [id]: conseguenzeMorte(giocatori, id, true) }))
         onRogo(id)
       }
+    }
+
+    // morte confermata: riepilogo salvato al click (o, dopo un reload, solo il
+    // crepacuore dei partner che si deduce dallo stato)
+    function riepilogoDi(id) {
+      return riepilogoMorte[id]?.length ? (
+        <RigheConseguenze righe={riepilogoMorte[id]} />
+      ) : (
+        <PromemoriaMorte giocatori={giocatori} id={id} />
+      )
     }
 
     // come sopra, ma per un ruolo non ancora assegnato in app: lo rivela
@@ -269,8 +284,7 @@ export function Votazione({
         const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <p>
-            Il Cavaliere {cavaliereImmolato.nome} rivela la propria carta e si è immolato al posto di {nome}:{' '}
-            {nome} sopravvive al rogo.
+            Il Cavaliere {cavaliereImmolato.nome} si sacrifica al posto di {nome}: {nome} sopravvive al rogo.
           </p>
         )
       }
@@ -368,8 +382,7 @@ export function Votazione({
           </div>
         )
       }
-      // morte confermata: resta il promemoria del crepacuore del partner
-      return <PromemoriaMorte giocatori={giocatori} id={id} />
+      return riepilogoDi(id)
     }
 
     // chi tra i candidati allo spareggio è stato effettivamente designato:
@@ -403,9 +416,7 @@ export function Votazione({
                     {giocatori.find((g) => g.id === vittimaSpareggioId)?.nome}
                   </span>
                 </p>
-                {giocatori.find((g) => g.id === vittimaSpareggioId)?.vivo === false && (
-                  <PromemoriaMorte giocatori={giocatori} id={vittimaSpareggioId} />
-                )}
+                {giocatori.find((g) => g.id === vittimaSpareggioId)?.vivo === false && riepilogoDi(vittimaSpareggioId)}
               </>
             ) : (
               <>
@@ -516,7 +527,7 @@ export function Votazione({
                 alt="Borgomastro: il suo voto vale doppio"
               />
             )}
-            <span className="votazione__voti">{voti[g.id] ?? 0} voti</span>
+            <span className="votazione__voti">{voti[g.id] ?? 0} {(voti[g.id] ?? 0) === 1 ? 'voto' : 'voti'}</span>
             <button type="button" onClick={() => decrementaVoto(g.id)}>
               -1
             </button>

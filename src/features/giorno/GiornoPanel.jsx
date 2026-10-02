@@ -46,6 +46,7 @@ export function GiornoPanel({
     const target = giocatori.find((g) => g.id === id)
     dichiaraColpo(id, {
       ruoloSlug: 'scemo-del-villaggio',
+      mortoDa: 'scemo',
       storiaRuoli: [...(target?.storiaRuoli ?? []), 'scemo-del-villaggio'],
     })
   }
@@ -53,7 +54,7 @@ export function GiornoPanel({
   // l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
   // vivi ai suoi due fianchi (pag. 22)
   function dichiaraMorteUnzione(id) {
-    if (!dichiaraColpo(id)) return
+    if (!dichiaraColpo(id, { mortoDa: 'unzione' })) return
     for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
       aggiornaGiocatore(vicinoId, patch)
     }
@@ -116,7 +117,7 @@ export function GiornoPanel({
       causaMorte: 'rogo',
       poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],
     })
-    dichiaraColpo(vittimaId)
+    dichiaraColpo(vittimaId, { mortoDa: 'alchimista' })
   }
 
   function dichiaraBardoSaltaNotte() {

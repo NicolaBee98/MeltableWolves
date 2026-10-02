@@ -76,5 +76,5 @@ export function dichiaraBoiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGioc
     storiaRuoli: [...(boia?.storiaRuoli ?? []), 'boia'],
     poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
   })
-  dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno)
+  dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'boia' })
 }

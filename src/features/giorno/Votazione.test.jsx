@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Votazione } from './Votazione'
+import { GiornoPanel } from './GiornoPanel'
+import { usePartita } from '../../state/usePartita'
 
 const giocatori = [
   { id: '1', nome: 'Anna', vivo: true },
@@ -416,10 +418,10 @@ test('Cavaliere immolato al rogo: esito confermato con messaggio chiaro e "È no
     giocatori: [
       { id: '1', nome: 'Anna', vivo: true },
       { id: '2', nome: 'Marco', vivo: true },
-      { id: '3', nome: 'Luca', vivo: false, causaMorte: 'sacrificio', mortoNotte: 2 },
+      { id: '3', nome: 'Luca', vivo: false, causaMorte: 'sacrificio', sacrificioRogoRound: 2 },
     ],
   })
-  expect(screen.getByText(/Luca rivela la propria carta e si è immolato al posto di Anna/)).toBeInTheDocument()
+  expect(screen.getByText(/Luca si sacrifica al posto di Anna: Anna sopravvive/)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Dichiara morte sul rogo' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
 })
@@ -507,4 +509,88 @@ test("l'esito del rogo ricorda il crepacuore del partner del designato prima di 
   })
 
   expect(screen.getByText('Morirà anche Marco (crepacuore).')).toBeInTheDocument()
+})
+
+test('Cavaliere al rogo end-to-end: si sacrifica, compare "È notte", un secondo click non può uccidere il protetto', async () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico' },
+      { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+    ]),
+  )
+  function Giorno() {
+    const p = usePartita()
+    return (
+      <GiornoPanel
+        giocatori={p.giocatori}
+        voti={{ 1: 3 }}
+        fase="esito"
+        candidatiEsito={['1', '2', '3']}
+        aggiornaGiocatore={p.aggiornaGiocatore}
+        annullaMorte={p.annullaMorte}
+        ruoliSelezionati={['cavaliere']}
+        quantita={{}}
+        round={2}
+        onProsegui={() => {}}
+      />
+    )
+  }
+  const user = userEvent.setup()
+  render(<Giorno />)
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.getByText(/Il Cavaliere Luca si sacrifica al posto di Anna: Anna sopravvive/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Dichiara morte sul rogo' })).not.toBeInTheDocument()
+  localStorage.clear()
+})
+
+test('dopo la conferma del rogo resta il riepilogo delle conseguenze (Figlia dei Lupi, crepacuore)', async () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['4'] },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico' },
+      { id: '3', nome: 'Fiamma', vivo: true, ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '1' } },
+      { id: '4', nome: 'Bruno', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    ]),
+  )
+  function Giorno() {
+    const p = usePartita()
+    return (
+      <GiornoPanel
+        giocatori={p.giocatori}
+        voti={{ 1: 3 }}
+        fase="esito"
+        candidatiEsito={['1', '2']}
+        aggiornaGiocatore={p.aggiornaGiocatore}
+        annullaMorte={p.annullaMorte}
+        ruoliSelezionati={[]}
+        quantita={{}}
+        round={2}
+        onProsegui={() => {}}
+      />
+    )
+  }
+  const user = userEvent.setup()
+  render(<Giorno />)
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.getByText('La Figlia dei Lupi Fiamma è diventata Lupo Mannaro.')).toBeInTheDocument()
+  expect(screen.getByText('È morto anche Bruno (crepacuore).')).toBeInTheDocument()
+  localStorage.clear()
+})
+
+test('plurale corretto dei voti: "1 voto", "0 voti", "2 voti"', () => {
+  setup({
+    voti: { 1: 1, 2: 2 },
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true },
+      { id: '2', nome: 'Marco', vivo: true },
+      { id: '3', nome: 'Luca', vivo: true },
+    ],
+  })
+  expect(screen.getByText('1 voto')).toBeInTheDocument()
+  expect(screen.getByText('2 voti')).toBeInTheDocument()
+  expect(screen.getByText('0 voti')).toBeInTheDocument()
 })
