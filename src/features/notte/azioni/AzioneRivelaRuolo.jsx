@@ -25,6 +25,9 @@ export function AzioneRivelaRuolo({
   // fisica: gliela si chiede per assegnarla subito, invece di registrare
   // "ruolo sconosciuto" — il potere fa guadagnare informazioni anche a lui
   const [targetInAttesaDiRuolo, setTargetInAttesaDiRuolo] = useState(null)
+  // carta scelta per un bersaglio ignoto: { id, prima: {ruoloSlug, storiaRuoli}, ruoloSlug }.
+  // Resta modificabile fino ad Avanti, quindi si tiene com'era per disfarla
+  const [assegnato, setAssegnato] = useState(null)
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
@@ -37,10 +40,30 @@ export function AzioneRivelaRuolo({
         ultimaIndagine: { targetId, ruoloRivelato, notte: round },
       })
     }
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
+    // cambiare bersaglio non è un nuovo uso
+    if (!indagineStanotte) segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
+  }
+
+  // toglie l'indagine di stanotte e il suo uso: si torna a "nessuna scelta"
+  function liberaIndagine() {
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, (g) => {
+      const usi = [...(g.usiNotte ?? [])]
+      const idx = usi.lastIndexOf(potere)
+      if (idx >= 0) usi.splice(idx, 1)
+      return { ultimaIndagine: null, usiNotte: usi }
+    })
+  }
+
+  // disfa la carta scritta sul bersaglio ignoto (ruolo e storia come prima)
+  function disfaAssegnazione() {
+    if (!assegnato) return
+    aggiornaGiocatore(assegnato.id, assegnato.prima)
+    liberaIndagine()
+    setAssegnato(null)
   }
 
   function confermaScelta(targetId) {
+    if (indagineStanotte?.targetId === targetId) return liberaIndagine()
     const target = giocatori.find((g) => g.id === targetId)
     if (target && !target.ruoloSlug) {
       setTargetInAttesaDiRuolo(targetId)
@@ -49,14 +72,14 @@ export function AzioneRivelaRuolo({
     registraIndagine(targetId, target?.ruoloSlug)
   }
 
+  // la carta si può cambiare (altra chip) o deselezionare (stessa chip)
   function confermaRuoloVisto(ruoloSlug) {
+    if (assegnato?.ruoloSlug === ruoloSlug) return disfaAssegnazione()
     const target = giocatori.find((g) => g.id === targetInAttesaDiRuolo)
-    aggiornaGiocatore(targetInAttesaDiRuolo, {
-      ruoloSlug,
-      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
-    })
+    const prima = assegnato?.prima ?? { ruoloSlug: target?.ruoloSlug, storiaRuoli: target?.storiaRuoli ?? [] }
+    aggiornaGiocatore(targetInAttesaDiRuolo, { ruoloSlug, storiaRuoli: [...prima.storiaRuoli, ruoloSlug] })
     registraIndagine(targetInAttesaDiRuolo, ruoloSlug)
-    setTargetInAttesaDiRuolo(null)
+    setAssegnato({ id: targetInAttesaDiRuolo, prima, ruoloSlug })
   }
 
   if (targetInAttesaDiRuolo) {
@@ -69,17 +92,31 @@ export function AzioneRivelaRuolo({
       giocatori,
       quantita,
     )
+    // la carta già scelta conta come assegnata: resta comunque in lista, per poterla togliere
+    if (assegnato && !opzioni.includes(assegnato.ruoloSlug)) opzioni.push(assegnato.ruoloSlug)
     return (
       <div className="azione-indagine">
         <p>La carta di {target?.nome} è ancora sconosciuta: quale ruolo mostra?</p>
         <div className="scelta-giocatore__chips" role="group" aria-label="Che ruolo era">
           {opzioni.map((slug) => (
-            <button key={slug} type="button" className="chip" onClick={() => confermaRuoloVisto(slug)}>
+            <button
+              key={slug}
+              type="button"
+              className="chip"
+              aria-pressed={assegnato?.ruoloSlug === slug}
+              onClick={() => confermaRuoloVisto(slug)}
+            >
               {nomeRuolo(slug)}
             </button>
           ))}
         </div>
-        <button type="button" onClick={() => setTargetInAttesaDiRuolo(null)}>
+        <button
+          type="button"
+          onClick={() => {
+            disfaAssegnazione()
+            setTargetInAttesaDiRuolo(null)
+          }}
+        >
           Annulla (cambia bersaglio)
         </button>
       </div>
@@ -91,11 +128,8 @@ export function AzioneRivelaRuolo({
   }
 
   // come il Veggente: la chip resta modificabile finché non si preme
-  // "Avanti" (vedi AzioneIndagine). Un bersaglio con ruolo GIÀ noto può
-  // essere ricambiato liberamente (è solo informativo); uno con ruolo
-  // ignoto invece, una volta assegnato tramite il flusso qui sopra, resta
-  // assegnato per sempre (è un fatto reale sul giocatore, non solo la
-  // scelta dell'attore) anche se in seguito si indaga qualcun altro.
+  // "Avanti" e, se già premuta, si deseleziona. Anche la carta scelta per un
+  // bersaglio ignoto (qui sopra) si cambia o si toglie, senza residui.
   return (
     <div className="azione-indagine">
       <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>

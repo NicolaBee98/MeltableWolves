@@ -123,3 +123,31 @@ test('cambiare bersaglio annulla la resurrezione reimpostando lo stato (impostaG
   expect(anna.causaMorte).toBe('notte')
   expect(anna.condizioni).toEqual([])
 })
+
+test('cliccare di nuovo il bersaglio resuscitato lo deseleziona: torna morto e il potere si rilascia', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const impostaGiocatori = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 2 },
+  ]
+  render(
+    <AzioneResuscita
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      impostaGiocatori={impostaGiocatori}
+      potereSlug="guaritore-resuscita"
+      ruoloSlugAttore="guaritore"
+      round={2}
+    />,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+  expect(impostaGiocatori.mock.calls[0][0].find((g) => g.id === '2')).toMatchObject({ vivo: false, causaMorte: 'notte' })
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+})

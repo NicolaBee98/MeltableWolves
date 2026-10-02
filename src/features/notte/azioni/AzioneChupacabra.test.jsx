@@ -161,3 +161,21 @@ test('il Gallo Mannaro non conta come lupo: sceglierlo (con un lupo vero ancora 
   expect(screen.getByText(/non è un lupo/i)).toBeInTheDocument()
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
+
+test('cliccare di nuovo la chip premuta deseleziona: annulla la morte e toglie l\'uso del potere', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: ['chupacabra-caccia'] },
+  ]
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+
+  expect(annullaMorte).toHaveBeenCalledWith('1')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'false')
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('3', { usiNotte: [] })
+})

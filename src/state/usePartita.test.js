@@ -350,3 +350,51 @@ test('un localStorage che lancia non manda in crash il salvataggio', () => {
   expect(() => act(() => result.current.addGiocatore('Anna'))).not.toThrow()
   spy.mockRestore()
 })
+
+// l'uso del potere viene scritto DOPO la morte: non deve impedire di disfare la catena
+test('annullaMorte disfa il crepacuore di un lupo innamorato anche se l\'attore ha scritto usiNotte dopo la morte', () => {
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+    mk('L', { ruoloSlug: 'lupo-mannaro', condizioni: ['innamorato'], usiNotte: [] }),
+  ])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  act(() => result.current.aggiornaGiocatore('L', { usiNotte: ['branco-lupi-sbrana'] }))
+  expect(result.current.giocatori.find((g) => g.id === 'L').vivo).toBe(false)
+  act(() => result.current.annullaMorte('A'))
+  const l = result.current.giocatori.find((g) => g.id === 'L')
+  expect(l.vivo).toBe(true)
+  expect(result.current.giocatori.find((g) => g.id === 'A').vivo).toBe(true)
+  // l'uso resta com'era: lo toglie chi annulla, non annullaMorte
+  expect(l.usiNotte).toEqual(['branco-lupi-sbrana'])
+})
+
+test('annullaMorte rimette Cucciolo e lupo del Berserker anche dopo la scrittura di usiNotte', () => {
+  const { result } = montaCon([
+    mk('B', { ruoloSlug: 'berserker' }),
+    mk('L', { ruoloSlug: 'lupo-mannaro', usiNotte: [] }),
+    mk('C', { ruoloSlug: 'cucciolo-di-lupo-mannaro' }),
+  ])
+  act(() => {
+    result.current.aggiornaGiocatore('B', { vivo: false, causaMorte: 'notte', mortoNotte: 1 })
+    result.current.aggiornaGiocatore('L', { vivo: false, causaMorte: 'notte', mortoNotte: 1 })
+  })
+  act(() => result.current.aggiornaGiocatore('L', { usiNotte: ['branco-lupi-sbrana'] }))
+  expect(result.current.giocatori.find((g) => g.id === 'C').ruoloSlug).toBe('lupo-mannaro')
+  act(() => result.current.annullaMorte('L'))
+  expect(result.current.giocatori.find((g) => g.id === 'L').vivo).toBe(true)
+  expect(result.current.giocatori.find((g) => g.id === 'C').ruoloSlug).toBe('cucciolo-di-lupo-mannaro')
+})
+
+test('annullaMorte: la Strega innamorata che avvelena il partner (poteriUsati scritti dopo) torna viva', () => {
+  const { result } = montaCon([
+    mk('S', { ruoloSlug: 'strega', condizioni: ['innamorato'], poteriUsati: [] }),
+    mk('P', { ruoloSlug: 'villico', condizioni: ['innamorato'] }),
+  ])
+  act(() => result.current.aggiornaGiocatore('P', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  act(() => result.current.aggiornaGiocatore('S', { poteriUsati: ['strega-pozione-mortale'] }))
+  expect(result.current.giocatori.find((g) => g.id === 'S').vivo).toBe(false)
+  act(() => result.current.annullaMorte('P'))
+  const s = result.current.giocatori.find((g) => g.id === 'S')
+  expect(s.vivo).toBe(true)
+  expect(s.poteriUsati).toEqual(['strega-pozione-mortale'])
+})
