@@ -90,3 +90,19 @@ test('"Salta" dopo un\'indagine già fatta la toglie, insieme alla perdita del p
     usiNotte: ['inquisitore-indagine'],
   })
 })
+
+test('Inquisitore e Mimo-Inquisitore hanno indagini e potere separati: il fallimento dell\'uno non toglie il potere all\'altro', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'inquisitore', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Gino', ruoloSlug: 'inquisitore', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'mimo', targetId: '1' } },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [], poteriUsati: [] },
+  ]
+  render(<AzioneInquisitore giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} attoreId="2" />)
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ poteriUsati: ['inquisitore-potere-perso'] }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.anything())
+})

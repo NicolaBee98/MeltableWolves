@@ -398,3 +398,36 @@ test('annullaMorte: la Strega innamorata che avvelena il partner (poteriUsati sc
   expect(s.vivo).toBe(true)
   expect(s.poteriUsati).toEqual(['strega-pozione-mortale'])
 })
+
+test('due coppie di innamorati: la morte di uno trascina solo il suo partner e annullaMorte lo disfa', () => {
+  const { result } = montaCon([
+    mk('A', { condizioni: ['innamorato'], innamoratiCon: ['B'] }),
+    mk('B', { condizioni: ['innamorato'], innamoratiCon: ['A'] }),
+    mk('C', { condizioni: ['innamorato'], innamoratiCon: ['D'] }),
+    mk('D', { condizioni: ['innamorato'], innamoratiCon: ['C'] }),
+  ])
+  const prima = result.current.giocatori
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  expect(result.current.giocatori.filter((g) => !g.vivo).map((g) => g.id)).toEqual(['A', 'B'])
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori).toEqual(prima)
+})
+
+test('annullaMorte di un Mimo-Scemo non ne cambia il ruolo copiato', () => {
+  const { result } = montaCon([mk('A', { ruoloSlug: 'scemo-del-villaggio', storiaRuoli: ['mimo', 'scemo-del-villaggio'] })])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'rogo' }))
+  act(() => result.current.annullaMorte('A'))
+  expect(result.current.giocatori[0]).toMatchObject({ vivo: true, ruoloSlug: 'scemo-del-villaggio' })
+})
+
+test('la vendetta del Cucciolo parte una sola volta: i due Cuccioli (Mimo incluso) morti insieme', () => {
+  const { result } = montaCon([
+    mk('A', { ruoloSlug: 'cucciolo-di-lupo-mannaro' }),
+    mk('B', { ruoloSlug: 'cucciolo-di-lupo-mannaro' }),
+    mk('C', { ruoloSlug: 'lupo-mannaro' }),
+  ])
+  act(() => result.current.aggiornaGiocatore('A', { vivo: false, causaMorte: 'rogo' }))
+  expect(result.current.giocatori.find((g) => g.id === 'C').vendettaCucciolo).toBe(true)
+  // il primo lupo morto ha fatto maturare il secondo Cucciolo: nessuna seconda vendetta
+  expect(result.current.giocatori.find((g) => g.id === 'B').ruoloSlug).toBe('lupo-mannaro')
+})

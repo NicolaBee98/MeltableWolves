@@ -19,21 +19,44 @@ test('propone lo scambio con la vittima del rogo della notte corrente: è un ver
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'addolorata', storiaRuoli: ['veggente', 'addolorata'] })
 })
 
-test('se il Mimo sta imitando l\'Addolorata (stesso ruoloSlug), lo scambio si scrive su entrambi', async () => {
+test('titolare e Mimo-Addolorata sono indipendenti: scambia solo chi preme, il Mimo ottiene un Villico, il ruolo non passa a due persone', async () => {
   const user = userEvent.setup()
-  const aggiornaGiocatore = vi.fn()
-  const giocatori = [
+  let giocatori = [
     { id: '1', nome: 'Gino', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
     { id: '3', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2 },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const { rerender } = render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  const ridisegna = () => rerender(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  // scambia la titolare (Sara): il Mimo resta Addolorata, Marco diventa Addolorata
+  await user.click(screen.getAllByRole('button', { name: 'Scambia' })[1])
+  ridisegna()
+  expect(giocatori.find((g) => g.id === '2').ruoloSlug).toBe('veggente')
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('addolorata')
+  expect(giocatori.find((g) => g.id === '3').ruoloSlug).toBe('addolorata')
+
+  // il Mimo non può prendere lo stesso ruolo: è già passato alla titolare
+  expect(screen.getByText(/già stato scambiato da un'altra Addolorata/)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Scambia' })).not.toBeInTheDocument()
+})
+
+test('il Mimo-Addolorata che scambia ottiene il ruolo della vittima, che diventa un Villico senza poteri', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Gino', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['mimo', 'addolorata'], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '3', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2, storiaRuoli: ['veggente'] },
   ]
   render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Scambia' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', poteriUsati: ['addolorata-scambio'] })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'veggente', poteriUsati: ['addolorata-scambio'] })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'addolorata', storiaRuoli: ['addolorata'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['veggente', 'villico'] })
 })
 
 test('mostra un messaggio se nessuno è morto al rogo questa notte', () => {

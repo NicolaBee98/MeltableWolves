@@ -191,3 +191,21 @@ test('Suocera nascosta non impedisce la vittoria del Pifferaio', () => {
   ]
   expect(condizioniVittoria(giocatori, { suocera: 1 })).toContain('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
 })
+
+test('Chupacabra e Mimo-Chupacabra ultimi due sopravvissuti: vincono insieme', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'chupacabra'] },
+    { id: '3', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+  ]
+  expect(condizioniVittoria(giocatori).join(' ')).toMatch(/ultimi due sopravvissuti/)
+})
+
+test('due innamorati di coppie diverse non vincono come superstiti', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'villico', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['3'] },
+    { id: '2', ruoloSlug: 'villico', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['4'] },
+    { id: '3', ruoloSlug: 'villico', vivo: false, condizioni: ['innamorato'] },
+  ]
+  expect(condizioniVittoria(giocatori).join(' ')).not.toMatch(/innamorati/i)
+})
