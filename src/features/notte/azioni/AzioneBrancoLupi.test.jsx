@@ -44,7 +44,7 @@ test('non permette una seconda vittima nella stessa notte', () => {
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
 })
 
-test('Cortigiana e Nano non compaiono tra i bersagli proposti (il branco non li nota nemmeno)', () => {
+test('la Cortigiana non compare tra i bersagli proposti; il Nano sì (come il Criceto Malvagio, immune ma selezionabile)', () => {
   const giocatori = [
     { id: '1', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [] },
     { id: '2', nome: 'Nino', ruoloSlug: 'nano', vivo: true, condizioni: [] },
@@ -53,7 +53,7 @@ test('Cortigiana e Nano non compaiono tra i bersagli proposti (il branco non li 
   render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={() => {}} round={1} ruoli={['lupo-mannaro']} />)
 
   expect(screen.queryByRole('button', { name: 'Cora' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Nino' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Nino' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
 })
 
@@ -305,12 +305,13 @@ test('con la vendetta del Cucciolo attiva il branco può sbranare due vittime ne
   expect(giocatori.find((g) => g.id === '3').vendettaCucciolo).toBe(false)
 })
 
-test('feedback quando il morso non ha effetto: protetto e Criceto Malvagio', async () => {
+test('feedback quando il morso non ha effetto: protetto, Criceto Malvagio e Nano', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'] },
     { id: '2', nome: 'Cri', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [] },
     { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '4', nome: 'Nino', ruoloSlug: 'nano', vivo: true, condizioni: [] },
   ]
   render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} ruoli={['lupo-mannaro']} />)
 
@@ -319,6 +320,9 @@ test('feedback quando il morso non ha effetto: protetto e Criceto Malvagio', asy
 
   await user.click(screen.getByRole('button', { name: 'Cri' }))
   expect(screen.getByText(/il morso non ha effetto su cri: il criceto malvagio/i)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Nino' }))
+  expect(screen.getByText(/il morso non ha effetto su nino: il nano non può essere sbranato/i)).toBeInTheDocument()
 })
 
 test('cambiare bersaglio annulla la morte con annullaMorte (catena inclusa), non con un semplice vivo:true', async () => {

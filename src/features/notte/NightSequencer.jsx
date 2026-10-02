@@ -77,7 +77,32 @@ const ALTEZZA_MINIMA_ILLUSTRAZIONE = 50
 // l'altezza, quindi si stima la larghezza totale della riga con questa media
 const RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO = 0.78
 
-function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
+// una voce per giocatore: lo slug mostrato e la variante numerata (Villico_N,
+// Guardia_N, Lupo_Mannaro_N: la posizione tra i giocatori con lo stesso ruolo,
+// nell'ordine stabile di `giocatori`, che qui include le selezioni pendenti
+// altrimenti i lupi appena scelti, ancora senza ruolo, ricadrebbero tutti sulla
+// prima illustrazione)
+function vociIllustrazioni(giocatori, giocatoriCoinvolti) {
+  const visti = giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) }))
+  return giocatoriCoinvolti.map((g) => {
+    const eMimo = g.legame?.tipo === 'mimo'
+    // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
+    return {
+      id: g.id,
+      slug: eMimo ? 'mimo' : ruoloPerDisplay(g.ruoloSlug),
+      variante: eMimo ? undefined : variantePerGiocatore(visti, g.id),
+    }
+  })
+}
+
+// `inTempoReale`: solo quando il passo stesso assegna i coinvolti (il branco
+// che si forma selezionando i Lupi). Altrimenti la riga si calcola UNA volta
+// all'ingresso nel passo (il componente è rimontato a ogni passo/riapertura) e
+// non segue più né le selezioni "chi ha questa carta" né le morti causate
+// dall'azione stessa: si aggiorna solo con Avanti.
+function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, inTempoReale = false }) {
+  const [congelate] = useState(() => vociIllustrazioni(giocatori, giocatoriCoinvolti))
+  const voci = inTempoReale ? vociIllustrazioni(giocatori, giocatoriCoinvolti) : congelate
   const contenitoreRef = useRef(null)
   const [larghezzaDisponibile, setLarghezzaDisponibile] = useState(320)
 
@@ -92,11 +117,9 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
     return () => osservatore.disconnect()
   }, [])
 
-  if (giocatoriCoinvolti.length === 0) return null
-  const naturaleMassima = Math.max(
-    ...giocatoriCoinvolti.map((g) => altezzaNaturalePersonaggio(g.legame?.tipo === 'mimo' ? 'mimo' : ruoloPerDisplay(g.ruoloSlug))),
-  )
-  const numeroImmagini = giocatoriCoinvolti.length
+  if (voci.length === 0) return null
+  const naturaleMassima = Math.max(...voci.map((v) => altezzaNaturalePersonaggio(v.slug)))
+  const numeroImmagini = voci.length
   // una lieve sovrapposizione, solo se il gruppo è numeroso, come frazione
   // dell'altezza (non un valore assoluto): resta coerente qualunque sia
   // l'altezza finale calcolata
@@ -113,31 +136,19 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti }) {
   const sovrapposizione = altezzaMassima * frazioneSovrapposizione
   return (
     <div className="night-sequencer__illustrazioni" ref={contenitoreRef}>
-      {giocatoriCoinvolti.map((g, indice) => {
-        const eMimo = g.legame?.tipo === 'mimo'
-        // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
-        const slug = eMimo ? 'mimo' : ruoloPerDisplay(g.ruoloSlug)
-        return (
-          <span key={g.id} className="night-sequencer__illustrazione-slot">
-            <RuoloIllustrazione
-              slug={slug}
-              variante={
-                eMimo
-                  ? undefined
-                  : variantePerGiocatore(
-                      giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) })),
-                      g.id,
-                    )
-              }
-              className="night-sequencer__illustrazione"
-              style={{
-                height: altezzaNaturalePersonaggio(slug) * scala,
-                marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0,
-              }}
-            />
-          </span>
-        )
-      })}
+      {voci.map((v, indice) => (
+        <span key={v.id} className="night-sequencer__illustrazione-slot">
+          <RuoloIllustrazione
+            slug={v.slug}
+            variante={v.variante}
+            className="night-sequencer__illustrazione"
+            style={{
+              height: altezzaNaturalePersonaggio(v.slug) * scala,
+              marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0,
+            }}
+          />
+        </span>
+      ))}
     </div>
   )
 }
@@ -160,6 +171,8 @@ export function NightSequencer({
   promemoriaRuoliMorti = false,
   varianteMedium = false,
   onTornaAiGiocatori,
+  ingressoSalvato = null,
+  salvaIngresso = () => {},
 }) {
   // il Bardo (dopo un rogo) non sopprime solo i poteri attivi: blocca la
   // notte intera. Niente passi, si passa dritti all'alba (che mostrerà
@@ -180,7 +193,16 @@ export function NightSequencer({
   // "Indietro" di riaprire un passo da zero, completamente modificabile.
   // { round, id, giocatori, quantita, titolari } (giocatori undefined = appena
   // avanzati, va ancora fotografato con lo stato già aggiornato)
-  const [ingresso, setIngresso] = useState(null)
+  // dopo un ricaricamento a metà passo si riparte dall'ingresso salvato (se è
+  // di questa notte): titolari e stato d'ingresso restano quelli veri, così
+  // le azioni che cambiano il ruolo dell'attore (Ladro...) restano modificabili
+  const [ingresso, setIngresso] = useState(() =>
+    ingressoSalvato?.round === round && ingressoSalvato.giocatori ? ingressoSalvato : null,
+  )
+  useEffect(() => {
+    if (ingresso?.giocatori) salvaIngresso(ingresso)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ingresso])
   const idDaIndice = stepsCalcolati[Math.min(stepIndex, stepsCalcolati.length - 1)]?.id
   const idPasso = ingresso?.round === round ? ingresso.id : idDaIndice
   const steps = conPassoCorrente(stepsCalcolati, idPasso)
@@ -302,7 +324,7 @@ export function NightSequencer({
       for (const evento of annunciAlba(giocatori, round)) {
         registraEvento(evento, 'alba')
       }
-      onNotteConclusa()
+      onNotteConclusa({ round, stepIndex, giocatori, quantita, ingresso: null })
       nuovaNotte()
     }
 
@@ -330,7 +352,7 @@ export function NightSequencer({
       for (const messaggio of annunciAlba(listaAggiornata(), round)) {
         registraEvento(messaggio, 'alba')
       }
-      onNotteConclusa()
+      onNotteConclusa({ round, stepIndex, giocatori, quantita, ingresso: null })
       nuovaNotte()
     }
 
@@ -431,7 +453,12 @@ export function NightSequencer({
   const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
 
   const azione = AZIONI_NOTTURNE[step.id]
-  const titolareVivo = giocatoriCoinvolti.some((g) => g.vivo)
+  // vivo/morto dei coinvolti com'era all'ingresso nel passo: l'azione può
+  // uccidere l'attore stesso (la Strega su se stessa...) ma la schermata, con
+  // titolo, azione e messaggi, resta quella di prima fino ad "Avanti"
+  const snapIngresso = ingresso?.id === step.id && ingresso.round === round ? ingresso.giocatori : undefined
+  const vivoAIngresso = (g) => snapIngresso?.find((x) => x.id === g.id)?.vivo ?? g.vivo
+  const titolareVivo = giocatoriCoinvolti.some(vivoAIngresso)
   // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (vedi
   // puoAgireDaMorto in nightSteps.js): per loro basta che il ruolo sia
   // assegnato a qualcuno, vivo o no
@@ -654,6 +681,9 @@ export function NightSequencer({
       // un passo con un'azione resta sul passo: l'azione si può usare subito
       if (step.tipo === 'azione' && !mostraAzione) return
     }
+    // stato com'è a fine passo (selezioni pendenti incluse), prima di tutto
+    // ciò che fa la chiusura della notte: serve all'Alba per "Torna alla notte"
+    const fineNotte = { round, stepIndex, giocatori: listaAggiornata(), quantita, ingresso }
     autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
 
     // risolviLegami (Apprendista/Cavaliere/Figlia dei Lupi) è ora applicata
@@ -682,7 +712,7 @@ export function NightSequencer({
       registraEvento(messaggio, 'alba')
     }
 
-    onNotteConclusa()
+    onNotteConclusa(fineNotte)
     nuovaNotte()
   }
 
@@ -729,7 +759,7 @@ export function NightSequencer({
         <span>
           {step.titolo}
           {giocatoriCoinvolti.length > 0 &&
-            ` (${giocatoriCoinvolti.map((g) => (g.vivo ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
+            ` (${giocatoriCoinvolti.map((g) => (vivoAIngresso(g) ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
         </span>
       </h2>
       {/* mai i ruoli a titolare singolo che AssegnaRuolo gestisce in questo
@@ -745,8 +775,11 @@ export function NightSequencer({
           titolari (es. Lupo Mannaro generico) mostra così comunque tutti i
           suoi titolari. */}
       <IllustrazioniCoinvolti
-        giocatori={giocatori}
-        giocatoriCoinvolti={giocatoriCoinvolti.filter((g) => g.vivo && !ruoliAssegnabiliStepSingoli.includes(g.ruoloSlug))}
+        giocatori={giocatoriConPendenti}
+        giocatoriCoinvolti={giocatoriCoinvolti.filter(
+          (g) => vivoAIngresso(g) && !ruoliAssegnabiliStepSingoli.includes(g.ruoloSlug),
+        )}
+        inTempoReale={Boolean(step.ruoliMostraCoinvolti) && ruoliAssegnabiliStep.length > 0}
       />
       {/* "Possibile azione" (quando il passo prevedeva potenzialmente
           un'azione ma non c'era nessun titolare in attesa di selezione) è

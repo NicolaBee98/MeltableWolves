@@ -7,16 +7,13 @@ import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 // qualunque bersaglio scelga il branco.
 export const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
 
-// Cortigiana e Nano non compaiono nemmeno tra le chip da scegliere per il
-// branco: la Cortigiana perché la sua morte è sempre un effetto indiretto
-// (visita a un lupo, o il suo cliente sbranato — mai una scelta diretta del
-// branco), il Nano perché "non viene notato dai lupi durante la notte" (pag.
-// 12), letteralmente invisibile alla loro scelta. Il Criceto Malvagio invece
-// resta selezionabile (i lupi lo notano e provano a sbranarlo, semplicemente
-// falliscono — pag. 18: "non può essere ucciso da loro di notte", non "non
-// lo notano"): sceglierlo si traduce in "nessuno muore questa notte", non in
-// un bersaglio impossibile da scegliere.
-export const RUOLI_NON_SELEZIONABILI_DAL_BRANCO = ['cortigiana', 'nano']
+// La Cortigiana non compare tra le chip da scegliere per il branco: la sua
+// morte è sempre un effetto indiretto (visita a un lupo, o il suo cliente
+// sbranato — mai una scelta diretta del branco). Nano e Criceto Malvagio
+// invece restano selezionabili (hanno la stessa passiva: "non può essere
+// ucciso di notte", pag. 12/18): i lupi provano a sbranarli e falliscono,
+// sceglierli si traduce in "nessuno muore questa notte" con un avviso.
+export const RUOLI_NON_SELEZIONABILI_DAL_BRANCO = ['cortigiana']
 
 // Nano e Criceto Malvagio non possono morire di notte per il morso del
 // Chupacabra (libretto pag. 12, 18), a differenza della Cortigiana che ne è

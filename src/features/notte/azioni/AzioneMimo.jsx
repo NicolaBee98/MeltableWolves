@@ -68,9 +68,6 @@ export function AzioneMimo({
         <p>
           Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
         </p>
-        <button type="button" onClick={annullaBersaglio}>
-          Annulla (cambia bersaglio)
-        </button>
       </div>
     )
   }
@@ -106,9 +103,6 @@ export function AzioneMimo({
           </button>
         ))}
       </div>
-      <button type="button" onClick={annullaBersaglio}>
-        Annulla (cambia bersaglio)
-      </button>
     </div>
   )
 }

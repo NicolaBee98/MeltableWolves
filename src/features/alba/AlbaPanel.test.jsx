@@ -192,3 +192,47 @@ test('Annulla morte all\'alba usa annullaMorte (disfa la catena) più la patch s
   expect(annullaMorte).toHaveBeenCalledWith('1')
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true }))
 })
+
+test('resurrezione: chi è marcato resuscitaAllAlba resta morto ma non è elencato tra i morti; l\'annuncio lo riporta in vita e toglie il marcatore', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico', condizioni: [], resuscitaAllAlba: 2 },
+    { id: '2', nome: 'Marco', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={aggiornaGiocatore} onVaiAlVoto={() => {}} />)
+
+  // Anna non è tra i morti di stanotte (Marco sì), e finché non si annuncia non si può andare al voto
+  expect(screen.getByText('Marco')).toBeInTheDocument()
+  expect(screen.queryByText('Anna')).not.toBeInTheDocument()
+  expect(screen.getByText(/anna è stato resuscitato/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Vai al voto' })).toBeDisabled()
+
+  await user.click(screen.getByRole('button', { name: /annuncia resurrezione di anna/i }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith(
+    '1',
+    expect.objectContaining({ vivo: true, resuscitatoNotte: 2, condizioni: ['resuscitato'], resuscitaAllAlba: undefined }),
+  )
+})
+
+test('resurrezione: finché non è annunciata il resuscitato conta come morto per le condizioni di vittoria', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'villico', condizioni: [], resuscitaAllAlba: 2 },
+    { id: '2', nome: 'Marco', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={() => {}} onVaiAlVoto={() => {}} />)
+  expect(screen.getByRole('button', { name: 'Concludi partita' })).toBeInTheDocument()
+})
+
+test('"← Torna alla notte" compare solo se App passa onTornaAllaNotte', async () => {
+  const user = userEvent.setup()
+  const onTornaAllaNotte = vi.fn()
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: [] }]
+  const { rerender } = render(<AlbaPanel giocatori={giocatori} round={1} onVaiAlVoto={() => {}} />)
+  expect(screen.queryByRole('button', { name: /torna alla notte/i })).not.toBeInTheDocument()
+
+  rerender(<AlbaPanel giocatori={giocatori} round={1} onVaiAlVoto={() => {}} onTornaAllaNotte={onTornaAllaNotte} />)
+  await user.click(screen.getByRole('button', { name: /torna alla notte/i }))
+  expect(onTornaAllaNotte).toHaveBeenCalled()
+})

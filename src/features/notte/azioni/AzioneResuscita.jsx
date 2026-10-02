@@ -1,58 +1,45 @@
 import { useState } from 'react'
-import { resuscitaPatch } from '../../../data/effettiNotte'
 
+// Il bersaglio NON torna in vita subito: resta morto per il resto della notte
+// (non agisce nei passi successivi) e viene solo marcato `resuscitaAllAlba`;
+// rinasce all'Alba, quando il narratore annuncia la resurrezione (AlbaPanel).
+//
 // come la pozione della Strega: potere unico per l'intera partita, quindi
 // "già usato" va catturato una sola volta al montaggio del passo (non ad
 // ogni render), altrimenti un click pendente in questa stessa notte
 // nasconderebbe subito le chip impedendo di ripensare il bersaglio.
-export function AzioneResuscita({ giocatori, aggiornaGiocatore, impostaGiocatori, potereSlug, ruoloSlugAttore, round }) {
+export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const [giaUsato] = useState(() => (attore?.poteriUsati ?? []).includes(potereSlug))
-  // { id, originale }: il giocatore com'era PRIMA di resuscitarlo, per poterlo
-  // riportare esattamente allo stato di morto se si cambia bersaglio
-  const [scelto, setScelto] = useState(null)
-  const target = scelto?.id
+  // il bersaglio marcato per la resurrezione di questa notte
+  const [target, setTarget] = useState(null)
   // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi.
-  // Il bersaglio appena resuscitato resta comunque in lista anche se non è
-  // più morto, altrimenti la sua chip sparirebbe subito dopo il click.
-  const morti = giocatori.filter((g) => !g.vivo || g.id === target)
+  // Chi è già marcato per la resurrezione (dall'altro potere)
+  // non è più un bersaglio, a meno che non sia la scelta corrente.
+  const morti = giocatori.filter((g) => (!g.vivo && !g.resuscitaAllAlba) || g.id === target)
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>
   }
 
-  // annullare una resurrezione NON è una nuova morte: passando da
-  // aggiornaGiocatore({vivo:false}) rilancerebbe la catena (vendetta del
-  // Cucciolo, crepacuore...) già avvenuta alla morte vera. Si reimposta
-  // quindi direttamente lo stato di prima.
-  function ripristinaMorto({ id, originale }) {
-    if (impostaGiocatori) {
-      impostaGiocatori(giocatori.map((g) => (g.id === id ? { ...g, ...originale } : g)))
-    } else {
-      aggiornaGiocatore(id, { ...originale, vivo: false })
-    }
+  // annullare la scelta toglie solo il marcatore: il bersaglio non è mai
+  // tornato in vita, quindi nessuna catena di morte da rilanciare
+  function togliMarcatore(id) {
+    aggiornaGiocatore(id, { resuscitaAllAlba: undefined })
   }
 
   function confermaScelta(targetId) {
     if (!attore) return
     if (targetId === target) {
-      // deselezione: torna morto e il potere si rilascia (come la Strega)
-      ripristinaMorto(scelto)
+      // deselezione: il potere si rilascia (come la Strega)
+      togliMarcatore(target)
       aggiornaGiocatore(attore.id, { poteriUsati: (attore.poteriUsati ?? []).filter((p) => p !== potereSlug) })
-      setScelto(null)
+      setTarget(null)
       return
     }
-    if (scelto) ripristinaMorto(scelto)
-    const nuovoBersaglio = giocatori.find((g) => g.id === targetId)
-    const patch = nuovoBersaglio && resuscitaPatch(nuovoBersaglio, round)
-    // solo i campi toccati dalla resurrezione, coi valori di prima
-    setScelto({
-      id: targetId,
-      originale: Object.fromEntries(Object.keys(patch ?? {}).map((campo) => [campo, nuovoBersaglio[campo]])),
-    })
-    if (patch) {
-      aggiornaGiocatore(targetId, patch)
-    }
+    if (target) togliMarcatore(target)
+    setTarget(targetId)
+    aggiornaGiocatore(targetId, { resuscitaAllAlba: round })
     const poteriUsatiAttore = attore.poteriUsati ?? []
     if (!poteriUsatiAttore.includes(potereSlug)) {
       aggiornaGiocatore(attore.id, { poteriUsati: [...poteriUsatiAttore, potereSlug] })

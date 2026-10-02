@@ -52,6 +52,14 @@ export function useLog(giocatori, round, fase = 'notte') {
     setEventi((prev) => [...prev, { round, fase: faseEsplicita ?? fase, messaggio }])
   }
 
+  // "Torna alla notte" dall'Alba: toglie tutti gli eventi scritti dopo il
+  // punto salvato (annunci dell'alba compresi); i giocatori tornano allo stato
+  // di prima, quindi il confronto successivo non deve rilevare nulla
+  function troncaLog(lunghezza) {
+    setEventi((prev) => prev.slice(0, lunghezza))
+    sopprimiProssimoConfrontoRef.current = true
+  }
+
   function resetLog() {
     setEventi([])
     sopprimiProssimoConfrontoRef.current = true
@@ -63,5 +71,5 @@ export function useLog(giocatori, round, fase = 'notte') {
     sopprimiProssimoConfrontoRef.current = true
   }
 
-  return { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto }
+  return { eventi, aggiungiEvento, resetLog, sopprimiProssimoConfronto, troncaLog }
 }

@@ -1,5 +1,6 @@
 import { annunciAlba } from '../../data/alba'
 import { condizioniVittoria } from '../../data/vittoria'
+import { resuscitaPatch } from '../../data/effettiNotte'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
 import { annullaMorteCompleta } from '../giorno/annullaMorte'
 
@@ -16,10 +17,19 @@ export function AlbaPanel({
   quantita = {},
   onVaiAlVoto,
   onGalloSaltaGiorno = () => {},
+  onTornaAllaNotte,
   onConcludiPartita = () => {},
 }) {
+  // chi è stato resuscitato nella notte (Guaritore, Sciacallo Mannaro) è
+  // rimasto morto fino ad ora: rinasce solo quando il narratore lo annuncia
+  const daResuscitare = giocatori.filter((g) => !g.vivo && g.resuscitaAllAlba === round)
+  // chi sta per essere resuscitato non si annuncia anche come morto stanotte
   const morti = giocatori.filter(
-    (g) => !g.vivo && g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte),
+    (g) =>
+      !g.vivo &&
+      g.mortoNotte === round &&
+      CAUSE_MORTE_NOTTURNE.includes(g.causaMorte) &&
+      g.resuscitaAllAlba !== round,
   )
   const annunci = annunciAlba(giocatori, round)
   const vittoria = condizioniVittoria(giocatori, quantita)
@@ -60,6 +70,12 @@ export function AlbaPanel({
     aggiornaGiocatore(id, { ruoloSlug: 'villico', storiaRuoli: [...(antico?.storiaRuoli ?? []), 'villico'] })
   }
 
+  function dichiaraResurrezione(id) {
+    const g = giocatori.find((x) => x.id === id)
+    const patch = g && resuscitaPatch(g, round)
+    if (patch) aggiornaGiocatore(id, { ...patch, resuscitaAllAlba: undefined })
+  }
+
   // corregge una morte dichiarata per errore (anche la sua catena: crepacuore,
   // Cucciolo, Apprendista...): qui serve per un decesso notturno visto solo
   // all'alba
@@ -69,6 +85,11 @@ export function AlbaPanel({
 
   return (
     <section className="alba-panel">
+      {onTornaAllaNotte && (
+        <button type="button" className="app__torna-indietro" onClick={onTornaAllaNotte}>
+          ← Torna alla notte
+        </button>
+      )}
       <h2>Alba</h2>
       {morti.length === 0 ? (
         <p>Nessuno è morto questa notte.</p>
@@ -86,6 +107,14 @@ export function AlbaPanel({
           ))}
         </ul>
       )}
+      {daResuscitare.map((g) => (
+        <div key={g.id} className="alba-panel__resurrezione">
+          <p>{g.nome} è stato resuscitato: torna in vita all'annuncio del narratore.</p>
+          <button type="button" onClick={() => dichiaraResurrezione(g.id)}>
+            Annuncia resurrezione di {g.nome}
+          </button>
+        </div>
+      ))}
       {anticiDaRivelare.map((g) => (
         <div key={g.id} className="alba-panel__antico">
           <p>
@@ -112,7 +141,7 @@ export function AlbaPanel({
       {borgomastroDaEleggere && (
         <p className="avviso">⚠️ Il villaggio deve eleggere un Borgomastro (menu "Eventi speciali").</p>
       )}
-      <button type="button" onClick={onVaiAlVoto}>
+      <button type="button" onClick={onVaiAlVoto} disabled={daResuscitare.length > 0}>
         Vai al voto
       </button>
       <EventiSpeciali

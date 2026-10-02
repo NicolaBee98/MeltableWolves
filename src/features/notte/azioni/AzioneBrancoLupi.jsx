@@ -123,8 +123,8 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
     if (!target) return null
     if (Object.keys(patches).length === 0) {
       const motivo =
-        target.ruoloSlug === 'criceto-malvagio'
-          ? 'il Criceto Malvagio non può essere sbranato'
+        target.ruoloSlug === 'criceto-malvagio' || target.ruoloSlug === 'nano'
+          ? `${target.ruoloSlug === 'nano' ? 'il Nano' : 'il Criceto Malvagio'} non può essere sbranato`
           : target.condizioni.includes('protetto')
             ? 'è protetto/a'
             : 'non è sbranabile'

@@ -39,8 +39,6 @@ export function AssegnaRuolo({
   // quale diventerà davvero non si sceglie qui, vedi sopra
   const chiavePendenti = modalitaGuardie ? 'guardia' : ruoloScelto
 
-  if (opzioni.length === 0) return null
-
   const capacita = gruppoRuoli.reduce((somma, slug) => somma + (quantita[slug] ?? 1), 0)
   const pendenti = selezioni[chiavePendenti] ?? []
   const tuttiIPendenti = Object.values(selezioni).flat()
@@ -113,7 +111,13 @@ export function AssegnaRuolo({
   // IllustrazioniCoinvolti — mostrarne anche uno generico qui darebbe due
   // file separate invece di una sola. La modalità guardie fa eccezione:
   // lì l'identità reale non si mostra mai, resta sempre generica.
-  const mostraIllustrazione = illustrazioneSeparata && (modalitaGuardie || selezionatiVisivi.length <= 1)
+  // decisa una sola volta all'ingresso nel passo: cliccando le chip (anche
+  // sui titolari già assegnati) l'illustrazione non deve comparire/sparire
+  const [mostraIllustrazione] = useState(
+    () => illustrazioneSeparata && (modalitaGuardie || selezionatiVisivi.length <= 1),
+  )
+
+  if (opzioni.length === 0) return null
 
   return (
     <div className="assegna-ruolo">
