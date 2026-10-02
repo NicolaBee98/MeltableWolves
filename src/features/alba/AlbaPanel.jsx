@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { annunciAlba } from '../../data/alba'
 import { condizioniVittoria } from '../../data/vittoria'
 import { resuscitaPatch } from '../../data/effettiNotte'
+import { conPotereDisponibile } from '../../data/eventiSpeciali'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
 import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } from '../giorno/annullaMorte'
 
@@ -49,7 +50,12 @@ export function AlbaPanel({
       dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
       return
     }
-    aggiornaGiocatore(id, { ruoloSlug, storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug] })
+    aggiornaGiocatore(id, {
+      ruoloSlug,
+      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
+      // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
+      ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
+    })
   }
 
   function dichiaraElezioneBorgomastro(id) {
@@ -58,7 +64,7 @@ export function AlbaPanel({
   }
 
   function dichiaraGalloSaltaGiorno() {
-    const gallo = giocatori.find((g) => g.ruoloSlug === 'gallo-mannaro' && g.vivo)
+    const gallo = conPotereDisponibile(giocatori, 'gallo-mannaro', 'gallo-salta-giorno')
     if (gallo) aggiornaGiocatore(gallo.id, { poteriUsati: [...(gallo.poteriUsati ?? []), 'gallo-salta-giorno'] })
     onGalloSaltaGiorno()
   }

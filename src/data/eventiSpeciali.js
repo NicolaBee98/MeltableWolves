@@ -1,4 +1,4 @@
-import { ruoliAssegnabili } from './assegnazione'
+import { ruoliAssegnabili, eMimoCopiante } from './assegnazione'
 import { RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
 
 // Ruoli con un evento tutto loro: Alchimista/Boia/Scemo del
@@ -27,23 +27,49 @@ export const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgom
 // Alchimista, Boia, Scemo del Villaggio e Innocente non hanno mai
 // un'identità assegnata prima: si rivelano solo tramite il loro evento
 // dedicato (rogo/esplosione, giustizia, rima sbagliata, o la semplice
-// dichiarazione dell'Innocente — pag. 5, 8, 20). Disponibili finché il
-// mazzo li prevede e nessuno li ha già usati una volta (ruoliAssegnabili
-// conta su storiaRuoli, mai sottratto, quindi restano "assegnati" per
-// sempre dopo).
+// dichiarazione dell'Innocente — pag. 5, 8, 20). Il titolare è un vivo senza
+// ruolo, finché il mazzo li prevede e nessuno li ha già usati (ruoliAssegnabili
+// conta su storiaRuoli, mai sottratto). Il Mimo che li copia ha già lo slug ed
+// è un attore a sé, con il proprio potere (poteriUsati per giocatore): resta
+// candidato finché non l'ha speso. Lo Scemo muore rivelandosi, quindi non ha
+// potere da spendere.
+const POTERE_RIVELAZIONE = {
+  boia: 'boia-giustizia',
+  alchimista: 'alchimista-esplosione',
+  innocente: 'innocente-rivelato',
+}
+
+export function candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita) {
+  if (!ruoliSelezionati.includes(slug)) return []
+  const titolare = ruoliAssegnabili([slug], giocatori, quantita).length > 0
+  return giocatori.filter(
+    (g) =>
+      g.vivo &&
+      ((titolare && !g.ruoloSlug) ||
+        (g.ruoloSlug === slug && eMimoCopiante(g) && !(g.poteriUsati ?? []).includes(POTERE_RIVELAZIONE[slug]))),
+  )
+}
+
 export function rivelazioneContestualeDisponibile(slug, ruoliSelezionati, giocatori, quantita) {
   if (!ruoliSelezionati.includes(slug)) return false
-  return ruoliAssegnabili([slug], giocatori, quantita).length > 0
+  return (
+    ruoliAssegnabili([slug], giocatori, quantita).length > 0 ||
+    candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita).length > 0
+  )
+}
+
+// Bardo e Gallo Mannaro: ogni giocatore ha il proprio uso (il Mimo che li copia
+// ne ha uno suo, spec 2.2); il primo vivo che non l'ha ancora speso
+export function conPotereDisponibile(giocatori, slug, potere) {
+  return giocatori.find((g) => g.ruoloSlug === slug && g.vivo && !(g.poteriUsati ?? []).includes(potere))
 }
 
 export function bardoDisponibile(giocatori) {
-  const bardo = giocatori.find((g) => g.ruoloSlug === 'bardo' && g.vivo)
-  return Boolean(bardo) && !(bardo.poteriUsati ?? []).includes('bardo-salta-notte')
+  return Boolean(conPotereDisponibile(giocatori, 'bardo', 'bardo-salta-notte'))
 }
 
 export function galloDisponibile(giocatori) {
-  const gallo = giocatori.find((g) => g.ruoloSlug === 'gallo-mannaro' && g.vivo)
-  return Boolean(gallo) && !(gallo.poteriUsati ?? []).includes('gallo-salta-giorno')
+  return Boolean(conPotereDisponibile(giocatori, 'gallo-mannaro', 'gallo-salta-giorno'))
 }
 
 // "Se viene ucciso, il villaggio dovrà eleggere un nuovo primo cittadino"

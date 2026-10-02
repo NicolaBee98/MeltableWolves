@@ -4,6 +4,7 @@ import {
   galloDisponibile,
   borgomastroDisponibile,
   RUOLI_NON_CARTA_SEGRETA,
+  candidatiRivelazione,
 } from './eventiSpeciali'
 
 test('RUOLI_NON_CARTA_SEGRETA copre Fantasma Onnisciente, Suocera, Borgomastro e i 4 ruoli con un evento tutto loro (mai una carta segreta assegnabile da Mimo/Cartomante)', () => {
@@ -80,4 +81,20 @@ test('borgomastroDisponibile è falso se un Borgomastro è già in carica e vivo
 test('borgomastroDisponibile torna vero se il Borgomastro in carica è morto (va rieletto)', () => {
   const giocatori = [{ id: '1', eBorgomastro: true, vivo: false }]
   expect(borgomastroDisponibile(['borgomastro'], giocatori)).toBe(true)
+})
+
+test('il Mimo-Boia è un attore a sé accanto al titolare ancora ignoto, finché non ha giustiziato', () => {
+  const titolare = { id: '1', vivo: true }
+  const mimo = { id: '2', vivo: true, ruoloSlug: 'boia', legame: { tipo: 'mimo', targetId: '1' }, storiaRuoli: ['mimo', 'boia'] }
+  const args = ['boia', ['boia'], [titolare, mimo], { boia: 1 }]
+  expect(candidatiRivelazione(...args).map((g) => g.id)).toEqual(['1', '2'])
+  const usato = { ...mimo, poteriUsati: ['boia-giustizia'] }
+  expect(candidatiRivelazione('boia', ['boia'], [titolare, usato], { boia: 1 }).map((g) => g.id)).toEqual(['1'])
+})
+
+test('Bardo: con Bardo e Mimo-Bardo la notte salta due volte (un uso a testa)', () => {
+  const a = { id: '1', vivo: true, ruoloSlug: 'bardo', poteriUsati: ['bardo-salta-notte'] }
+  const b = { id: '2', vivo: true, ruoloSlug: 'bardo' }
+  expect(bardoDisponibile([a, b])).toBe(true)
+  expect(bardoDisponibile([a, { ...b, poteriUsati: ['bardo-salta-notte'] }])).toBe(false)
 })
