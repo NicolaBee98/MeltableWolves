@@ -123,15 +123,19 @@ export function EventiSpeciali({
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
   const morti = giocatori.filter((g) => !g.vivo)
   const mortiSenzaRuoloNoto = morti.filter((g) => !g.ruoloSlug)
-  // L'Antico si rivela solo alla morte: di notte (all'alba, senza conseguenze,
-  // vedi dichiaraAnticoSbranato) può essere solo chi è morto nella notte appena
-  // conclusa, con ruolo ignoto o già 'lantico' ma non ancora rivelato. Al
-  // rogo si rivela dalla Votazione (chip del designato), non da qui.
+  // L'Antico si rivela solo alla morte e, se non è al rogo (lì si rivela dal
+  // chip del designato in Votazione), perde solo la prima vita: torna in vita
+  // da Villico (vedi dichiaraAnticoSbranato). `round` = notte appena conclusa
+  // (all'alba, o di giorno la notte che precede). Candidati, qualunque causa
+  // e a prescindere da chi l'ha uccisa: morti di quella notte (lupi, Strega,
+  // Chupacabra, Cucciolo/Berserker, crepacuore) o morti sul colpo nel giorno in
+  // corso (Boia, Scemo, unzione, esplosione: `mortoGiorno`), con ruolo ignoto
+  // o già 'lantico' ma non ancora rivelato.
   const anticoAssegnabile = ruoliSelezionati.includes('lantico') && ruoliAssegnabili(['lantico'], giocatori, quantita).length > 0
   const candidatiAntico = morti.filter(
     (g) =>
-      g.causaMorte === 'notte' &&
-      g.mortoNotte === round &&
+      ((['notte', 'crepacuore'].includes(g.causaMorte) && g.mortoNotte === round) ||
+        (g.causaMorte === 'colpo' && g.mortoGiorno === round + 1)) &&
       ((!g.ruoloSlug && anticoAssegnabile) || (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined)),
   )
   // Alchimista (come lo Spilungone, che si rivela solo dal chip del designato
@@ -154,12 +158,12 @@ export function EventiSpeciali({
     mortiSenzaRuoloNoto.length > 0
 
   const menuEventi = [
-    contesto === 'alba' && candidatiAntico.length > 0 && { key: 'antico', etichetta: "L'Antico si rivela" },
-    inGiorno &&
-      rivelazioneContestualeDisponibile('boia', ruoliSelezionati, giocatori, quantita) && {
-        key: 'boia',
-        etichetta: 'Il Boia giustizia',
-      },
+    candidatiAntico.length > 0 && { key: 'antico', etichetta: "L'Antico si rivela" },
+    // il Boia e l'Innocente si rivelano anche all'alba, non solo di giorno
+    rivelazioneContestualeDisponibile('boia', ruoliSelezionati, giocatori, quantita) && {
+      key: 'boia',
+      etichetta: 'Il Boia giustizia',
+    },
     contesto === 'esito' &&
       rivelazioneContestualeDisponibile('alchimista', ruoliSelezionati, giocatori, quantita) && {
         key: 'alchimista',
@@ -170,11 +174,10 @@ export function EventiSpeciali({
         key: 'scemo',
         etichetta: 'Lo Scemo del Villaggio sbaglia la rima',
       },
-    inGiorno &&
-      rivelazioneContestualeDisponibile('innocente', ruoliSelezionati, giocatori, quantita) && {
-        key: 'innocente',
-        etichetta: "L'Innocente si rivela",
-      },
+    rivelazioneContestualeDisponibile('innocente', ruoliSelezionati, giocatori, quantita) && {
+      key: 'innocente',
+      etichetta: "L'Innocente si rivela",
+    },
     inGiorno && unti.length > 0 && { key: 'unzione', etichetta: 'Morte per unzione' },
     contesto === 'esito' && bardoDisponibile(giocatori) && { key: 'bardo', etichetta: 'Il Bardo salta la notte' },
     contesto === 'alba' && galloDisponibile(giocatori) && {

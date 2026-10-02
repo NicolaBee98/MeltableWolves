@@ -433,6 +433,7 @@ export function Votazione({
           ruoliSelezionati={ruoliSelezionati}
           quantita={quantita}
           contesto="esito"
+          round={round === undefined ? undefined : round - 1}
           candidatiRogo={designati}
           onScemoSbaglia={onScemoSbaglia}
           onMorteUnzione={onMorteUnzione}
@@ -524,6 +525,7 @@ export function Votazione({
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         contesto="voto"
+        round={round === undefined ? undefined : round - 1}
         onScemoSbaglia={onScemoSbaglia}
         onMorteUnzione={onMorteUnzione}
         onRivelazione={onRivelazione}

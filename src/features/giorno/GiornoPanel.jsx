@@ -1,6 +1,11 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
-import { annullaMorteCompleta, dichiaraAnticoSbranato } from './annullaMorte'
+import {
+  annullaMorteCompleta,
+  dichiaraAnticoSbranato,
+  dichiaraColpo as colpo,
+  dichiaraBoiaGiustizia as boiaGiustizia,
+} from './annullaMorte'
 
 export function GiornoPanel({
   giocatori,
@@ -28,8 +33,9 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'rogo', mortoNotte: round })
   }
 
-  function dichiaraColpo(id) {
-    aggiornaGiocatore(id, { vivo: false, causaMorte: 'colpo' })
+  // morte sul colpo di oggi: l'Antico non muore alla prima vita (vedi annullaMorte.js)
+  function dichiaraColpo(id, extra) {
+    return colpo(id, giocatori, aggiornaGiocatore, round, extra)
   }
 
   // sbagliare la rima rivela e uccide lo Scemo del Villaggio nello stesso
@@ -37,18 +43,16 @@ export function GiornoPanel({
   // assegnata in anticipo
   function dichiaraScemoSbaglia(id) {
     const target = giocatori.find((g) => g.id === id)
-    aggiornaGiocatore(id, {
+    dichiaraColpo(id, {
       ruoloSlug: 'scemo-del-villaggio',
       storiaRuoli: [...(target?.storiaRuoli ?? []), 'scemo-del-villaggio'],
-      vivo: false,
-      causaMorte: 'colpo',
     })
   }
 
   // l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
   // vivi ai suoi due fianchi (pag. 22)
   function dichiaraMorteUnzione(id) {
-    dichiaraColpo(id)
+    if (!dichiaraColpo(id)) return
     for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
       aggiornaGiocatore(vicinoId, patch)
     }
@@ -90,15 +94,8 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { ruoloSlug, storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug] })
   }
 
-  // il Boia si rivela solo giustiziando (pag. 8): stessa logica dell'Alchimista
   function dichiaraBoiaGiustizia(boiaId, vittimaId) {
-    const boia = giocatori.find((g) => g.id === boiaId)
-    aggiornaGiocatore(boiaId, {
-      ruoloSlug: 'boia',
-      storiaRuoli: [...(boia?.storiaRuoli ?? []), 'boia'],
-      poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
-    })
-    aggiornaGiocatore(vittimaId, { vivo: false, causaMorte: 'colpo' })
+    boiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGiocatore, round)
   }
 
   // l'Alchimista si rivela ed esplode nel momento stesso in cui viene messo
@@ -113,7 +110,7 @@ export function GiornoPanel({
       causaMorte: 'rogo',
       poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],
     })
-    aggiornaGiocatore(vittimaId, { vivo: false, causaMorte: 'colpo' })
+    dichiaraColpo(vittimaId)
   }
 
   function dichiaraBardoSaltaNotte() {

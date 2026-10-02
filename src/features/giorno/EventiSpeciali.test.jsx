@@ -404,3 +404,28 @@ test("L'Alchimista esplode (esito) propone come attore solo il condannato di ogg
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
+
+test("L'Antico si rivela anche di giorno: morti della notte appena conclusa o morti sul colpo di oggi (Boia...), non quelli di giorni passati", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Notturno', vivo: false, causaMorte: 'notte', mortoNotte: 2 },
+    { id: '2', nome: 'Giustiziato', vivo: false, causaMorte: 'colpo', mortoGiorno: 3 },
+    { id: '3', nome: 'Vecchio', vivo: false, causaMorte: 'colpo', mortoGiorno: 2 },
+    { id: '4', nome: 'Bruciato', vivo: false, causaMorte: 'rogo', mortoNotte: 3 },
+  ]
+  // di giorno `round` è la notte appena conclusa (2): oggi è il giorno 3
+  setup({ giocatori, round: 2, contesto: 'esito', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
+  expect(screen.getByRole('button', { name: 'Notturno' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Giustiziato' })).toBeInTheDocument()
+  for (const nome of ['Vecchio', 'Bruciato']) expect(screen.queryByRole('button', { name: nome })).not.toBeInTheDocument()
+})
+
+test('Il Boia e l\'Innocente si rivelano anche all\'alba', async () => {
+  const user = userEvent.setup()
+  setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: true }], contesto: 'alba', ruoliSelezionati: ['boia', 'innocente'], quantita: { boia: 1, innocente: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: 'Il Boia giustizia' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: "L'Innocente si rivela" })).toBeInTheDocument()
+})

@@ -3,7 +3,7 @@ import { annunciAlba } from '../../data/alba'
 import { condizioniVittoria } from '../../data/vittoria'
 import { resuscitaPatch } from '../../data/effettiNotte'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
-import { annullaMorteCompleta, dichiaraAnticoSbranato } from '../giorno/annullaMorte'
+import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } from '../giorno/annullaMorte'
 
 // solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
@@ -146,6 +146,8 @@ export function AlbaPanel({
         contesto="alba"
         round={round}
         onRivelazione={dichiaraRivelazione}
+        // il Boia può giustiziare anche all'alba: la morte conta nel giorno che segue
+        onBoiaGiustizia={(boiaId, id) => dichiaraBoiaGiustizia(boiaId, id, giocatori, aggiornaGiocatore, round + 1)}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}
         // la Suocera resta "?" per tutta la partita finché non muore (pag.

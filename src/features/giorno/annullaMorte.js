@@ -7,7 +7,7 @@
 // Le conseguenze su altri giocatori (crepacuore del partner, eredità
 // dell'Apprendista...) le disfa annullaMorte di usePartita, se disponibile.
 export function patchAnnullaMorte(giocatore) {
-  const patch = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined }
+  const patch = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoGiorno: undefined, mortoDa: undefined }
   if (!giocatore) return patch
   if (giocatore.eFantasmaOnnisciente) patch.eFantasmaOnnisciente = false
   const poteri = giocatore.poteriUsati ?? []
@@ -42,6 +42,36 @@ export function dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annulla
     ...patchAnnullaMorte(g),
     ruoloSlug: 'villico',
     storiaRuoli: [...(g.storiaRuoli ?? []), 'lantico', 'villico'],
-    anticoSbranatoNotte: g.mortoNotte,
+    // morto di giorno (Boia, esplosione...): nessuna notte, ma il flag deve
+    // restare definito (= prima vita persa); null non coincide mai con un round
+    // e quindi non genera l'annuncio dell'alba
+    anticoSbranatoNotte: g.mortoNotte ?? null,
   })
+}
+
+// Morte "sul colpo" nel giorno (Boia, Scemo, unzione, esplosione dell'Alchimista)
+// o all'alba (Boia): `roundGiorno` = round del giorno in corso (= quello
+// dell'Alba che lo precede + 1), scritto in `mortoGiorno` così l'Antico morto
+// così, ancora ignoto, si può rivelare dagli Eventi speciali. Un Antico già
+// noto con la prima vita intera sopravvive da Villico (vale per ogni causa,
+// come uccidiPatch di notte). Ritorna true se il giocatore è morto davvero.
+export function dichiaraColpo(id, giocatori, aggiornaGiocatore, roundGiorno, extra = {}) {
+  const g = giocatori.find((x) => x.id === id)
+  if (g?.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined) {
+    aggiornaGiocatore(id, { ruoloSlug: 'villico', storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'], anticoSbranatoNotte: null })
+    return false
+  }
+  aggiornaGiocatore(id, { ...extra, vivo: false, causaMorte: 'colpo', mortoGiorno: roundGiorno })
+  return true
+}
+
+// il Boia si rivela solo giustiziando (pag. 8), di giorno o all'alba
+export function dichiaraBoiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGiocatore, roundGiorno) {
+  const boia = giocatori.find((g) => g.id === boiaId)
+  aggiornaGiocatore(boiaId, {
+    ruoloSlug: 'boia',
+    storiaRuoli: [...(boia?.storiaRuoli ?? []), 'boia'],
+    poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
+  })
+  dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno)
 }
