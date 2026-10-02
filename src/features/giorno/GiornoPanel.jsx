@@ -1,6 +1,6 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
-import { annullaMorteCompleta } from './annullaMorte'
+import { annullaMorteCompleta, dichiaraAnticoSbranato } from './annullaMorte'
 
 export function GiornoPanel({
   giocatori,
@@ -83,6 +83,10 @@ export function GiornoPanel({
   // rivela davvero (vedi nightSteps.js), non preventivamente a inizio partita
   function dichiaraRivelazione(ruoloSlug, id) {
     const target = giocatori.find((g) => g.id === id)
+    if (ruoloSlug === 'lantico' && target && !target.vivo) {
+      dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
+      return
+    }
     aggiornaGiocatore(id, { ruoloSlug, storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug] })
   }
 

@@ -87,22 +87,3 @@ test('stato salvato corrotto: ripiega sullo stato iniziale', () => {
   expect(result.current.round).toBe(1)
   expect(result.current.stepIndex).toBe(0)
 })
-
-test('fineNotte sopravvive a nuovaNotte e persiste; tornaAllaNotte riporta round e passo, svuotaFineNotte la toglie', () => {
-  const { result } = renderHook(() => useNotte())
-  const fine = { round: 1, stepIndex: 2, ingresso: { round: 1, id: 'x' }, giocatori: [], quantita: {}, lunghezzaLog: 0 }
-
-  act(() => {
-    result.current.salvaFineNotte(fine)
-    result.current.nuovaNotte()
-  })
-  expect(result.current.round).toBe(2)
-  expect(result.current.fineNotte).toEqual(fine)
-  expect(JSON.parse(localStorage.getItem('meltable-wolves-notte')).fineNotte).toEqual(fine)
-
-  act(() => result.current.tornaAllaNotte())
-  expect(result.current.round).toBe(1)
-  expect(result.current.stepIndex).toBe(2)
-  expect(result.current.ingressoSalvato).toEqual(fine.ingresso)
-  expect(result.current.fineNotte).toBeUndefined()
-})

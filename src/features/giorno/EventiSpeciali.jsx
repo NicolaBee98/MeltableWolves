@@ -122,6 +122,9 @@ export function EventiSpeciali({
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
   const morti = giocatori.filter((g) => !g.vivo)
   const mortiSenzaRuoloNoto = morti.filter((g) => !g.ruoloSlug)
+  // L'Antico sbranato di notte non è davvero morto: se il ruolo del morto era
+  // ignoto, il narratore può rivelare che era lui (vedi dichiaraAnticoSbranato)
+  const mortiDiNotteSenzaRuoloNoto = mortiSenzaRuoloNoto.filter((g) => g.causaMorte === 'notte' && g.mortoNotte !== undefined)
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   const rivelabili = ruoliRivelabili(ruoliSelezionati, giocatori, quantita)
@@ -261,7 +264,7 @@ export function EventiSpeciali({
 
           {evento?.startsWith('rivela:') && (
             <EventoUnGiocatore
-              candidati={nonAssegnati}
+              candidati={evento === 'rivela:lantico' ? [...nonAssegnati, ...mortiDiNotteSenzaRuoloNoto] : nonAssegnati}
               etichetta={`Chi è ${nomeRuolo(evento.slice(7))}?`}
               onConferma={(id) => {
                 onRivelazione(evento.slice(7), id)

@@ -398,3 +398,20 @@ test('Elezione Borgomastro è proposta in entrambi i contesti se il ruolo è nel
 
   expect(onElezioneBorgomastro).toHaveBeenCalledWith('1')
 })
+
+test("L'Antico si rivela propone anche i morti di notte senza ruolo noto (sbranato stanotte), non quelli al rogo", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Tizio', vivo: false, causaMorte: 'notte', mortoNotte: 2 },
+    { id: '2', nome: 'Caio', vivo: false, causaMorte: 'rogo', mortoNotte: 1 },
+    { id: '3', nome: 'Sempronio', vivo: true },
+  ]
+  const { onRivelazione } = setup({ giocatori, contesto: 'alba', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
+  expect(screen.queryByRole('button', { name: 'Caio' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Sempronio' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Tizio' }))
+  await user.click(screen.getByRole('button', { name: /conferma/i }))
+  expect(onRivelazione).toHaveBeenCalledWith('lantico', '1')
+})

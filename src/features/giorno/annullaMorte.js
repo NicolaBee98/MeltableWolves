@@ -27,3 +27,21 @@ export function annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMo
   annullaMorte?.(id)
   aggiornaGiocatore(id, patchAnnullaMorte(giocatori.find((g) => g.id === id)))
 }
+
+// Il narratore scopre che il giocatore sbranato stanotte (ruolo ancora
+// ignoto) era L'Antico: ha perso solo la prima vita. Torna vivo (annullaMorte
+// disfa anche la catena, es. crepacuore), da ora è un Villico e resta
+// `anticoSbranatoNotte` = la notte della morte (alla seconda morte muore
+// davvero, vedi uccidiPatch). Un solo aggiornaGiocatore: storiaRuoli si
+// scrive una volta sola.
+export function dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte) {
+  const g = giocatori.find((x) => x.id === id)
+  if (!g) return
+  annullaMorte?.(id)
+  aggiornaGiocatore(id, {
+    ...patchAnnullaMorte(g),
+    ruoloSlug: 'villico',
+    storiaRuoli: [...(g.storiaRuoli ?? []), 'lantico', 'villico'],
+    anticoSbranatoNotte: g.mortoNotte,
+  })
+}

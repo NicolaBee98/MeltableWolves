@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { tieni } from './test/tieni'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 
@@ -125,35 +126,11 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
-  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
+  tieni(screen.getByRole('button', { name: /Vai all'alba/ }))
   expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Vai al voto' }))
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
-})
-
-test('"← Torna alla notte" dall\'Alba riporta alla notte appena conclusa con lo stato di prima (Villico automatico annullato); dopo "Vai al voto" non è più possibile', async () => {
-  const user = userEvent.setup()
-  render(<App />)
-
-  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByRole('button', { name: 'Villico' }))
-  await user.click(screen.getByRole('button', { name: 'Avanti' }))
-  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
-  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
-
-  const giocatoriSalvati = () => JSON.parse(localStorage.getItem('meltable-wolves-partita'))
-  expect(giocatoriSalvati()[0].ruoloSlug).toBe('villico')
-
-  await user.click(screen.getByRole('button', { name: /torna alla notte/i }))
-  expect(screen.getByText('Notte 1')).toBeInTheDocument()
-  expect(giocatoriSalvati()[0].ruoloSlug).toBeUndefined()
-
-  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
-  expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Vai al voto' }))
-  expect(JSON.parse(localStorage.getItem('meltable-wolves-notte')).fineNotte).toBeUndefined()
 })
 
 test("l'icona Registro e impostazioni apre il popup, di default sulle impostazioni", async () => {
