@@ -1463,7 +1463,7 @@ test('Mimo che copia i Lupi: appare come Mimo nel branco e non occupa un posto d
   expect(screen.getByText(/al massimo 2 giocatori/i)).toBeInTheDocument()
 })
 
-test('Paladino e Mimo che lo copia: due scelte indipendenti, la protezione resta finché la vuole almeno uno', async () => {
+test('Paladino e Mimo che lo copia (scelta di ogni notte): un\'unica scelta condivisa, valida per entrambi', async () => {
   localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
   const user = userEvent.setup()
   const { stato } = creaHarness(
@@ -1476,24 +1476,15 @@ test('Paladino e Mimo che lo copia: due scelte indipendenti, la protezione resta
     ['paladino'],
     { paladino: 2 },
   )
-  const chip = (attore, nome) =>
-    within(within(screen.getByRole('group', { name: `Scelta di ${attore}` })).getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: nome })
+  // un solo gruppo di scelta, non uno per titolare
+  expect(screen.queryByRole('group', { name: /scelta di/i })).not.toBeInTheDocument()
+  const chip = (nome) => within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: nome })
   const protetti = () => stato.giocatori.filter((g) => g.condizioni.includes('protetto')).map((g) => g.nome)
 
-  await user.click(chip('Paolo', 'Pietro'))
-  await user.click(chip('Mia', 'Pietro'))
-  expect(chip('Paolo', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
-  expect(chip('Mia', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
-
-  // il Mimo cambia idea: Pietro resta protetto dal Paladino, Rita no
-  await user.click(chip('Mia', 'Pietro'))
+  await user.click(chip('Pietro'))
   expect(protetti()).toEqual(['Pietro'])
-  expect(chip('Paolo', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
-  await user.click(chip('Mia', 'Rita'))
-  expect(protetti()).toEqual(['Pietro', 'Rita'])
-  expect(stato.giocatori[0].usiNotte).toEqual(['paladino'])
-
-  await user.click(chip('Paolo', 'Pietro'))
+  expect(stato.giocatori.slice(0, 2).map((g) => g.usiNotte)).toEqual([['paladino'], ['paladino']])
+  await user.click(chip('Rita'))
   expect(protetti()).toEqual(['Rita'])
 })
 

@@ -15,30 +15,32 @@ import { AzioneMimo } from './AzioneMimo'
 import { AzioneMedium } from './AzioneMedium'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
-// perAttore: se più giocatori hanno il ruolo (titolare + Mimo che lo copia) il
-// passo mostra una scelta indipendente per ciascuno (vedi NightSequencer)
+// perAttore: solo per le scelte della PRIMA notte valide per tutta la partita
+// (Sacerdote e legami): se più giocatori hanno il ruolo (titolare + Mimo che
+// lo copia) il passo mostra una scelta indipendente per ciascuno (vedi
+// NightSequencer). Le azioni di ogni notte sono invece condivise col Mimo.
 export const AZIONI_NOTTURNE = {
   paladino: {
-    Componente: AzioneCondizioneSingola, perAttore: true,
+    Componente: AzioneCondizioneSingola,
     props: { condizione: 'protetto', etichetta: 'Chi proteggere', ruoloSlugAttore: 'paladino' },
   },
   untore: {
-    Componente: AzioneCondizioneSingola, perAttore: true,
+    Componente: AzioneCondizioneSingola,
     props: { condizione: 'unto', etichetta: 'Chi ungere', ruoloSlugAttore: 'untore' },
   },
   fattucchiera: {
-    Componente: AzioneCondizioneSingola, perAttore: true,
+    Componente: AzioneCondizioneSingola,
     // inibire se stessa è un paradosso (bloccherebbe l'azione che la sta
     // già bloccando): unico ruolo tra quelli con AzioneCondizioneSingola a
     // escludersi dai propri bersagli
     props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera', escludiAttore: true },
   },
   maga: {
-    Componente: AzioneCondizioneSingola, perAttore: true,
+    Componente: AzioneCondizioneSingola,
     props: { condizione: 'trasformato', etichetta: 'Chi trasformare', ruoloSlugAttore: 'maga' },
   },
   pifferaio: {
-    Componente: AzioneCondizioneDoppia, perAttore: true,
+    Componente: AzioneCondizioneDoppia,
     // non può ipnotizzare se stesso, a differenza del Sacerdote che può
     // scegliersi come uno dei due innamorati
     props: {
