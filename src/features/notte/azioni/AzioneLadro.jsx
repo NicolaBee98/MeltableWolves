@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { ROLES, nomeRuolo } from '../../../data/roles'
+import { eLupo, nomeRuolo } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
-import { aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 const POTERE = 'ladro-scelta'
 
@@ -11,26 +10,36 @@ const POTERE = 'ladro-scelta'
 // (non in uno stato locale del componente) così sopravvivono a "Indietro" e
 // a un refresh come qualunque altra scelta di notte.
 export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [], quantita = {}, onCambiaQuantita = () => {} }) {
-  // il Ladro (e chi lo sta imitando, vedi attori più sotto) non si trova più
-  // cercando ruoloSlug==='ladro' una volta scelto (la scelta finale CAMBIA
-  // proprio quel ruoloSlug): il gruppo di id si cattura quindi una volta
-  // sola, al montaggio di questo passo — non cambia più dopo
-  const [ladroIds] = useState(() => giocatori.filter((g) => g.ruoloSlug === 'ladro').map((g) => g.id))
-  const ladro = giocatori.find((g) => ladroIds.includes(g.id))
+  // il Ladro (e chi lo sta imitando) non si trova più cercando
+  // ruoloSlug==='ladro' una volta scelto (la scelta CAMBIA proprio quel
+  // ruoloSlug): chi ha già scelto si riconosce da POTERE + storiaRuoli. Si
+  // ricalcola a ogni render (non catturato al montaggio): se il narratore
+  // sposta la carta da P a Q nello stesso passo, gli attori seguono.
+  const attori = giocatori.filter(
+    (g) => g.ruoloSlug === 'ladro' || ((g.poteriUsati ?? []).includes(POTERE) && (g.storiaRuoli ?? []).includes('ladro')),
+  )
+  const ladro = attori[0]
   const [giaUsatoAllIngresso] = useState(() => (ladro?.poteriUsati ?? []).includes(POTERE))
   const usato = (ladro?.poteriUsati ?? []).includes(POTERE)
   const [carta1, carta2] = ladro?.scartoLadro ?? []
   // solo carte non ancora in mano a nessuno ("tra quelle non assegnate a
   // nessuno", come dice il testo sotto): altrimenti si potrebbe scartare la
   // carta di un giocatore che la tiene già fisicamente (es. il bersaglio del
-  // Mimo, assegnato un passo prima)
-  const disponibili = ruoliAssegnabili(
-    // il Borgomastro è una condizione data a un giocatore a voce (voto
-    // doppio), non una carta fisica del mazzo: mai tra le carte rimaste
-    ruoliSelezionati.filter((slug) => slug !== 'ladro' && slug !== 'borgomastro'),
-    giocatori,
-    quantita,
-  )
+  // Mimo, assegnato un passo prima). Le due carte già scelte restano sempre
+  // tra le opzioni: scartandole la quantità scende e non risulterebbero più
+  // "disponibili", ma i select devono continuare a mostrarle.
+  const disponibili = [
+    ...new Set([
+      ...ruoliAssegnabili(
+        // il Borgomastro è una condizione data a un giocatore a voce (voto
+        // doppio), non una carta fisica del mazzo: mai tra le carte rimaste
+        ruoliSelezionati.filter((slug) => slug !== 'ladro' && slug !== 'borgomastro'),
+        giocatori,
+        quantita,
+      ),
+      ...[carta1, carta2].filter(Boolean),
+    ]),
+  ]
   const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2)
   const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1)
 
@@ -40,64 +49,57 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
 
   if (!ladro) return null
 
-  const entrambiLupi =
-    Boolean(carta1) &&
-    Boolean(carta2) &&
-    [carta1, carta2].every((slug) => ROLES.find((r) => r.slug === slug)?.fazione === 'lupi')
-
-  // se il Mimo sta imitando il Ladro (stesso ruoloSlug 'ladro', vedi
-  // AzioneMimo.jsx: "si sveglia da solo insieme a lui"), scarto e scelta
-  // finale vanno scritti su ENTRAMBI, non solo sul primo trovato —
-  // altrimenti il Mimo resterebbe "ladro" per sempre anche dopo che il vero
-  // Ladro ha già scelto un'altra identità. Individuati per id (ladroIds),
-  // non per ruoloSlug attuale: quello cambia proprio con la scelta.
-  const attori = giocatori.filter((g) => ladroIds.includes(g.id))
-
-  function impostaCarta(indice, slug) {
-    const scarto = [carta1, carta2]
-    scarto[indice] = slug || undefined
-    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'ladro', { scartoLadro: scarto })
-  }
+  // la regola "entrambe Lupi Mannari: deve scambiare" vale solo per i lupi
+  // veri (eLupo), non per Gallo/Mucca/Sciacallo
+  const entrambiLupi = Boolean(carta1) && Boolean(carta2) && eLupo(carta1) && eLupo(carta2)
 
   // la carta non presa dal Ladro resta fuori dal mazzo per il resto della
   // partita (pag. 15): se il Ladro sceglie una delle due, l'altra si scarta;
-  // se resta Villico, si scartano entrambe. `segno` +1 la rimette nel
-  // mazzo (si sta annullando una scelta precedente), -1 la scarta.
-  function scartaCarta(slug, segno) {
-    if (!slug) return
-    onCambiaQuantita(slug, Math.max(0, (quantita[slug] ?? 1) + segno))
-  }
+  // se resta Villico, si scartano entrambe.
+  const scartate = (scelta) => (scelta === carta1 ? [carta2] : scelta === carta2 ? [carta1] : [carta1, carta2])
 
-  // la scelta resta modificabile finché non si preme "Avanti": scegliendo
-  // di nuovo si annulla in un colpo solo (stesso patch) l'identità e lo
-  // scarto della scelta precedente, applicando la nuova
-  function scegli(ruoloSlug) {
-    if (ruoloSlug === ladro.ruoloSlug) return
+  // la scelta resta modificabile finché non si preme "Avanti": un'unica
+  // funzione annulla la scelta precedente (identità, storiaRuoli, poteriUsati,
+  // carte scartate rimesse nel mazzo) e applica la nuova; `nuova` null =
+  // deselezione, si torna a "non ha scelto". Se il Mimo imita il Ladro (stesso
+  // ruoloSlug, vedi AzioneMimo.jsx) la scelta va scritta su ENTRAMBI (attori).
+  // `scarto`: nuove carte candidate, se si sta cambiando anche quelle.
+  function imposta(nuova, scarto) {
     const precedente = usato ? ladro.ruoloSlug : null
 
     attori.forEach((g) => {
-      const storiaSenzaPrecedente = precedente ? (g.storiaRuoli ?? []).filter((s) => s !== precedente) : (g.storiaRuoli ?? [])
+      const storia = (g.storiaRuoli ?? []).filter((s) => s !== precedente)
+      const poteri = (g.poteriUsati ?? []).filter((p) => p !== POTERE)
       aggiornaGiocatore(g.id, {
-        ruoloSlug,
-        storiaRuoli: [...storiaSenzaPrecedente, ruoloSlug],
-        poteriUsati: usato ? g.poteriUsati : [...(g.poteriUsati ?? []), POTERE],
+        ...(scarto ? { scartoLadro: scarto } : {}),
+        ...(nuova
+          ? { ruoloSlug: nuova, storiaRuoli: [...storia, nuova], poteriUsati: [...poteri, POTERE] }
+          : { ruoloSlug: 'ladro', storiaRuoli: storia, poteriUsati: poteri }),
       })
     })
 
-    if (precedente) {
-      if (precedente === carta1 || precedente === carta2) {
-        scartaCarta(precedente === carta1 ? carta2 : carta1, +1)
-      } else {
-        scartaCarta(carta1, +1)
-        scartaCarta(carta2, +1)
-      }
+    // quantità nette: la stessa carta rimessa e riscartata non cambia nulla
+    const delta = {}
+    const somma = (slug, n) => slug && (delta[slug] = (delta[slug] ?? 0) + n)
+    if (precedente) scartate(precedente).forEach((s) => somma(s, +1))
+    if (nuova) scartate(nuova).forEach((s) => somma(s, -1))
+    for (const [slug, n] of Object.entries(delta)) {
+      if (n) onCambiaQuantita(slug, Math.max(0, (quantita[slug] ?? 1) + n))
     }
-    if (ruoloSlug === carta1 || ruoloSlug === carta2) {
-      scartaCarta(ruoloSlug === carta1 ? carta2 : carta1, -1)
-    } else {
-      scartaCarta(carta1, -1)
-      scartaCarta(carta2, -1)
-    }
+  }
+
+  // cambiando una carta di scarto dopo la scelta, questa decade: si annulla
+  // (le quantità tornano com'erano) e il Ladro sceglie di nuovo
+  function impostaCarta(indice, slug) {
+    const scarto = [carta1, carta2]
+    scarto[indice] = slug || undefined
+    if (usato) imposta(null, scarto)
+    else attori.forEach((g) => aggiornaGiocatore(g.id, { scartoLadro: scarto }))
+  }
+
+  // click sulla scelta già fatta: la deseleziona
+  function scegli(ruoloSlug) {
+    imposta(usato && ruoloSlug === ladro.ruoloSlug ? null : ruoloSlug)
   }
 
   return (

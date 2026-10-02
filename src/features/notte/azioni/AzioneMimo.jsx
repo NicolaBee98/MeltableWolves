@@ -94,7 +94,7 @@ export function AzioneMimo({
             type="button"
             className="chip"
             aria-pressed={mimoRuoloScelto === slug}
-            onClick={() => onScegliRuoloMimo(slug)}
+            onClick={() => onScegliRuoloMimo(mimoRuoloScelto === slug ? null : slug)}
           >
             {nomeRuolo(slug)}
           </button>

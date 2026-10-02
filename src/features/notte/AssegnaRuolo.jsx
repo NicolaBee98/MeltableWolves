@@ -21,6 +21,7 @@ export function AssegnaRuolo({
   selezioni,
   onCambiaSelezioni,
   onRimuovi,
+  titolariIngresso = [],
   domanda = 'Chi ha questa carta?',
   illustrazioneSeparata = true,
 }) {
@@ -45,7 +46,14 @@ export function AssegnaRuolo({
   const tuttiIPendenti = Object.values(selezioni).flat()
   // titolari REALI (già scritti su giocatori), non solo pendenti: senza
   // questi la chip di chi ha già la carta sparirebbe non appena confermata
-  const titolari = giocatori.filter((g) => gruppoRuoli.includes(g.ruoloSlug))
+  // chi era titolare all'ingresso nel passo e poi ha cambiato ruolo con la
+  // propria azione (il Ladro che sceglie) resta titolare della carta, finché
+  // non si preme Avanti: lo si riconosce dalla storiaRuoli
+  const titolari = giocatori.filter(
+    (g) =>
+      gruppoRuoli.includes(g.ruoloSlug) ||
+      (titolariIngresso.includes(g.id) && gruppoRuoli.some((s) => (g.storiaRuoli ?? []).includes(s))),
+  )
   const selezionatiVisivi = [...pendenti, ...titolari.map((g) => g.id)]
   const candidati = giocatori.filter(
     (g) => g.vivo && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),

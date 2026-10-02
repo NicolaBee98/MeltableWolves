@@ -140,3 +140,24 @@ test('non mostra il pulsante Salta: questi poteri non sono opzionali', () => {
 
   expect(screen.queryByRole('button', { name: 'Salta' })).not.toBeInTheDocument()
 })
+
+test('cliccando di nuovo il bersaglio scelto la condizione si toglie', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Paola', ruoloSlug: 'paladino', vivo: true, condizioni: [], usiNotte: ['paladino'] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'] },
+  ]
+  render(
+    <AzioneCondizioneSingola
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="protetto"
+      etichetta="Chi proteggere"
+      ruoloSlugAttore="paladino"
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
+})

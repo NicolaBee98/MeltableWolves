@@ -249,3 +249,47 @@ test('le carte candidate sono i ruoli fisici nel mazzo con quantità residua: Vi
   expect(opzioni).not.toContain('borgomastro')
   expect(opzioni).not.toContain('paladino')
 })
+
+test('Gallo e Mucca non sono lupi veri: "Resta Villico" resta disponibile', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], scartoLadro: ['gallo', 'mucca'] },
+  ]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'gallo', 'mucca']}
+      quantita={{ ladro: 1, gallo: 1, mucca: 1 }}
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Resta Villico' })).toBeInTheDocument()
+})
+
+test('cliccando di nuovo la carta scelta si deseleziona: identità, storiaRuoli, poteriUsati e quantità tornano com\'erano', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const onCambiaQuantita = vi.fn()
+  const props = {
+    aggiornaGiocatore,
+    onCambiaQuantita,
+    ruoliSelezionati: ['ladro', 'veggente', 'paladino'],
+  }
+  const scelto = {
+    id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [],
+    storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'],
+  }
+  const { rerender } = render(
+    <AzioneLadro {...props} giocatori={[scelto]} quantita={{ ladro: 1, veggente: 1, paladino: 1 }} />,
+  )
+  // il Ladro ha scelto Veggente: Paladino scartato (quantità 0)
+  rerender(
+    <AzioneLadro
+      {...props}
+      giocatori={[{ ...scelto, ruoloSlug: 'veggente', poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro', 'veggente'] }]}
+      quantita={{ ladro: 1, veggente: 1, paladino: 0 }}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'ladro', storiaRuoli: ['ladro'], poteriUsati: [] })
+  expect(onCambiaQuantita).toHaveBeenCalledWith('paladino', 1)
+})

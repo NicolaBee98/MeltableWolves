@@ -15,7 +15,8 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
 
   function confermaScelta(targetId) {
     if (!attore) return
-    aggiornaGiocatore(attore.id, { legame: { tipo: tipoLegame, targetId } })
+    // click sulla chip già scelta: annulla il legame
+    aggiornaGiocatore(attore.id, { legame: targetId === bersaglioAttuale ? undefined : { tipo: tipoLegame, targetId } })
   }
 
   if (candidati.length === 0) {

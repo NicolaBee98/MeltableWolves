@@ -33,3 +33,16 @@ test('la scelta resta modificabile: la chip già visitata resta premuta e clicca
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { visitaNotturna: '3' })
 })
+
+test('cliccando di nuovo il cliente scelto la visita si annulla', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2', usiNotte: ['cortigiana-visita'] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneCortigiana giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { visitaNotturna: null })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
+})

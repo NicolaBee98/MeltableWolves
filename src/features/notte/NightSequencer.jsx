@@ -508,6 +508,34 @@ export function NightSequencer({
   function rimuoviAssegnazione(giocatoreId, ruoloSlug) {
     const g = giocatori.find((x) => x.id === giocatoreId)
     if (!g) return
+    // con lo snapshot d'ingresso del passo si disfa in un colpo tutto ciò che
+    // l'azione del ruolo ha scritto da allora (poteriUsati, usiNotte,
+    // ultimaIndagine, condizioni, legami, morti, quantità scartate): niente
+    // residui su chi perde la carta, e chi la riceve non eredita un potere già
+    // consumato. Restano gli altri titolari assegnati in questo passo (solo
+    // i titolari d'ingresso, es. un Mimo che imita, tornano com'erano).
+    if (ingresso?.id === step.id && ingresso.giocatori) {
+      for (const x of giocatori) {
+        const snap = ingresso.giocatori.find((y) => y.id === x.id)
+        if (!snap) continue
+        let finale
+        if (x.id === giocatoreId) {
+          finale = {
+            ...snap,
+            ruoloSlug: undefined,
+            storiaRuoli: (snap.storiaRuoli ?? []).filter((s) => s !== ruoloSlug && !step.ruoli?.includes(s)),
+          }
+        } else {
+          finale = (ingresso.titolari ?? []).includes(x.id) ? snap : { ...snap, ruoloSlug: x.ruoloSlug, storiaRuoli: x.storiaRuoli }
+        }
+        // i campi comparsi dopo l'ingresso (legame, ultimaIndagine...) vanno
+        // esplicitamente a undefined: aggiornaGiocatore unisce, non sostituisce
+        const azzera = Object.fromEntries(Object.keys(x).map((k) => [k, undefined]))
+        aggiornaGiocatore(x.id, { ...azzera, ...finale })
+      }
+      ripristinaQuantita(ingresso.quantita)
+      return
+    }
     aggiornaGiocatore(giocatoreId, {
       ruoloSlug: undefined,
       storiaRuoli: (g.storiaRuoli ?? []).filter((s) => s !== ruoloSlug),
@@ -742,6 +770,7 @@ export function NightSequencer({
           selezioni={selezioniRuolo}
           onCambiaSelezioni={setSelezioniRuolo}
           onRimuovi={rimuoviAssegnazione}
+          titolariIngresso={titolariIngresso}
           illustrazioneSeparata={!step.ruoliMostraCoinvolti}
           {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />

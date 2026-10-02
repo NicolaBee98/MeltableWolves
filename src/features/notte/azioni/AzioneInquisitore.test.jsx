@@ -66,3 +66,27 @@ test('l\'esito malvagio si risponde "sì" (aura malvagia), non "è un lupo": val
   expect(screen.getByText(/rispondi all'inquisitore: sì \(aura malvagia\)/i)).toBeInTheDocument()
   expect(screen.queryByText(/è un lupo/i)).not.toBeInTheDocument()
 })
+
+test('"Salta" dopo un\'indagine già fatta la toglie, insieme alla perdita del potere', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    {
+      id: '1', nome: 'Anna', ruoloSlug: 'inquisitore', vivo: true, condizioni: [],
+      poteriUsati: ['inquisitore-potere-perso'], usiNotte: ['inquisitore-indagine'],
+      ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 },
+    },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const { rerender } = render(
+    <AzioneInquisitore giocatori={[{ ...giocatori[0], poteriUsati: [] }, giocatori[1]]} aggiornaGiocatore={aggiornaGiocatore} round={1} />,
+  )
+  // il potere perso compare dopo il montaggio (indagine di questo stesso passo)
+  rerender(<AzioneInquisitore giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} />)
+  await user.click(screen.getByRole('button', { name: 'Salta' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    ultimaIndagine: undefined,
+    poteriUsati: [],
+    usiNotte: ['inquisitore-indagine'],
+  })
+})
