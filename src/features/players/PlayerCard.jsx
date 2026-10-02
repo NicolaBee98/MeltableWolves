@@ -43,19 +43,10 @@ export function PlayerCard({ giocatore, onRemove, maniglia, classeExtra = '' }) 
       className={`player-card${uscendo ? ' player-card--uscendo' : ''}${classeExtra}`}
       data-giocatore-id={giocatore.id}
       onAnimationEnd={completaRimozioneSeUscita}
+      {...maniglia}
     >
       <header className="player-card__header">
         <h3>{giocatore.nome}</h3>
-        {maniglia && (
-          <span
-            role="button"
-            className="player-card__maniglia"
-            aria-label={`Trascina per spostare ${giocatore.nome}`}
-            {...maniglia}
-          >
-            ⋮⋮
-          </span>
-        )}
         <button
           type="button"
           className="player-card__elimina"

@@ -54,11 +54,11 @@ test('Tab non avvia l\'eliminazione, Invio sì; il blur la annulla', () => {
   expect(riempimento.style.width).toBe('0%')
 })
 
-test('la maniglia ha aria-label, niente frecce, e il suo pointerdown non avvia l\'eliminazione', () => {
+test('i gestori di drag stanno sulla card (niente maniglia) e il suo pointerdown non avvia l\'eliminazione', () => {
   const onPointerDown = vi.fn()
   render(<PlayerCard giocatore={giocatore} onRemove={() => {}} maniglia={{ onPointerDown }} />)
-  expect(screen.queryByRole('button', { name: /Sposta/ })).not.toBeInTheDocument()
-  fireEvent.pointerDown(screen.getByRole('button', { name: 'Trascina per spostare Marco' }))
+  expect(screen.queryByText('⋮⋮')).not.toBeInTheDocument()
+  fireEvent.pointerDown(screen.getByText('Marco'))
   expect(onPointerDown).toHaveBeenCalled()
   expect(screen.getByRole('button', { name: /tieni premuto/i }).querySelector('.player-card__elimina-riempimento').style.width).toBe('0%')
 })

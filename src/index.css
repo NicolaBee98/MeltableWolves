@@ -625,16 +625,10 @@ legend {
   padding: 0.3rem 0.3rem 0.3rem 0.85rem;
   background: var(--surface);
   width: auto;
-}
-
-/* maniglia di riordino: touch-action none, altrimenti su touch il browser
-   scorre la pagina invece di mandare i pointermove */
-.player-card__maniglia {
+  /* tutta la card è trascinabile (vedi useRiordina): niente selezione testo né callout iOS */
   cursor: grab;
-  touch-action: none;
   user-select: none;
-  padding: 0.4rem 0.5rem;
-  line-height: 1;
+  -webkit-touch-callout: none;
 }
 
 .player-card--trascinata {

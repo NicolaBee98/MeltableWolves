@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PlayerTracker } from './PlayerTracker'
 
@@ -60,7 +60,7 @@ test('trascinare la card di un giocatore su un altro chiama onRiordina col nuovo
 
   // jsdom non ha elementFromPoint: il "punto" è la card di Luca
   document.elementFromPoint = vi.fn(() => screen.getByText('Luca'))
-  const maniglia = screen.getByRole('button', { name: 'Trascina per spostare Anna' })
+  const maniglia = screen.getByText('Anna').closest('article')
   fireEvent.pointerDown(maniglia, { pointerId: 1 })
   fireEvent.pointerMove(maniglia, { pointerId: 1, clientX: 5, clientY: 300 })
   expect(screen.getByText('Luca').closest('article')).toHaveClass('player-card--rilascio-dopo')
@@ -103,7 +103,7 @@ test('salendo il giocatore finisce prima del bersaglio, e non ci sono frecce ▲
   setup({ giocatori, onRiordina })
   expect(screen.queryByRole('button', { name: /Sposta/ })).not.toBeInTheDocument()
   document.elementFromPoint = vi.fn(() => screen.getByText('Anna'))
-  const maniglia = screen.getByRole('button', { name: 'Trascina per spostare Marco' })
+  const maniglia = screen.getByText('Marco').closest('article')
   fireEvent.pointerDown(maniglia, { pointerId: 1 })
   fireEvent.pointerMove(maniglia, { pointerId: 1 })
   fireEvent.pointerUp(maniglia, { pointerId: 1 })
@@ -112,7 +112,7 @@ test('salendo il giocatore finisce prima del bersaglio, e non ci sono frecce ▲
 
 test('il trascinamento non avvia l\'eliminazione', () => {
   const { removeGiocatore } = setup({ giocatori: [{ id: '1', nome: 'Marco', vivo: true, condizioni: [] }] })
-  fireEvent.pointerDown(screen.getByRole('button', { name: /Trascina per spostare Marco/ }), { pointerId: 1 })
+  fireEvent.pointerDown(screen.getByText('Marco').closest('article'), { pointerId: 1 })
   expect(screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i }).querySelector('.player-card__elimina-riempimento').style.width).toBe('0%')
   expect(removeGiocatore).not.toHaveBeenCalled()
 })
@@ -139,4 +139,37 @@ test('a partita avviata rimuovere un giocatore chiede conferma e annullando non 
   fireEvent.click(screen.getByRole('button', { name: 'Annulla' }))
   expect(screen.getByRole('button', { name: /tieni premuto per rimuovere marco/i })).toBeInTheDocument()
   expect(removeGiocatore).not.toHaveBeenCalled()
+})
+
+test('su touch il drag parte dopo una pressione breve; uno spostamento prima è uno scroll e non riordina', () => {
+  vi.useFakeTimers()
+  // jsdom non ha PointerEvent: serve per avere pointerType ed event coordinates
+  window.PointerEvent = class extends MouseEvent {
+    constructor(tipo, init = {}) { super(tipo, init); this.pointerType = init.pointerType; this.pointerId = init.pointerId }
+  }
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const onRiordina = vi.fn()
+  setup({ giocatori, onRiordina })
+  document.elementFromPoint = vi.fn(() => screen.getByText('Marco'))
+  const anna = screen.getByText('Anna').closest('article')
+  const tocco = { pointerId: 1, pointerType: 'touch', clientX: 10, clientY: 10 }
+
+  // scroll: il dito si muove prima dello scadere della pressione
+  fireEvent.pointerDown(anna, tocco)
+  fireEvent.pointerMove(anna, { ...tocco, clientY: 60 })
+  act(() => vi.advanceTimersByTime(300))
+  expect(anna).not.toHaveClass('player-card--trascinata')
+  fireEvent.pointerUp(anna, tocco)
+
+  // pressione ferma: il drag parte
+  fireEvent.pointerDown(anna, tocco)
+  act(() => vi.advanceTimersByTime(300))
+  expect(anna).toHaveClass('player-card--trascinata')
+  fireEvent.pointerMove(anna, tocco)
+  fireEvent.pointerUp(anna, tocco)
+  expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0]])
+  vi.useRealTimers()
 })

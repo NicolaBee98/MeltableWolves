@@ -63,7 +63,7 @@ test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi all
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
-test('mostra un avviso non bloccante se il numero di giocatori non combacia con i ruoli del mazzo', async () => {
+test('blocca "Inizia la notte" (con motivo visibile) se il numero di giocatori non combacia con i ruoli del mazzo', async () => {
   const user = userEvent.setup()
   render(<App />)
 
@@ -71,10 +71,16 @@ test('mostra un avviso non bloccante se il numero di giocatori non combacia con 
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
-  expect(screen.getByText(/hai 0 giocatori per 1 ruoli/i)).toBeInTheDocument()
+  expect(screen.getByText(/servono 1 giocatori, ce ne sono 0/i)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeDisabled()
 
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeEnabled()
+
+  // anche troppi giocatori bloccano
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Luca{Enter}')
+  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeDisabled()
 })
 
 test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due carte extra non sono per nessuno)', async () => {
@@ -87,10 +93,10 @@ test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   // mazzo: Ladro + Mimo = 2 ruoli, meno le 2 carte extra del Ladro = 0 attesi
-  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
 
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  expect(screen.getByText(/hai 1 giocatori per 0 ruoli/i)).toBeInTheDocument()
+  expect(screen.getByText(/servono 0 giocatori, ce ne sono 1/i)).toBeInTheDocument()
 })
 
 test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel conteggio atteso', async () => {
@@ -106,7 +112,7 @@ test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel 
   // mazzo: Mimo + Borgomastro + Fantasma Onnisciente = 3 ruoli, ma i due
   // titoli non aggiungono nessun giocatore: 1 atteso, non 3
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  expect(screen.queryByText(/hai \d giocatori per \d ruoli/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
 })
 
 test('completare la notte porta alla schermata Alba, poi al voto', async () => {
@@ -114,11 +120,12 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Villico' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
-  await user.click(screen.getByRole('button', { name: 'È giorno nel villaggio' }))
+  await user.click(screen.getByRole('button', { name: "Vai all'alba" }))
   expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Vai al voto' }))
