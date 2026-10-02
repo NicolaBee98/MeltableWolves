@@ -44,7 +44,7 @@ export function LogImpostazioniPopup({
         aria-label="Registro e impostazioni"
         onClick={() => setAperto((a) => !a)}
       >
-        <span aria-hidden="true">📜</span> <span className="log-impostazioni__testo">Registro e impostazioni</span>
+        <span aria-hidden="true">⚙️</span>
       </button>
       {aperto && (
         <div

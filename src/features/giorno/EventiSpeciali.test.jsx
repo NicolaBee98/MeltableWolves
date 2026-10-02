@@ -133,6 +133,19 @@ test('L\'Innocente si rivela: propone solo i giocatori senza ruolo noto, richied
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onRivelazione).toHaveBeenCalledWith('innocente', '2')
+  // feedback a schermo dopo la conferma, anche se l'evento non è più disponibile
+  expect(screen.getByRole('status')).toHaveTextContent("Marco si è rivelato/a: è l'Innocente.")
+})
+
+test('il Boia preso dal Ladro (ruolo già assegnato) può agire dagli Eventi speciali', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'boia', storiaRuoli: ['ladro', 'boia'] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico' },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['boia', 'villico'], quantita: { boia: 1, villico: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: 'Il Boia giustizia' })).toBeInTheDocument()
 })
 
 test("Spilungone e L'Antico non hanno una voce generica di rivelazione fuori dall'alba (si rivelano dal rogo/alla morte)", async () => {

@@ -124,6 +124,15 @@ export function EventiSpeciali({
   onAnnullaMorte,
 }) {
   const [evento, setEvento] = useState(null)
+  // messaggio di riepilogo mostrato dopo ogni conferma (stesso feedback per
+  // tutte le identificazioni: il popup non si chiude "muto")
+  const [esito, setEsito] = useState('')
+  const nome = (id) => giocatori.find((g) => g.id === id)?.nome
+  function applica(messaggio, azione) {
+    azione()
+    setEsito(messaggio)
+    setEvento('esito')
+  }
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
   const unti = giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))
@@ -210,7 +219,8 @@ export function EventiSpeciali({
 
   const { dialogRef, triggerRef } = useDialogA11y(Boolean(evento), chiudi)
 
-  if (menuEventi.length === 0) return null
+  // con l'ultimo evento consumato il menu si svuota, ma il riepilogo va mostrato
+  if (menuEventi.length === 0 && !evento) return null
 
   return (
     <div className="eventi-speciali">
@@ -247,10 +257,11 @@ export function EventiSpeciali({
               candidati={attori('scemo-del-villaggio')}
               etichetta="Chi è lo Scemo del Villaggio"
               messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
-              onConferma={(id) => {
-                onScemoSbaglia(id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} si è rivelato/a: è lo Scemo del Villaggio, ha sbagliato la rima ed è morto/a.`, () =>
+                  onScemoSbaglia(id),
+                )
+              }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
             />
@@ -261,10 +272,9 @@ export function EventiSpeciali({
               candidati={attori('innocente')}
               etichetta="Chi è l'Innocente"
               messaggio="L'Innocente mostra la propria carta al villaggio, dimostrando la sua innocenza."
-              onConferma={(id) => {
-                onRivelazione('innocente', id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} si è rivelato/a: è l'Innocente.`, () => onRivelazione('innocente', id))
+              }
               onAnnulla={chiudi}
             />
           )}
@@ -274,11 +284,10 @@ export function EventiSpeciali({
               candidati={unti}
               etichetta="Chi è morto per l'unzione"
               messaggio={'Chi è morto/a per l\'unzione (ha detto "sì" o "no"): l\'unzione si trasmette ai due vicini vivi.'}
-              onConferma={(id) => {
-                onMorteUnzione(id)
-                chiudi()
-              }}
-                            onAnnulla={chiudi}
+              onConferma={(id) =>
+                applica(`${nome(id)} è morto/a per l'unzione: l'unzione passa ai due vicini vivi.`, () => onMorteUnzione(id))
+              }
+              onAnnulla={chiudi}
             />
           )}
 
@@ -286,10 +295,11 @@ export function EventiSpeciali({
             <EventoUnGiocatore
               candidati={candidatiAntico}
               etichetta="Chi è L'Antico?"
-              onConferma={(id) => {
-                onRivelazione('lantico', id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.`, () =>
+                  onRivelazione('lantico', id),
+                )
+              }
               onAnnulla={chiudi}
             />
           )}
@@ -300,10 +310,9 @@ export function EventiSpeciali({
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
               etichettaBersaglio="Chi giustizia il Boia"
-              onConferma={(boiaId, id) => {
-                onBoiaGiustizia(boiaId, id)
-                chiudi()
-              }}
+              onConferma={(boiaId, id) =>
+                applica(`${nome(boiaId)} si è rivelato/a: è il Boia e giustizia ${nome(id)}.`, () => onBoiaGiustizia(boiaId, id))
+              }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
             />
@@ -316,10 +325,11 @@ export function EventiSpeciali({
               etichettaAttore="Chi è l'Alchimista"
               etichettaBersaglio="Chi trascina con sé l'Alchimista"
               escludiAttoreDaBersagli
-              onConferma={(alchimistaId, id) => {
-                onAlchimistaEsplode(alchimistaId, id)
-                chiudi()
-              }}
+              onConferma={(alchimistaId, id) =>
+                applica(`${nome(alchimistaId)} si è rivelato/a: è l'Alchimista ed esplode trascinando con sé ${nome(id)}.`, () =>
+                  onAlchimistaEsplode(alchimistaId, id),
+                )
+              }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
             />
@@ -351,10 +361,9 @@ export function EventiSpeciali({
             <EventoUnGiocatore
               candidati={vivi}
               etichetta="Chi eleggete Borgomastro?"
-              onConferma={(id) => {
-                onElezioneBorgomastro(id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} è il nuovo Borgomastro: il suo voto vale doppio.`, () => onElezioneBorgomastro(id))
+              }
               onAnnulla={chiudi}
             />
           )}
@@ -364,10 +373,9 @@ export function EventiSpeciali({
               candidati={morti}
               etichetta="Chi riceve la carta"
               messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
-              onConferma={(id) => {
-                onFantasmaOnnisciente(id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} riceve la carta del Fantasma Onnisciente.`, () => onFantasmaOnnisciente(id))
+              }
               onAnnulla={chiudi}
             />
           )}
@@ -377,10 +385,9 @@ export function EventiSpeciali({
               candidati={mortiSenzaRuoloNoto}
               etichetta="Chi era la Suocera"
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
-              onConferma={(id) => {
-                onSuoceraRivelazione(id)
-                chiudi()
-              }}
+              onConferma={(id) =>
+                applica(`${nome(id)} si è rivelato/a: era la Suocera.`, () => onSuoceraRivelazione(id))
+              }
               onAnnulla={chiudi}
             />
           )}
@@ -390,12 +397,18 @@ export function EventiSpeciali({
               candidati={morti}
               etichetta="Chi va riportato in vita"
               messaggio="Corregge una morte dichiarata per errore. Annulla anche le conseguenze già innescate (es. crepacuore del partner)."
-              onConferma={(id) => {
-                onAnnullaMorte(id)
-                chiudi()
-              }}
+              onConferma={(id) => applica(`${nome(id)} è tornato/a in vita.`, () => onAnnullaMorte(id))}
               onAnnulla={chiudi}
             />
+          )}
+
+          {evento === 'esito' && (
+            <div className="eventi-speciali__conferma">
+              <p role="status">{esito}</p>
+              <button type="button" onClick={chiudi}>
+                Ok
+              </button>
+            </div>
           )}
         </div>
       )}
