@@ -20,7 +20,8 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   // il Ladro vero sceglie per primo; il Mimo che lo imita (se c'è) subito
   // dopo, tra le carte rimaste
   const ladro = attori.find((g) => !eMimoCopiante(g)) ?? attori[0]
-  const mimo = attori.find((g) => g !== ladro)
+  // solo un Mimo che imita davvero il Ladro (non un secondo Ladro, né nessuno)
+  const mimo = attori.find((g) => g !== ladro && eMimoCopiante(g) && g.legame?.tipo === 'mimo' && g.legame.targetId === ladro?.id)
   const haScelto = (g) => (g?.poteriUsati ?? []).includes(POTERE)
   const usato = haScelto(ladro)
   const [carta1, carta2] = ladro?.scartoLadro ?? []

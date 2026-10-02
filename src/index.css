@@ -944,6 +944,14 @@ button.chip--fazione-sconosciuto {
   color: var(--text-soft);
 }
 
+.night-sequencer__sottotitolo {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
 .night-sequencer__ruolo {
   display: flex;
   align-items: center;

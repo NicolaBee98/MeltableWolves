@@ -211,8 +211,19 @@ function passoBloccatoDallaMaledizione(step) {
   })
 }
 
+// carte che il narratore tiene in mano dopo la scelta del Ladro (le due
+// scartate, meno quella presa da lui o dal Mimo che lo imita): nessun giocatore
+// le ha, ma vanno svegliate lo stesso per non destare sospetti (pag. 15)
+export function ruoliInMano(giocatori) {
+  const prese = giocatori
+    .filter((g) => (g.poteriUsati ?? []).includes('ladro-scelta') && (g.storiaRuoli ?? []).includes('ladro'))
+    .map((g) => g.ruoloSlug)
+  return [...new Set(giocatori.flatMap((g) => g.scartoLadro ?? []))].filter((slug) => !prese.includes(slug))
+}
+
 export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { promemoriaRuoliMorti = false } = {}) {
   const maledetto = villaggioMaledetto(giocatori, round)
+  const inMano = ruoliInMano(giocatori).filter((slug) => ruoliSelezionati.includes(slug))
   return NIGHT_STEPS.filter((step) => {
     if (step.primaNotteSolo && round > 1) return false
     if (maledetto && passoBloccatoDallaMaledizione(step)) return false
@@ -221,6 +232,10 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))
     }
+
+    // carta scartata dal Ladro: il passo del ruolo compare comunque (non il
+    // generico "assegna i ruoli rimanenti", che non è una carta che si sveglia)
+    if (step.id !== PASSO_ASSEGNA_RESTANTI.id && step.ruoli.some((slug) => inMano.includes(slug))) return true
 
     return step.ruoli.some((slug) => {
       if (!ruoliSelezionati.includes(slug)) return false

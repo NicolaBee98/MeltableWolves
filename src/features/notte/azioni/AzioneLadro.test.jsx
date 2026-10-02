@@ -308,3 +308,16 @@ test('cliccando di nuovo la carta scelta si deseleziona: identità, storiaRuoli,
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'ladro', storiaRuoli: ['ladro'], poteriUsati: [] })
   expect(onCambiaQuantita).toHaveBeenCalledWith('paladino', 1)
 })
+
+test('senza un Mimo che imita il Ladro non compare "Cosa sceglie il Mimo" (nemmeno con un secondo Ladro)', () => {
+  const scelto = { poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] }
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, ...scelto },
+    { id: '2', nome: 'Bob', ruoloSlug: 'paladino', vivo: true, ...scelto },
+  ]
+  render(
+    <AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro', 'veggente', 'paladino']} quantita={{ ladro: 2 }} />,
+  )
+  expect(screen.queryByRole('group', { name: 'Cosa sceglie il Mimo' })).not.toBeInTheDocument()
+  expect(screen.queryByText(/Mimo, imita il Ladro/)).not.toBeInTheDocument()
+})

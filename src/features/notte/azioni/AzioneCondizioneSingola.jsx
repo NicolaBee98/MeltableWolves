@@ -11,9 +11,10 @@ export function AzioneCondizioneSingola({
   etichetta,
   ruoloSlugAttore,
   escludiAttore = false,
+  vivoAIngresso = (g) => g.vivo,
 }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const vivi = giocatori.filter((g) => g.vivo && (!escludiAttore || g.id !== attore?.id))
+  const vivi = giocatori.filter((g) => vivoAIngresso(g) && (!escludiAttore || g.id !== attore?.id))
   // chi ha già questa condizione (assegnata da questa stessa azione stanotte,
   // vedi pulizia a fine notte in NightSequencer) è il bersaglio scelto finora
   const scelto = vivi.find((g) => g.condizioni.includes(condizione))

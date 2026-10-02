@@ -9,10 +9,10 @@ import { annullaColpo } from './annullaColpo'
 // stato "già usata" solo una volta, al montaggio del passo (mai più durante
 // i click successivi), così un click su questa stessa notte non nasconde
 // subito le chip.
-export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round }) {
+export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo }) {
   const strega = giocatori.find((g) => g.ruoloSlug === 'strega')
   const poteriUsati = strega?.poteriUsati ?? []
-  const vivi = giocatori.filter((g) => g.vivo)
+  const vivi = giocatori.filter(vivoAIngresso)
   const [avvisoVitale, setAvvisoVitale] = useState(null)
   const [avvisoMortale, setAvvisoMortale] = useState(null)
   const [giaUsataVitale] = useState(() => poteriUsati.includes('strega-pozione-vitale'))
@@ -130,7 +130,7 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
                   altrimenti la sua chip sparirebbe subito dopo il click e non
                   si potrebbe più vedere né ripensare la scelta */}
               {giocatori
-                .filter((g) => g.vivo || g.id === targetMortale)
+                .filter((g) => vivoAIngresso(g) || g.id === targetMortale)
                 .map((g) => (
                   <button
                     key={g.id}

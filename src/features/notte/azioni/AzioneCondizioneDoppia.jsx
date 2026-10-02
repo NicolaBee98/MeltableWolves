@@ -13,13 +13,14 @@ export function AzioneCondizioneDoppia({
   ruoloSlugAttore,
   escludiAttore = false,
   attoreId,
+  vivoAIngresso = (g) => g.vivo,
 }) {
   // `attoreId` (solo Sacerdote, scelta della prima notte): quale titolare agisce,
   // titolare e Mimo scelgono ognuno la propria coppia. Senza (Pifferaio, ogni
   // notte) la scelta è unica e condivisa tra tutti i titolari.
   const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const altriAttori = !attoreId ? [] : giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore && g.id !== attore?.id)
-  const vivi = giocatori.filter((g) => g.vivo && (!escludiAttore || g.id !== attore?.id))
+  const vivi = giocatori.filter((g) => vivoAIngresso(g) && (!escludiAttore || g.id !== attore?.id))
   // chi aveva già la condizione PRIMA di questo passo (es. il Pifferaio:
   // ipnotizzato è cumulativo tra notti, mai ripulito) non va mai toccato da
   // un ripensamento di QUESTA notte: solo la coppia scelta ora resta

@@ -6,9 +6,9 @@ const POTERE = 'cortigiana-visita'
 // come il Veggente: la chip scelta resta modificabile finché non si preme
 // "Avanti" (visitaNotturna vive solo per la notte in corso, risolviCortigiana
 // la azzera a fine notte, quindi è sicuro derivarne la selezione corrente)
-export function AzioneCortigiana({ giocatori, aggiornaGiocatore }) {
+export function AzioneCortigiana({ giocatori, aggiornaGiocatore, vivoAIngresso = (g) => g.vivo }) {
   const cortigiana = giocatori.find((g) => g.ruoloSlug === 'cortigiana')
-  const candidati = giocatori.filter((g) => g.vivo && g.id !== cortigiana?.id)
+  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== cortigiana?.id)
 
   function confermaScelta(targetId) {
     // click sulla chip già scelta: annulla la visita

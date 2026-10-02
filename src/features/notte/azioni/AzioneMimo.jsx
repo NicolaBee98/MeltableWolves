@@ -28,13 +28,14 @@ export function AzioneMimo({
   aggiornaGiocatore,
   ruoliSelezionati = [],
   quantita = {},
+  vivoAIngresso = (g) => g.vivo,
   mimoRuoloScelto,
   onScegliRuoloMimo = () => {},
 }) {
   const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
   if (!mimo) return null
 
-  const candidati = giocatori.filter((g) => g.vivo && g.id !== mimo.id)
+  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== mimo.id)
   const target = giocatori.find((g) => g.id === mimo.legame?.targetId)
 
   // scegliere "chi imitare" applica subito il legame (non tocca il

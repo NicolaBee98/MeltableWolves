@@ -12,10 +12,10 @@ const POTERE_NOTTE = 'inquisitore-indagine'
 // Inquisitore e Mimo-Inquisitore sono due attori indipendenti (perAttore): ognuno
 // ha la propria indagine e il proprio potere, che può fallire (e perdersi) una
 // volta per ciascuno.
-export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreId }) {
+export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreId, vivoAIngresso = (g) => g.vivo }) {
   const inquisitore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === 'inquisitore')
   const [potereEsauritoAllIngresso] = useState(() => (inquisitore?.poteriUsati ?? []).includes(POTERE_PERSO))
-  const candidati = giocatori.filter((g) => g.vivo && g.id !== inquisitore?.id)
+  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== inquisitore?.id)
   const indagineStanotte = inquisitore?.ultimaIndagine?.notte === round ? inquisitore.ultimaIndagine : null
   const giaUsato = Boolean(indagineStanotte)
 

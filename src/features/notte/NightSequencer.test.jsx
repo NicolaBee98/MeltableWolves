@@ -10,6 +10,8 @@ function NightSequencerConNotte(props) {
   return <NightSequencer {...props} {...notte} />
 }
 
+const sottotitolo = () => document.querySelector('.night-sequencer__sottotitolo')?.textContent
+
 beforeEach(() => {
   localStorage.clear()
 })
@@ -151,7 +153,8 @@ test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
   const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, condizioni: [], note: '' }]
   render(<NightSequencerConNotte ruoliSelezionati={['mimo', 'paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByRole('heading', { name: /mimo \(sara\)/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /^mimo$/i })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Sara')
 })
 
 test('il pulsante Avanti passa al passo successivo', async () => {
@@ -684,8 +687,24 @@ test('il Ladro che sceglie una carta (cambia ruolo) resta sul proprio passo e Av
   h.rerender()
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   h.rerender()
-  // il passo dopo il Ladro è il Medium (steps: ladro, medium, veggente), non saltato
+  // il passo dopo il Ladro è il Paladino: carta scartata, in mano al narratore, senza
+  // giocatore e senza azione, ma da chiamare comunque (poi il Medium, non saltato)
+  expect(screen.getByRole('heading', { name: /^paladino$/i })).toBeInTheDocument()
+  expect(screen.getByText('Carta non assegnata a nessun giocatore: chiama comunque il ruolo.')).toBeInTheDocument()
+  expect(sottotitolo()).toBeUndefined()
+  expect(screen.queryByRole('group', { name: /chi proteggere/i })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  h.rerender()
   expect(screen.getByRole('heading', { name: /medium/i })).toBeInTheDocument()
+})
+
+test('sottotitolo con più giocatori: righe "Vivi:" e "Morti:" solo se non vuote', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'paladino', vivo: false, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} quantita={{ paladino: 2 }} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  expect(sottotitolo()).toBe('Vivi: SaraMorti: Marco')
 })
 
 test('Addolorata: dopo "Scambia" il passo resta e "Annulla scambio" è raggiungibile', async () => {
@@ -806,7 +825,8 @@ test('il Mimo compare anche nel passo del ruolo che sta imitando', () => {
   ]
   render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
 
-  expect(screen.getByRole('heading', { name: /paladino \(sara, marco\)/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /^paladino$/i })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Vivi: Sara (Mimo), Marco')
 })
 
 test('il Mimo non compare in un passo del ruolo che NON sta imitando', () => {
@@ -819,7 +839,8 @@ test('il Mimo non compare in un passo del ruolo che NON sta imitando', () => {
     <NightSequencerConNotte ruoliSelezionati={['paladino', 'veggente']} giocatori={giocatori} aggiornaGiocatore={() => {}} />,
   )
 
-  expect(screen.getByRole('heading', { name: /^paladino \(elena\)$/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /^paladino$/i })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Elena')
 })
 
 test('con la notte bloccata dal Bardo mostra il suo avviso invece dei passi, e "Vai all\'alba" conclude la notte', async () => {
@@ -987,7 +1008,8 @@ test('la Strega che usa la pozione mortale su se stessa: fino ad Avanti il passo
   await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Sara' }))
   expect(stato.giocatori[0].vivo).toBe(false)
 
-  expect(screen.getByRole('heading', { name: /strega \(sara\)/i }).textContent).not.toMatch(/☠/)
+  expect(screen.getByRole('heading', { name: /^strega$/i })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Sara')
   expect(screen.queryByText(/chiama comunque/i)).not.toBeInTheDocument()
   expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(1)
   // l'azione resta, la scelta si può ancora ripensare
@@ -1594,6 +1616,31 @@ test('Ladro che sceglie la carta Mimo (tra le due in più): dopo il suo passo si
   expect(h.stato.giocatori[0].ruoloSlug).toBe('mimo')
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
-  expect(screen.getByRole('heading', { name: /^mimo \(anna\)/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /^mimo$/i })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Anna')
   expect(screen.getByText('Chi imitare')).toBeInTheDocument()
+})
+
+test('Branco: se il partner innamorato muore di crepacuore, la sua chip resta cliccabile (stato d\'ingresso)', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  function Crepacuore() {
+    const [giocatori, setGiocatori] = useState([
+      { id: '1', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+      { id: '2', nome: 'Gino', ruoloSlug: 'villico', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['3'] },
+      { id: '3', nome: 'Pia', ruoloSlug: 'villico', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    ])
+    // come usePartita: la morte di un innamorato uccide subito anche il partner
+    const aggiorna = (id, patch) =>
+      setGiocatori((prev) =>
+        prev.map((g) => (g.id === id ? { ...g, ...patch } : patch.vivo === false && g.innamoratiCon?.includes(id) ? { ...g, vivo: false } : g)),
+      )
+    return <NightSequencerConNotte ruoliSelezionati={['lupo-mannaro', 'villico']} giocatori={giocatori} aggiornaGiocatore={aggiorna} impostaGiocatori={setGiocatori} />
+  }
+  render(<Crepacuore />)
+
+  const gruppo = () => screen.getByRole('group', { name: 'Il branco sbrana' })
+  await user.click(within(gruppo()).getByRole('button', { name: 'Gino' }))
+  expect(within(gruppo()).getByRole('button', { name: 'Gino' })).toHaveAttribute('aria-pressed', 'true')
+  expect(within(gruppo()).getByRole('button', { name: 'Pia' })).toBeInTheDocument()
 })
