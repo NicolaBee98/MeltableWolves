@@ -10,3 +10,6 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
     disconnect() {}
   }
 }
+
+// jsdom non implementa window.scrollTo (App lo usa al cambio schermata)
+window.scrollTo = () => {}

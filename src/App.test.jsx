@@ -12,6 +12,15 @@ test('parte dalla home', () => {
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 })
 
+test('cambiando schermata lo scroll torna in cima', async () => {
+  const user = userEvent.setup()
+  const scrollTo = vi.spyOn(window, 'scrollTo')
+  render(<App />)
+  scrollTo.mockClear()
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  expect(scrollTo).toHaveBeenCalledWith(0, 0)
+})
+
 test("l'icona Registro e impostazioni è disponibile già dalla home, prima di iniziare una partita", async () => {
   const user = userEvent.setup()
   render(<App />)
@@ -127,7 +136,7 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
 
   tieni(screen.getByRole('button', { name: /Vai all'alba/ }))
-  expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /^Alba \d+$/ })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Vai al voto' }))
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
