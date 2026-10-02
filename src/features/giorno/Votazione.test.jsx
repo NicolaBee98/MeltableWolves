@@ -458,3 +458,22 @@ test("L'Antico già sbranato di notte muore al rogo come un Villico qualunque, s
   expect(onRogo).toHaveBeenCalledWith('1')
   expect(onAnticoRivelazione).not.toHaveBeenCalled()
 })
+
+test("L'Antico sbranato e rivelato all'alba (ora Villico, storiaRuoli con 'lantico') muore davvero al rogo, senza rivelarsi né maledire", async () => {
+  const user = userEvent.setup()
+  const { onRogo, onAnticoRivelazione } = setup({
+    fase: 'esito',
+    round: 1,
+    voti: { 1: 2 },
+    ruoliSelezionati: ['lantico'],
+    quantita: { lantico: 1 },
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], anticoSbranatoNotte: 1 },
+      { id: '2', nome: 'Marco', vivo: true },
+    ],
+  })
+  expect(screen.queryByRole('button', { name: "Si rivela: è L'Antico" })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(onRogo).toHaveBeenCalledWith('1')
+  expect(onAnticoRivelazione).not.toHaveBeenCalled()
+})

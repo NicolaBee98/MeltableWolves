@@ -135,25 +135,21 @@ test('L\'Innocente si rivela: propone solo i giocatori senza ruolo noto, richied
   expect(onRivelazione).toHaveBeenCalledWith('innocente', '2')
 })
 
-test("la Rivelazione personaggio non propone Boia/Alchimista/Innocente: si rivelano solo dal loro evento dedicato", async () => {
+test("il menu ha una voce per ogni personaggio a rivelazione diurna generico (Spilungone, L'Antico), non un generico \"Rivelazione personaggio\"", async () => {
   const user = userEvent.setup()
-  const giocatori = [{ id: '1', nome: 'Anna', vivo: true }]
   setup({
-    giocatori,
-    ruoliSelezionati: ['boia', 'alchimista', 'innocente', 'spilungone'],
-    quantita: { boia: 1, alchimista: 1, innocente: 1, spilungone: 1 },
+    giocatori: [{ id: '1', nome: 'Anna', vivo: true }],
+    ruoliSelezionati: ['spilungone', 'lantico'],
+    quantita: { spilungone: 1, lantico: 1 },
   })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
-
-  expect(screen.queryByRole('button', { name: 'Boia' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Alchimista' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Innocente' })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Spilungone' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Rivelazione personaggio' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Spilungone si rivela' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: "L'Antico si rivela" })).toBeInTheDocument()
 })
 
-test('Rivelazione personaggio (es. Spilungone): scelto il ruolo, la scelta del giocatore richiede conferma', async () => {
+test('Spilungone si rivela: la scelta del giocatore richiede conferma e non mostra l\'illustrazione a figura intera', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Anna', vivo: true },
@@ -166,8 +162,8 @@ test('Rivelazione personaggio (es. Spilungone): scelto il ruolo, la scelta del g
   })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
-  await user.click(screen.getByRole('button', { name: 'Rivelazione personaggio' }))
-  await user.click(screen.getByRole('button', { name: 'Spilungone' }))
+  await user.click(screen.getByRole('button', { name: 'Spilungone si rivela' }))
+  expect(document.querySelector('.eventi-speciali__popup img')).toBeNull()
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   expect(onRivelazione).not.toHaveBeenCalled()
