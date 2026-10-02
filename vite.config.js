@@ -43,5 +43,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
     globals: true,
+    // i test d'integrazione di App montano l'intera app: con la suite in parallelo superano i 5s di default
+    testTimeout: 20000,
   },
 })
