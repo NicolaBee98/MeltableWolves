@@ -14,3 +14,7 @@ test('un ruolo qualsiasi non elencato ha aura benevola', () => {
   expect(auraDi('paladino')).toBe('benevola')
   expect(auraDi('villico')).toBe('benevola')
 })
+
+test('la Guardia Mannara ha aura benevola per tutti (anche il Mimo che la copia, che ha lo stesso ruoloSlug)', () => {
+  expect(auraDi('guardia-mannara')).toBe('benevola')
+})

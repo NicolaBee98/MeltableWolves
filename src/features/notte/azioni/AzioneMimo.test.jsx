@@ -74,7 +74,7 @@ test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chied
   ]
   render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} />)
 
-  expect(screen.getByText(/il mimo imita marco: ha assunto il ruolo di veggente/i)).toBeInTheDocument()
+  expect(screen.getByText(/il mimo imita marco: con avanti assumerà il ruolo di veggente/i)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /annulla/i })).not.toBeInTheDocument()
 })
 
@@ -123,7 +123,7 @@ test('se il bersaglio è la Guardia Mannara il Mimo vede "Guardia": il narratore
   ]
   render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo']} />)
 
-  expect(screen.getByText(/ha assunto il ruolo di guardia\./i)).toBeInTheDocument()
+  expect(screen.getByText(/assumerà il ruolo di guardia\./i)).toBeInTheDocument()
 })
 
 test('cliccando di nuovo la chip del bersaglio scelto la deseleziona: toglie il legame e la carta scelta', async () => {
@@ -190,4 +190,37 @@ test('cambiare bersaglio azzera la carta già scelta (non si trascina al nuovo b
   await user.click(screen.getByRole('button', { name: 'Nina' }))
 
   expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
+})
+
+test('con il Ladro nel mazzo e nessuna carta ancora assegnata, il Mimo può scegliere anche le future carte extra del Ladro (tutte tranne sé stesso, Borgomastro e Fantasma)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  render(
+    <AzioneMimo
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['mimo', 'ladro', 'veggente', 'paladino', 'borgomastro', 'fantasma-onnisciente']}
+      quantita={{ mimo: 1, ladro: 1, veggente: 1, paladino: 1 }}
+    />,
+  )
+  const chips = screen.getAllByRole('button').map((b) => b.textContent)
+  expect(chips).toEqual(expect.arrayContaining(['Ladro', 'Veggente', 'Paladino', 'Villico']))
+  expect(chips).not.toContain('Mimo')
+  expect(chips).not.toContain('Borgomastro')
+  expect(chips).not.toContain('Fantasma Onnisciente')
+})
+
+test('avviso "diventerà Villico" finché il Mimo non ha una carta da imitare (senza bersaglio, o bersaglio senza carta scelta)', () => {
+  const senza = [{ id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true }, { id: '2', nome: 'Marco', vivo: true }]
+  const { rerender } = render(<AzioneMimo giocatori={senza} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo']} />)
+  expect(screen.getByText(/diventerà Villico/)).toBeInTheDocument()
+
+  const conBersaglio = [{ ...senza[0], legame: { tipo: 'mimo', targetId: '2' } }, senza[1]]
+  rerender(<AzioneMimo giocatori={conBersaglio} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} quantita={{ veggente: 1 }} mimoRuoloScelto={null} />)
+  expect(screen.getByText(/diventerà Villico/)).toBeInTheDocument()
+
+  rerender(<AzioneMimo giocatori={conBersaglio} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} quantita={{ veggente: 1 }} mimoRuoloScelto="veggente" />)
+  expect(screen.queryByText(/diventerà Villico/)).not.toBeInTheDocument()
 })

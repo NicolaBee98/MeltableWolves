@@ -1555,31 +1555,31 @@ test('il passo delle Guardie mostra insieme Guardia_1, Guardia_2 e la Guardia Ma
   expect(container.querySelector('.assegna-ruolo__illustrazione')).not.toBeInTheDocument()
 })
 
-test('gli ipnotizzati dal Pifferaio con ruolo nascosto usano i Villici comuni in sequenza; col ruolo noto (o rivelato) quello reale', async () => {
+test('gli ipnotizzati dal Pifferaio hanno SEMPRE l\'illustrazione di un Villico comune, in sequenza, anche con ruolo già assegnato o rivelato', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Pif', vivo: true, ruoloSlug: 'pifferaio', condizioni: [] },
     { id: '2', nome: 'A', vivo: true, condizioni: ['ipnotizzato'] },
     { id: '3', nome: 'B', vivo: true, condizioni: ['ipnotizzato'] },
-    { id: '4', nome: 'C', vivo: true, ruoloSlug: 'veggente', condizioni: ['ipnotizzato'] },
+    { id: '4', nome: 'C', vivo: true, ruoloSlug: 'criceto-malvagio', condizioni: ['ipnotizzato'] },
   ]
-  const props = { ruoliSelezionati: ['pifferaio', 'veggente'], aggiornaGiocatore: () => {}, round: 2, stepIndex: 0 }
+  const props = { ruoliSelezionati: ['pifferaio', 'criceto-malvagio'], aggiornaGiocatore: () => {}, round: 2, stepIndex: 0 }
   const { container, rerender } = render(<NightSequencerConNotte {...props} giocatori={giocatori} />)
   // arriva al passo degli ipnotizzati
   while (!screen.queryByRole('heading', { name: /ipnotizzati/i })) {
     await user.click(screen.getByRole('button', { name: 'Avanti' }))
   }
   const tutti = () => [...container.querySelectorAll('img.night-sequencer__illustrazione')].map((i) => i.src.split('/').pop())
-  expect(tutti()).toEqual(['Villico_1.svg', 'Villico_2.svg', 'Veggente.svg'])
+  expect(tutti()).toEqual(['Villico_1.svg', 'Villico_2.svg', 'Villico_3.svg'])
 
-  // il ruolo di A viene rivelato: l'illustrazione diventa quella reale
+  // anche se il ruolo di A viene rivelato, il ruolo reale non si mostra
   rerender(
     <NightSequencerConNotte
       {...props}
       giocatori={giocatori.map((g) => (g.id === '2' ? { ...g, ruoloSlug: 'nano' } : g))}
     />,
   )
-  expect(tutti()).toEqual(['Nano.svg', 'Villico_1.svg', 'Veggente.svg'])
+  expect(tutti()).toEqual(['Villico_1.svg', 'Villico_2.svg', 'Villico_3.svg'])
 })
 
 test('Mimo che copia i Lupi: appare come Mimo nel branco e non occupa un posto dei titolari (nessun messaggio in conflitto)', async () => {
@@ -1771,4 +1771,114 @@ test('Branco: se il partner innamorato muore di crepacuore, la sua chip resta cl
   await user.click(within(gruppo()).getByRole('button', { name: 'Gino' }))
   expect(within(gruppo()).getByRole('button', { name: 'Gino' })).toHaveAttribute('aria-pressed', 'true')
   expect(within(gruppo()).getByRole('button', { name: 'Pia' })).toBeInTheDocument()
+})
+
+test('"Passo X di N": il totale è fissato all\'ingresso (il branco è già contato prima di assegnare i lupi) e la numerazione è contigua', async () => {
+  const user = userEvent.setup()
+  creaHarness(
+    [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Bea', vivo: true, ruoloSlug: 'veggente', condizioni: [], storiaRuoli: ['veggente'] },
+      { id: '3', nome: 'Carlo', vivo: true, ruoloSlug: 'medium', condizioni: [], storiaRuoli: ['medium'] },
+    ],
+    ['lupo-mannaro', 'veggente', 'medium'],
+    { 'lupo-mannaro': 1, veggente: 1, medium: 1 },
+  )
+  const passo = () => document.querySelector('.night-sequencer__passo').textContent
+  expect(passo()).toBe('Passo 1 di 4') 
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(passo()).toBe('Passo 2 di 4')
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(passo()).toBe('Passo 3 di 4')
+})
+
+test('con "Resta Villico" le due carte in mano si chiamano anche la notte 2, senza giocatore e con solo Avanti', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  // come App: ruoliSelezionati solo con quantità > 0 (le carte scartate hanno quantità 0)
+  creaHarness(
+    [
+      { id: '1', nome: 'Luca', ruoloSlug: 'villico', vivo: true, condizioni: [], poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro', 'villico'], scartoLadro: ['veggente', 'paladino'] },
+      { id: '2', nome: 'Anna', ruoloSlug: 'medium', vivo: true, condizioni: [], storiaRuoli: ['medium'] },
+    ],
+    ['ladro', 'medium'],
+    { ladro: 1, veggente: 0, paladino: 0, medium: 1 },
+  )
+  expect(screen.getByRole('heading', { name: /paladino/i })).toBeInTheDocument()
+  expect(screen.getByText('Carta non assegnata a nessun giocatore: chiama comunque il ruolo.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Avanti' })).toBeEnabled()
+})
+
+test('promemoria con più titolari morti: plurale ("per il loro turno, anche se morti")', () => {
+  const giocatori = [
+    { id: '1', nome: 'G02', ruoloSlug: 'paladino', vivo: false, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'G03', ruoloSlug: 'paladino', vivo: false, condizioni: [], poteriUsati: [], storiaRuoli: ['mimo', 'paladino'], legame: { tipo: 'mimo', targetId: '1' } },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} promemoriaRuoliMorti />)
+  expect(screen.getByText(/Chiama comunque G02, G03 per il loro turno, anche se morti\./)).toBeInTheDocument()
+})
+
+test('"Seleziona N giocatore in più" non compare se non ci sono giocatori disponibili da assegnare', () => {
+  creaHarness(
+    [{ id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['veggente'] }],
+    ['veggente', 'medium'],
+    { veggente: 1, medium: 1 },
+  )
+  expect(screen.queryByText(/Seleziona 1 giocatore in più/)).not.toBeInTheDocument()
+})
+
+test('Ladro che sceglie la carta Mimo e poi si riassegna la chip del Mimo a un altro: il Ladro non resta senza ruolo (torna Ladro, la carta scartata rientra)', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: 'L', nome: 'Luca', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['mimo', 'veggente'] },
+      { id: 'P', nome: 'Paola', vivo: true, condizioni: [] },
+      { id: 'Q', nome: 'Quinto', vivo: true, condizioni: [] },
+    ],
+    ['mimo', 'ladro', 'veggente'],
+    { mimo: 1, ladro: 1, veggente: 1 },
+  )
+  // passo del Mimo (nessuno ha ancora la carta, si può lasciare): Avanti
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Mimo' }))
+  expect(h.stato.giocatori[0]).toMatchObject({ ruoloSlug: 'mimo', storiaRuoli: ['ladro', 'mimo'] })
+  expect(h.stato.quantita.veggente).toBe(0)
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  // di nuovo al passo del Mimo: il narratore sposta la carta Mimo su Paola
+  expect(screen.getByRole('heading', { name: /mimo/i })).toBeInTheDocument()
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Paola' }))
+  expect(h.stato.giocatori[0]).toMatchObject({ ruoloSlug: 'ladro', storiaRuoli: ['ladro'], poteriUsati: [] })
+  expect(h.stato.quantita.veggente).toBe(1)
+})
+
+test('le conseguenze di una scelta non si mostrano prima di Avanti: niente riga 🔗 dopo aver scelto il maestro, né "(Mimo)" nel sottotitolo dopo aver scelto chi imitare', async () => {
+  const user = userEvent.setup()
+  creaHarness(
+    [
+      { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], storiaRuoli: ['apprendista'] },
+      { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [], storiaRuoli: ['veggente'] },
+    ],
+    ['apprendista', 'veggente'],
+    { apprendista: 1, veggente: 1 },
+  )
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.queryByText(/è il suo maestro/)).not.toBeInTheDocument()
+})
+
+test('branco: il lupo appena trasformato dal Progenitore non compare nel sottotitolo "Vivi:" prima di Avanti', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+      { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], storiaRuoli: ['lupo-mannaro'] },
+      { id: '3', nome: 'Elia', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [], storiaRuoli: [] },
+    ],
+    ['lupo-mannaro', 'lupo-mannaro-progenitore'],
+    { 'lupo-mannaro': 1, 'lupo-mannaro-progenitore': 1 },
+  )
+  await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' }))
+  expect(sottotitolo()).toBe('Vivi: Dario, Elia')
 })

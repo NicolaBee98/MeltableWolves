@@ -5,6 +5,13 @@ export function eMimoCopiante(g) {
   return g.ruoloSlug !== 'mimo' && ((g.storiaRuoli ?? []).includes('mimo') || g.legame?.tipo === 'mimo')
 }
 
+// aggiunge un ruolo alla storia senza duplicati (storiaRuoli è un insieme ordinato
+// di carte avute: un duplicato farebbe contare due volte la stessa carta)
+export function conRuolo(storia, slug) {
+  const s = storia ?? []
+  return slug && !s.includes(slug) ? [...s, slug] : s
+}
+
 export function contaAssegnati(giocatori, slug) {
   // conta su "storiaRuoli" (mai sottratto), non su ruoloSlug corrente: un
   // ruolo già assegnato non torna mai "da assegnare", anche se chi lo teneva

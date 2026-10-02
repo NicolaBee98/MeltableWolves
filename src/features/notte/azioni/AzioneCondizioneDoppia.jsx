@@ -14,6 +14,7 @@ export function AzioneCondizioneDoppia({
   escludiAttore = false,
   attoreId,
   vivoAIngresso = (g) => g.vivo,
+  giocatoriIngresso,
 }) {
   // `attoreId` (solo Sacerdote, scelta della prima notte): quale titolare agisce,
   // titolare e Mimo scelgono ognuno la propria coppia. Senza (Pifferaio, ogni
@@ -25,8 +26,22 @@ export function AzioneCondizioneDoppia({
   // ipnotizzato è cumulativo tra notti, mai ripulito) non va mai toccato da
   // un ripensamento di QUESTA notte: solo la coppia scelta ora resta
   // sostituibile finché non si preme Avanti
-  const [condizionatiAllIngresso] = useState(() => new Set(vivi.filter((g) => g.condizioni.includes(condizione)).map((g) => g.id)))
-  const [coppiaSessione, setCoppiaSessione] = useState(null)
+  // (dopo un ricaricamento a metà passo `giocatori` ha già la coppia scelta: si
+  // guarda lo snapshot d'ingresso, e la coppia di questa sessione si ricostruisce)
+  const base = giocatoriIngresso ?? giocatori
+  const [condizionatiAllIngresso] = useState(
+    () => new Set(vivi.filter((g) => base.find((x) => x.id === g.id)?.condizioni.includes(condizione)).map((g) => g.id)),
+  )
+  // coppia già scelta in questo passo: dalla scelta salvata sull'attore (Sacerdote) o,
+  // senza, da chi ha la condizione ora e non all'ingresso (Pifferaio)
+  const [coppiaIniziale] = useState(() => {
+    const salvata = attore?.sceltaNotte?.[condizione]
+    if (salvata?.length === 2) return salvata
+    if (attoreId) return null
+    const nuovi = giocatori.filter((g) => g.condizioni.includes(condizione) && !condizionatiAllIngresso.has(g.id)).map((g) => g.id)
+    return nuovi.length === 2 ? nuovi : null
+  })
+  const [coppiaSessione, setCoppiaSessione] = useState(coppiaIniziale)
 
   // Innamorati: ogni coppia è indipendente (due Sacerdoti = due coppie), quindi
   // ognuno ricorda i propri partner in `innamoratiCon` (vedi applicaCrepacuore).
@@ -106,5 +121,14 @@ export function AzioneCondizioneDoppia({
     }
   }
 
-  return <SceltaDoppiaGiocatore candidati={vivi} onConferma={confermaScelta} onAnnulla={annullaScelta} onSalta={() => {}} etichetta={etichetta} />
+  return (
+    <SceltaDoppiaGiocatore
+      candidati={vivi}
+      onConferma={confermaScelta}
+      onAnnulla={annullaScelta}
+      onSalta={() => {}}
+      etichetta={etichetta}
+      selezionatiIniziali={coppiaIniziale ?? []}
+    />
+  )
 }

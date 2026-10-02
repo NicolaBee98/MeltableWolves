@@ -522,3 +522,117 @@ test('seleziona Cucciolo, deseleziona, sbrana un altro: una sola vittima e nessu
   expect(stato.giocatori.filter((g) => !g.vivo).map((g) => g.id)).toEqual(['4'])
   localStorage.clear()
 })
+
+// stato reale (usePartita) con il giro completo trasforma/sbrana
+function montaConStato(iniziali, ruoli = RUOLI_BRANCO_LUPI) {
+  const stato = {}
+  const completi = iniziali.map((g) => ({ condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [], ...g }))
+  function Prova() {
+    stato.p = usePartita()
+    return (
+      <AzioneBrancoLupi
+        giocatori={stato.p.giocatori}
+        aggiornaGiocatore={stato.p.aggiornaGiocatore}
+        annullaMorte={stato.p.annullaMorte}
+        round={2}
+        ruoli={ruoli}
+      />
+    )
+  }
+  localStorage.setItem('meltable-wolves-partita', JSON.stringify(completi))
+  render(
+    <StrictMode>
+      <Prova />
+    </StrictMode>,
+  )
+  return (id) => stato.p.giocatori.find((g) => g.id === id)
+}
+
+test('Progenitore trasforma il Berserker e poi "Sbrana normalmente": il bersaglio si valuta come Berserker (parità dei lupi), non col ruolo già trasformato', async () => {
+  const user = userEvent.setup()
+  const g = montaConStato([
+    { id: '1', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true },
+    { id: '2', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true },
+    { id: '3', nome: 'Ezio', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true },
+  ])
+  await user.click(screen.getByRole('button', { name: 'Bruno' }))
+  await user.click(screen.getByRole('button', { name: 'Dario' })) // parità: muore Dario
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Bruno in Lupo Mannaro' }))
+  expect(g('2')).toMatchObject({ ruoloSlug: 'lupo-mannaro', vivo: true })
+  expect(g('1').vivo).toBe(true)
+
+  await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
+  expect(screen.getByText(/due lupi alla stessa distanza/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Ezio' }))
+  expect(g('2')).toMatchObject({ ruoloSlug: 'berserker', vivo: false })
+  expect(g('3').vivo).toBe(false)
+  expect(g('1').vivo).toBe(true)
+  localStorage.clear()
+})
+
+test('con la vendetta del Cucciolo il Progenitore sceglie QUALE vittima trasformare: l\'altra resta sbranata, e si può tornare indietro', async () => {
+  const user = userEvent.setup()
+  const g = montaConStato([
+    { id: 'C', nome: 'Cuc', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true },
+    { id: '4', nome: 'Elia', ruoloSlug: 'villico', vivo: true },
+  ])
+  await user.click(screen.getByRole('button', { name: 'Cuc' }))
+  await user.click(screen.getByRole('button', { name: 'Carlo' }))
+  expect(g('C').vivo).toBe(false)
+  expect(g('2').vivo).toBe(false)
+
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Carlo in Lupo Mannaro' }))
+  expect(g('2')).toMatchObject({ ruoloSlug: 'lupo-mannaro', vivo: true })
+  expect(g('C').vivo).toBe(false) // l'altra vittima resta sbranata
+  // finché una vittima è trasformata non si propone di trasformare anche l'altra
+  expect(screen.queryByRole('button', { name: /trasforma Cuc/ })).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
+  expect(g('2')).toMatchObject({ ruoloSlug: 'villico', vivo: false })
+  expect(g('C').vivo).toBe(false)
+  localStorage.clear()
+})
+
+test('dopo un ricaricamento a metà passo i morsi si ricostruiscono dallo stato: la vittima resta visibile e si può deselezionare', async () => {
+  const user = userEvent.setup()
+  const ingresso = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const giocatori = [
+    { ...ingresso[0], vivo: false, causaMorte: 'notte', mortoNotte: 2, mortoDa: 'branco' },
+    { ...ingresso[1], usiNotte: ['branco-lupi-sbrana'] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      giocatoriIngresso={ingresso}
+      vivoAIngresso={(g) => ingresso.find((x) => x.id === g.id).vivo}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoli={['lupo-mannaro']}
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true, mortoNotte: undefined }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: [] })
+})
+
+test('Ubriaco sbranato: avviso subito e riga di registro (si scrive con Avanti)', async () => {
+  const user = userEvent.setup()
+  const impostaEventiAvanti = vi.fn()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Ugo', ruoloSlug: 'ubriaco', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} impostaEventiAvanti={impostaEventiAvanti} round={2} ruoli={['lupo-mannaro']} />)
+  await user.click(screen.getByRole('button', { name: 'Ugo' }))
+  expect(screen.getByText(/Ugo è l'Ubriaco: il branco sarà stordito la prossima notte/)).toBeInTheDocument()
+  expect(impostaEventiAvanti).toHaveBeenLastCalledWith('branco', ["L'Ubriaco Ugo è stato sbranato: il branco sarà stordito la prossima notte."])
+})

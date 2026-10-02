@@ -62,7 +62,19 @@ export function AzioneMimo({
     />
   )
 
-  if (!mimo.legame) return sceltaBersaglio
+  // senza carta il Mimo non esiste: con Avanti diventa Villico (vedi commitMimoSeSelezionato)
+  const avvisoVillico = (
+    <p className="avviso">⚠️ Senza una carta da imitare il Mimo diventerà Villico.</p>
+  )
+
+  if (!mimo.legame) {
+    return (
+      <div className="azione-mimo">
+        {sceltaBersaglio}
+        {avvisoVillico}
+      </div>
+    )
+  }
 
   // il bersaglio ha già un ruolo noto in app (assegnato altrove, non da
   // questa scelta): niente da chiedere qui, con Avanti il Mimo lo copia
@@ -72,7 +84,7 @@ export function AzioneMimo({
       <div className="azione-mimo">
         {sceltaBersaglio}
         <p>
-          Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
+          Il Mimo imita {target.nome}: con Avanti assumerà il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
         </p>
       </div>
     )
@@ -109,6 +121,7 @@ export function AzioneMimo({
           </button>
         ))}
       </div>
+      {!mimoRuoloScelto && avvisoVillico}
     </div>
   )
 }

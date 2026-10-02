@@ -145,7 +145,9 @@ export function AssegnaRuolo({
       )}
       <p>
         {domanda}{' '}
-        {selezionatiVisivi.length < capacita
+        {candidati.length === 0
+          ? ''
+          : selezionatiVisivi.length < capacita
           ? `Seleziona ${capacita - selezionatiVisivi.length} ${capacita - selezionatiVisivi.length === 1 ? 'giocatore' : 'giocatori'} in più, poi premi Avanti.`
           : 'Puoi ancora cambiare la scelta finché non premi Avanti.'}
       </p>

@@ -1,4 +1,4 @@
-import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi, ruoliInMano } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, passiAttesi, notteBloccata, villaggioMaledetto, ruoliAttivi, ruoliInMano } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
@@ -248,5 +248,23 @@ describe('carte scartate dal Ladro, in mano al narratore', () => {
     expect(passiNotte(mazzo, 2, giocatori, quantita).map((p) => p.id)).toContain('veggente')
     expect(passiNotte(mazzo, 2, giocatori, quantita).map((p) => p.id)).toContain('paladino') // titolare: il Ladro
     expect(passiNotte(mazzo, 1, [{ ...ladro(), scartoLadro: undefined }], quantita).map((p) => p.id)).not.toContain('veggente')
+  })
+
+  test('con "Resta Villico" le due carte restano in mano e si chiamano ogni notte anche se ruoliSelezionati (solo quantità > 0) non le contiene più', () => {
+    const giocatori = [ladro({ ruoloSlug: 'villico', poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro', 'villico'] })]
+    const selezionati = ['ladro', 'medium'] // come App: niente veggente/paladino (quantità 0)
+    for (const round of [1, 2, 3]) {
+      const ids = passiNotte(selezionati, round, giocatori, quantita).map((p) => p.id)
+      expect(ids).toContain('medium')
+      expect(ids).toContain('veggente')
+      expect(ids).toContain('paladino')
+    }
+  })
+
+  test('passiAttesi: il totale dalla prima notte include già branco, innamorati e ipnotizzati anche se nessuno è ancora assegnato', () => {
+    const ids = passiAttesi(['lupo-mannaro', 'sacerdote', 'pifferaio'], 1, [], {}).map((p) => p.id)
+    expect(ids).toEqual(expect.arrayContaining(['branco-lupi', 'innamorati', 'ipnotizzati', 'sacerdote', 'pifferaio']))
+    // dalla notte 2 senza ipnotizzati né Pifferaio vivo non si prevedono
+    expect(passiAttesi(['pifferaio'], 2, [], {}).map((p) => p.id)).not.toContain('ipnotizzati')
   })
 })

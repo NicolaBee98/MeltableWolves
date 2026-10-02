@@ -102,3 +102,15 @@ test('mostra un messaggio se il potere è già stato usato', () => {
   render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
   expect(screen.getByText(/già utilizzato/i)).toBeInTheDocument()
 })
+
+test('la vittima con storiaRuoli vuota (ruolo ereditato/assegnato senza storia) riceve comunque il ruolo precedente nella storia', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2 },
+  ]
+  render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  await user.click(screen.getByRole('button', { name: 'Scambia' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'addolorata', storiaRuoli: ['veggente', 'addolorata'] })
+})

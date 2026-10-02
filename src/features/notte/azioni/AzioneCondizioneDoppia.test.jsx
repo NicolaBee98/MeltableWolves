@@ -141,3 +141,64 @@ test('deselezionare uno dei due dopo la conferma toglie la condizione a chi era 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: [] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
 })
+
+test('dopo un ricaricamento a metà passo la coppia del Sacerdote è ricostruita (chip selezionate) e si può sciogliere', async () => {
+  const user = userEvent.setup()
+  const ingresso = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [], innamoratiCon: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], innamoratiCon: [] },
+    { id: '3', nome: 'Piero', ruoloSlug: 'sacerdote', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const ora = [
+    { ...ingresso[0], condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    { ...ingresso[1], condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    { ...ingresso[2], usiNotte: ['sacerdote'], sceltaNotte: { innamorato: ['1', '2'] } },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <AzioneCondizioneDoppia
+      giocatori={ora}
+      giocatoriIngresso={ingresso}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="innamorato"
+      etichetta="Chi unire"
+      ruoloSlugAttore="sacerdote"
+      attoreId="3"
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  // la coppia è sciolta: niente innamorati rimasti da una scelta di cui la UI non sapeva nulla
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+})
+
+test('dopo un ricaricamento a metà passo i due ipnotizzati di questa notte sono ricostruiti, quelli di prima restano', async () => {
+  const user = userEvent.setup()
+  const ingresso = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['ipnotizzato'] }, // di una notte precedente
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const ora = [ingresso[0], { ...ingresso[1], condizioni: ['ipnotizzato'] }, { ...ingresso[2], condizioni: ['ipnotizzato'] }]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <AzioneCondizioneDoppia
+      giocatori={ora}
+      giocatoriIngresso={ingresso}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="ipnotizzato"
+      etichetta="Chi ipnotizzare"
+      ruoloSlugAttore="pifferaio"
+    />,
+  )
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: [] })
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.anything())
+})
