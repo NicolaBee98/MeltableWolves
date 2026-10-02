@@ -1,8 +1,5 @@
 import { auraDi } from '../../../data/aura'
 import { useState } from 'react'
-import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
-
-const RUOLI = ['inquisitore']
 const POTERE_PERSO = 'inquisitore-potere-perso'
 const POTERE_NOTTE = 'inquisitore-indagine'
 
@@ -12,8 +9,11 @@ const POTERE_NOTTE = 'inquisitore-indagine'
 // va quindi catturata una sola volta al montaggio del passo, altrimenti un
 // primo click su un bersaglio benevolo (ancora solo pendente) bloccherebbe
 // subito la possibilità di ripensarci e scegliere qualcun altro.
-export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
-  const inquisitore = giocatori.find((g) => g.ruoloSlug === 'inquisitore')
+// Inquisitore e Mimo-Inquisitore sono due attori indipendenti (perAttore): ognuno
+// ha la propria indagine e il proprio potere, che può fallire (e perdersi) una
+// volta per ciascuno.
+export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreId }) {
+  const inquisitore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === 'inquisitore')
   const [potereEsauritoAllIngresso] = useState(() => (inquisitore?.poteriUsati ?? []).includes(POTERE_PERSO))
   const candidati = giocatori.filter((g) => g.vivo && g.id !== inquisitore?.id)
   const indagineStanotte = inquisitore?.ultimaIndagine?.notte === round ? inquisitore.ultimaIndagine : null
@@ -31,55 +31,46 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
   }
 
   function confermaScelta(targetId) {
-    if (inquisitore) {
-      const target = giocatori.find((g) => g.id === targetId)
-      if (target) {
-        const esito = auraDi(target.ruoloSlug)
-        const perso = esito === 'benevola'
-        aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) => ({
-          ultimaIndagine: { targetId, esito, notte: round },
-          // "se indaga inutilmente un personaggio con aura positiva perde
-          // permanentemente il suo potere" (pag. 15). Il campo poteriUsati
-          // si tocca solo quando serve (aggiungerlo o toglierlo), non ad
-          // ogni click: altrimenti un'indagine su aura malvagia scriverebbe
-          // comunque un poteriUsati invariato, inutilmente.
-          ...(perso
-            ? { poteriUsati: [...(g.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO), POTERE_PERSO] }
-            : poterePersoInQuestoPasso
-              ? { poteriUsati: (g.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO) }
-              : {}),
-        }))
-        setPoterePersoInQuestoPasso(perso)
-      }
-    }
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE_NOTTE)
+    if (!inquisitore) return
+    const target = giocatori.find((g) => g.id === targetId)
+    if (!target) return
+    const esito = auraDi(target.ruoloSlug)
+    const perso = esito === 'benevola'
+    const poteri = inquisitore.poteriUsati ?? []
+    aggiornaGiocatore(inquisitore.id, {
+      ultimaIndagine: { targetId, esito, notte: round },
+      // "se indaga inutilmente un personaggio con aura positiva perde
+      // permanentemente il suo potere" (pag. 15). Il campo poteriUsati
+      // si tocca solo quando serve (aggiungerlo o toglierlo), non ad
+      // ogni click: altrimenti un'indagine su aura malvagia scriverebbe
+      // comunque un poteriUsati invariato, inutilmente.
+      ...(perso
+        ? { poteriUsati: [...poteri.filter((p) => p !== POTERE_PERSO), POTERE_PERSO] }
+        : poterePersoInQuestoPasso
+          ? { poteriUsati: poteri.filter((p) => p !== POTERE_PERSO) }
+          : {}),
+    })
+    aggiornaGiocatore(inquisitore.id, { usiNotte: [...(inquisitore.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), POTERE_NOTTE] })
+    setPoterePersoInQuestoPasso(perso)
   }
 
   // toglie l'indagine di questa notte (e la perdita del potere che ne era
-  // derivata) con un'unica patch per attore
-  function azzeraIndagine(g, usiNotte) {
-    return {
+  // derivata) con un'unica patch; `saltata` segna invece la notte come usata
+  function azzeraIndagine(saltata) {
+    if (!inquisitore) return
+    aggiornaGiocatore(inquisitore.id, {
       ultimaIndagine: undefined,
-      poteriUsati: (g.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO),
-      usiNotte,
-    }
+      poteriUsati: (inquisitore.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO),
+      usiNotte: [...(inquisitore.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), ...(saltata ? [POTERE_NOTTE] : [])],
+    })
+    setPoterePersoInQuestoPasso(false)
   }
 
   // click sulla chip già scelta: annulla l'indagine, il potere torna intatto
-  function annullaScelta() {
-    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) =>
-      azzeraIndagine(g, (g.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE)),
-    )
-    setPoterePersoInQuestoPasso(false)
-  }
+  const annullaScelta = () => azzeraIndagine(false)
 
   // "Salta" dopo un'indagine già fatta non deve lasciarla scritta
-  function salta() {
-    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) =>
-      azzeraIndagine(g, [...(g.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), POTERE_NOTTE]),
-    )
-    setPoterePersoInQuestoPasso(false)
-  }
+  const salta = () => azzeraIndagine(true)
 
   if (candidati.length === 0) {
     return <p>Nessun bersaglio disponibile.</p>

@@ -196,3 +196,37 @@ test('apprendista copiato dal Mimo (legameMimo): eredita il ruolo senza perdere 
   ]
   expect(risolviLegami(giocatori)).toEqual({ 1: { ruoloSlug: 'veggente', legameMimo: null } })
 })
+
+test('Apprendista e Mimo-Apprendista con due maestri diversi: ognuno eredita il ruolo del proprio maestro', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '3' } },
+    {
+      id: '2', ruoloSlug: 'apprendista', vivo: true, condizioni: [],
+      legame: { tipo: 'mimo', targetId: '1' }, legameMimo: { tipo: 'apprendista', targetId: '4' },
+    },
+    { id: '3', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
+    { id: '4', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviLegami(giocatori)
+  expect(patch['1']).toMatchObject({ ruoloSlug: 'veggente' })
+  expect(patch['2']).toBeUndefined() // il suo maestro è ancora vivo
+})
+
+test("l'Apprendista con maestro Mimo che copia il Veggente diventa Veggente, non Mimo", () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
+    { id: '2', ruoloSlug: 'veggente', vivo: false, condizioni: [], storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '3' } },
+  ]
+  expect(risolviLegami(giocatori)['1'].ruoloSlug).toBe('veggente')
+})
+
+test('Cortigiana e Mimo-Cortigiana con lo stesso cliente sbranato muoiono entrambe', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '3' },
+    { id: '2', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '3' },
+    { id: '3', ruoloSlug: 'villico', vivo: false, condizioni: [], mortoDa: 'branco' },
+  ]
+  const patch = risolviCortigiana(giocatori, 2)
+  expect(patch['1'].vivo).toBe(false)
+  expect(patch['2'].vivo).toBe(false)
+})

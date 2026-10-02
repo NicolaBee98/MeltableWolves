@@ -27,11 +27,46 @@ export function AzioneCondizioneDoppia({
   const [condizionatiAllIngresso] = useState(() => new Set(vivi.filter((g) => g.condizioni.includes(condizione)).map((g) => g.id)))
   const [coppiaSessione, setCoppiaSessione] = useState(null)
 
+  // Innamorati: ogni coppia è indipendente (due Sacerdoti = due coppie), quindi
+  // ognuno ricorda i propri partner in `innamoratiCon` (vedi applicaCrepacuore).
+  // Ritorna {id: partner[]} dopo aver sciolto `vecchia` e unito `nuova`; una
+  // coppia identica scelta anche da un altro titolare non si scioglie.
+  function ricalcolaLegami(vecchia, nuova) {
+    const m = new Map()
+    const di = (id) => {
+      if (!m.has(id)) m.set(id, [...(giocatori.find((x) => x.id === id)?.innamoratiCon ?? [])])
+      return m.get(id)
+    }
+    const dellAltro = (a, b) =>
+      altriAttori.some((t) => {
+        const c = t.sceltaNotte?.[condizione] ?? []
+        return c.includes(a) && c.includes(b)
+      })
+    if (vecchia && !dellAltro(vecchia[0], vecchia[1])) {
+      m.set(vecchia[0], di(vecchia[0]).filter((x) => x !== vecchia[1]))
+      m.set(vecchia[1], di(vecchia[1]).filter((x) => x !== vecchia[0]))
+    }
+    if (nuova) {
+      if (!di(nuova[0]).includes(nuova[1])) di(nuova[0]).push(nuova[1])
+      if (!di(nuova[1]).includes(nuova[0])) di(nuova[1]).push(nuova[0])
+    }
+    return m
+  }
+
+  function scriviLegami(m) {
+    m.forEach((innamoratiCon, id) => aggiornaGiocatore(id, { innamoratiCon }))
+  }
+
   // toglie la condizione a chi era nella coppia di QUESTA sessione (mai a chi
-  // la aveva già da prima, né a chi l'ha scelto anche un altro titolare)
-  function togliA(ids) {
+  // la aveva già da prima, né a chi ha ancora un'altra coppia)
+  function togliA(ids, legami = new Map()) {
     ids
-      .filter((id) => !condizionatiAllIngresso.has(id) && !altriAttori.some((a) => (a.sceltaNotte?.[condizione] ?? []).includes(id)))
+      .filter(
+        (id) =>
+          !condizionatiAllIngresso.has(id) &&
+          !altriAttori.some((a) => (a.sceltaNotte?.[condizione] ?? []).includes(id)) &&
+          !(legami.get(id)?.length),
+      )
       .forEach((id) => {
         const g = giocatori.find((x) => x.id === id)
         if (g) aggiornaGiocatore(id, { condizioni: g.condizioni.filter((c) => c !== condizione) })
@@ -40,7 +75,9 @@ export function AzioneCondizioneDoppia({
 
   // la coppia viene sciolta dalla deselezione
   function annullaScelta() {
-    togliA(coppiaSessione ?? [])
+    const legami = condizione === 'innamorato' && coppiaSessione ? ricalcolaLegami(coppiaSessione, null) : new Map()
+    togliA(coppiaSessione ?? [], legami)
+    scriviLegami(legami)
     setCoppiaSessione(null)
     if (attoreId && attore) aggiornaGiocatore(attore.id, { sceltaNotte: { ...attore.sceltaNotte, [condizione]: undefined } })
   }
@@ -50,7 +87,9 @@ export function AzioneCondizioneDoppia({
     // toglie la condizione a chi era stato scelto in una coppia precedente
     // di QUESTA sessione (non a chi la aveva già da prima) e non fa più
     // parte della nuova coppia
-    togliA((coppiaSessione ?? []).filter((id) => !coppia.includes(id)))
+    const legami = condizione === 'innamorato' ? ricalcolaLegami(coppiaSessione, coppia) : new Map()
+    togliA((coppiaSessione ?? []).filter((id) => !coppia.includes(id)), legami)
+    scriviLegami(legami)
     setCoppiaSessione(coppia)
     for (const id of coppia) {
       const target = giocatori.find((g) => g.id === id)

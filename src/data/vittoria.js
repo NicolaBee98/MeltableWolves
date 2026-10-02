@@ -54,7 +54,26 @@ export function condizioniVittoria(giocatori, quantita = {}) {
     if (ultimo?.vinceUltimoSopravvissuto) messaggi.push(`Il ${ultimo.nome} è l'ultimo sopravvissuto: vince lui.`)
   }
 
-  if (viviVeri.length === 2 && viviVeri.every((g) => (g.condizioni ?? []).includes('innamorato'))) {
+  // Chupacabra e Mimo-Chupacabra (stesso slug) vincono formando un team se sono
+  // gli ultimi due sopravvissuti. Il Pifferaio ha già il suo annuncio sopra
+  // (due Pifferai = nessun non ipnotizzato).
+  if (viviVeri.length === 2 && viviVeri[0].ruoloSlug === viviVeri[1].ruoloSlug && viviVeri[0].ruoloSlug !== 'pifferaio') {
+    const squadra = ROLES.find((r) => r.slug === viviVeri[0].ruoloSlug)
+    if (squadra?.vinceUltimoSopravvissuto) {
+      messaggi.push(`Il ${squadra.nome} e il Mimo che lo imita sono gli ultimi due sopravvissuti: vincono insieme.`)
+    }
+  }
+
+  // due innamorati superstiti vincono solo se sono la stessa coppia (con più
+  // coppie, due innamorati di coppie diverse non bastano)
+  const [a, b] = viviVeri
+  const stessaCoppia = (x, y) => !x.innamoratiCon?.length || x.innamoratiCon.includes(y.id)
+  if (
+    viviVeri.length === 2 &&
+    viviVeri.every((g) => (g.condizioni ?? []).includes('innamorato')) &&
+    stessaCoppia(a, b) &&
+    stessaCoppia(b, a)
+  ) {
     messaggi.push('Gli innamorati sono gli unici superstiti: vincono loro.')
   }
 
@@ -68,7 +87,13 @@ export function condizioniVittoria(giocatori, quantita = {}) {
     // diventando l'unico vincitore" (roles.js): non è un alleato dei lupi,
     // quindi non vince CON loro, vince AL POSTO loro
     if (cricetoVivo) {
-      messaggi.push('Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.')
+      // con il Mimo-Criceto i criceti sono due: vincono insieme
+      const nCriceti = vivi.filter((g) => g.ruoloSlug === 'criceto-malvagio').length
+      messaggi.push(
+        nCriceti > 1
+          ? 'I Criceti Malvagi (con il Mimo) rubano la vittoria ai Lupi Mannari: vincono solo loro.'
+          : 'Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.',
+      )
     } else {
       messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
     }

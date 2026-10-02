@@ -8,8 +8,10 @@ import { useState } from 'react'
 // "già usato" va catturato una sola volta al montaggio del passo (non ad
 // ogni render), altrimenti un click pendente in questa stessa notte
 // nasconderebbe subito le chip impedendo di ripensare il bersaglio.
-export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round }) {
-  const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
+// Guaritore/Sciacallo e il Mimo che li copia hanno un potere unico ciascuno
+// (perAttore): `attoreId` indica quale dei due agisce.
+export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round, attoreId }) {
+  const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const [giaUsato] = useState(() => (attore?.poteriUsati ?? []).includes(potereSlug))
   // il bersaglio marcato per la resurrezione di questa notte
   const [target, setTarget] = useState(null)

@@ -367,3 +367,34 @@ test("uccidiPatch: L'Antico già rivelato (Villico con storiaRuoli 'lantico', pr
   const rivelatoAlRogo = { ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], condizioni: [], villaggioMaledettoFinoA: 1 }
   expect(uccidiPatch(rivelatoAlRogo, 2)).toMatchObject({ vivo: false, causaMorte: 'notte' })
 })
+
+test('crepacuore con due coppie (Sacerdote e Mimo-Sacerdote): muore solo il partner del morto', () => {
+  const g = (id, innamoratiCon) => ({ id, vivo: true, condizioni: ['innamorato'], innamoratiCon })
+  const giocatori = [g('a', ['b']), g('b', ['a']), g('c', ['d']), g('d', ['c'])]
+  const dopo = applicaCrepacuore(giocatori.map((x) => (x.id === 'a' ? { ...x, vivo: false } : x)), 'a')
+  expect(dopo.filter((x) => !x.vivo).map((x) => x.id)).toEqual(['a', 'b'])
+})
+
+test('con il Mimo-Cucciolo la vendetta scatta una sola volta anche se muoiono entrambi i Cuccioli', () => {
+  const branco = ['lupo-mannaro', 'cucciolo-di-lupo-mannaro']
+  let giocatori = [
+    { id: '1', vivo: false, ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+    { id: '2', vivo: false, ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+    { id: '3', vivo: true, ruoloSlug: 'lupo-mannaro' },
+  ]
+  giocatori = attivaVendettaCucciolo(giocatori, '1', branco)
+  giocatori = giocatori.map((x) => (x.id === '3' ? { ...x, vendettaCucciolo: false } : x)) // vendetta consumata
+  giocatori = attivaVendettaCucciolo(giocatori, '2', branco)
+  expect(giocatori.find((x) => x.id === '3').vendettaCucciolo).toBe(false)
+})
+
+test("l'accecamento del Veggente resta finché è vivo un altro Polpo (Mimo-Polpo)", () => {
+  const giocatori = [
+    { id: '1', vivo: false, ruoloSlug: 'polpo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'polpo-mannaro', condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'veggente', condizioni: ['accecato'] },
+  ]
+  expect(rimuoviAccecamentoSeMortoPolpo(giocatori, '1')).toBe(giocatori)
+  const solo = giocatori.map((x) => (x.id === '2' ? { ...x, vivo: false } : x))
+  expect(rimuoviAccecamentoSeMortoPolpo(solo, '2')[2].condizioni).toEqual([])
+})

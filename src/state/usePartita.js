@@ -112,8 +112,16 @@ export function usePartita() {
         let aggiornato = g
         if (g.legame?.targetId === id) aggiornato = { ...aggiornato, legame: null }
         if (g.legameMimo?.targetId === id) aggiornato = { ...aggiornato, legameMimo: null }
+        // con più coppie perde la condizione solo chi resta senza partner
+        // (innamoratiCon); senza partner tracciati vale la regola semplice
         if (eraInnamorato && g.condizioni.includes('innamorato')) {
-          aggiornato = { ...aggiornato, condizioni: g.condizioni.filter((c) => c !== 'innamorato') }
+          const partner = g.innamoratiCon
+          const rimasti = partner?.filter((p) => p !== id)
+          if (!partner?.length || !rimasti.length) {
+            aggiornato = { ...aggiornato, condizioni: g.condizioni.filter((c) => c !== 'innamorato'), innamoratiCon: [] }
+          } else if (rimasti.length !== partner.length) {
+            aggiornato = { ...aggiornato, innamoratiCon: rimasti }
+          }
         }
         return aggiornato
       })

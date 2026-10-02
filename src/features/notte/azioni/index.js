@@ -15,10 +15,11 @@ import { AzioneMimo } from './AzioneMimo'
 import { AzioneMedium } from './AzioneMedium'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
-// perAttore: solo per le scelte della PRIMA notte valide per tutta la partita
-// (Sacerdote e legami): se più giocatori hanno il ruolo (titolare + Mimo che
-// lo copia) il passo mostra una scelta indipendente per ciascuno (vedi
-// NightSequencer). Le azioni di ogni notte sono invece condivise col Mimo.
+// perAttore: se più giocatori hanno il ruolo (titolare + Mimo che lo copia) il
+// passo mostra una scelta indipendente per ciascuno (vedi NightSequencer).
+// Vale per le scelte della prima notte (Sacerdote e legami) e per i ruoli con
+// poteri propri di ciascuno (Guaritore, Sciacallo, Inquisitore, Addolorata).
+// Le altre azioni di ogni notte sono invece condivise col Mimo ("si accorda").
 export const AZIONI_NOTTURNE = {
   paladino: {
     Componente: AzioneCondizioneSingola,
@@ -56,8 +57,8 @@ export const AZIONI_NOTTURNE = {
   },
   'branco-lupi': { Componente: AzioneBrancoLupi, props: { ruoli: RUOLI_BRANCO_LUPI } },
   chupacabra: { Componente: AzioneChupacabra, props: {} },
-  guaritore: { Componente: AzioneResuscita, props: { potereSlug: 'guaritore-resuscita', ruoloSlugAttore: 'guaritore' } },
-  'sciacallo-mannaro': { Componente: AzioneResuscita, props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro' } },
+  guaritore: { Componente: AzioneResuscita, perAttore: true, props: { potereSlug: 'guaritore-resuscita', ruoloSlugAttore: 'guaritore' } },
+  'sciacallo-mannaro': { Componente: AzioneResuscita, perAttore: true, props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro' } },
   strega: { Componente: AzioneStrega, props: {} },
   apprendista: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
   cavaliere: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
@@ -79,6 +80,6 @@ export const AZIONI_NOTTURNE = {
     props: { ruoloSlugAttore: 'cartomante', etichettaAttore: 'Cartomante', bersaglio: 'vivo' },
   },
   medium: { Componente: AzioneMedium, props: {} },
-  inquisitore: { Componente: AzioneInquisitore, props: {} },
+  inquisitore: { Componente: AzioneInquisitore, perAttore: true, props: { ruoloSlugAttore: 'inquisitore' } },
   ladro: { Componente: AzioneLadro, props: {} },
 }

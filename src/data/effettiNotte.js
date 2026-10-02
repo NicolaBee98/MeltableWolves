@@ -88,13 +88,20 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
 // reagiscono solo se sbranati), quindi va agganciata alla morte generica
 // (rogo, Strega, Chupacabra inclusi), non solo alla risoluzione dell'attacco
 // notturno del branco.
+//
+// Con il Mimo che copia il Cucciolo i Cuccioli sono due, ma la vendetta è una
+// sola per partita: scatta alla morte del primo (o del Mimo-Cucciolo, o del
+// Cucciolo vero) e `vendettaInnescata` sul morto impedisce un secondo innesco
+// (es. due Cuccioli morti nella stessa notte). annullaMorte lo ripristina.
 export function attivaVendettaCucciolo(giocatori, idAppenaMorto, ruoliBranco) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
   if (morto?.ruoloSlug !== 'cucciolo-di-lupo-mannaro') return giocatori
+  if (giocatori.some((g) => g.vendettaInnescata)) return giocatori
 
-  return giocatori.map((g) =>
-    ruoliBranco.includes(g.ruoloSlug) && g.vivo && g.id !== idAppenaMorto ? { ...g, vendettaCucciolo: true } : g,
-  )
+  return giocatori.map((g) => {
+    if (g.id === idAppenaMorto) return { ...g, vendettaInnescata: true }
+    return ruoliBranco.includes(g.ruoloSlug) && g.vivo ? { ...g, vendettaCucciolo: true } : g
+  })
 }
 
 export function aggiungiCondizionePatch(giocatore, condizione) {
@@ -184,9 +191,13 @@ export function aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlug, p
     .forEach((g) => aggiornaGiocatore(g.id, typeof patch === 'function' ? patch(g) : patch))
 }
 
-// ponytail: assume una sola coppia di innamorati in gioco (nessun partnerId è
-// tracciato). Se il narratore ne crea più di una a mano, muoiono tutti insieme
-// al primo lutto: da rivedere con un legame per-coppia se servirà davvero.
+// Ogni giocatore innamorato ricorda i propri partner in `innamoratiCon` (le
+// coppie sono più d'una se il Mimo copia il Sacerdote): al lutto muoiono solo
+// i partner del morto, non tutti gli innamorati. Senza `innamoratiCon` (dati
+// vecchi o condizione data a mano) vale la regola semplice: muoiono tutti gli
+// innamorati rimasti. I partner morti per crepacuore innescano a loro volta il
+// proprio lutto (propagaMorti), quindi una catena tra coppie che si
+// sovrappongono (A-X, X-B) arriva fino in fondo.
 // Il partner eredita il mortoNotte di chi ha innescato il lutto (compare
 // all'alba se il decesso era notturno), tranne per un rogo: il rogo ha
 // mortoNotte = round del giorno, e il partner verrebbe riannunciato come
@@ -196,8 +207,10 @@ export function applicaCrepacuore(giocatori, idAppenaMorto) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
   if (!morto?.condizioni?.includes('innamorato')) return giocatori
 
+  const partner = morto.innamoratiCon ?? []
+  const eIlSuoPartner = (g) => (partner.length ? partner.includes(g.id) : g.condizioni.includes('innamorato'))
   return giocatori.map((g) =>
-    g.id !== idAppenaMorto && g.vivo && g.condizioni.includes('innamorato')
+    g.id !== idAppenaMorto && g.vivo && eIlSuoPartner(g)
       ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte }
       : g,
   )
@@ -223,6 +236,8 @@ export const RUOLO_CAUSA_ACCECAMENTO = 'polpo-mannaro'
 export function rimuoviAccecamentoSeMortoPolpo(giocatori, idAppenaMorto) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
   if (morto?.ruoloSlug !== RUOLO_CAUSA_ACCECAMENTO) return giocatori
+  // con il Mimo-Polpo l'accecamento dura fino alla morte di TUTTI i polpi
+  if (giocatori.some((g) => g.vivo && g.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO)) return giocatori
 
   return giocatori.map((g) =>
     (g.condizioni ?? []).includes('accecato')
