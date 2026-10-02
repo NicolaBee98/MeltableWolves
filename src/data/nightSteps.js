@@ -58,7 +58,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'figlia-dei-lupi', titolo: 'Figlia dei Lupi', tipo: 'azione', primaNotteSolo: true, ruoli: ['figlia-dei-lupi'] },
   { id: 'sacerdote', titolo: 'Sacerdote', tipo: 'azione', primaNotteSolo: true, ruoli: ['sacerdote'] },
   // subito dopo chi li crea (il Sacerdote), non dopo le Guardie
-  { id: 'innamorati', titolo: 'Innamorati si riconoscono', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato' },
+  { id: 'innamorati', titolo: 'Innamorati si riconoscono', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato', iconaSlug: 'sacerdote' },
   // se nel mazzo c'è anche la Guardia Mannara, la sua carta è indistinguibile
   // dalle altre (pag. 8): il passo qui sotto le riconosce già tutte insieme,
   // quindi questo va saltato per non avere due schede separate per lo stesso
@@ -223,13 +223,42 @@ export function ruoliInMano(giocatori) {
   return [...new Set(giocatori.flatMap((g) => g.scartoLadro ?? []))].filter((slug) => !prese.includes(slug))
 }
 
+function passoEscluso(step, ruoliSelezionati, round, maledetto) {
+  return (
+    (step.primaNotteSolo && round > 1) ||
+    (maledetto && passoBloccatoDallaMaledizione(step)) ||
+    Boolean(step.escludiSeSelezionato?.some((slug) => ruoliSelezionati.includes(slug)))
+  )
+}
+
+// Passi che la notte avrà, stimati UNA volta all'ingresso (serve al "Passo X
+// di N", che altrimenti crescerebbe man mano che i ruoli vengono assegnati):
+// quelli già presenti più quelli che compariranno di sicuro dal mazzo (primo
+// lupo, innamorati, ipnotizzati...). Dalla notte 2 i ruoli senza titolare vivo
+// non si prevedono: passiNotte li esclude comunque.
+const CREATORE_CONDIZIONE = { innamorato: 'sacerdote', ipnotizzato: 'pifferaio' }
+export function passiAttesi(ruoliSelezionati, round, giocatori, quantita = {}, opzioni = {}) {
+  const presenti = passiNotte(ruoliSelezionati, round, giocatori, quantita, opzioni)
+  const maledetto = villaggioMaledetto(giocatori, round)
+  return NIGHT_STEPS.filter((step) => {
+    if (presenti.includes(step)) return true
+    if (passoEscluso(step, ruoliSelezionati, round, maledetto)) return false
+    if (step.condizione) {
+      const creatore = CREATORE_CONDIZIONE[step.condizione]
+      return Boolean(creatore) && ruoliSelezionati.includes(creatore) && (round === 1 || giocatori.some((g) => g.vivo && g.ruoloSlug === creatore))
+    }
+    return round === 1 && step.ruoli.some((slug) => ruoliSelezionati.includes(slug) && (quantita[slug] ?? 1) > 0)
+  })
+}
+
 export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { promemoriaRuoliMorti = false } = {}) {
   const maledetto = villaggioMaledetto(giocatori, round)
-  const inMano = ruoliInMano(giocatori).filter((slug) => ruoliSelezionati.includes(slug))
+  // non si filtra per ruoliSelezionati: chi costruisce l'elenco (App) tiene
+  // solo i ruoli con quantità > 0, e una carta scartata dal Ladro ha quantità
+  // 0 ma va chiamata lo stesso, ogni notte (altrimenti si capirebbe cosa ha il Ladro)
+  const inMano = ruoliInMano(giocatori)
   return NIGHT_STEPS.filter((step) => {
-    if (step.primaNotteSolo && round > 1) return false
-    if (maledetto && passoBloccatoDallaMaledizione(step)) return false
-    if (step.escludiSeSelezionato?.some((slug) => ruoliSelezionati.includes(slug))) return false
+    if (passoEscluso(step, ruoliSelezionati, round, maledetto)) return false
 
     if (step.condizione) {
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))

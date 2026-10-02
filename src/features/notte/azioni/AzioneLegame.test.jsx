@@ -84,3 +84,36 @@ test('cliccando di nuovo il bersaglio del legame lo annulla', async () => {
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
 })
+
+test('Cavaliere e Mimo-Cavaliere si sacrificano per persone diverse: chi è protetto dall\'altro non è tra i candidati', () => {
+  const giocatori = [
+    { id: '1', nome: 'Cav', ruoloSlug: 'cavaliere', vivo: true, condizioni: [] },
+    { id: '2', nome: 'MimoCav', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'mimo', targetId: '1' }, legameMimo: { tipo: 'cavaliere', targetId: '3' } },
+    { id: '3', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Bea', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneLegame
+      giocatori={giocatori}
+      attoreId="1"
+      aggiornaGiocatore={() => {}}
+      ruoloSlugAttore="cavaliere"
+      tipoLegame="cavaliere"
+      etichetta="Per chi sacrificarsi"
+    />,
+  )
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Bea' })).toBeInTheDocument()
+})
+
+test('ruolo ereditato (marcatore legame-ereditato, nessun legame): non si chiede chi proteggere', () => {
+  const giocatori = [
+    { id: '1', nome: 'Ugo', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], poteriUsati: ['legame-ereditato'], legame: null },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneLegame giocatori={giocatori} aggiornaGiocatore={() => {}} ruoloSlugAttore="cavaliere" tipoLegame="cavaliere" etichetta="Per chi sacrificarsi" />,
+  )
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.getByText(/ereditato/i)).toBeInTheDocument()
+})

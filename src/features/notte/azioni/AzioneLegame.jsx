@@ -1,3 +1,5 @@
+import { MARCATORE_LEGAME_EREDITATO } from '../../../data/risoluzioneNotte'
+
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
 // (principio generale): il legame è permanente per tutta la partita una
 // volta stabilito (pag. 9-10), ma finché siamo nel passo di questa notte il
@@ -9,7 +11,17 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
   // il Mimo ha già `legame` occupato dal legame con chi imita ('mimo'): il
   // legame del ruolo copiato sta in `legameMimo` (letto da risolviLegami)
   const campo = attore?.legame?.tipo === 'mimo' ? 'legameMimo' : 'legame'
-  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== attore?.id)
+  // Cavaliere e Mimo-Cavaliere si sacrificano per due persone DIVERSE: chi è già
+  // protetto dall'altro non è tra i candidati
+  const giaProtetti =
+    tipoLegame === 'cavaliere'
+      ? giocatori
+          .filter((g) => g.id !== attore?.id)
+          .flatMap((g) => [g.legame, g.legameMimo])
+          .filter((l) => l?.tipo === 'cavaliere')
+          .map((l) => l.targetId)
+      : []
+  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== attore?.id && !giaProtetti.includes(g.id))
   // solo se il legame è di QUESTO tipo: chi interpreta l'attore può essere
   // cambiato prima di Avanti (vedi rimuoviAssegnazione in NightSequencer),
   // ma se il giocatore appena tolto da questo ruolo aveva già un legame di
@@ -21,6 +33,11 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
     if (!attore) return
     // click sulla chip già scelta: annulla il legame
     aggiornaGiocatore(attore.id, { [campo]: targetId === bersaglioAttuale ? undefined : { tipo: tipoLegame, targetId } })
+  }
+
+  // ruolo ereditato (Apprendista): il legame è già "scarico", niente da scegliere
+  if (attore?.poteriUsati?.includes(MARCATORE_LEGAME_EREDITATO) && !attore[campo]) {
+    return <p>Ruolo ereditato: il legame è già stato usato, niente da scegliere.</p>
   }
 
   if (candidati.length === 0) {

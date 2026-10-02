@@ -1,5 +1,5 @@
 import { eLupo, nomeRuolo } from '../../../data/roles'
-import { ruoliAssegnabili, eMimoCopiante } from '../../../data/assegnazione'
+import { ruoliAssegnabili, eMimoCopiante, conRuolo } from '../../../data/assegnazione'
 
 const POTERE = 'ladro-scelta'
 
@@ -67,7 +67,7 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
     aggiornaGiocatore(g.id, {
       ...(scarto ? { scartoLadro: scarto } : {}),
       ...(nuova
-        ? { ruoloSlug: nuova, storiaRuoli: [...storia, nuova], poteriUsati: [...poteri, POTERE] }
+        ? { ruoloSlug: nuova, storiaRuoli: conRuolo(storia, nuova), poteriUsati: [...poteri, POTERE] }
         : { ruoloSlug: 'ladro', storiaRuoli: storia, poteriUsati: poteri }),
     })
   }

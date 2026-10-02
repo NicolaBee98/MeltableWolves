@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { eMimoCopiante } from '../../../data/assegnazione'
+import { eMimoCopiante, conRuolo } from '../../../data/assegnazione'
 
 const SCAMBIO = 'addolorata-scambio'
 const giaSwappato = (g) => (g.poteriUsati ?? []).includes(SCAMBIO)
@@ -71,7 +71,9 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore }) {
     })
     aggiornaGiocatore(vittima.id, {
       ruoloSlug: ruoloVittima,
-      storiaRuoli: [...(vittima.storiaRuoli ?? []), ruoloVittima],
+      // la storia deve contenere anche il ruolo che la vittima aveva prima (può mancare
+      // se lo aveva ereditato o assegnato senza storia)
+      storiaRuoli: conRuolo(conRuolo(vittima.storiaRuoli, ruoloOriginaleVittima), ruoloVittima),
     })
   }
 
@@ -84,7 +86,7 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore }) {
     })
     aggiornaGiocatore(vittima.id, {
       ruoloSlug: ruoloOriginaleVittima,
-      storiaRuoli: (vittima.storiaRuoli ?? []).slice(0, -1),
+      storiaRuoli: (vittima.storiaRuoli ?? []).at(-1) === ruoloVittima ? vittima.storiaRuoli.slice(0, -1) : vittima.storiaRuoli,
     })
   }
 

@@ -1,4 +1,5 @@
 import { eLupo } from './roles'
+import { conRuolo } from './assegnazione'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
@@ -45,7 +46,9 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
     return {
       [target.id]: {
         ruoloSlug: 'lupo-mannaro',
-        storiaRuoli: [...(target.storiaRuoli ?? []), 'lupo-mannaro'],
+        storiaRuoli: conRuolo(target.storiaRuoli, 'lupo-mannaro'),
+        // per l'annuncio dell'alba (vedi annunciAlba)
+        trasformatoNotte: round,
       },
     }
   }
@@ -116,6 +119,14 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
       log: lupi.length
         ? `Il Berserker ${target.nome} è stato sbranato e uccide lottando ${lupi.join(', ')}.`
         : `Il Berserker ${target.nome} è stato sbranato (nessun lupo vivo da portare con sé).`,
+    })
+  }
+
+  // l'Ubriaco sbranato stordisce il branco la notte dopo (vedi risolviAttaccoBranco)
+  if (target.ruoloSlug === 'ubriaco' && muore && cavalieri.length === 0) {
+    avvisi.push({
+      testo: `${target.nome} è l'Ubriaco: il branco sarà stordito la prossima notte.`,
+      log: `L'Ubriaco ${target.nome} è stato sbranato: il branco sarà stordito la prossima notte.`,
     })
   }
 
@@ -330,7 +341,7 @@ export function maturaCucciolo(giocatori, idAppenaMorto) {
 
   return giocatori.map((g) =>
     g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'
-      ? { ...g, ruoloSlug: 'lupo-mannaro', storiaRuoli: [...(g.storiaRuoli ?? []), 'lupo-mannaro'] }
+      ? { ...g, ruoloSlug: 'lupo-mannaro', storiaRuoli: conRuolo(g.storiaRuoli, 'lupo-mannaro') }
       : g,
   )
 }

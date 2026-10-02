@@ -1,4 +1,5 @@
 import { ROLES, eLupo } from './roles'
+import { conRuolo } from './assegnazione'
 
 // applica una mappa {id: patch} (come quelle ritornate da risolviLegami/
 // risolviCortigiana) a una lista di giocatori, senza richiamare
@@ -11,6 +12,8 @@ export function applicaPatchMap(giocatori, patchMap) {
 // il Mimo ha `legame` occupato dal legame con chi imita: un eventuale legame
 // del ruolo copiato (Apprendista, Cavaliere, Figlia dei Lupi) sta in `legameMimo`
 const CAMPI_LEGAME = ['legame', 'legameMimo']
+const LEGAMI_PRIMA_NOTTE = ['apprendista', 'cavaliere', 'figlia-dei-lupi']
+export const MARCATORE_LEGAME_EREDITATO = 'legame-ereditato'
 
 export function risolviLegami(giocatori) {
   const patch = {}
@@ -37,6 +40,9 @@ export function risolviLegami(giocatori) {
         vivo: false,
         causaMorte: 'sacrificio',
         mortoNotte: target.causaMorte === 'rogo' ? undefined : target.mortoNotte,
+        // marcatore del sacrificio al rogo (round del rogo): la UI del giorno
+        // lo riconosce da qui, dato che mortoNotte resta undefined
+        sacrificioRogoRound: target.causaMorte === 'rogo' ? target.mortoNotte : undefined,
         [campo]: null,
       }
     }
@@ -53,17 +59,31 @@ export function risolviLegami(giocatori) {
       if (legame.tipo === 'apprendista' && target.ruoloSlug) {
         // l'Apprendista scambia la carta: i poteri già usati dal maestro (pozioni
         // della Strega, resurrezione di Guaritore/Sciacallo...) restano usati
-        const usati = target.poteriUsati ?? []
+        // un Cavaliere/Figlia/Apprendista ereditato ha il legame già "scarico":
+        // resta null e il passo non chiede di sceglierlo (marcatore `legame-ereditato`)
+        const usati = [...(target.poteriUsati ?? []), ...(LEGAMI_PRIMA_NOTTE.includes(target.ruoloSlug) ? [MARCATORE_LEGAME_EREDITATO] : [])]
         patch[attore.id] = {
           ...patch[attore.id],
           ruoloSlug: target.ruoloSlug,
+          storiaRuoli: conRuolo(attore.storiaRuoli, target.ruoloSlug),
           [campo]: null,
+          // marcatore per l'annuncio dell'alba (vedi annunciAlba): vale solo
+          // per una morte notturna, il rogo non ha un "round dell'alba"
+          ...(target.causaMorte !== 'rogo' && target.mortoNotte !== undefined
+            ? { ereditaNotte: target.mortoNotte, ereditaDa: target.id }
+            : {}),
           ...(usati.length ? { poteriUsati: [...new Set([...(attore.poteriUsati ?? []), ...usati])] } : {}),
         }
       }
 
       if (legame.tipo === 'figlia-dei-lupi') {
-        patch[attore.id] = { ...patch[attore.id], ruoloSlug: 'lupo-mannaro', [campo]: null }
+        patch[attore.id] = {
+          ...patch[attore.id],
+          ruoloSlug: 'lupo-mannaro',
+          storiaRuoli: conRuolo(attore.storiaRuoli, 'lupo-mannaro'),
+          [campo]: null,
+          ...(target.causaMorte !== 'rogo' && target.mortoNotte !== undefined ? { figliaLupoNotte: target.mortoNotte } : {}),
+        }
       }
     }
   }

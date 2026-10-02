@@ -6,7 +6,7 @@ test('apprendista eredita il ruolo del maestro quando muore', () => {
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
   ]
   const patch = risolviLegami(giocatori)
-  expect(patch['1']).toEqual({ ruoloSlug: 'veggente', legame: null })
+  expect(patch['1']).toEqual({ ruoloSlug: 'veggente', storiaRuoli: ['veggente'], legame: null })
 })
 
 test('apprendista che eredita un Guaritore/Sciacallo già usato riceve la carta senza potere; se non usato, lo può usare', () => {
@@ -38,7 +38,14 @@ test('cavaliere si rivela e si immola al posto del bersaglio anche se questo vie
   const patch = risolviLegami(giocatori)
   expect(patch['2']).toEqual({ vivo: true, causaMorte: undefined })
   // al rogo il sacrificio non porta mortoNotte: non va riannunciato all'alba dopo
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: undefined, legame: null })
+  // ma lascia il marcatore del rogo, con cui la UI del giorno lo riconosce
+  expect(patch['1']).toEqual({
+    vivo: false,
+    causaMorte: 'sacrificio',
+    mortoNotte: undefined,
+    sacrificioRogoRound: 2,
+    legame: null,
+  })
 })
 
 test('cavaliere salva il bersaglio da qualunque causa di morte (es. morte sul colpo)', () => {
@@ -57,7 +64,7 @@ test('figlia dei lupi diventa lupo mannaro quando il genitore muore', () => {
     { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: false, condizioni: [] },
   ]
   const patch = risolviLegami(giocatori)
-  expect(patch['1']).toEqual({ ruoloSlug: 'lupo-mannaro', legame: null })
+  expect(patch['1']).toEqual({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'], legame: null })
 })
 
 test('nessun effetto se il bersaglio del legame è ancora vivo', () => {
@@ -205,7 +212,7 @@ test('apprendista copiato dal Mimo (legameMimo): eredita il ruolo senza perdere 
     { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
     { id: '3', nome: 'Anna', ruoloSlug: 'apprendista', vivo: true, condizioni: [] },
   ]
-  expect(risolviLegami(giocatori)).toEqual({ 1: { ruoloSlug: 'veggente', legameMimo: null } })
+  expect(risolviLegami(giocatori)).toEqual({ 1: { ruoloSlug: 'veggente', storiaRuoli: ['veggente'], legameMimo: null } })
 })
 
 test('Apprendista e Mimo-Apprendista con due maestri diversi: ognuno eredita il ruolo del proprio maestro', () => {
@@ -240,4 +247,34 @@ test('Cortigiana e Mimo-Cortigiana con lo stesso cliente sbranato muoiono entram
   const patch = risolviCortigiana(giocatori, 2)
   expect(patch['1'].vivo).toBe(false)
   expect(patch['2'].vivo).toBe(false)
+})
+
+test('Apprendista che eredita: storiaRuoli include il ruolo ereditato (senza duplicati); il Mimo-Apprendista diventa la carta copiata dal maestro-Mimo', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'apprendista', storiaRuoli: ['apprendista'], vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '3' } },
+    {
+      id: '2', ruoloSlug: 'apprendista', storiaRuoli: ['mimo', 'apprendista'], vivo: true, condizioni: [],
+      legame: { tipo: 'mimo', targetId: '1' }, legameMimo: { tipo: 'apprendista', targetId: '4' },
+    },
+    { id: '3', ruoloSlug: 'veggente', storiaRuoli: ['veggente'], vivo: false, condizioni: [] },
+    // maestro del Mimo: a sua volta un Mimo che aveva copiato il Paladino
+    { id: '4', ruoloSlug: 'paladino', storiaRuoli: ['mimo', 'paladino'], vivo: false, condizioni: [], legame: { tipo: 'mimo', targetId: '5' } },
+    { id: '5', ruoloSlug: 'paladino', vivo: true, condizioni: [] },
+  ]
+  const patch = risolviLegami(giocatori)
+  expect(patch['1']).toMatchObject({ ruoloSlug: 'veggente', storiaRuoli: ['apprendista', 'veggente'] })
+  expect(patch['2']).toMatchObject({ ruoloSlug: 'paladino', storiaRuoli: ['mimo', 'apprendista', 'paladino'], legameMimo: null })
+  expect(patch['2'].legame).toBeUndefined() // il legame di imitazione non si tocca
+})
+
+test('Apprendista che eredita un Cavaliere: legame null e marcatore "legame-ereditato" (il passo non chiede chi proteggere); i poteri usati si ereditano', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
+    { id: '2', ruoloSlug: 'cavaliere', vivo: false, condizioni: [], poteriUsati: ['x'], legame: null },
+  ]
+  expect(risolviLegami(giocatori)['1']).toMatchObject({
+    ruoloSlug: 'cavaliere',
+    legame: null,
+    poteriUsati: ['x', 'legame-ereditato'],
+  })
 })

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { passiNotte, passiAttesi, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
-import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
+import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
@@ -78,14 +78,20 @@ const RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO = 0.78
 // prima illustrazione). Chi ha ancora il ruolo nascosto (es. gli ipnotizzati
 // dal Pifferaio) è mostrato come Villico comune, e passa al ruolo reale
 // appena viene rivelato
-function vociIllustrazioni(giocatori, giocatoriCoinvolti) {
-  const visti = giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) ?? 'villico' }))
+// `nascosti` (ipnotizzati dal Pifferaio): SEMPRE Villici comuni (Villico_N), mai
+// il ruolo reale, nemmeno se già assegnato o se è il Mimo
+function vociIllustrazioni(giocatori, giocatoriCoinvolti, nascosti = false) {
+  const idNascosti = nascosti ? new Set(giocatoriCoinvolti.map((g) => g.id)) : new Set()
+  const visti = giocatori.map((x) => ({
+    ...x,
+    ruoloSlug: idNascosti.has(x.id) ? 'villico' : (ruoloPerDisplay(x.ruoloSlug) ?? 'villico'),
+  }))
   return giocatoriCoinvolti.map((g) => {
-    const eMimo = g.legame?.tipo === 'mimo'
+    const eMimo = g.legame?.tipo === 'mimo' && !idNascosti.has(g.id)
     // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
     return {
       id: g.id,
-      slug: eMimo ? 'mimo' : (ruoloPerDisplay(g.ruoloSlug) ?? 'villico'),
+      slug: eMimo ? 'mimo' : idNascosti.has(g.id) ? 'villico' : (ruoloPerDisplay(g.ruoloSlug) ?? 'villico'),
       variante: eMimo ? undefined : variantePerGiocatore(visti, g.id),
     }
   })
@@ -122,8 +128,8 @@ function vociAttese(step, ruoliSelezionati, quantita, giocatori) {
 // più né le selezioni "chi ha questa carta" né le morti causate dall'azione
 // stessa: si aggiorna solo con Avanti.
 function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, voci: vociFisse, inTempoReale = false }) {
-  const [congelate] = useState(() => vociFisse ?? vociIllustrazioni(giocatori, giocatoriCoinvolti))
-  const voci = vociFisse ?? (inTempoReale ? vociIllustrazioni(giocatori, giocatoriCoinvolti) : congelate)
+  const [congelate] = useState(() => vociFisse ?? vociIllustrazioni(giocatori, giocatoriCoinvolti, inTempoReale))
+  const voci = vociFisse ?? (inTempoReale ? vociIllustrazioni(giocatori, giocatoriCoinvolti, true) : congelate)
   const contenitoreRef = useRef(null)
   const [larghezzaDisponibile, setLarghezzaDisponibile] = useState(320)
 
@@ -181,6 +187,8 @@ export function NightSequencer({
   // registra nel log le modifiche confermate fin qui (le anteprime della notte
   // non si registrano da sole): opzionale
   confermaLog,
+  // Indietro: toglie dal log le voci scritte all'Avanti del passo (opzionale)
+  annullaLogPasso,
   onNotteConclusa = () => {},
   round,
   stepIndex,
@@ -227,12 +235,10 @@ export function NightSequencer({
   const steps = conPassoCorrente(stepsCalcolati, idPasso)
   const indiceValido = steps.length > 0 ? Math.max(0, steps.findIndex((s) => s.id === idPasso)) : 0
   const idStep = steps[indiceValido]?.id
-  // numerazione stabile: i passi già visti in questa notte restano contati anche
-  // quando spariscono (Mimo, Ladro...), nell'ordine di NIGHT_STEPS; il totale
-  // può solo crescere (es. carta lasciata in mano dal Ladro)
-  const visti = NIGHT_STEPS.filter(
-    (st) => steps.some((x) => x.id === st.id) || (ingresso?.round === round && ingresso.visti?.includes(st.id)),
-  ).map((st) => st.id)
+  // numerazione stabile: `fatti` sono i passi lasciati con Avanti in questa notte
+  // (indice contiguo, nessun numero saltato se un ruolo non è in gioco) e il
+  // totale si stima UNA volta all'ingresso nella notte (vedi passiAttesi)
+  const fatti = ingresso?.round === round ? (ingresso.fatti ?? []) : []
 
   if (idStep && (ingresso?.round !== round || ingresso.giocatori === undefined)) {
     // fotografia dello stato all'ingresso nel passo (set durante il render: React
@@ -245,7 +251,10 @@ export function NightSequencer({
       giocatori,
       quantita,
       titolari: filtraCoinvolti(steps[indiceValido], giocatori).map((g) => g.id),
-      visti,
+      fatti,
+      totale:
+        (ingresso?.round === round && ingresso.totale) ||
+        passiAttesi(ruoliSelezionati, round, giocatori, quantita, { promemoriaRuoliMorti }).length,
     })
   }
 
@@ -327,13 +336,13 @@ export function NightSequencer({
     const target = lista.find((g) => g.id === mimo.legame?.targetId)
     const slug = target && (target.ruoloSlug ?? mimoRuoloScelto)
     if (!slug) {
-      aggiorna(mimo.id, { ruoloSlug: 'villico', storiaRuoli: [...(mimo.storiaRuoli ?? []), 'villico'], legame: undefined })
+      aggiorna(mimo.id, { ruoloSlug: 'villico', storiaRuoli: conRuolo(mimo.storiaRuoli, 'villico'), legame: undefined })
       registraEvento(`Il Mimo ${mimo.nome} non ha scelto la carta da imitare: diventa Villico.`)
       return
     }
-    aggiorna(mimo.id, { ruoloSlug: slug, storiaRuoli: [...(mimo.storiaRuoli ?? []), slug] })
+    aggiorna(mimo.id, { ruoloSlug: slug, storiaRuoli: conRuolo(mimo.storiaRuoli, slug) })
     if (!target.ruoloSlug) {
-      aggiorna(target.id, { ruoloSlug: slug, storiaRuoli: [...(target.storiaRuoli ?? []), slug] })
+      aggiorna(target.id, { ruoloSlug: slug, storiaRuoli: conRuolo(target.storiaRuoli, slug) })
     }
   }
 
@@ -346,7 +355,7 @@ export function NightSequencer({
       if (m.legame?.tipo !== 'mimo' || m.legame.targetId !== targetId || !storia.includes('mimo')) continue
       if (m.ruoloSlug === (slug ?? 'mimo')) continue
       const fino = storia.slice(0, storia.indexOf('mimo') + 1)
-      aggiorna(m.id, { ruoloSlug: slug ?? 'mimo', storiaRuoli: slug ? [...fino, slug] : fino })
+      aggiorna(m.id, { ruoloSlug: slug ?? 'mimo', storiaRuoli: conRuolo(fino, slug) })
     }
   }
 
@@ -376,15 +385,16 @@ export function NightSequencer({
     if (storico.length === 0) return
     const precedente = storico[storico.length - 1]
     setStorico(storico.slice(0, -1))
-    setIngresso({ ...precedente, visti })
+    setIngresso(precedente)
     riapriDa(precedente)
+    annullaLogPasso?.(`${precedente.round ?? round}-${precedente.id}`)
     indietro()
   }
 
   // lascia il passo corrente (ricordandone l'ingresso) per quello con id `id`
   function vaiAlPasso(id) {
     setStorico((prev) => [...prev, ingresso])
-    setIngresso({ round, id, visti })
+    setIngresso({ round, id, fatti: [...new Set([...fatti, step.id])].filter((x) => x !== id), totale: ingresso?.totale })
     avanti(steps.length)
   }
 
@@ -416,9 +426,10 @@ export function NightSequencer({
       <section className="night-sequencer">
         <p className="night-sequencer__notte">Notte {round}</p>
         <p>{messaggio}</p>
+        {bardo && <p className="night-sequencer__tipo">«Indietro» annulla il gesto del Bardo.</p>}
         <div className="night-sequencer__nav">
-          <button type="button" onClick={annullaBardo}>
-            Indietro (annulla il gesto del Bardo)
+          <button type="button" onClick={annullaBardo} title="Annulla il gesto del Bardo">
+            Indietro
           </button>
           <PulsanteTieni onConferma={vaiAllAlba}>Vai all'alba</PulsanteTieni>
         </div>
@@ -469,15 +480,26 @@ export function NightSequencer({
   // più chi era titolare all'ingresso nel passo e ha poi cambiato ruolo (il
   // Ladro che sceglie, l'Addolorata che scambia, il Mimo che copia): resta
   // coinvolto, e la sua azione resta sullo schermo, fino ad "Avanti"
-  const coinvoltiCorrenti = new Set(filtraCoinvolti(step, giocatoriConPendenti).map((g) => g.id))
   // vivo/morto dei coinvolti com'era all'ingresso nel passo: l'azione può
   // uccidere l'attore stesso (la Strega su se stessa...) ma la schermata, con
   // titolo, azione e messaggi, resta quella di prima fino ad "Avanti"
   const snapIngresso = ingresso?.id === step.id && ingresso.round === round ? ingresso.giocatori : undefined
+  // un passo senza assegnazione di carte (il branco) non allarga i coinvolti
+  // con chi lo diventa DURANTE il passo (Mezzosangue morso, lupo trasformato
+  // dal Progenitore): quelli compaiono solo con Avanti
+  const soloAllIngresso = step.assegnabile === false && snapIngresso && ingresso.titolari
+  const coinvoltiCorrenti = new Set(
+    filtraCoinvolti(step, giocatoriConPendenti)
+      .filter((g) => !soloAllIngresso || ingresso.titolari.includes(g.id))
+      .map((g) => g.id),
+  )
+  // legami e ruolo di Mimo com'erano all'ingresso: ciò che si sceglie in questo
+  // passo (🔗, "(Mimo)") si vede dal prossimo risveglio, non prima di Avanti
+  const alIngresso = (g) => snapIngresso?.find((x) => x.id === g.id) ?? g
   // anche chi ha ricevuto la carta del passo DOPO l'ingresso (il Ladro assegnato
   // qui e che poi sceglie un'altra carta): non era titolare all'ingresso, ma
   // la sua storiaRuoli ora contiene il ruolo del passo
-  const assegnatiNelPasso = snapIngresso
+  const assegnatiNelPasso = snapIngresso && !soloAllIngresso
     ? giocatoriConPendenti
         .filter((g) =>
           step.ruoli?.some(
@@ -553,7 +575,7 @@ export function NightSequencer({
   // "è il suo maestro" comparirebbe su un passo che non c'entra nulla
   // (il Mimo che copia un ruolo a legame lo tiene in `legameMimo`, oltre al suo `legame` di imitazione)
   const legamiPasso = giocatoriCoinvolti.flatMap((g) =>
-    [g.legame, g.legameMimo]
+    [alIngresso(g).legame, alIngresso(g).legameMimo]
       .filter((l) => l && ETICHETTA_LEGAME[l.tipo] && step.ruoli?.includes(l.tipo))
       .map((l) => ({ attore: g, legame: l, bersaglio: giocatori.find((x) => x.id === l.targetId) }))
       .filter((x) => x.bersaglio),
@@ -565,7 +587,8 @@ export function NightSequencer({
   // nomi dei coinvolti: sottotitolo sotto il titolo del passo. Uno solo: il
   // nome (con ☠️ se morto); più giocatori: righe "Vivi:" e "Morti:" (solo
   // quelle non vuote). Il Mimo che imita il ruolo resta riconoscibile
-  const nomeSottotitolo = (g) => (g.legame?.tipo === 'mimo' ? `${g.nome} (Mimo)` : g.nome)
+  const nomiCoinvolti = giocatoriCoinvolti.map((g) => g.nome).join(', ')
+  const nomeSottotitolo = (g) => (alIngresso(g).legame?.tipo === 'mimo' ? `${g.nome} (Mimo)` : g.nome)
   const viviCoinvolti = giocatoriCoinvolti.filter(vivoAIngresso).map(nomeSottotitolo)
   const mortiCoinvolti = giocatoriCoinvolti.filter((g) => !vivoAIngresso(g)).map(nomeSottotitolo)
   const sottotitoloGiocatori =
@@ -624,6 +647,7 @@ export function NightSequencer({
       onCambiaQuantita={onCambiaQuantita}
       varianteMedium={varianteMedium}
       vivoAIngresso={vivoAIngresso}
+      giocatoriIngresso={snapIngresso}
       mimoRuoloScelto={mimoRuoloScelto}
       onScegliRuoloMimo={setMimoRuoloScelto}
       impostaEventiAvanti={impostaEventiAvanti}
@@ -664,7 +688,7 @@ export function NightSequencer({
     for (const [slug, ids] of Object.entries(selezioniRuolo)) {
       for (const id of ids) {
         risultato = risultato.map((g) =>
-          g.id === id ? { ...g, ruoloSlug: slug, storiaRuoli: [...(g.storiaRuoli ?? []), slug] } : g,
+          g.id === id ? { ...g, ruoloSlug: slug, storiaRuoli: conRuolo(g.storiaRuoli, slug) } : g,
         )
       }
     }
@@ -702,15 +726,24 @@ export function NightSequencer({
     // consumato. Restano gli altri titolari assegnati in questo passo (solo
     // i titolari d'ingresso, es. un Mimo che imita, tornano com'erano).
     if (ingresso?.id === step.id && ingresso.giocatori) {
+      let quantitaDaRipristinare = ingresso.quantita
       for (const x of giocatori) {
         const snap = ingresso.giocatori.find((y) => y.id === x.id)
         if (!snap) continue
         let finale
         if (x.id === giocatoreId) {
-          finale = {
-            ...snap,
-            ruoloSlug: undefined,
-            storiaRuoli: (snap.storiaRuoli ?? []).filter((s) => s !== ruoloSlug && !step.ruoli?.includes(s)),
+          const storia = (snap.storiaRuoli ?? []).filter((s) => s !== ruoloSlug && !step.ruoli?.includes(s))
+          // il Ladro che si era preso proprio questa carta (es. il Mimo) non resta
+          // senza ruolo: torna Ladro, deve scegliere di nuovo e la carta che aveva
+          // scartato rientra nel mazzo (il Mimo che lo imitava segue da riallineaMimoDi)
+          const eraLadroCheHaScelto = storia.at(-1) === 'ladro' && (snap.poteriUsati ?? []).includes('ladro-scelta')
+          finale = eraLadroCheHaScelto
+            ? { ...snap, ruoloSlug: 'ladro', storiaRuoli: storia, poteriUsati: snap.poteriUsati.filter((p) => p !== 'ladro-scelta') }
+            : { ...snap, ruoloSlug: undefined, storiaRuoli: storia }
+          if (eraLadroCheHaScelto) {
+            const rientrate = (snap.scartoLadro ?? []).filter((c) => c !== ruoloSlug)
+            quantitaDaRipristinare = { ...quantitaDaRipristinare }
+            for (const c of rientrate) quantitaDaRipristinare[c] = (quantitaDaRipristinare[c] ?? 0) + 1
           }
         } else {
           finale = (ingresso.titolari ?? []).includes(x.id) ? snap : { ...snap, ruoloSlug: x.ruoloSlug, storiaRuoli: x.storiaRuoli }
@@ -720,7 +753,7 @@ export function NightSequencer({
         const azzera = Object.fromEntries(Object.keys(x).map((k) => [k, undefined]))
         aggiornaGiocatore(x.id, { ...azzera, ...finale })
       }
-      ripristinaQuantita(ingresso.quantita)
+      ripristinaQuantita(quantitaDaRipristinare)
       riallineaMimoDi(giocatoreId, undefined, giocatori, aggiornaGiocatore)
       return
     }
@@ -805,7 +838,7 @@ export function NightSequencer({
     }
 
     senzaRuolo.forEach((g) => {
-      aggiorna(g.id, { ruoloSlug: ruoloDaAssegnare, storiaRuoli: [...(g.storiaRuoli ?? []), ruoloDaAssegnare] })
+      aggiorna(g.id, { ruoloSlug: ruoloDaAssegnare, storiaRuoli: conRuolo(g.storiaRuoli, ruoloDaAssegnare) })
     })
   }
 
@@ -828,7 +861,7 @@ export function NightSequencer({
 
   function vaiAvanti() {
     if (assegnazioneIncompleta) return
-    confermaLog?.()
+    confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     commitMimoSeSelezionato()
     if (ciSonoSelezioniDaConfermare) {
@@ -846,7 +879,7 @@ export function NightSequencer({
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta) return
-    confermaLog?.()
+    confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     const [aggiorna, listaAggiornata] = creaTracciatore()
     commitMimoSeSelezionato(giocatori, aggiorna)
@@ -905,7 +938,7 @@ export function NightSequencer({
       )}
       <p className="night-sequencer__notte">Notte {round}</p>
       <p className="night-sequencer__passo">
-        Passo {Math.max(0, visti.indexOf(step.id)) + 1} di {visti.length}
+        Passo {fatti.length + 1} di {Math.max(ingresso?.totale ?? 0, fatti.length + steps.length - indiceValido)}
       </p>
       {maledetto && (
         <p className="night-sequencer__maledizione">
@@ -1001,7 +1034,8 @@ export function NightSequencer({
 
       {mostraPromemoriaMorto && (
         <p className="night-sequencer__promemoria-morto">
-          ☠️ Chiama comunque {giocatoriCoinvolti.map((g) => g.nome).join(', ')} per il suo turno, anche se morto/a.
+          ☠️ Chiama comunque {nomiCoinvolti}{' '}
+          {giocatoriCoinvolti.length > 1 ? 'per il loro turno, anche se morti' : 'per il suo turno, anche se morto/a'}.
         </p>
       )}
 
@@ -1009,7 +1043,8 @@ export function NightSequencer({
         <>
           {step.puoAgireDaMorto && !titolareVivo && (
             <p className="night-sequencer__promemoria-morto">
-              ☠️ {giocatoriCoinvolti.map((g) => g.nome).join(', ')} è morto/a, ma agisce comunque.
+              ☠️ {nomiCoinvolti}{' '}
+              {giocatoriCoinvolti.length > 1 ? 'sono morti, ma agiscono comunque' : 'è morto/a, ma agisce comunque'}.
             </p>
           )}
           {attoriAzione.length > 1 ? (
