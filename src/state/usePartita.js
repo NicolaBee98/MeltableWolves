@@ -111,6 +111,7 @@ export function usePartita() {
       return resto.map((g) => {
         let aggiornato = g
         if (g.legame?.targetId === id) aggiornato = { ...aggiornato, legame: null }
+        if (g.legameMimo?.targetId === id) aggiornato = { ...aggiornato, legameMimo: null }
         if (eraInnamorato && g.condizioni.includes('innamorato')) {
           aggiornato = { ...aggiornato, condizioni: g.condizioni.filter((c) => c !== 'innamorato') }
         }
@@ -142,9 +143,12 @@ export function usePartita() {
   // Apprendista, Cavaliere, ruolo originale dell'Antico...) allo stato di
   // prima, salvo chi nel frattempo è stato modificato da altro.
   function annullaMorte(id) {
+    // lo snapshot si legge e si consuma FUORI dall'updater: in StrictMode
+    // l'updater gira due volte e la seconda non lo troverebbe più, ripiegando
+    // sulla semplice resurrezione (catena e vendetta del Cucciolo non disfatte)
+    const snap = snapshotMorti.current[id]
+    delete snapshotMorti.current[id]
     setGiocatori((prev) => {
-      const snap = snapshotMorti.current[id]
-      delete snapshotMorti.current[id]
       if (!snap) {
         return prev.map((g) =>
           g.id === id ? { ...g, vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined } : g,

@@ -1,6 +1,9 @@
+import { StrictMode } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneBrancoLupi } from './AzioneBrancoLupi'
+import { usePartita } from '../../../state/usePartita'
+import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
 test('conferma uccide il bersaglio scelto e marca il branco come già usato', async () => {
   const user = userEvent.setup()
@@ -477,4 +480,45 @@ test('vendetta già attiva: ogni vittima si può cambiare, la prima senza toccar
   expect(m.get('2').vivo).toBe(false)
   expect(screen.getByRole('button', { name: 'Carlo' })).toHaveAttribute('aria-pressed', 'true')
   expect(m.get('3').usiNotte).toEqual(['branco-lupi-sbrana'])
+})
+
+// con lo stato reale (usePartita): la vendetta e la morte del Cucciolo si disfano davvero
+test('seleziona Cucciolo, deseleziona, sbrana un altro: una sola vittima e nessuna vendetta', async () => {
+  const user = userEvent.setup()
+  const iniziali = [
+    { id: 'C', nome: 'Cuc', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+    { id: '4', nome: 'Elia', ruoloSlug: 'villico', vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+  ]
+  let stato
+  function Prova() {
+    stato = usePartita()
+    return <AzioneBrancoLupi {...props(stato)} />
+  }
+  const props = (s) => ({
+    giocatori: s.giocatori,
+    aggiornaGiocatore: s.aggiornaGiocatore,
+    annullaMorte: s.annullaMorte,
+    round: 2,
+    ruoli: RUOLI_BRANCO_LUPI,
+  })
+  localStorage.setItem('meltable-wolves-partita', JSON.stringify(iniziali))
+  // StrictMode come in main.jsx: gli updater di setState girano due volte
+  render(
+    <StrictMode>
+      <Prova />
+    </StrictMode>,
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Cuc' }))
+  await user.click(screen.getByRole('button', { name: 'Cuc' }))
+  expect(stato.giocatori.every((g) => g.vivo)).toBe(true)
+  expect(stato.giocatori.some((g) => g.vendettaCucciolo)).toBe(false)
+  expect(screen.queryByText(/vendetta del cucciolo/i)).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Carlo' }))
+  await user.click(screen.getByRole('button', { name: 'Elia' }))
+  expect(stato.giocatori.filter((g) => !g.vivo).map((g) => g.id)).toEqual(['4'])
+  localStorage.clear()
 })

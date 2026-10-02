@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { passiNotte, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
-import { ruoliAssegnabili, contaAssegnati, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
+import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
@@ -103,15 +103,21 @@ function vociIllustrazioni(giocatori, giocatoriCoinvolti) {
 // slegata dai giocatori non rivela chi è la traditrice (il narratore sa solo
 // che nel mazzo c'è)
 const PASSI_CON_FIGURE_ATTESE = ['lupo-mannaro', 'guardia', 'guardia-mannara']
-function vociAttese(step, ruoliSelezionati, quantita) {
+function vociAttese(step, ruoliSelezionati, quantita, giocatori) {
   const slugs = [...(step.ruoliMostraCoinvolti ?? step.ruoli)].sort(
     (a, b) => (a === 'guardia-mannara') - (b === 'guardia-mannara'),
   )
-  return slugs
+  const voci = slugs
     .filter((slug) => ruoliSelezionati.includes(slug))
     .flatMap((slug) =>
       Array.from({ length: quantita[slug] ?? 1 }, (_, i) => ({ id: `${slug}-${i + 1}`, slug, variante: i + 1 })),
     )
+  // il Mimo che copia uno di questi ruoli, una volta riconosciuto, è un
+  // giocatore in più nel gruppo e si mostra come Mimo
+  const mimi = giocatori
+    .filter((g) => eMimoCopiante(g) && slugs.includes(g.ruoloSlug))
+    .map((g) => ({ id: `mimo-${g.id}`, slug: 'mimo' }))
+  return [...voci, ...mimi]
 }
 
 // `voci` (se presente) è la riga già decisa dal passo. `inTempoReale`: solo
@@ -458,10 +464,13 @@ export function NightSequencer({
   // non un legame di un ruolo precedente rimasto per sbaglio sul giocatore
   // (es. Chupacabra che un tempo era Apprendista): altrimenti il promemoria
   // "è il suo maestro" comparirebbe su un passo che non c'entra nulla
-  const attoreConLegame = giocatoriCoinvolti.find(
-    (g) => g.legame && ETICHETTA_LEGAME[g.legame.tipo] && step.ruoli?.includes(g.legame.tipo),
+  // (il Mimo che copia un ruolo a legame lo tiene in `legameMimo`, oltre al suo `legame` di imitazione)
+  const legamiPasso = giocatoriCoinvolti.flatMap((g) =>
+    [g.legame, g.legameMimo]
+      .filter((l) => l && ETICHETTA_LEGAME[l.tipo] && step.ruoli?.includes(l.tipo))
+      .map((l) => ({ attore: g, legame: l, bersaglio: giocatori.find((x) => x.id === l.targetId) }))
+      .filter((x) => x.bersaglio),
   )
-  const bersaglioLegame = attoreConLegame && giocatori.find((g) => g.id === attoreConLegame.legame.targetId)
 
   const azione = AZIONI_NOTTURNE[step.id]
   // vivo/morto dei coinvolti com'era all'ingresso nel passo: l'azione può
@@ -487,8 +496,37 @@ export function NightSequencer({
   const attoreInibito =
     step.id !== 'fattucchiera' &&
     step.ruoli?.length === 1 &&
-    giocatoriCoinvolti.some((g) => (g.condizioni ?? []).includes('inibito'))
+    giocatoriCoinvolti.length > 0 && giocatoriCoinvolti.every((g) => (g.condizioni ?? []).includes('inibito'))
   const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto && !attoreInibito
+  // azioni a scelta (azione.perAttore): titolare e Mimo che lo copia hanno lo
+  // stesso ruoloSlug ma ognuno compie la PROPRIA scelta, indipendente (la
+  // Fattucchiera blocca solo chi ha inibito, mai gli altri titolari)
+  const attoriAzione = azione?.perAttore
+    ? giocatoriConPendenti.filter(
+        (g) =>
+          g.ruoloSlug === azione.props.ruoloSlugAttore &&
+          vivoAIngresso(g) &&
+          (step.id === 'fattucchiera' || !(g.condizioni ?? []).includes('inibito')),
+      )
+    : []
+  const renderAzione = (attoreId) => (
+    <azione.Componente
+      giocatori={giocatoriConPendenti}
+      aggiornaGiocatore={aggiornaGiocatoreConCommit}
+      impostaGiocatori={impostaGiocatoriConCommit}
+      annullaMorte={annullaMorte}
+      round={round}
+      ruoliSelezionati={ruoliSelezionati}
+      quantita={quantita}
+      onCambiaQuantita={onCambiaQuantita}
+      varianteMedium={varianteMedium}
+      mimoRuoloScelto={mimoRuoloScelto}
+      onScegliRuoloMimo={setMimoRuoloScelto}
+      {...(attoreId ? { attoreId } : {})}
+      {...azione.props}
+    />
+  )
+
   // titolare morto, potere ricorrente, non tra le eccezioni che agiscono da
   // morti: il passo compare comunque (promemoriaRuoliMorti l'ha lasciato
   // passare in passiNotte) solo per ricordare al narratore di chiamarlo, non
@@ -708,10 +746,11 @@ export function NightSequencer({
       const condizioniRipulite = g.condizioni.filter((c) => c !== 'protetto' && c !== 'inibito')
       const cambiaCondizioni = condizioniRipulite.length !== g.condizioni.length
       const cambiaUsi = (g.usiNotte ?? []).length > 0
-      if (cambiaCondizioni || cambiaUsi) {
+      if (cambiaCondizioni || cambiaUsi || g.sceltaNotte) {
         aggiorna(g.id, {
           ...(cambiaCondizioni ? { condizioni: condizioniRipulite } : {}),
           ...(cambiaUsi ? { usiNotte: [] } : {}),
+          ...(g.sceltaNotte ? { sceltaNotte: undefined } : {}),
         })
       }
     })
@@ -787,7 +826,7 @@ export function NightSequencer({
         giocatoriCoinvolti={giocatoriCoinvolti.filter(
           (g) => vivoAIngresso(g) && !ruoliAssegnabiliStepSingoli.includes(g.ruoloSlug),
         )}
-        voci={PASSI_CON_FIGURE_ATTESE.includes(step.id) ? vociAttese(step, ruoliSelezionati, quantita) : undefined}
+        voci={PASSI_CON_FIGURE_ATTESE.includes(step.id) ? vociAttese(step, ruoliSelezionati, quantita, giocatoriConPendenti) : undefined}
         inTempoReale={Boolean(step.condizione)}
       />
       {/* "Possibile azione" (quando il passo prevedeva potenzialmente
@@ -799,9 +838,12 @@ export function NightSequencer({
         <p className="night-sequencer__tipo">Nessuna azione richiesta</p>
       )}
 
-      {bersaglioLegame && (
-        <p className="night-sequencer__legame">🔗 {ETICHETTA_LEGAME[attoreConLegame.legame.tipo](bersaglioLegame.nome)}.</p>
-      )}
+      {legamiPasso.map(({ attore, legame, bersaglio }) => (
+        <p key={attore.id + legame.tipo} className="night-sequencer__legame">
+          🔗 {legamiPasso.length > 1 && `${attore.nome}: `}
+          {ETICHETTA_LEGAME[legame.tipo](bersaglio.nome)}.
+        </p>
+      ))}
 
       {ruoliAssegnabiliStep.length > 0 && (
         <AssegnaRuolo
@@ -841,20 +883,19 @@ export function NightSequencer({
               ☠️ {giocatoriCoinvolti.map((g) => g.nome).join(', ')} è morto/a, ma agisce comunque.
             </p>
           )}
-          <azione.Componente
-            giocatori={giocatoriConPendenti}
-            aggiornaGiocatore={aggiornaGiocatoreConCommit}
-            impostaGiocatori={impostaGiocatoriConCommit}
-            annullaMorte={annullaMorte}
-            round={round}
-            ruoliSelezionati={ruoliSelezionati}
-            quantita={quantita}
-            onCambiaQuantita={onCambiaQuantita}
-            varianteMedium={varianteMedium}
-            mimoRuoloScelto={mimoRuoloScelto}
-            onScegliRuoloMimo={setMimoRuoloScelto}
-            {...azione.props}
-          />
+          {attoriAzione.length > 1 ? (
+            attoriAzione.map((attore) => (
+              <div key={attore.id} role="group" aria-label={`Scelta di ${attore.nome}`} className="night-sequencer__attore">
+                <p>
+                  <strong>{attore.nome}</strong>
+                  {attore.legame?.tipo === 'mimo' && ' (Mimo)'}
+                </p>
+                {renderAzione(attore.id)}
+              </div>
+            ))
+          ) : (
+            renderAzione(attoriAzione[0]?.id)
+          )}
         </>
       )}
 

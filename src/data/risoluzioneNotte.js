@@ -8,6 +8,10 @@ export function applicaPatchMap(giocatori, patchMap) {
   return giocatori.map((g) => (patchMap[g.id] ? { ...g, ...patchMap[g.id] } : g))
 }
 
+// il Mimo ha `legame` occupato dal legame con chi imita: un eventuale legame
+// del ruolo copiato (Apprendista, Cavaliere, Figlia dei Lupi) sta in `legameMimo`
+const CAMPI_LEGAME = ['legame', 'legameMimo']
+
 export function risolviLegami(giocatori) {
   const patch = {}
 
@@ -15,39 +19,44 @@ export function risolviLegami(giocatori) {
   // deve ereditarne il ruolo (X è tornato vivo)
   const salvati = new Set()
   for (const attore of giocatori) {
-    if (!attore.vivo || attore.legame?.tipo !== 'cavaliere') continue
-    const target = giocatori.find((g) => g.id === attore.legame.targetId)
-    if (!target || target.vivo) continue
-    // "Se questa persona viene sbranata di notte il Cavaliere muore al suo
-    // posto; se invece viene messa al rogo di giorno il Cavaliere rivela la
-    // propria carta immolandosi al suo posto" (pag. 11): salva da QUALSIASI
-    // causa di morte (Strega e Chupacabra inclusi). causaMorte va ripulita,
-    // altrimenti resterebbe "morto al rogo" pur essendo vivo (Addolorata).
-    // Se il bersaglio è stato bruciato, il sacrificio non deve comparire
-    // come morte "notturna" (mortoNotte del rogo coinciderebbe con il round
-    // dell'Alba successiva): mortoNotte resta quindi undefined.
-    salvati.add(target.id)
-    patch[target.id] = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined }
-    patch[attore.id] = {
-      vivo: false,
-      causaMorte: 'sacrificio',
-      mortoNotte: target.causaMorte === 'rogo' ? undefined : target.mortoNotte,
-      legame: null,
+    for (const campo of CAMPI_LEGAME) {
+      if (!attore.vivo || attore[campo]?.tipo !== 'cavaliere') continue
+      const target = giocatori.find((g) => g.id === attore[campo].targetId)
+      if (!target || target.vivo) continue
+      // "Se questa persona viene sbranata di notte il Cavaliere muore al suo
+      // posto; se invece viene messa al rogo di giorno il Cavaliere rivela la
+      // propria carta immolandosi al suo posto" (pag. 11): salva da QUALSIASI
+      // causa di morte (Strega e Chupacabra inclusi). causaMorte va ripulita,
+      // altrimenti resterebbe "morto al rogo" pur essendo vivo (Addolorata).
+      // Se il bersaglio è stato bruciato, il sacrificio non deve comparire
+      // come morte "notturna" (mortoNotte del rogo coinciderebbe con il round
+      // dell'Alba successiva): mortoNotte resta quindi undefined.
+      salvati.add(target.id)
+      patch[target.id] = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined }
+      patch[attore.id] = {
+        vivo: false,
+        causaMorte: 'sacrificio',
+        mortoNotte: target.causaMorte === 'rogo' ? undefined : target.mortoNotte,
+        [campo]: null,
+      }
     }
   }
 
   for (const attore of giocatori) {
-    if (!attore.vivo || !attore.legame || attore.legame.tipo === 'cavaliere') continue
-    const target = giocatori.find((g) => g.id === attore.legame.targetId)
-    if (!target || target.vivo || salvati.has(target.id)) continue
+    for (const campo of CAMPI_LEGAME) {
+      const legame = attore[campo]
+      if (!attore.vivo || !legame || legame.tipo === 'cavaliere' || legame.tipo === 'mimo') continue
+      const target = giocatori.find((g) => g.id === legame.targetId)
+      if (!target || target.vivo || salvati.has(target.id)) continue
 
-    // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta
-    if (attore.legame.tipo === 'apprendista' && target.ruoloSlug) {
-      patch[attore.id] = { ruoloSlug: target.ruoloSlug, legame: null }
-    }
+      // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta
+      if (legame.tipo === 'apprendista' && target.ruoloSlug) {
+        patch[attore.id] = { ...patch[attore.id], ruoloSlug: target.ruoloSlug, [campo]: null }
+      }
 
-    if (attore.legame.tipo === 'figlia-dei-lupi') {
-      patch[attore.id] = { ruoloSlug: 'lupo-mannaro', legame: null }
+      if (legame.tipo === 'figlia-dei-lupi') {
+        patch[attore.id] = { ...patch[attore.id], ruoloSlug: 'lupo-mannaro', [campo]: null }
+      }
     }
   }
 
