@@ -605,6 +605,15 @@ legend {
   margin-bottom: 0.5rem;
 }
 
+/* desktop: 30vh taglia l'ultima riga di chip a metà (e a ogni altezza di
+   finestra cade in un punto diverso): 15.75rem mostra 4 righe
+   intere (titolo + righe da ~50px), le altre si raggiungono scorrendo */
+@media (min-width: 768px) {
+  .mazzo-builder__nel-mazzo {
+    max-height: 15.75rem;
+  }
+}
+
 .mazzo-builder__vuoto {
   color: var(--text-soft);
   margin: 0;
@@ -1060,10 +1069,14 @@ button.chip--fazione-sconosciuto {
   border-color: var(--border-soft);
   color: var(--text-soft);
   box-shadow: none;
+  /* secondario: largo quanto il suo testo, mai a spese del bottone principale */
+  flex: 0 0 auto;
 }
 
+/* principale (anche il PulsanteTieni): prende tutto lo spazio rimasto */
 .night-sequencer__nav button:last-child {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* Alba */
@@ -1541,13 +1554,15 @@ textarea:focus-visible {
 
 
 
-/* PulsanteTieni: hold-to-confirm. Sfondo chiaro con testo scuro (leggibile
-   sia sul fondo sia sul riempimento ambra dell'alba, che cresce da sinistra) */
+/* PulsanteTieni: hold-to-confirm. Sfondo bianco e testo inchiostro in ogni
+   fase (anche di notte, dove --surface/--text sono invertiti): il testo resta
+   leggibile sia sul fondo (~17:1) sia sul riempimento ambra che cresce da
+   sinistra (~6.4:1, >= 4.5:1) */
 .pulsante-tieni {
   position: relative;
   overflow: hidden;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--pal-bianco);
+  color: var(--pal-inchiostro);
   touch-action: manipulation;
   user-select: none;
   -webkit-touch-callout: none;

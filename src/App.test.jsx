@@ -81,11 +81,11 @@ test('blocca "Inizia la notte" (con motivo visibile) se il numero di giocatori n
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
-  expect(screen.getByText(/servono 1 giocatori, ce ne sono 0/i)).toBeInTheDocument()
+  expect(screen.getByText(/serve 1 giocatore, ce ne sono 0/i)).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeDisabled()
 
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/serv\w+ \d giocatori?/i)).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeEnabled()
 
   // anche troppi giocatori bloccano
@@ -103,7 +103,7 @@ test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   // mazzo: Ladro + Mimo = 2 ruoli, meno le 2 carte extra del Ladro = 0 attesi
-  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/serv\w+ \d giocatori?/i)).not.toBeInTheDocument()
 
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.getByText(/servono 0 giocatori, ce ne sono 1/i)).toBeInTheDocument()
@@ -122,7 +122,7 @@ test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel 
   // mazzo: Mimo + Borgomastro + Fantasma Onnisciente = 3 ruoli, ma i due
   // titoli non aggiungono nessun giocatore: 1 atteso, non 3
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  expect(screen.queryByText(/servono \d giocatori/i)).not.toBeInTheDocument()
+  expect(screen.queryByText(/serv\w+ \d giocatori?/i)).not.toBeInTheDocument()
 })
 
 test('completare la notte porta alla schermata Alba, poi al voto', async () => {
@@ -212,4 +212,21 @@ test('Nuova Partita dalla Home si comporta come dalle Impostazioni: azzera il ma
   expect(screen.getByRole('button', { name: 'Mimo' })).not.toHaveAttribute('aria-pressed', 'true')
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   expect(screen.getByText('Anna')).toBeInTheDocument()
+})
+
+test("l'avviso del conteggio cita solo le esclusioni dei ruoli presenti nel mazzo", async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  await user.click(screen.getByRole('button', { name: 'Mimo' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByText(/serve 1 giocatore/i).textContent).not.toMatch(/esclusi/)
+
+  await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
+  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  const avviso = screen.getByText(/serve 1 giocatore/i).textContent
+  expect(avviso).toMatch(/esclusi il Borgomastro,/)
+  expect(avviso).not.toMatch(/Ladro|Fantasma/)
 })

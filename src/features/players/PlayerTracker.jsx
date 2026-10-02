@@ -87,7 +87,7 @@ export function PlayerTracker({
       {giocatori.length > 0 && onEliminaTutti && (
         confermaElimina ? (
           <p className="player-tracker__conferma">
-            Eliminare tutti i {giocatori.length} giocatori?{partitaAvviata && ' La partita in corso verrà azzerata.'}
+            {giocatori.length === 1 ? 'Eliminare il giocatore?' : `Eliminare tutti i ${giocatori.length} giocatori?`}{partitaAvviata && ' La partita in corso verrà azzerata.'}
             <button
               type="button"
               className="player-tracker__conferma-cta"
