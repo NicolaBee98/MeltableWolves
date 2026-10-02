@@ -110,33 +110,6 @@ export function personaggioPath(slug, variante) {
   return `/assets/personaggi/${file}${suffisso}.svg`
 }
 
-// Altezza del personaggio nel disegno originale (viewBox dell'SVG in
-// personaggi/, stessa unità per tutti i file): usata per scalare le
-// illustrazioni mostrate fianco a fianco (branco, Mimo+imitato...) tutte
-// con lo STESSO fattore, invece che tutte alla stessa altezza in pixel —
-// altrimenti una Guardia (disegnata più bassa) risulterebbe grande quanto
-// un Veggente invece che più piccola, come nell'artwork originale.
-const ALTEZZE_NATURALI_PERSONAGGIO = {
-  addolorata: 57.0, alchimista: 60.5, ambasciatore: 61.8, apprendista: 60.1, bardo: 76.3,
-  berserker: 77.6, boia: 62.1, borgomastro: 67.8, cartomante: 63.6, cavaliere: 84.2,
-  chupacabra: 73.9, cortigiana: 62.8, 'criceto-malvagio': 37.2, 'cucciolo-di-lupo-mannaro': 49.8,
-  eremita: 58.8, 'fantasma-onnisciente': 53.6, fattucchiera: 69.0, 'figlia-dei-lupi': 52.4,
-  'gallo-mannaro': 72.0, guardia: 60.0, 'guardia-mannara': 57.5, guaritore: 68.0, innocente: 58.1,
-  inquisitore: 68.5, ladro: 60.8, lantico: 65.5, 'lupo-mannaro': 59.1, 'lupo-mannaro-capobranco': 66.9,
-  'lupo-mannaro-progenitore': 67.5, maga: 75.3, medium: 64.9, mezzosangue: 54.9, mimo: 60.8,
-  'mucca-mannara': 65.1, nano: 65.3, nonna: 66.9, paladino: 56.0, pastore: 60.0, pifferaio: 70.9,
-  'polpo-mannaro': 66.0, sacerdote: 73.5, 'scemo-del-villaggio': 70.3, 'sciacallo-mannaro': 63.9,
-  spilungone: 88.3, strega: 78.0, suocera: 64.1, ubriaco: 76.5, untore: 67.7, veggente: 60.9,
-  'veggente-mannaro': 60.6, villico: 52.7,
-}
-// media delle altezze note, per gli slug senza artwork "personaggio" dedicato
-const ALTEZZA_NATURALE_MEDIA =
-  Object.values(ALTEZZE_NATURALI_PERSONAGGIO).reduce((s, v) => s + v, 0) /
-  Object.values(ALTEZZE_NATURALI_PERSONAGGIO).length
-export function altezzaNaturalePersonaggio(slug) {
-  return ALTEZZE_NATURALI_PERSONAGGIO[slug] ?? ALTEZZA_NATURALE_MEDIA
-}
-
 // carte/: la carta stampata così com'è (bordo, nome, illustrazione, testo
 // abilità), un file rappresentativo per ruolo anche quando il mazzo reale ne
 // contiene più copie fisiche (es. Villico).

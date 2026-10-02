@@ -24,7 +24,7 @@ export function annunciAlba(giocatori, round) {
   // libretto pag. 29: "annuncia se durante la notte ci sono state...
   // giocatori che sono stati resuscitati, unti, trasformati in maiali"
   for (const g of giocatori.filter((g) => g.resuscitatoNotte === round)) {
-    annunci.push(`${g.nome} è tornato in vita.`)
+    annunci.push(`${g.nome} è stato resuscitato.`)
   }
   // "unto"/"trasformato" durano fino al calar della notte successiva a
   // quella in cui sono inflitti: se sono ancora presenti in questa Alba,

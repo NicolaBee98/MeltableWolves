@@ -6,8 +6,9 @@ import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
+import { PulsanteTieni } from '../../components/PulsanteTieni'
 import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
-import { variantePerGiocatore, altezzaNaturalePersonaggio } from '../../data/assetRuoli'
+import { variantePerGiocatore } from '../../data/assetRuoli'
 
 // sottotitolo "Legato con..." per i ruoli con legame permanente stabilito
 // la prima notte (pag. 9-10): una volta scelto il bersaglio non si può più
@@ -58,14 +59,13 @@ function quantitaUguali(a, b) {
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
-// fianco: ogni notte, non solo quando il ruolo viene assegnato. Un unico
-// fattore di scala per TUTTI (mai diverso da uno all'altro, mai progressivo
-// "ognuno più stretto del precedente"), calcolato sulla larghezza reale
-// disponibile (il box della fase, misurata con ResizeObserver) così l'intero
-// gruppo ci sta sempre su una riga sola, senza dover scorrere. Restano
-// comunque scalati diversamente TRA loro in base ad altezzaNaturalePersonaggio
-// (una Guardia, disegnata più bassa, resta più piccola di un Veggente, come
-// nell'artwork originale) — quello non cambia mai, qualunque sia il fattore.
+// fianco: ogni notte, non solo quando il ruolo viene assegnato. TUTTE alla
+// stessa altezza (gli artwork in public/assets/personaggi hanno viewBox con
+// altezze e margini diversi: scalarli per altezza naturale faceva risultare
+// alcuni, es. nella sveglia del Pifferaio, più grandi di altri). L'altezza è
+// calcolata sulla larghezza reale disponibile (il box della fase, misurata
+// con ResizeObserver) così l'intero gruppo ci sta sempre su una riga sola,
+// senza dover scorrere, ridimensionandosi in modo uniforme.
 // Chi sta imitando (il Mimo) mostra SOLO la propria illustrazione, mai anche
 // quella del ruolo copiato: visivamente resta se stesso/a, il ruolo reale è
 // rappresentato dal vero titolare.
@@ -73,36 +73,56 @@ const ALTEZZA_MASSIMA_ILLUSTRAZIONE = 160
 const ALTEZZA_MINIMA_ILLUSTRAZIONE = 50
 // rapporto medio larghezza/altezza degli artwork di personaggi/ (misurato su
 // un campione: Progenitore 0.75, Nonna 0.66, Capobranco 0.92, Lupo Mannaro
-// 0.78): nessun dato di larghezza naturale è calibrato per-ruolo come lo è
-// l'altezza, quindi si stima la larghezza totale della riga con questa media
+// 0.78): si stima la larghezza totale della riga con questa media
 const RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO = 0.78
 
 // una voce per giocatore: lo slug mostrato e la variante numerata (Villico_N,
 // Guardia_N, Lupo_Mannaro_N: la posizione tra i giocatori con lo stesso ruolo,
 // nell'ordine stabile di `giocatori`, che qui include le selezioni pendenti
 // altrimenti i lupi appena scelti, ancora senza ruolo, ricadrebbero tutti sulla
-// prima illustrazione)
+// prima illustrazione). Chi ha ancora il ruolo nascosto (es. gli ipnotizzati
+// dal Pifferaio) è mostrato come Villico comune, e passa al ruolo reale
+// appena viene rivelato
 function vociIllustrazioni(giocatori, giocatoriCoinvolti) {
-  const visti = giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) }))
+  const visti = giocatori.map((x) => ({ ...x, ruoloSlug: ruoloPerDisplay(x.ruoloSlug) ?? 'villico' }))
   return giocatoriCoinvolti.map((g) => {
     const eMimo = g.legame?.tipo === 'mimo'
     // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
     return {
       id: g.id,
-      slug: eMimo ? 'mimo' : ruoloPerDisplay(g.ruoloSlug),
+      slug: eMimo ? 'mimo' : (ruoloPerDisplay(g.ruoloSlug) ?? 'villico'),
       variante: eMimo ? undefined : variantePerGiocatore(visti, g.id),
     }
   })
 }
 
-// `inTempoReale`: solo quando il passo stesso assegna i coinvolti (il branco
-// che si forma selezionando i Lupi). Altrimenti la riga si calcola UNA volta
-// all'ingresso nel passo (il componente è rimontato a ogni passo/riapertura) e
-// non segue più né le selezioni "chi ha questa carta" né le morti causate
-// dall'azione stessa: si aggiorna solo con Avanti.
-function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, inTempoReale = false }) {
-  const [congelate] = useState(() => vociIllustrazioni(giocatori, giocatoriCoinvolti))
-  const voci = inTempoReale ? vociIllustrazioni(giocatori, giocatoriCoinvolti) : congelate
+// passi in cui ci si riconosce tra pari: la riga mostra subito TUTTE le
+// figure attese dal mazzo (una per copia: Lupo_Mannaro_1..N, Guardia_1..N),
+// senza legarle ai giocatori né dipendere da chi è stato già selezionato.
+// La Guardia Mannara compare nel gruppo in coda, come figura a sé: essendo
+// slegata dai giocatori non rivela chi è la traditrice (il narratore sa solo
+// che nel mazzo c'è)
+const PASSI_CON_FIGURE_ATTESE = ['lupo-mannaro', 'guardia', 'guardia-mannara']
+function vociAttese(step, ruoliSelezionati, quantita) {
+  const slugs = [...(step.ruoliMostraCoinvolti ?? step.ruoli)].sort(
+    (a, b) => (a === 'guardia-mannara') - (b === 'guardia-mannara'),
+  )
+  return slugs
+    .filter((slug) => ruoliSelezionati.includes(slug))
+    .flatMap((slug) =>
+      Array.from({ length: quantita[slug] ?? 1 }, (_, i) => ({ id: `${slug}-${i + 1}`, slug, variante: i + 1 })),
+    )
+}
+
+// `voci` (se presente) è la riga già decisa dal passo. `inTempoReale`: solo
+// per i passi di gruppo (ipnotizzati), dove il ruolo può essere rivelato
+// mentre si è sul passo. Altrimenti la riga si calcola UNA volta all'ingresso
+// nel passo (il componente è rimontato a ogni passo/riapertura) e non segue
+// più né le selezioni "chi ha questa carta" né le morti causate dall'azione
+// stessa: si aggiorna solo con Avanti.
+function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, voci: vociFisse, inTempoReale = false }) {
+  const [congelate] = useState(() => vociFisse ?? vociIllustrazioni(giocatori, giocatoriCoinvolti))
+  const voci = vociFisse ?? (inTempoReale ? vociIllustrazioni(giocatori, giocatoriCoinvolti) : congelate)
   const contenitoreRef = useRef(null)
   const [larghezzaDisponibile, setLarghezzaDisponibile] = useState(320)
 
@@ -118,7 +138,6 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, inTempoReale = 
   }, [])
 
   if (voci.length === 0) return null
-  const naturaleMassima = Math.max(...voci.map((v) => altezzaNaturalePersonaggio(v.slug)))
   const numeroImmagini = voci.length
   // una lieve sovrapposizione, solo se il gruppo è numeroso, come frazione
   // dell'altezza (non un valore assoluto): resta coerente qualunque sia
@@ -128,12 +147,11 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, inTempoReale = 
   // sovrapposizione) esattamente nella larghezza disponibile, invertendo la
   // formula della larghezza totale: altezza * rapporto * [1 + (N-1)*(1-frazioneSovrapposizione)]
   const divisore = RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO * (1 + (numeroImmagini - 1) * (1 - frazioneSovrapposizione))
-  const altezzaMassima = Math.min(
+  const altezza = Math.min(
     ALTEZZA_MASSIMA_ILLUSTRAZIONE,
     Math.max(ALTEZZA_MINIMA_ILLUSTRAZIONE, larghezzaDisponibile / divisore),
   )
-  const scala = altezzaMassima / naturaleMassima
-  const sovrapposizione = altezzaMassima * frazioneSovrapposizione
+  const sovrapposizione = altezza * frazioneSovrapposizione
   return (
     <div className="night-sequencer__illustrazioni" ref={contenitoreRef}>
       {voci.map((v, indice) => (
@@ -142,10 +160,7 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, inTempoReale = 
             slug={v.slug}
             variante={v.variante}
             className="night-sequencer__illustrazione"
-            style={{
-              height: altezzaNaturalePersonaggio(v.slug) * scala,
-              marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0,
-            }}
+            style={{ height: altezza, marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0 }}
           />
         </span>
       ))}
@@ -324,7 +339,7 @@ export function NightSequencer({
       for (const evento of annunciAlba(giocatori, round)) {
         registraEvento(evento, 'alba')
       }
-      onNotteConclusa({ round, stepIndex, giocatori, quantita, ingresso: null })
+      onNotteConclusa()
       nuovaNotte()
     }
 
@@ -332,9 +347,7 @@ export function NightSequencer({
       <section className="night-sequencer">
         <p className="night-sequencer__notte">Notte {round}</p>
         <p>{messaggio}</p>
-        <button type="button" onClick={vaiAllAlba}>
-          Vai all'alba
-        </button>
+        <PulsanteTieni onConferma={vaiAllAlba}>Vai all'alba</PulsanteTieni>
       </section>
     )
   }
@@ -352,7 +365,7 @@ export function NightSequencer({
       for (const messaggio of annunciAlba(listaAggiornata(), round)) {
         registraEvento(messaggio, 'alba')
       }
-      onNotteConclusa({ round, stepIndex, giocatori, quantita, ingresso: null })
+      onNotteConclusa()
       nuovaNotte()
     }
 
@@ -360,9 +373,7 @@ export function NightSequencer({
       <section className="night-sequencer">
         <p className="night-sequencer__notte">Notte {round}</p>
         <p>Nessun ruolo con azione notturna nel mazzo attuale.</p>
-        <button type="button" onClick={vaiAllAlbaSenzaPassi}>
-          Vai all'alba
-        </button>
+        <PulsanteTieni onConferma={vaiAllAlbaSenzaPassi}>Vai all'alba</PulsanteTieni>
       </section>
     )
   }
@@ -681,9 +692,6 @@ export function NightSequencer({
       // un passo con un'azione resta sul passo: l'azione si può usare subito
       if (step.tipo === 'azione' && !mostraAzione) return
     }
-    // stato com'è a fine passo (selezioni pendenti incluse), prima di tutto
-    // ciò che fa la chiusura della notte: serve all'Alba per "Torna alla notte"
-    const fineNotte = { round, stepIndex, giocatori: listaAggiornata(), quantita, ingresso }
     autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
 
     // risolviLegami (Apprendista/Cavaliere/Figlia dei Lupi) è ora applicata
@@ -712,7 +720,7 @@ export function NightSequencer({
       registraEvento(messaggio, 'alba')
     }
 
-    onNotteConclusa(fineNotte)
+    onNotteConclusa()
     nuovaNotte()
   }
 
@@ -779,7 +787,8 @@ export function NightSequencer({
         giocatoriCoinvolti={giocatoriCoinvolti.filter(
           (g) => vivoAIngresso(g) && !ruoliAssegnabiliStepSingoli.includes(g.ruoloSlug),
         )}
-        inTempoReale={Boolean(step.ruoliMostraCoinvolti) && ruoliAssegnabiliStep.length > 0}
+        voci={PASSI_CON_FIGURE_ATTESE.includes(step.id) ? vociAttese(step, ruoliSelezionati, quantita) : undefined}
+        inTempoReale={Boolean(step.condizione)}
       />
       {/* "Possibile azione" (quando il passo prevedeva potenzialmente
           un'azione ma non c'era nessun titolare in attesa di selezione) è
@@ -804,7 +813,7 @@ export function NightSequencer({
           onCambiaSelezioni={setSelezioniRuolo}
           onRimuovi={rimuoviAssegnazione}
           titolariIngresso={titolariIngresso}
-          illustrazioneSeparata={!step.ruoliMostraCoinvolti}
+          illustrazioneSeparata={!step.ruoliMostraCoinvolti && !PASSI_CON_FIGURE_ATTESE.includes(step.id)}
           {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />
       )}
@@ -862,9 +871,9 @@ export function NightSequencer({
           Indietro
         </button>
         {ultimoPasso ? (
-          <button type="button" onClick={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta}>
+          <PulsanteTieni onConferma={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta}>
             È giorno nel villaggio
-          </button>
+          </PulsanteTieni>
         ) : (
           <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta}>
             Avanti
