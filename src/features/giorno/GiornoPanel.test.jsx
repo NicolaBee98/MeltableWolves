@@ -53,6 +53,7 @@ test('lo Scemo del Villaggio sbaglia la rima: si rivela e muore sul colpo nello 
     storiaRuoli: ['scemo-del-villaggio'],
     vivo: false,
     causaMorte: 'colpo',
+    mortoGiorno: 3,
   })
 })
 
@@ -70,7 +71,7 @@ test('morte per unzione uccide l\'Unto e propaga la condizione ai vicini vivi', 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo' })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { vivo: false, causaMorte: 'colpo', mortoGiorno: 3 })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['unto'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['unto'] })
 })
