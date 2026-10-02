@@ -178,11 +178,16 @@ export default function App() {
           />
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="avviso">
-              ⚠️ Hai {giocatori.length} giocatori per {totaleRuoliMazzo} ruoli nel mazzo (esclusi le 2 carte extra del
+              ⚠️ Servono {totaleRuoliMazzo} giocatori, ce ne sono {giocatori.length} (esclusi le 2 carte extra del
               Ladro, il Borgomastro e il Fantasma Onnisciente, che non sono giocatori in più).
             </p>
           )}
-          <button type="button" className="giocatori-fase__prosegui" onClick={() => setFaseApp('notte')}>
+          <button
+            type="button"
+            className="giocatori-fase__prosegui"
+            disabled={giocatori.length !== totaleRuoliMazzo}
+            onClick={() => setFaseApp('notte')}
+          >
             Inizia la notte
           </button>
         </section>
