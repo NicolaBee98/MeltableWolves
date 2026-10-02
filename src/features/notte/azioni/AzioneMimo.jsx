@@ -29,30 +29,34 @@ export function AzioneMimo({
   const mimo = giocatori.find((g) => g.ruoloSlug === 'mimo')
   if (!mimo) return null
 
-  if (!mimo.legame) {
-    const candidati = giocatori.filter((g) => g.vivo && g.id !== mimo.id)
-    return (
-      <SceltaGiocatore
-        candidati={candidati}
-        onConferma={(targetId) => aggiornaGiocatore(mimo.id, { legame: { tipo: 'mimo', targetId } })}
-        onSalta={() => {}}
-        etichetta="Chi imitare"
-        mostraSalta={false}
-      />
-    )
-  }
-
-  const target = giocatori.find((g) => g.id === mimo.legame.targetId)
+  const candidati = giocatori.filter((g) => g.vivo && g.id !== mimo.id)
+  const target = giocatori.find((g) => g.id === mimo.legame?.targetId)
 
   // scegliere "chi imitare" applica subito il legame (non tocca il
   // ruoloSlug del Mimo, quindi non fa sparire questo passo come farebbe la
-  // scelta della carta, vedi sopra): resta comunque un'uscita per cambiare
-  // bersaglio, come ogni altro passo a due fasi di questo file (Berserker,
-  // Progenitore, Cartomante/Medium)
+  // scelta della carta, vedi sotto). Cliccare di nuovo la chip del bersaglio
+  // lo deseleziona e annulla tutto (carta compresa)
   function annullaBersaglio() {
     onScegliRuoloMimo(null)
     aggiornaGiocatore(mimo.id, { legame: undefined })
   }
+
+  const sceltaBersaglio = (
+    <SceltaGiocatore
+      candidati={candidati}
+      selezionatoEsternoId={mimo.legame?.targetId ?? null}
+      onConferma={(targetId) =>
+        targetId === mimo.legame?.targetId
+          ? annullaBersaglio()
+          : aggiornaGiocatore(mimo.id, { legame: { tipo: 'mimo', targetId } })
+      }
+      onSalta={() => {}}
+      etichetta="Chi imitare"
+      mostraSalta={false}
+    />
+  )
+
+  if (!mimo.legame) return sceltaBersaglio
 
   // il bersaglio ha già un ruolo noto in app (assegnato altrove, non da
   // questa scelta): niente da chiedere qui, il Mimo lo scoprirà/adotterà
@@ -60,6 +64,7 @@ export function AzioneMimo({
   if (target?.ruoloSlug) {
     return (
       <div className="azione-mimo">
+        {sceltaBersaglio}
         <p>
           Il Mimo imita {target.nome}: ha assunto il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
         </p>
@@ -86,6 +91,7 @@ export function AzioneMimo({
 
   return (
     <div className="azione-mimo">
+      {sceltaBersaglio}
       <p>Che carta ha davvero {target?.nome}?</p>
       <div className="scelta-giocatore__chips" role="group" aria-label="Che carta ha il bersaglio del Mimo">
         {opzioni.map((slug) => (

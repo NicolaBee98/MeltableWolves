@@ -13,6 +13,9 @@ export function SceltaGiocatore({
   mostraSalta = true,
   etichettaSalta = 'Salta',
   richiedeConferma = false,
+  // scelta già applicata dal chiamante: la chip risulta premuta (cliccarla
+  // di nuovo spetta a onConferma, che la annulla)
+  selezionatoEsternoId,
 }) {
   const [selezionatoId, setSelezionatoId] = useState(null)
 
@@ -36,7 +39,7 @@ export function SceltaGiocatore({
             key={g.id}
             type="button"
             className="chip"
-            aria-pressed={richiedeConferma ? selezionatoId === g.id : undefined}
+            aria-pressed={richiedeConferma ? selezionatoId === g.id : selezionatoEsternoId !== undefined ? selezionatoEsternoId === g.id : undefined}
             onClick={() => (richiedeConferma ? setSelezionatoId(g.id) : onConferma(g.id))}
           >
             {g.nome}

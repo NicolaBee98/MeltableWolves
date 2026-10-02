@@ -148,3 +148,29 @@ test('se il bersaglio è la Guardia Mannara il Mimo vede "Guardia": il narratore
 
   expect(screen.getByText(/ha assunto il ruolo di guardia\./i)).toBeInTheDocument()
 })
+
+test('cliccando di nuovo la chip del bersaglio scelto la deseleziona: toglie il legame e la carta scelta', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const onScegliRuoloMimo = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  render(
+    <AzioneMimo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoliSelezionati={['mimo']}
+      mimoRuoloScelto="villico"
+      onScegliRuoloMimo={onScegliRuoloMimo}
+    />,
+  )
+
+  const chip = screen.getByRole('button', { name: 'Marco' })
+  expect(chip).toHaveAttribute('aria-pressed', 'true')
+  await user.click(chip)
+
+  expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
+})
