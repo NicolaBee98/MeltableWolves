@@ -287,11 +287,13 @@ test('maturaCucciolo trasforma il Cucciolo in Lupo Mannaro semplice quando muore
   expect(risultato.find((g) => g.id === '1').storiaRuoli).toContain('lupo-mannaro')
 })
 
-test('maturaCucciolo non fa nulla se il morto non è di fazione lupi', () => {
+test('maturaCucciolo non fa nulla se il morto non è un lupo (nemmeno un Gallo Mannaro, di fazione lupi)', () => {
   const giocatori = [
     { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
     { id: '2', ruoloSlug: 'villico', vivo: false, condizioni: [] },
   ]
+  expect(maturaCucciolo(giocatori, '2')).toBe(giocatori)
+  giocatori[1].ruoloSlug = 'gallo-mannaro'
   expect(maturaCucciolo(giocatori, '2')).toBe(giocatori)
 })
 

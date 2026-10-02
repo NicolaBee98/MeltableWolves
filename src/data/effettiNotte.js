@@ -1,4 +1,4 @@
-import { fazioneDi, eLupo } from './roles'
+import { eLupo } from './roles'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
@@ -227,13 +227,13 @@ export function rimuoviAccecamentoSeMortoPolpo(giocatori, idAppenaMorto) {
 }
 
 // "Alla morte del primo lupo, il cucciolo diventa adulto perdendo questo
-// potere" (pag. 13): il primo membro qualsiasi della fazione lupi a morire
+// potere" (pag. 13): il primo lupo (eLupo, non la fazione) a morire
 // (annunciato all'alba o al rogo) fa maturare il Cucciolo in un Lupo
 // Mannaro semplice, perdendo la vendetta doppia. Se il morto è il Cucciolo
 // stesso non c'è nulla da maturare.
 export function maturaCucciolo(giocatori, idAppenaMorto) {
   const morto = giocatori.find((g) => g.id === idAppenaMorto)
-  if (!morto || fazioneDi(morto) !== 'lupi') return giocatori
+  if (!morto || !eLupo(morto.ruoloSlug)) return giocatori
 
   return giocatori.map((g) =>
     g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'
