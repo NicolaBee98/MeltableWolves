@@ -477,3 +477,15 @@ test("L'Antico sbranato e rivelato all'alba (ora Villico, storiaRuoli con 'lanti
   expect(onRogo).toHaveBeenCalledWith('1')
   expect(onAnticoRivelazione).not.toHaveBeenCalled()
 })
+
+test("L'Antico rivelato (ora Villico, storiaRuoli con 'lantico') mantiene l'icona-testa dell'Antico; un Villico qualsiasi no", () => {
+  setup({
+    mostraRuoli: true,
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'] },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['villico'] },
+    ],
+  })
+  expect(screen.getByAltText("L'Antico")).toBeInTheDocument()
+  expect(screen.getAllByAltText('Villico')).toHaveLength(1)
+})

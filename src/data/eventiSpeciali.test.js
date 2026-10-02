@@ -1,5 +1,4 @@
 import {
-  ruoliRivelabili,
   rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
@@ -20,33 +19,6 @@ test('RUOLI_NON_CARTA_SEGRETA copre Fantasma Onnisciente, Suocera, Borgomastro e
     ]),
   )
   expect(RUOLI_NON_CARTA_SEGRETA).toHaveLength(7)
-})
-
-test('ruoliRivelabili propone i ruoli a rivelazione diurna presenti nel mazzo e non ancora assegnati', () => {
-  expect(ruoliRivelabili(['lantico', 'spilungone'], [], { lantico: 1, spilungone: 1 })).toEqual([
-    'spilungone',
-    'lantico',
-  ])
-})
-
-test('ruoliRivelabili esclude il Borgomastro (ha il suo evento dedicato)', () => {
-  expect(ruoliRivelabili(['borgomastro'], [], { borgomastro: 1 })).toEqual([])
-})
-
-test('ruoliRivelabili esclude Alchimista, Boia e Innocente (hanno un evento tutto loro, mai un\'identità assegnata in anticipo)', () => {
-  expect(
-    ruoliRivelabili(['boia', 'alchimista', 'innocente', 'spilungone'], [], {
-      boia: 1,
-      alchimista: 1,
-      innocente: 1,
-      spilungone: 1,
-    }),
-  ).toEqual(['spilungone'])
-})
-
-test('ruoliRivelabili esclude un ruolo già assegnato del tutto', () => {
-  const giocatori = [{ id: '1', ruoloSlug: 'spilungone', storiaRuoli: ['spilungone'] }]
-  expect(ruoliRivelabili(['spilungone'], giocatori, { spilungone: 1 })).toEqual([])
 })
 
 test('rivelazioneContestualeDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {

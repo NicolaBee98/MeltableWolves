@@ -1,8 +1,7 @@
 import { ruoliAssegnabili } from './assegnazione'
-import { RUOLI_RIVELAZIONE_GIORNO, RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
+import { RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
 
-// Ruoli con un evento tutto loro invece del generico "Rivelazione
-// personaggio" (vedi ruoliRivelabili sotto): Alchimista/Boia/Scemo del
+// Ruoli con un evento tutto loro: Alchimista/Boia/Scemo del
 // Villaggio perché la rivelazione diurna coincide con l'uso stesso del
 // potere (si rivelano "facendo" l'azione, non prima); l'Innocente perché,
 // pur non avendo un'azione a sé (è solo "mostra la carta"), è comunque
@@ -35,20 +34,6 @@ export const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgom
 export function rivelazioneContestualeDisponibile(slug, ruoliSelezionati, giocatori, quantita) {
   if (!ruoliSelezionati.includes(slug)) return false
   return ruoliAssegnabili([slug], giocatori, quantita).length > 0
-}
-
-// Ruoli assegnabili tramite l'evento generico "Rivelazione personaggio":
-// tutti i ruoli a rivelazione diurna tranne il Borgomastro (un titolo
-// elettivo, non un'identità, con l'evento dedicato "Elezione Borgomastro")
-// e quelli con un evento tutto loro (RIVELAZIONE_CONTESTUALE_AL_POTERE: se
-// venissero anche assegnabili qui, un narratore che li rivelasse da questo
-// menu per errore li segnerebbe "già assegnati" rendendo per sempre
-// indisponibile il loro evento dedicato).
-export function ruoliRivelabili(ruoliSelezionati, giocatori, quantita) {
-  const candidati = RUOLI_RIVELAZIONE_GIORNO.filter(
-    (slug) => !RIVELAZIONE_CONTESTUALE_AL_POTERE.includes(slug) && slug !== 'borgomastro' && ruoliSelezionati.includes(slug),
-  )
-  return ruoliAssegnabili(candidati, giocatori, quantita)
 }
 
 export function bardoDisponibile(giocatori) {
