@@ -429,3 +429,19 @@ test('Il Boia e l\'Innocente si rivelano anche all\'alba', async () => {
   expect(screen.getByRole('button', { name: 'Il Boia giustizia' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: "L'Innocente si rivela" })).toBeInTheDocument()
 })
+
+test('il Mimo-Boia compare come attore del Boia accanto al titolare ancora ignoto; la Suocera resta rivelabile', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true },
+    { id: '2', nome: 'Sara', vivo: true, ruoloSlug: 'boia', legame: { tipo: 'mimo', targetId: '1' }, storiaRuoli: ['mimo', 'boia'] },
+  ]
+  const { onBoiaGiustizia } = setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: /il boia giustizia/i }))
+  await user.click(screen.getByRole('button', { name: 'Sara' }))
+  await user.click(screen.getByRole('button', { name: /conferma/i }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: /conferma/i }))
+  expect(onBoiaGiustizia).toHaveBeenCalledWith('2', '1')
+})

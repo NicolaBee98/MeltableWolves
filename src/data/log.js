@@ -1,4 +1,9 @@
 import { nomeRuolo, ruoloPerDisplay } from './roles'
+import { eMimoCopiante } from './assegnazione'
+
+// il Mimo che copia un ruolo agisce da giocatore a sé: nel registro lo si
+// distingue dal titolare con "(Mimo)"
+const nomeLog = (g) => (eMimoCopiante(g) ? `${g.nome} (Mimo)` : g.nome)
 
 const ETICHETTA_CAUSA = {
   notte: ' di notte',
@@ -20,29 +25,30 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
   for (const giocatore of correnti) {
     const prima = mappaPrecedenti.get(giocatore.id)
     if (!prima) continue
+    const nome = nomeLog(giocatore)
 
     if (prima.vivo && !giocatore.vivo) {
       const faseMorte = giocatore.causaMorte === 'rogo' ? 'rogo' : fase
       eventi.push({
         round,
         fase: faseMorte,
-        messaggio: `${giocatore.nome} è morto/a${ETICHETTA_CAUSA[giocatore.causaMorte] ?? ''}`,
+        messaggio: `${nome} è morto/a${ETICHETTA_CAUSA[giocatore.causaMorte] ?? ''}`,
       })
     }
     if (!prima.vivo && giocatore.vivo) {
-      eventi.push({ round, fase, messaggio: `${giocatore.nome} è tornato/a in vita` })
+      eventi.push({ round, fase, messaggio: `${nome} è tornato/a in vita` })
     }
 
     const condizioniPrima = prima.condizioni ?? []
     const condizioniDopo = giocatore.condizioni ?? []
     for (const condizione of condizioniDopo) {
       if (!condizioniPrima.includes(condizione)) {
-        eventi.push({ round, fase, messaggio: `${giocatore.nome} ha ottenuto la condizione "${condizione}"` })
+        eventi.push({ round, fase, messaggio: `${nome} ha ottenuto la condizione "${condizione}"` })
       }
     }
     for (const condizione of condizioniPrima) {
       if (!condizioniDopo.includes(condizione)) {
-        eventi.push({ round, fase, messaggio: `${giocatore.nome} ha perso la condizione "${condizione}"` })
+        eventi.push({ round, fase, messaggio: `${nome} ha perso la condizione "${condizione}"` })
       }
     }
 
@@ -50,7 +56,16 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     // guardia → guardia-mannara: il narratore non sa chi è la traditrice
     const dopoDisplay = ruoloPerDisplay(giocatore.ruoloSlug)
     if (prima.ruoloSlug && giocatore.ruoloSlug && ruoloPerDisplay(prima.ruoloSlug) !== dopoDisplay) {
-      eventi.push({ round, fase, messaggio: `${giocatore.nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}` })
+      // Mimo che sceglie chi imitare: "chi imita chi" (mai la Guardia Mannara: dopoDisplay)
+      const bersaglio = giocatore.legame?.tipo === 'mimo' && correnti.find((g) => g.id === giocatore.legame.targetId)
+      eventi.push({
+        round,
+        fase,
+        messaggio:
+          prima.ruoloSlug === 'mimo' && eMimoCopiante(giocatore)
+            ? `Il Mimo ${giocatore.nome} imita ${nomeRuolo(dopoDisplay)}${bersaglio ? ` (${bersaglio.nome})` : ''}`
+            : `${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}`,
+      })
     }
   }
 

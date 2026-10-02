@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { useDialogA11y } from '../../components/useDialogA11y'
-import { ruoliAssegnabili } from '../../data/assegnazione'
+import { ruoliAssegnabili, eMimoCopiante } from '../../data/assegnazione'
 import {
+  candidatiRivelazione,
   rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
@@ -140,7 +141,10 @@ export function EventiSpeciali({
   )
   // Alchimista (come lo Spilungone, che si rivela solo dal chip del designato
   // in Votazione) esplode solo al rogo: attore = solo il condannato di oggi
-  const candidatiAlchimista = candidatiRogo ? nonAssegnati.filter((g) => candidatiRogo.includes(g.id)) : nonAssegnati
+  // Attori: i vivi senza ruolo (titolare) più il Mimo che ha copiato quel ruolo
+  // e non l'ha ancora usato (potere indipendente, vedi candidatiRivelazione)
+  const attori = (slug) => candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita)
+  const candidatiAlchimista = attori('alchimista').filter((g) => !candidatiRogo || candidatiRogo.includes(g.id))
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
@@ -154,7 +158,8 @@ export function EventiSpeciali({
   // al rogo: disponibile in ogni contesto (alba/voto/esito), non solo di giorno
   const mostraSuocera =
     ruoliSelezionati.includes('suocera') &&
-    !giocatori.some((g) => g.ruoloSlug === 'suocera') &&
+    // il Mimo che copia la Suocera non conta: il titolare resta da rivelare
+    !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g)) &&
     mortiSenzaRuoloNoto.length > 0
 
   const menuEventi = [
@@ -234,7 +239,7 @@ export function EventiSpeciali({
 
           {evento === 'scemo' && (
             <EventoUnGiocatore
-              candidati={nonAssegnati}
+              candidati={attori('scemo-del-villaggio')}
               etichetta="Chi è lo Scemo del Villaggio"
               messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
               onConferma={(id) => {
@@ -248,7 +253,7 @@ export function EventiSpeciali({
 
           {evento === 'innocente' && (
             <EventoUnGiocatore
-              candidati={nonAssegnati}
+              candidati={attori('innocente')}
               etichetta="Chi è l'Innocente"
               messaggio="L'Innocente mostra la propria carta al villaggio, dimostrando la sua innocenza."
               onConferma={(id) => {
@@ -289,7 +294,7 @@ export function EventiSpeciali({
 
           {evento === 'boia' && (
             <EventoDueGiocatori
-              candidatiAttore={nonAssegnati}
+              candidatiAttore={attori('boia')}
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
               etichettaBersaglio="Chi giustizia il Boia"

@@ -1,5 +1,6 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
+import { conPotereDisponibile } from '../../data/eventiSpeciali'
 import {
   annullaMorteCompleta,
   dichiaraAnticoSbranato,
@@ -91,7 +92,12 @@ export function GiornoPanel({
       dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
       return
     }
-    aggiornaGiocatore(id, { ruoloSlug, storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug] })
+    aggiornaGiocatore(id, {
+      ruoloSlug,
+      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
+      // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
+      ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
+    })
   }
 
   function dichiaraBoiaGiustizia(boiaId, vittimaId) {
@@ -114,7 +120,7 @@ export function GiornoPanel({
   }
 
   function dichiaraBardoSaltaNotte() {
-    const bardo = giocatori.find((g) => g.ruoloSlug === 'bardo' && g.vivo)
+    const bardo = conPotereDisponibile(giocatori, 'bardo', 'bardo-salta-notte')
     if (!bardo) return
     aggiornaGiocatore(bardo.id, {
       poteriUsati: [...(bardo.poteriUsati ?? []), 'bardo-salta-notte'],

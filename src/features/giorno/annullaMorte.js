@@ -1,3 +1,5 @@
+import { eMimoCopiante } from '../../data/assegnazione'
+
 // patch che riporta in vita un giocatore la cui morte era stata dichiarata
 // per errore (un tap sbagliato durante il rogo o un evento speciale).
 // Condivisa da GiornoPanel e AlbaPanel. Oltre a vivo/causa/notte ripristina
@@ -14,7 +16,8 @@ export function patchAnnullaMorte(giocatore) {
   if (poteri.some((p) => p === 'boia-giustizia' || p === 'alchimista-esplosione')) {
     patch.poteriUsati = poteri.filter((p) => p !== 'boia-giustizia' && p !== 'alchimista-esplosione')
   }
-  if (giocatore.ruoloSlug === 'scemo-del-villaggio') {
+  // il Mimo-Scemo ha il ruolo dal setup: non va cancellato (poteriUsati no, lo Scemo non ne ha)
+  if (giocatore.ruoloSlug === 'scemo-del-villaggio' && !eMimoCopiante(giocatore)) {
     patch.ruoloSlug = undefined
     patch.storiaRuoli = (giocatore.storiaRuoli ?? []).filter((r) => r !== 'scemo-del-villaggio')
   }

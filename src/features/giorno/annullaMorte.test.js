@@ -43,3 +43,9 @@ test('dichiaraColpo: un Antico noto sopravvive da Villico (prima vita), un altro
   expect(dichiaraColpo('2', giocatori, agg, 3)).toBe(true)
   expect(agg).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'colpo', mortoGiorno: 3 })
 })
+
+test('annullare la morte del Mimo-Scemo non gli cancella il ruolo copiato', () => {
+  const patch = patchAnnullaMorte({ id: '1', vivo: false, ruoloSlug: 'scemo-del-villaggio', legame: { tipo: 'mimo', targetId: '2' }, storiaRuoli: ['mimo', 'scemo-del-villaggio'] })
+  expect(patch.ruoloSlug).toBeUndefined()
+  expect('ruoloSlug' in patch).toBe(false)
+})
