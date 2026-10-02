@@ -1283,3 +1283,28 @@ test('un ruolo con quantità 0 (tolto dal mazzo) non compare tra le scelte "chi 
   )
   expect(screen.queryByRole('group', { name: 'Chi ha questa carta' })).not.toBeInTheDocument()
 })
+
+test('riassegnare la Strega da Anna a Bruno dopo una pozione ripulisce Anna (poteriUsati/usiNotte) e non dà a Bruno un potere consumato', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: 'a', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'strega', storiaRuoli: ['strega'] },
+    { id: 'b', nome: 'Bruno', vivo: true, condizioni: [] },
+  ]
+  const el = () => (
+    <NightSequencerConNotte ruoliSelezionati={['strega']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />
+  )
+  const { rerender } = render(el())
+  const chips = () => within(screen.getByRole('group', { name: 'Chi ha questa carta' }))
+  // l'azione scrive sul titolare (come farebbe una pozione usata)
+  aggiornaGiocatore('a', { poteriUsati: ['strega-pozione'], usiNotte: ['strega'] })
+  rerender(el())
+  await user.click(chips().getByRole('button', { name: 'Bruno' }))
+  rerender(el())
+  const anna = giocatori.find((g) => g.id === 'a')
+  expect(anna.ruoloSlug).toBeUndefined()
+  expect(anna.poteriUsati).toBeUndefined()
+  expect(anna.usiNotte).toBeUndefined()
+})

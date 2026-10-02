@@ -219,3 +219,16 @@ test('non mostra il responso di una notte precedente', () => {
 
   expect(screen.queryByText(/aura malvagia/i)).not.toBeInTheDocument()
 })
+
+test('cliccando di nuovo il bersaglio già indagato si annulla: via ultimaIndagine e uso della notte', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: [], usiNotte: ['veggente-indagine'], ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} />)
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: undefined })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
+})

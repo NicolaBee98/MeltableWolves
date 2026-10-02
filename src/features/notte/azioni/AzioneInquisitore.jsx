@@ -55,8 +55,30 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
     segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE_NOTTE)
   }
 
+  // toglie l'indagine di questa notte (e la perdita del potere che ne era
+  // derivata) con un'unica patch per attore
+  function azzeraIndagine(g, usiNotte) {
+    return {
+      ultimaIndagine: undefined,
+      poteriUsati: (g.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO),
+      usiNotte,
+    }
+  }
+
+  // click sulla chip già scelta: annulla l'indagine, il potere torna intatto
+  function annullaScelta() {
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) =>
+      azzeraIndagine(g, (g.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE)),
+    )
+    setPoterePersoInQuestoPasso(false)
+  }
+
+  // "Salta" dopo un'indagine già fatta non deve lasciarla scritta
   function salta() {
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE_NOTTE)
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'inquisitore', (g) =>
+      azzeraIndagine(g, [...(g.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), POTERE_NOTTE]),
+    )
+    setPoterePersoInQuestoPasso(false)
   }
 
   if (candidati.length === 0) {
@@ -76,7 +98,7 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round }) {
               type="button"
               className={`chip ${classeEsito}`.trim()}
               aria-pressed={indagato}
-              onClick={() => confermaScelta(g.id)}
+              onClick={() => (indagato ? annullaScelta() : confermaScelta(g.id))}
             >
               {g.nome}
             </button>

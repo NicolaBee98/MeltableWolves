@@ -1,4 +1,4 @@
-import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 
 const RUOLI = ['cortigiana']
 const POTERE = 'cortigiana-visita'
@@ -11,6 +11,12 @@ export function AzioneCortigiana({ giocatori, aggiornaGiocatore }) {
   const candidati = giocatori.filter((g) => g.vivo && g.id !== cortigiana?.id)
 
   function confermaScelta(targetId) {
+    // click sulla chip già scelta: annulla la visita
+    if (cortigiana?.visitaNotturna === targetId) {
+      aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'cortigiana', { visitaNotturna: null })
+      annullaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
+      return
+    }
     if (cortigiana) {
       aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, 'cortigiana', { visitaNotturna: targetId })
     }

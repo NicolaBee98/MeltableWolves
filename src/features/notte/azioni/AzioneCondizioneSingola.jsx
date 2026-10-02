@@ -1,4 +1,4 @@
-import { segnaUsoStanotte } from '../../../data/effettiNotte'
+import { segnaUsoStanotte, annullaUsoStanotte } from '../../../data/effettiNotte'
 
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
 // (principio generale, vedi NightSequencer/azionePatches): niente più
@@ -19,6 +19,12 @@ export function AzioneCondizioneSingola({
   const scelto = vivi.find((g) => g.condizioni.includes(condizione))
 
   function confermaScelta(targetId) {
+    // click sulla chip già scelta: toglie la condizione e il potere torna non usato
+    if (targetId === scelto?.id) {
+      aggiornaGiocatore(targetId, { condizioni: scelto.condizioni.filter((c) => c !== condizione) })
+      annullaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
+      return
+    }
     // sposta la condizione: la toglie a chiunque altro la avesse presa in
     // un click precedente di questa stessa notte, e la aggiunge al nuovo
     // bersaglio, cosi la scelta resta sempre un singolo bersaglio alla volta

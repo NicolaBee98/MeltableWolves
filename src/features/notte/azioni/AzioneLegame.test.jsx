@@ -64,3 +64,23 @@ test("non mostra l'attore stesso tra i candidati", () => {
   )
   expect(screen.queryByText('Sara')).not.toBeInTheDocument()
 })
+
+test('cliccando di nuovo il bersaglio del legame lo annulla', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneLegame
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      ruoloSlugAttore="apprendista"
+      tipoLegame="apprendista"
+      etichetta="Chi seguire"
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
+})

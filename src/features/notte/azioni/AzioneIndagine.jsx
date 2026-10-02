@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { auraDi } from '../../../data/aura'
-import { usatoStanotte, segnaUsoStanotte, aggiornaTuttiConRuolo, RUOLO_CAUSA_ACCECAMENTO } from '../../../data/effettiNotte'
+import { usatoStanotte, segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRuolo, RUOLO_CAUSA_ACCECAMENTO } from '../../../data/effettiNotte'
 
 // l'accecamento dal Polpo Mannaro (pag. 20) è specifico del Veggente, non
 // del Veggente Mannaro, che il libretto non menziona in quella voce: passato
@@ -31,6 +31,17 @@ export function AzioneIndagine({
   // ha ancora indagato nessuno.
   const [accecatoAllIngresso] = useState(() => veggente?.condizioni?.includes('accecato') ?? false)
   const [accecatoDaQuestaScelta, setAccecatoDaQuestaScelta] = useState(false)
+
+  // click sulla chip già scelta: toglie l'indagine, l'eventuale accecamento
+  // provocato da questa scelta e il segno di potere usato
+  function annullaScelta() {
+    if (veggente && accecatoDaQuestaScelta) {
+      aggiornaGiocatore(veggente.id, { condizioni: (veggente.condizioni ?? []).filter((c) => c !== 'accecato') })
+      setAccecatoDaQuestaScelta(false)
+    }
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, { ultimaIndagine: undefined })
+    annullaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
+  }
 
   function confermaScelta(targetId) {
     if (veggente) {
@@ -83,7 +94,7 @@ export function AzioneIndagine({
               type="button"
               className={`chip ${classeEsito}`.trim()}
               aria-pressed={indagato}
-              onClick={() => confermaScelta(g.id)}
+              onClick={() => (indagato ? annullaScelta() : confermaScelta(g.id))}
             >
               {g.nome}
             </button>
