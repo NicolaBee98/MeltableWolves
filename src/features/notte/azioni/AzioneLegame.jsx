@@ -3,13 +3,13 @@
 // volta stabilito (pag. 9-10), ma finché siamo nel passo di questa notte il
 // narratore può ancora ripensarci, come per ogni altra azione — niente più
 // testo statico "Legame già stabilito" che nasconde le chip.
-export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, tipoLegame, etichetta, attoreId }) {
+export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, tipoLegame, etichetta, attoreId, vivoAIngresso = (g) => g.vivo }) {
   // `attoreId`: quale titolare agisce (titolare e Mimo hanno ognuno il proprio legame)
   const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   // il Mimo ha già `legame` occupato dal legame con chi imita ('mimo'): il
   // legame del ruolo copiato sta in `legameMimo` (letto da risolviLegami)
   const campo = attore?.legame?.tipo === 'mimo' ? 'legameMimo' : 'legame'
-  const candidati = giocatori.filter((g) => g.vivo && g.id !== attore?.id)
+  const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== attore?.id)
   // solo se il legame è di QUESTO tipo: chi interpreta l'attore può essere
   // cambiato prima di Avanti (vedi rimuoviAssegnazione in NightSequencer),
   // ma se il giocatore appena tolto da questo ruolo aveva già un legame di

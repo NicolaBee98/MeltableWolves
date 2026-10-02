@@ -1,4 +1,4 @@
-import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi } from './nightSteps'
+import { NIGHT_STEPS, passiNotte, notteBloccata, villaggioMaledetto, ruoliAttivi, ruoliInMano } from './nightSteps'
 
 const NESSUN_GIOCATORE = []
 
@@ -228,4 +228,25 @@ test('con quel ruolo esteso, il passo notturno del Veggente adottato dal Ladro c
   const attivi = ruoliAttivi(['ladro'], giocatori)
   const passi = passiNotte(attivi, 1, giocatori, { ladro: 1 }).map((p) => p.id)
   expect(passi).toContain('veggente')
+})
+
+describe('carte scartate dal Ladro, in mano al narratore', () => {
+  const ladro = (extra = {}) => ({
+    id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, condizioni: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'], ...extra,
+  })
+  const scelta = { ruoloSlug: 'paladino', poteriUsati: ['ladro-scelta'], storiaRuoli: ['ladro', 'paladino'] }
+  const quantita = { ladro: 1, veggente: 0, paladino: 0, medium: 1 }
+  const mazzo = ['ladro', 'veggente', 'paladino', 'medium']
+
+  test('ruoliInMano: le scartate meno quella presa dal Ladro', () => {
+    expect(ruoliInMano([ladro()])).toEqual(['veggente', 'paladino'])
+    expect(ruoliInMano([ladro(scelta)])).toEqual(['veggente'])
+  })
+
+  test('il passo della carta scartata compare ogni notte anche se la quantità è scesa a 0 e nessuno la ha', () => {
+    const giocatori = [ladro(scelta)]
+    expect(passiNotte(mazzo, 2, giocatori, quantita).map((p) => p.id)).toContain('veggente')
+    expect(passiNotte(mazzo, 2, giocatori, quantita).map((p) => p.id)).toContain('paladino') // titolare: il Ladro
+    expect(passiNotte(mazzo, 1, [{ ...ladro(), scartoLadro: undefined }], quantita).map((p) => p.id)).not.toContain('veggente')
+  })
 })

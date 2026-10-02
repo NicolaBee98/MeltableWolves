@@ -26,7 +26,7 @@ function senzaUltimiUsi(usi, n) {
   return copia
 }
 
-export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, round, ruoli = [] }) {
+export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo }) {
   // { targetId, sostituisce }: parità del Berserker in attesa della scelta del narratore
   const [attesaLupo, setAttesaLupo] = useState(null)
   const bersaglioInAttesaDiLupo = attesaLupo?.targetId
@@ -48,7 +48,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
   // altrimenti la sua chip sparirebbe subito dopo il click invece di
   // restare visibile e cliccabile (vedi AzioneChupacabra)
   const vivi = giocatori.filter(
-    (g) => (g.vivo || colpi.some((c) => c.targetId === g.id)) && !RUOLI_NON_SELEZIONABILI_DAL_BRANCO.includes(g.ruoloSlug),
+    (g) => (vivoAIngresso(g) || colpi.some((c) => c.targetId === g.id)) && !RUOLI_NON_SELEZIONABILI_DAL_BRANCO.includes(g.ruoloSlug),
   )
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,

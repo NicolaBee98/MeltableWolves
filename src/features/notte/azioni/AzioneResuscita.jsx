@@ -10,7 +10,7 @@ import { useState } from 'react'
 // nasconderebbe subito le chip impedendo di ripensare il bersaglio.
 // Guaritore/Sciacallo e il Mimo che li copia hanno un potere unico ciascuno
 // (perAttore): `attoreId` indica quale dei due agisce.
-export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round, attoreId }) {
+export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruoloSlugAttore, round, attoreId, vivoAIngresso = (g) => g.vivo }) {
   const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const [giaUsato] = useState(() => (attore?.poteriUsati ?? []).includes(potereSlug))
   // il bersaglio marcato per la resurrezione di questa notte
@@ -18,7 +18,7 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
   // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi.
   // Chi è già marcato per la resurrezione (dall'altro potere)
   // non è più un bersaglio, a meno che non sia la scelta corrente.
-  const morti = giocatori.filter((g) => (!g.vivo && !g.resuscitaAllAlba) || g.id === target)
+  const morti = giocatori.filter((g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba) || g.id === target)
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>

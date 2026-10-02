@@ -23,6 +23,8 @@ export function AssegnaRuolo({
   onCambiaSelezioni,
   onRimuovi,
   titolariIngresso = [],
+  // vivo com'era all'ingresso nel passo: le chip non spariscono se l'azione dello stesso passo uccide qualcuno
+  vivoAIngresso = (g) => g.vivo,
   domanda = 'Chi ha questa carta?',
   illustrazioneSeparata = true,
 }) {
@@ -60,7 +62,7 @@ export function AssegnaRuolo({
   const mimiCopianti = giocatori.filter((g) => eMimoCopiante(g) && gruppoRuoli.includes(g.ruoloSlug)).length
   const selezionatiVisivi = [...pendenti, ...titolari.map((g) => g.id)]
   const candidati = giocatori.filter(
-    (g) => g.vivo && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),
+    (g) => vivoAIngresso(g) && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),
   )
 
   function cambiaVariante(slug) {

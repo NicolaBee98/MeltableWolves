@@ -15,11 +15,12 @@ export function AzioneIndagine({
   etichettaAttore = 'Veggente',
   bersaglio = 'vivo',
   puoEssereAccecato = false,
+  vivoAIngresso = (g) => g.vivo,
 }) {
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const veggente = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== veggente?.id))
+  const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !vivoAIngresso(g) : vivoAIngresso(g) && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
   const giaUsato = usatoStanotte(giocatori, ruoli, potere)
   // l'accecamento dura "fino alla morte del Polpo" (permanente tra notti):

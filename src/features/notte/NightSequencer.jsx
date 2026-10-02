@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { passiNotte, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
@@ -489,6 +489,26 @@ export function NightSequencer({
   const snapIngresso = ingresso?.id === step.id && ingresso.round === round ? ingresso.giocatori : undefined
   const vivoAIngresso = (g) => snapIngresso?.find((x) => x.id === g.id)?.vivo ?? g.vivo
   const titolareVivo = giocatoriCoinvolti.some(vivoAIngresso)
+  // nomi dei coinvolti: sottotitolo sotto il titolo del passo. Uno solo: il
+  // nome (con ☠️ se morto); più giocatori: righe "Vivi:" e "Morti:" (solo
+  // quelle non vuote). Il Mimo che imita il ruolo resta riconoscibile
+  const nomeSottotitolo = (g) => (g.legame?.tipo === 'mimo' ? `${g.nome} (Mimo)` : g.nome)
+  const viviCoinvolti = giocatoriCoinvolti.filter(vivoAIngresso).map(nomeSottotitolo)
+  const mortiCoinvolti = giocatoriCoinvolti.filter((g) => !vivoAIngresso(g)).map(nomeSottotitolo)
+  const sottotitoloGiocatori =
+    giocatoriCoinvolti.length === 0 ? null : giocatoriCoinvolti.length === 1 ? (
+      <p className="night-sequencer__sottotitolo">
+        {mortiCoinvolti.length > 0 ? `${mortiCoinvolti[0]} ☠️` : viviCoinvolti[0]}
+      </p>
+    ) : (
+      <p className="night-sequencer__sottotitolo">
+        {viviCoinvolti.length > 0 && <span>Vivi: {viviCoinvolti.join(', ')}</span>}
+        {mortiCoinvolti.length > 0 && <span>Morti: {mortiCoinvolti.join(', ')}</span>}
+      </p>
+    )
+  // carta tenuta in mano dal narratore (scartata dal Ladro), senza giocatore:
+  // il passo compare comunque, per non destare sospetti
+  const cartaInMano = giocatoriCoinvolti.length === 0 && step.ruoli?.some((s) => ruoliInMano(giocatori).includes(s))
   // Guaritore e Sciacallo Mannaro agiscono "anche da morti" (vedi
   // puoAgireDaMorto in nightSteps.js): per loro basta che il ruolo sia
   // assegnato a qualcuno, vivo o no
@@ -530,6 +550,7 @@ export function NightSequencer({
       quantita={quantita}
       onCambiaQuantita={onCambiaQuantita}
       varianteMedium={varianteMedium}
+      vivoAIngresso={vivoAIngresso}
       mimoRuoloScelto={mimoRuoloScelto}
       onScegliRuoloMimo={setMimoRuoloScelto}
       {...(attoreId ? { attoreId } : {})}
@@ -831,12 +852,9 @@ export function NightSequencer({
             nello stesso passo (es. "assegna i ruoli rimanenti") → punto
             interrogativo, mostrare una faccia a caso tra tante sarebbe fuorviante */}
         <RuoloIcona slug={step.ruoli?.length === 1 ? step.ruoli[0] : undefined} size={32} />
-        <span>
-          {step.titolo}
-          {giocatoriCoinvolti.length > 0 &&
-            ` (${giocatoriCoinvolti.map((g) => (vivoAIngresso(g) ? g.nome : `${g.nome} ☠️`)).join(', ')})`}
-        </span>
+        <span>{step.titolo}</span>
       </h2>
+      {sottotitoloGiocatori}
       {/* mai i ruoli a titolare singolo che AssegnaRuolo gestisce in questo
           stesso passo (ruoliAssegnabiliStepSingoli, che sia il titolare già
           confermato o ancora da scegliere): quello ha già la propria
@@ -883,13 +901,18 @@ export function NightSequencer({
           onCambiaSelezioni={setSelezioniRuolo}
           onRimuovi={rimuoviAssegnazione}
           titolariIngresso={titolariIngresso}
+          vivoAIngresso={vivoAIngresso}
           illustrazioneSeparata={!step.ruoliMostraCoinvolti && !PASSI_CON_FIGURE_ATTESE.includes(step.id)}
           {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />
       )}
 
       {ruoliAssegnabiliStep.length === 0 && giocatoriCoinvolti.length === 0 && (
-        <p>Nessun giocatore assegnato a questo ruolo per ora.</p>
+        <p className={cartaInMano ? 'night-sequencer__promemoria-morto' : undefined}>
+          {cartaInMano
+            ? 'Carta non assegnata a nessun giocatore: chiama comunque il ruolo.'
+            : 'Nessun giocatore assegnato a questo ruolo per ora.'}
+        </p>
       )}
 
       {attoreInibito && (

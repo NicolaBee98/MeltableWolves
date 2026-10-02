@@ -11,7 +11,7 @@ const POTERE = 'chupacabra-caccia'
 // lupi (vedi nightSteps.js): nessun altro potere mortale tocca ancora il suo
 // bersaglio a questo punto della notte, quindi annullare la morte data a un
 // click precedente per ripensare il bersaglio è sicuro.
-export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, round }) {
+export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo }) {
   const chupacabra = giocatori.find((g) => g.ruoloSlug === 'chupacabra')
   const [target, setTarget] = useState(null)
   const [colpito, setColpito] = useState(false)
@@ -19,7 +19,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // il bersaglio appena colpito resta in lista anche se non è più vivo,
   // altrimenti la sua chip sparirebbe subito dopo il click
   const candidati = giocatori.filter(
-    (g) => (g.vivo || g.id === target) && g.id !== chupacabra?.id && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug),
+    (g) => (vivoAIngresso(g) || g.id === target) && g.id !== chupacabra?.id && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug),
   )
   // calcolato con il bersaglio ancora tra i vivi: se il colpo ha appena
   // ucciso l'ultimo lupo, cambiare bersaglio non deve poter uccidere un non-lupo

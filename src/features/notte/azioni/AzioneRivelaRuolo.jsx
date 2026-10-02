@@ -19,6 +19,7 @@ export function AzioneRivelaRuolo({
   bersaglio,
   ruoliSelezionati = [],
   quantita = {},
+  vivoAIngresso = (g) => g.vivo,
 }) {
   // se il bersaglio non ha ancora un ruolo noto all'app (nessuno step
   // dedicato l'ha ancora assegnato), il narratore vede comunque la carta
@@ -31,7 +32,7 @@ export function AzioneRivelaRuolo({
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
-  const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !g.vivo : g.vivo && g.id !== attore?.id))
+  const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !vivoAIngresso(g) : vivoAIngresso(g) && g.id !== attore?.id))
   const indagineStanotte = attore?.ultimaIndagine?.notte === round ? attore.ultimaIndagine : null
 
   function registraIndagine(targetId, ruoloRivelato) {
