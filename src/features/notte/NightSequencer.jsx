@@ -22,22 +22,13 @@ const ETICHETTA_LEGAME = {
   'figlia-dei-lupi': (nome) => `${nome} è il suo genitore`,
 }
 
-// il Mimo si sveglia assieme al ruolo che imita, quando quel ruolo agisce
-// (pag. 18): puramente di presentazione, il narratore ricorda così di
-// coinvolgerlo, il potere reale resta del titolare del ruolo imitato
-function mimoDiQuestoPasso(giocatore, giocatori, ruoliCoinvolti) {
-  if (giocatore.legame?.tipo !== 'mimo') return false
-  const bersaglio = giocatori.find((g) => g.id === giocatore.legame.targetId)
-  return Boolean(bersaglio) && ruoliCoinvolti.includes(bersaglio.ruoloSlug)
-}
-
 // giocatori coinvolti in un passo, in base allo stato `lista`: di norma i
-// titolari dei ruoli del passo (più il Mimo che li imita), o chi ha la
+// titolari dei ruoli del passo (il Mimo che li copia ha lo stesso ruoloSlug), o chi ha la
 // condizione per i passi "di gruppo" (innamorati, ipnotizzati)
 function filtraCoinvolti(step, lista) {
   if (step.condizione) return lista.filter((g) => g.condizioni.includes(step.condizione))
   const ruoliCoinvolti = step.ruoliMostraCoinvolti ?? step.ruoli
-  return lista.filter((g) => ruoliCoinvolti.includes(g.ruoloSlug) || mimoDiQuestoPasso(g, lista, ruoliCoinvolti))
+  return lista.filter((g) => ruoliCoinvolti.includes(g.ruoloSlug))
 }
 
 // se il passo corrente non è più tra quelli calcolati (il suo titolare ha
@@ -286,18 +277,37 @@ export function NightSequencer({
 
   // applica i commit pendenti di questo passo tramite `aggiorna` (di norma
   // aggiornaGiocatore, o il tracciatore di passaAllaNotteSuccessiva)
+  // Dal passo del Mimo, con Avanti: il Mimo copia la carta del bersaglio (già
+  // nota, o quella scelta qui, che va anche al bersaglio). Senza carta non
+  // esiste un "Mimo ignoto": diventa Villico, fuori dai passi notturni
   function commitMimoSeSelezionato(lista = giocatori, aggiorna = aggiornaGiocatore) {
-    if (!mimoRuoloScelto) return
-    const mimo = lista.find((g) => g.ruoloSlug === 'mimo')
-    const target = mimo && lista.find((g) => g.id === mimo.legame?.targetId)
-    if (mimo && target) {
-      aggiorna(mimo.id, { ruoloSlug: mimoRuoloScelto, storiaRuoli: [...(mimo.storiaRuoli ?? []), mimoRuoloScelto] })
-      aggiorna(target.id, {
-        ruoloSlug: mimoRuoloScelto,
-        storiaRuoli: [...(target.storiaRuoli ?? []), mimoRuoloScelto],
-      })
-    }
+    const mimo = step.id === 'mimo' && lista.find((g) => g.ruoloSlug === 'mimo')
     setMimoRuoloScelto(null)
+    if (!mimo) return
+    const target = lista.find((g) => g.id === mimo.legame?.targetId)
+    const slug = target && (target.ruoloSlug ?? mimoRuoloScelto)
+    if (!slug) {
+      aggiorna(mimo.id, { ruoloSlug: 'villico', storiaRuoli: [...(mimo.storiaRuoli ?? []), 'villico'], legame: undefined })
+      registraEvento(`Il Mimo ${mimo.nome} non ha scelto la carta da imitare: diventa Villico.`)
+      return
+    }
+    aggiorna(mimo.id, { ruoloSlug: slug, storiaRuoli: [...(mimo.storiaRuoli ?? []), slug] })
+    if (!target.ruoloSlug) {
+      aggiorna(target.id, { ruoloSlug: slug, storiaRuoli: [...(target.storiaRuoli ?? []), slug] })
+    }
+  }
+
+  // il Mimo segue sempre la carta ATTUALE del suo bersaglio: se il narratore
+  // gliela cambia (o gliela toglie) dopo il passo del Mimo, cambia anche quella
+  // copiata; senza carta il Mimo torna "da scegliere" (vedi vaiAlMimoSeDaScegliere)
+  function riallineaMimoDi(targetId, slug, lista, aggiorna) {
+    for (const m of lista) {
+      const storia = m.storiaRuoli ?? []
+      if (m.legame?.tipo !== 'mimo' || m.legame.targetId !== targetId || !storia.includes('mimo')) continue
+      if (m.ruoloSlug === (slug ?? 'mimo')) continue
+      const fino = storia.slice(0, storia.indexOf('mimo') + 1)
+      aggiorna(m.id, { ruoloSlug: slug ?? 'mimo', storiaRuoli: slug ? [...fino, slug] : fino })
+    }
   }
 
   function ripristinaQuantita(da) {
@@ -542,8 +552,13 @@ export function NightSequencer({
   const personeDisponibili = giocatori.filter((g) => g.vivo && !g.ruoloSlug).length
   // non blocca "Avanti" se non ci sono abbastanza giocatori per completare
   // l'assegnazione: meglio lasciare un ruolo scoperto che bloccare la partita
+  // col Ladro la carta Mimo può essere tra le due carte in più: il passo si
+  // può lasciare senza assegnarla (sarà il Ladro a sceglierla, o nessuno)
   const assegnazioneIncompleta =
-    ruoliPendenti.length > 0 && selezionatiPendenti < capacitaPendente && personeDisponibili >= capacitaPendente
+    ruoliPendenti.length > 0 &&
+    selezionatiPendenti < capacitaPendente &&
+    personeDisponibili >= capacitaPendente &&
+    !(step.id === 'mimo' && ruoliSelezionati.includes('ladro'))
 
   // applica le selezioni pendenti a una copia locale di giocatori, così la
   // logica successiva (pulizia condizioni, legami, annunci alba) vede già i
@@ -566,6 +581,7 @@ export function NightSequencer({
       for (const id of ids) {
         const storiaRuoli = giocatoriConRuoli.find((g) => g.id === id)?.storiaRuoli ?? []
         aggiorna(id, { ruoloSlug: slug, storiaRuoli })
+        riallineaMimoDi(id, slug, giocatoriConRuoli, aggiorna)
       }
     }
     // "le tre guardie" si scelgono come gruppo unico (vedi AssegnaRuolo):
@@ -610,8 +626,10 @@ export function NightSequencer({
         aggiornaGiocatore(x.id, { ...azzera, ...finale })
       }
       ripristinaQuantita(ingresso.quantita)
+      riallineaMimoDi(giocatoreId, undefined, giocatori, aggiornaGiocatore)
       return
     }
+    riallineaMimoDi(giocatoreId, undefined, giocatori, aggiornaGiocatore)
     aggiornaGiocatore(giocatoreId, {
       ruoloSlug: undefined,
       storiaRuoli: (g.storiaRuoli ?? []).filter((s) => s !== ruoloSlug),
@@ -705,8 +723,17 @@ export function NightSequencer({
     setSelezioniRuolo({})
   }
 
+  // il Ladro può aver scelto la carta Mimo (o il bersaglio del Mimo aver perso
+  // la carta): chi è Mimo senza carta torna al passo del Mimo, già superato
+  function vaiAlMimoSeDaScegliere() {
+    if (round !== 1 || step.id === 'mimo' || !giocatori.some((g) => g.ruoloSlug === 'mimo')) return false
+    vaiAlPasso('mimo')
+    return true
+  }
+
   function vaiAvanti() {
     if (assegnazioneIncompleta) return
+    if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     commitMimoSeSelezionato()
     if (ciSonoSelezioniDaConfermare) {
       confermaSelezioniRestandoSulPasso()
@@ -722,6 +749,7 @@ export function NightSequencer({
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta) return
+    if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     const [aggiorna, listaAggiornata] = creaTracciatore()
     commitMimoSeSelezionato(giocatori, aggiorna)
     if (ciSonoSelezioniDaConfermare) {

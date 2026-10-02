@@ -76,3 +76,22 @@ test('contaAssegnati: il Mimo che copia un ruolo non lo conta due volte', () => 
 test('contaAssegnati: storiaRuoli [] (salvataggi vecchi) ripiega su ruoloSlug', () => {
   expect(contaAssegnati([{ id: '1', ruoloSlug: 'paladino', storiaRuoli: [] }], 'paladino')).toBe(1)
 })
+
+test('assegnaGuardiaMannaraCasuale non sceglie mai il Mimo che copia la Guardia', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'guardia', storiaRuoli: ['mimo', 'guardia'], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', ruoloSlug: 'guardia', storiaRuoli: ['guardia'] },
+  ]
+  for (let i = 0; i < 20; i++) {
+    const aggiornaGiocatore = vi.fn()
+    assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, { guardia: 1, 'guardia-mannara': 1 })
+    expect(aggiornaGiocatore).toHaveBeenCalledTimes(1)
+    expect(aggiornaGiocatore.mock.calls[0][0]).toBe('2')
+  }
+})
+
+test('contaAssegnati: chi era Ladro e ha scelto la carta Mimo conta ancora come Ladro e come Mimo', () => {
+  const giocatori = [{ id: '1', ruoloSlug: 'mimo', storiaRuoli: ['ladro', 'mimo'] }]
+  expect(contaAssegnati(giocatori, 'ladro')).toBe(1)
+  expect(contaAssegnati(giocatori, 'mimo')).toBe(1)
+})
