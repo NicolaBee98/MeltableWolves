@@ -967,8 +967,8 @@ test('Veggente copiato dal Mimo: selezionare/deselezionare le chip di "Chi ha qu
   const chip = (nome) => within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: nome })
   await user.click(chip('Marco'))
   expect(immagini()).toEqual(prima)
-  await user.click(chip('Sara'))
-  expect(immagini()).toEqual(prima)
+  // il Mimo non è un titolare della carta: nessuna chip per lui
+  expect(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).queryByRole('button', { name: 'Sara' })).not.toBeInTheDocument()
   await user.click(chip('Marco'))
   expect(immagini()).toEqual(prima)
 })
@@ -1430,4 +1430,121 @@ test('gli ipnotizzati dal Pifferaio con ruolo nascosto usano i Villici comuni in
     />,
   )
   expect(tutti()).toEqual(['Nano.svg', 'Villico_1.svg', 'Veggente.svg'])
+})
+
+test('Mimo che copia i Lupi: appare come Mimo nel branco e non occupa un posto dei titolari (nessun messaggio in conflitto)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'lupo-mannaro'], legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Elsa', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Franco', vivo: true, condizioni: [] },
+    { id: '4', nome: 'Greta', vivo: true, condizioni: [] },
+  ]
+  const { container } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      quantita={{ 'lupo-mannaro': 2 }}
+    />,
+  )
+
+  const src = () => [...container.querySelectorAll('img.night-sequencer__illustrazione')].map((i) => i.src)
+  expect(src().filter((s) => s.includes('Mimo.svg'))).toHaveLength(1)
+  expect(src().filter((s) => s.includes('Lupo_Mannaro_'))).toHaveLength(2)
+  // la chip del Mimo non c'è: due posti liberi per i veri lupi
+  expect(screen.queryByRole('button', { name: 'Sara' })).not.toBeInTheDocument()
+  expect(screen.getByText(/seleziona 2 giocatori in più/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Elsa' }))
+  expect(screen.getByText(/seleziona ancora 1 giocatore prima di continuare/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Franco' }))
+  expect(screen.queryByText(/seleziona ancora/i)).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Greta' }))
+  expect(screen.getByText(/al massimo 2 giocatori/i)).toBeInTheDocument()
+})
+
+test('Paladino e Mimo che lo copia: due scelte indipendenti, la protezione resta finché la vuole almeno uno', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const { stato } = creaHarness(
+    [
+      { id: '1', nome: 'Paolo', ruoloSlug: 'paladino', vivo: true, condizioni: [], storiaRuoli: ['paladino'] },
+      { id: '2', nome: 'Mia', ruoloSlug: 'paladino', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'paladino'], legame: { tipo: 'mimo', targetId: '1' } },
+      { id: '3', nome: 'Pietro', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+      { id: '4', nome: 'Rita', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    ],
+    ['paladino'],
+    { paladino: 2 },
+  )
+  const chip = (attore, nome) =>
+    within(within(screen.getByRole('group', { name: `Scelta di ${attore}` })).getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: nome })
+  const protetti = () => stato.giocatori.filter((g) => g.condizioni.includes('protetto')).map((g) => g.nome)
+
+  await user.click(chip('Paolo', 'Pietro'))
+  await user.click(chip('Mia', 'Pietro'))
+  expect(chip('Paolo', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
+  expect(chip('Mia', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
+
+  // il Mimo cambia idea: Pietro resta protetto dal Paladino, Rita no
+  await user.click(chip('Mia', 'Pietro'))
+  expect(protetti()).toEqual(['Pietro'])
+  expect(chip('Paolo', 'Pietro')).toHaveAttribute('aria-pressed', 'true')
+  await user.click(chip('Mia', 'Rita'))
+  expect(protetti()).toEqual(['Pietro', 'Rita'])
+  expect(stato.giocatori[0].usiNotte).toEqual(['paladino'])
+
+  await user.click(chip('Paolo', 'Pietro'))
+  expect(protetti()).toEqual(['Rita'])
+})
+
+test('Apprendista e Mimo che lo copia: ognuno ha il proprio maestro, senza toccare il legame di imitazione', async () => {
+  const user = userEvent.setup()
+  const { stato } = creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'apprendista', vivo: true, condizioni: [], storiaRuoli: ['apprendista'] },
+      { id: '2', nome: 'Mia', ruoloSlug: 'apprendista', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'apprendista'], legame: { tipo: 'mimo', targetId: '1' } },
+      { id: '3', nome: 'Pietro', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+      { id: '4', nome: 'Rita', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    ],
+    ['apprendista'],
+    { apprendista: 2 },
+  )
+  const chip = (attore, nome) =>
+    within(within(screen.getByRole('group', { name: `Scelta di ${attore}` })).getByRole('group', { name: 'Chi seguire come maestro' })).getByRole('button', { name: nome })
+
+  await user.click(chip('Anna', 'Pietro'))
+  await user.click(chip('Mia', 'Rita'))
+  expect(stato.giocatori[0].legame).toEqual({ tipo: 'apprendista', targetId: '3' })
+  expect(stato.giocatori[1]).toMatchObject({ legame: { tipo: 'mimo', targetId: '1' }, legameMimo: { tipo: 'apprendista', targetId: '4' } })
+
+  await user.click(chip('Mia', 'Rita'))
+  expect(stato.giocatori[1].legameMimo).toBeUndefined()
+  expect(stato.giocatori[0].legame).toEqual({ tipo: 'apprendista', targetId: '3' })
+})
+
+test('Sacerdote e Mimo che lo copia: ognuno unisce la propria coppia, sciogliere la sua non tocca quella dell\'altro', async () => {
+  const user = userEvent.setup()
+  const { stato } = creaHarness(
+    [
+      { id: '1', nome: 'Sam', ruoloSlug: 'sacerdote', vivo: true, condizioni: [], storiaRuoli: ['sacerdote'] },
+      { id: '2', nome: 'Mia', ruoloSlug: 'sacerdote', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'sacerdote'], legame: { tipo: 'mimo', targetId: '1' } },
+      { id: '3', nome: 'Pietro', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+      { id: '4', nome: 'Rita', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    ],
+    ['sacerdote'],
+    { sacerdote: 2 },
+  )
+  const chip = (attore, nome) =>
+    within(within(screen.getByRole('group', { name: `Scelta di ${attore}` })).getByRole('group', { name: 'Chi unire (due giocatori)' })).getByRole('button', { name: nome })
+  const innamorati = () => stato.giocatori.filter((g) => g.condizioni.includes('innamorato')).map((g) => g.nome)
+
+  await user.click(chip('Sam', 'Pietro'))
+  await user.click(chip('Sam', 'Rita'))
+  await user.click(chip('Mia', 'Pietro'))
+  await user.click(chip('Mia', 'Sam'))
+  expect(innamorati()).toEqual(['Sam', 'Pietro', 'Rita'])
+
+  // il Mimo scioglie la sua coppia: Pietro resta innamorato (scelto anche da Sam), Sam no
+  await user.click(chip('Mia', 'Sam'))
+  expect(innamorati()).toEqual(['Pietro', 'Rita'])
 })

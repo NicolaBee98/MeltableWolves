@@ -1,3 +1,10 @@
+// il Mimo che copia un ruolo (storiaRuoli con 'mimo' ma ruolo corrente
+// diverso) è un giocatore IN PIÙ rispetto alla quantità del mazzo: non occupa
+// un posto dei titolari di quella carta
+export function eMimoCopiante(g) {
+  return g.ruoloSlug !== 'mimo' && ((g.storiaRuoli ?? []).includes('mimo') || g.legame?.tipo === 'mimo')
+}
+
 export function contaAssegnati(giocatori, slug) {
   // conta su "storiaRuoli" (mai sottratto), non su ruoloSlug corrente: un
   // ruolo già assegnato non torna mai "da assegnare", anche se chi lo teneva

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ROLES } from '../../data/roles'
+import { eMimoCopiante } from '../../data/assegnazione'
 import { RuoloIllustrazione } from '../../components/RuoloIcona'
 
 // Guardia e Guardia Mannara sono la stessa carta agli occhi del narratore
@@ -47,11 +48,16 @@ export function AssegnaRuolo({
   // chi era titolare all'ingresso nel passo e poi ha cambiato ruolo con la
   // propria azione (il Ladro che sceglie) resta titolare della carta, finché
   // non si preme Avanti: lo si riconosce dalla storiaRuoli
+  // il Mimo che copia questo ruolo non è un titolare (stessa regola di
+  // contaAssegnati): niente posto occupato, niente chip, un solo conteggio
+  // (salvo nel passo del Mimo stesso, dove la carta è la sua)
   const titolari = giocatori.filter(
     (g) =>
-      gruppoRuoli.includes(g.ruoloSlug) ||
-      (titolariIngresso.includes(g.id) && gruppoRuoli.some((s) => (g.storiaRuoli ?? []).includes(s))),
+      !(eMimoCopiante(g) && !gruppoRuoli.includes('mimo')) &&
+      (gruppoRuoli.includes(g.ruoloSlug) ||
+        (titolariIngresso.includes(g.id) && gruppoRuoli.some((s) => (g.storiaRuoli ?? []).includes(s)))),
   )
+  const mimiCopianti = giocatori.filter((g) => eMimoCopiante(g) && gruppoRuoli.includes(g.ruoloSlug)).length
   const selezionatiVisivi = [...pendenti, ...titolari.map((g) => g.id)]
   const candidati = giocatori.filter(
     (g) => g.vivo && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),
@@ -114,7 +120,8 @@ export function AssegnaRuolo({
   // decisa una sola volta all'ingresso nel passo: cliccando le chip (anche
   // sui titolari già assegnati) l'illustrazione non deve comparire/sparire
   const [mostraIllustrazione] = useState(
-    () => illustrazioneSeparata && (modalitaGuardie || selezionatiVisivi.length <= 1),
+    // il Mimo che copia il ruolo ha comunque la sua figura nella riga collettiva
+    () => illustrazioneSeparata && (modalitaGuardie || selezionatiVisivi.length + mimiCopianti <= 1),
   )
 
   if (opzioni.length === 0) return null

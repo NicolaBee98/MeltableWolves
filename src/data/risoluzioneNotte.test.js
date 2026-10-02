@@ -184,3 +184,15 @@ test('più Cortigiane (Mimo) vengono risolte ognuna col proprio cliente', () => 
   expect(patch['1']).toMatchObject({ vivo: false })
   expect(patch['2']).toEqual({ visitaNotturna: null })
 })
+
+test('apprendista copiato dal Mimo (legameMimo): eredita il ruolo senza perdere il legame di imitazione', () => {
+  const giocatori = [
+    {
+      id: '1', nome: 'Mia', ruoloSlug: 'apprendista', vivo: true, condizioni: [],
+      legame: { tipo: 'mimo', targetId: '3' }, legameMimo: { tipo: 'apprendista', targetId: '2' },
+    },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [] },
+    { id: '3', nome: 'Anna', ruoloSlug: 'apprendista', vivo: true, condizioni: [] },
+  ]
+  expect(risolviLegami(giocatori)).toEqual({ 1: { ruoloSlug: 'veggente', legameMimo: null } })
+})

@@ -15,28 +15,30 @@ import { AzioneMimo } from './AzioneMimo'
 import { AzioneMedium } from './AzioneMedium'
 import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 
+// perAttore: se più giocatori hanno il ruolo (titolare + Mimo che lo copia) il
+// passo mostra una scelta indipendente per ciascuno (vedi NightSequencer)
 export const AZIONI_NOTTURNE = {
   paladino: {
-    Componente: AzioneCondizioneSingola,
+    Componente: AzioneCondizioneSingola, perAttore: true,
     props: { condizione: 'protetto', etichetta: 'Chi proteggere', ruoloSlugAttore: 'paladino' },
   },
   untore: {
-    Componente: AzioneCondizioneSingola,
+    Componente: AzioneCondizioneSingola, perAttore: true,
     props: { condizione: 'unto', etichetta: 'Chi ungere', ruoloSlugAttore: 'untore' },
   },
   fattucchiera: {
-    Componente: AzioneCondizioneSingola,
+    Componente: AzioneCondizioneSingola, perAttore: true,
     // inibire se stessa è un paradosso (bloccherebbe l'azione che la sta
     // già bloccando): unico ruolo tra quelli con AzioneCondizioneSingola a
     // escludersi dai propri bersagli
     props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera', escludiAttore: true },
   },
   maga: {
-    Componente: AzioneCondizioneSingola,
+    Componente: AzioneCondizioneSingola, perAttore: true,
     props: { condizione: 'trasformato', etichetta: 'Chi trasformare', ruoloSlugAttore: 'maga' },
   },
   pifferaio: {
-    Componente: AzioneCondizioneDoppia,
+    Componente: AzioneCondizioneDoppia, perAttore: true,
     // non può ipnotizzare se stesso, a differenza del Sacerdote che può
     // scegliersi come uno dei due innamorati
     props: {
@@ -47,7 +49,7 @@ export const AZIONI_NOTTURNE = {
     },
   },
   sacerdote: {
-    Componente: AzioneCondizioneDoppia,
+    Componente: AzioneCondizioneDoppia, perAttore: true,
     props: { condizione: 'innamorato', etichetta: 'Chi unire (due giocatori)', ruoloSlugAttore: 'sacerdote' },
   },
   'branco-lupi': { Componente: AzioneBrancoLupi, props: { ruoli: RUOLI_BRANCO_LUPI } },
@@ -55,9 +57,9 @@ export const AZIONI_NOTTURNE = {
   guaritore: { Componente: AzioneResuscita, props: { potereSlug: 'guaritore-resuscita', ruoloSlugAttore: 'guaritore' } },
   'sciacallo-mannaro': { Componente: AzioneResuscita, props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro' } },
   strega: { Componente: AzioneStrega, props: {} },
-  apprendista: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
-  cavaliere: { Componente: AzioneLegame, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
-  'figlia-dei-lupi': { Componente: AzioneLegame, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },
+  apprendista: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
+  cavaliere: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
+  'figlia-dei-lupi': { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },
   // il Mimo assume letteralmente il ruoloSlug del bersaglio (vedi
   // AzioneMimo.jsx): niente reazione a parte alla sua morte, risolviLegami
   // ignora il tipo 'mimo', il legame resta per tutta la partita solo per
