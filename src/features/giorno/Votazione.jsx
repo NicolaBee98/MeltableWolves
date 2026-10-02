@@ -5,6 +5,8 @@ import { ROLES, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
 import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
+import { PromemoriaMorte } from './PromemoriaMorte'
+import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
 import { condizioniVittoria } from '../../data/vittoria'
@@ -301,14 +303,14 @@ export function Votazione({
         const bersagli = vivi.filter((g) => g.id !== id)
         return (
           <div className="votazione__designato-azioni">
-            <p>Chi trascina con sé l'Alchimista nell'esplosione?</p>
-            <div className="scelta-giocatore__chips" role="group" aria-label="Chi trascina con sé l'Alchimista">
-              {bersagli.map((g) => (
-                <button key={g.id} type="button" className="chip" onClick={() => confermaVittimaAlchimista(id, g.id)}>
-                  {g.nome}
-                </button>
-              ))}
-            </div>
+            <SceltaGiocatore
+              candidati={bersagli}
+              etichetta="Chi trascina con sé l'Alchimista"
+              onConferma={(vittimaId) => confermaVittimaAlchimista(id, vittimaId)}
+              mostraSalta={false}
+              richiedeConferma
+              dettaglioSelezione={(vittimaId) => <PromemoriaMorte giocatori={giocatori} id={vittimaId} />}
+            />
           </div>
         )
       }
@@ -319,6 +321,7 @@ export function Votazione({
         const puoEssereAlchimista = rivelabileOra('alchimista') && !target?.ruoloSlug
         return (
           <div className="votazione__designato-azioni">
+            <PromemoriaMorte giocatori={giocatori} id={id} />
             <button type="button" onClick={() => confermaMorte(id)}>
               Dichiara morte sul rogo
             </button>
@@ -340,7 +343,8 @@ export function Votazione({
           </div>
         )
       }
-      return null
+      // morte confermata: resta il promemoria del crepacuore del partner
+      return <PromemoriaMorte giocatori={giocatori} id={id} />
     }
 
     // chi tra i candidati allo spareggio è stato effettivamente designato:
@@ -367,12 +371,17 @@ export function Votazione({
         ) : (
           <div className="votazione__spareggio">
             {morteConfermata ? (
-              <p>
-                Vittima designata:{' '}
-                <span className="votazione__nome-designato">
-                  {giocatori.find((g) => g.id === vittimaSpareggioId)?.nome}
-                </span>
-              </p>
+              <>
+                <p>
+                  Vittima designata:{' '}
+                  <span className="votazione__nome-designato">
+                    {giocatori.find((g) => g.id === vittimaSpareggioId)?.nome}
+                  </span>
+                </p>
+                {giocatori.find((g) => g.id === vittimaSpareggioId)?.vivo === false && (
+                  <PromemoriaMorte giocatori={giocatori} id={vittimaSpareggioId} />
+                )}
+              </>
             ) : (
               <>
                 <p>Spareggio tra: {designati.map((id) => giocatori.find((g) => g.id === id)?.nome).join(', ')}</p>
