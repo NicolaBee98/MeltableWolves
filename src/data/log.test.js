@@ -90,3 +90,73 @@ test('rivelazioni diurne, Antico, Borgomastro e Fantasma entrano nel registro; d
   expect(msgs({ eBorgomastro: true }, 'alba')).toEqual(['Anna è stato/a eletto/a Borgomastro'])
   expect(msgs({ eFantasmaOnnisciente: true }, 'giorno')).toEqual(['Anna riceve la carta del Fantasma Onnisciente'])
 })
+
+const base = { vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: [] }
+
+test('Mimo che copia il Ladro: "imita" il Ladro (non il ruolo finale) e poi la scelta del Ladro', () => {
+  const ladro = { ...base, id: '2', nome: 'Marco', ruoloSlug: 'ladro' }
+  const mimo = { ...base, id: '1', nome: 'Sara', ruoloSlug: 'mimo', storiaRuoli: ['mimo'] }
+  const dopoMimo = {
+    ...mimo,
+    ruoloSlug: 'veggente',
+    storiaRuoli: ['mimo', 'ladro', 'veggente'],
+    poteriUsati: ['ladro-scelta'],
+    scartoLadro: ['veggente', 'boia'],
+    legame: { tipo: 'mimo', targetId: '2' },
+  }
+  const messaggi = rilevaEventi([mimo, ladro], [dopoMimo, ladro], 1, 'notte').map((e) => e.messaggio)
+  expect(messaggi).toContain('Il Mimo Sara imita Ladro (Marco)')
+  expect(messaggi).toContain('Sara (Mimo del Ladro) sceglie Veggente: scarta Boia')
+})
+
+test('Ladro: voce con la carta scelta e quelle scartate, senza "ha assunto il ruolo"', () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'ladro', storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'boia'] }
+  const dopo = { ...prima, ruoloSlug: 'boia', storiaRuoli: ['ladro', 'boia'], poteriUsati: ['ladro-scelta'] }
+  expect(rilevaEventi([prima], [dopo], 1, 'notte').map((e) => e.messaggio)).toEqual([
+    'Il Ladro Anna sceglie Boia: scarta Veggente',
+  ])
+  const villico = { ...dopo, ruoloSlug: 'villico' }
+  expect(rilevaEventi([prima], [villico], 1, 'notte')[0].messaggio).toBe(
+    'Il Ladro Anna sceglie di restare Villico: scarta Veggente e Boia',
+  )
+})
+
+test('Bardo e Gallo: voce al gesto', () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'bardo' }
+  expect(rilevaEventi([prima], [{ ...prima, poteriUsati: ['bardo-salta-notte'] }], 1, 'giorno')[0].messaggio).toMatch(/Bardo.*salta/)
+  expect(rilevaEventi([prima], [{ ...prima, poteriUsati: ['gallo-salta-giorno'] }], 1, 'alba')[0].messaggio).toMatch(/Gallo.*salta/)
+})
+
+test('Sacerdote: una voce per coppia; legami scelti; Apprendista e Figlia alla rivelazione', () => {
+  const a = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'villico' }
+  const b = { ...base, id: '2', nome: 'Bea', ruoloSlug: 'villico' }
+  const coppia = [
+    { ...a, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    { ...b, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+  ]
+  expect(rilevaEventi([a, b], coppia, 1, 'notte').map((e) => e.messaggio)).toEqual([
+    'Il Sacerdote unisce Anna e Bea: sono innamorati',
+  ])
+
+  const cav = { ...a, ruoloSlug: 'cavaliere' }
+  expect(rilevaEventi([cav, b], [{ ...cav, legame: { tipo: 'cavaliere', targetId: '2' } }, b], 1, 'notte')[0].messaggio).toBe(
+    'Il Cavaliere Anna sceglie di proteggere Bea',
+  )
+
+  const app = { ...a, ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } }
+  expect(rilevaEventi([app, b], [{ ...app, ruoloSlug: 'veggente', legame: null }, b], 2, 'giorno').map((e) => e.messaggio)).toEqual([
+    'Anna (Apprendista) eredita il ruolo di Veggente dal maestro Bea',
+  ])
+  const figlia = { ...a, ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '2' } }
+  expect(rilevaEventi([figlia, b], [{ ...figlia, ruoloSlug: 'lupo-mannaro', legame: null }, b], 2, 'giorno')[0].messaggio).toMatch(
+    /Figlia dei Lupi.*Lupo Mannaro/,
+  )
+})
+
+test('morti sul colpo con causa: Boia, esplosione, rima sbagliata', () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'villico' }
+  const muore = (mortoDa) => rilevaEventi([prima], [{ ...prima, vivo: false, causaMorte: 'colpo', mortoDa }], 1, 'giorno')[0].messaggio
+  expect(muore('boia')).toBe('Anna è morto/a: giustiziato/a dal Boia')
+  expect(muore('alchimista')).toMatch(/esplosione/)
+  expect(muore('scemo')).toMatch(/rima/)
+})

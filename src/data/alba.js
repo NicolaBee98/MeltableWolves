@@ -1,4 +1,4 @@
-import { eLupo } from './roles'
+import { eLupo, nomeRuolo, ruoloPerDisplay } from './roles'
 import { viciniVivi } from './vicinanza'
 
 export function annunciAlba(giocatori, round) {
@@ -43,6 +43,25 @@ export function annunciAlba(giocatori, round) {
 
   for (const g of giocatori.filter((g) => g.causaMorte === 'sacrificio' && g.mortoNotte === round)) {
     annunci.push(`${g.nome} si è rivelato: è il Cavaliere, e si è immolato al posto della vittima.`)
+  }
+
+  // conseguenze notturne che non lasciano un morto da annunciare: crepacuore
+  // del partner, Mezzosangue sbranato, Apprendista/Figlia che ereditano alla
+  // morte del maestro (marcatori scritti da effettiNotte/risolviLegami)
+  for (const g of giocatori.filter((g) => g.causaMorte === 'crepacuore' && g.mortoNotte === round)) {
+    annunci.push(`${g.nome} è morto/a di crepacuore per la morte del partner.`)
+  }
+  for (const g of giocatori.filter((g) => g.trasformatoNotte === round)) {
+    annunci.push(`Il Mezzosangue ${g.nome} è stato sbranato e diventa Lupo Mannaro.`)
+  }
+  for (const g of giocatori.filter((g) => g.ereditaNotte === round)) {
+    const maestro = giocatori.find((x) => x.id === g.ereditaDa)?.nome
+    annunci.push(
+      `${g.nome} si rivela: è l'Apprendista${maestro ? ` di ${maestro}` : ''} ed eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(g.ruoloSlug))}.`,
+    )
+  }
+  for (const g of giocatori.filter((g) => g.figliaLupoNotte === round)) {
+    annunci.push(`${g.nome} si rivela: è la Figlia dei Lupi e diventa Lupo Mannaro.`)
   }
 
   return annunci

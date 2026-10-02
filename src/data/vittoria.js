@@ -8,6 +8,9 @@ function contaComeVivo(giocatore) {
 
 export function condizioniVittoria(giocatori, quantita = {}) {
   const vivi = giocatori.filter(contaComeVivo)
+  // vittorie "speciali" (Pifferaio, ultimo sopravvissuto, team del Mimo,
+  // innamorati): escludono quelle di villaggio/lupi, mai due banner insieme
+  const speciali = []
   const messaggi = []
 
   if (vivi.length === 0) {
@@ -46,12 +49,12 @@ export function condizioniVittoria(giocatori, quantita = {}) {
     viviVeri.length > 1 &&
     viviVeri.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))
   ) {
-    messaggi.push('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
+    speciali.push('Il Pifferaio ha ipnotizzato tutti i giocatori in vita: vince lui.')
   }
 
   if (viviVeri.length === 1) {
     const ultimo = ROLES.find((r) => r.slug === viviVeri[0].ruoloSlug)
-    if (ultimo?.vinceUltimoSopravvissuto) messaggi.push(`Il ${ultimo.nome} è l'ultimo sopravvissuto: vince lui.`)
+    if (ultimo?.vinceUltimoSopravvissuto || ultimo?.slug === 'criceto-malvagio') speciali.push(`Il ${ultimo.nome} è l'ultimo sopravvissuto: vince lui.`)
   }
 
   // Chupacabra e Mimo-Chupacabra (stesso slug) vincono formando un team se sono
@@ -59,8 +62,8 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   // (due Pifferai = nessun non ipnotizzato).
   if (viviVeri.length === 2 && viviVeri[0].ruoloSlug === viviVeri[1].ruoloSlug && viviVeri[0].ruoloSlug !== 'pifferaio') {
     const squadra = ROLES.find((r) => r.slug === viviVeri[0].ruoloSlug)
-    if (squadra?.vinceUltimoSopravvissuto) {
-      messaggi.push(`Il ${squadra.nome} e il Mimo che lo imita sono gli ultimi due sopravvissuti: vincono insieme.`)
+    if (squadra?.vinceUltimoSopravvissuto || squadra?.slug === 'criceto-malvagio') {
+      speciali.push(`Il ${squadra.nome} e il Mimo che lo imita sono gli ultimi due sopravvissuti: vincono insieme.`)
     }
   }
 
@@ -74,8 +77,10 @@ export function condizioniVittoria(giocatori, quantita = {}) {
     stessaCoppia(a, b) &&
     stessaCoppia(b, a)
   ) {
-    messaggi.push('Gli innamorati sono gli unici superstiti: vincono loro.')
+    speciali.push('Gli innamorati sono gli unici superstiti: vincono loro.')
   }
+
+  if (speciali.length > 0) return speciali
 
   // il Chupacabra impedisce la vittoria del villaggio finché è in vita
   if (lupiVivi.length === 0 && !chupacabraVivo) {

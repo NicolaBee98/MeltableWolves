@@ -45,3 +45,18 @@ test('mostra l\'icona corrispondente alla fase di ogni evento (notte/alba/giorno
   expect(icone[2].src).toContain('icona_rogo')
   expect(icone[3].src).toContain('icona_giorno')
 })
+
+test('ogni voce indica la sotto-fase (Notte/Alba/Giorno/Rogo) oltre al titolo del giorno', () => {
+  render(
+    <LogPartita
+      eventi={[
+        { round: 1, fase: 'notte', messaggio: 'A' },
+        { round: 1, fase: 'alba', messaggio: 'B' },
+        { round: 1, fase: 'rogo', messaggio: 'C' },
+      ]}
+    />,
+  )
+  expect(screen.getByText('Notte:')).toBeInTheDocument()
+  expect(screen.getByText('Alba:')).toBeInTheDocument()
+  expect(screen.getByText('Rogo:')).toBeInTheDocument()
+})

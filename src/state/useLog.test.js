@@ -145,3 +145,30 @@ test('resetLog non fa ricomparire eventi quando coincide con l\'azzeramento di g
 
   expect(result.current.eventi).toEqual([])
 })
+
+test('Avanti-Indietro-Avanti non duplica le voci: annullaLogPasso toglie quelle del passo (anche aggiungiEvento)', () => {
+  const vivo = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
+  const morto = [{ ...vivo[0], vivo: false }]
+  const { result, rerender } = renderHook(({ giocatori }) => useLog(giocatori, 1), { initialProps: { giocatori: vivo } })
+
+  const avanti = () => {
+    rerender({ giocatori: morto })
+    act(() => {
+      result.current.confermaLog('1-lupi')
+      result.current.aggiungiEvento('Il branco sbrana Anna')
+    })
+  }
+  avanti()
+  expect(result.current.eventi).toHaveLength(2)
+
+  // Indietro: lo stato torna a prima e il prossimo confronto è soppresso
+  act(() => {
+    result.current.annullaLogPasso('1-lupi')
+    result.current.sopprimiProssimoConfronto()
+  })
+  rerender({ giocatori: vivo })
+  expect(result.current.eventi).toEqual([])
+
+  avanti()
+  expect(result.current.eventi.map((e) => e.messaggio)).toEqual(['Anna è morto/a', 'Il branco sbrana Anna'])
+})

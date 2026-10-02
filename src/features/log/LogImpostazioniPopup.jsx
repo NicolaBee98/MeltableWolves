@@ -60,7 +60,7 @@ export function LogImpostazioniPopup({
           </button>
           {confermaNuovaPartita ? (
             <div className="log-impostazioni__conferma">
-              <p>Iniziare una nuova partita? I dati della partita attuale (giocatori, ruoli, registro) andranno persi.</p>
+              <p>Iniziare una nuova partita? I giocatori restano; ruoli, mazzo e registro della partita attuale vengono azzerati.</p>
               <button type="button" className="log-impostazioni__cta" onClick={confermaNuova}>
                 Sì, ricomincia
               </button>
