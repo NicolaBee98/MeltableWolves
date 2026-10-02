@@ -163,6 +163,14 @@ export function segnaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potereSlug
     .forEach((g) => aggiornaGiocatore(g.id, { usiNotte: [...(g.usiNotte ?? []), potereSlug] }))
 }
 
+// inverso di segnaUsoStanotte: ripensando una scelta (deselezione) il potere
+// torna non usato per questa notte
+export function annullaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potereSlug) {
+  giocatori
+    .filter((g) => ruoli.includes(g.ruoloSlug))
+    .forEach((g) => aggiornaGiocatore(g.id, { usiNotte: (g.usiNotte ?? []).filter((p) => p !== potereSlug) }))
+}
+
 // Il Mimo assume letteralmente il ruoloSlug del bersaglio imitato (vedi
 // AzioneMimo.jsx): da quel momento DUE giocatori condividono lo stesso
 // ruoloSlug, ma il regolamento prevede una sola azione condivisa, non due

@@ -16,33 +16,47 @@ function usiStanotte(giocatori, ruoli) {
   return conteggi.length > 0 ? Math.max(...conteggi) : 0
 }
 
+// toglie `n` occorrenze (le ultime) del potere dagli usi della notte
+function senzaUltimiUsi(usi, n) {
+  const copia = [...usi]
+  for (let i = 0; i < n; i++) {
+    const idx = copia.lastIndexOf(POTERE)
+    if (idx >= 0) copia.splice(idx, 1)
+  }
+  return copia
+}
+
 export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, round, ruoli = [] }) {
-  const [bersaglioInAttesaDiLupo, setBersaglioInAttesaDiLupo] = useState(null)
-  // il colpo (col caso comune, un solo bersaglio possibile) resta
-  // modificabile finché non si preme "Avanti", come ogni altra azione con
-  // effetti reali (vedi AzioneChupacabra): registra ESATTAMENTE i campi
-  // toccati dal colpo, sul valore che avevano PRIMA, così cambiare
-  // bersaglio (o passare da "sbrana" a "trasforma" e viceversa) può
-  // annullarli tutti prima di applicare il nuovo. Le chip restano sempre
-  // tutte visibili e cliccabili (mai sovrascritte da una schermata separata,
-  // come chiesto): il Progenitore è un pulsante unico sotto di loro che
-  // agisce sul bersaglio già scelto, non un fork che le nasconde.
-  const [colpoAttivo, setColpoAttivo] = useState(null) // { targetId, tipo: 'sbrana'|'trasforma', originali, letali }
-  // vittime già definitive di questa notte (vendetta del Cucciolo): restano
-  // in lista e premute, ma non si annullano più
-  const [vittimeDefinitive, setVittimeDefinitive] = useState([])
+  // { targetId, sostituisce }: parità del Berserker in attesa della scelta del narratore
+  const [attesaLupo, setAttesaLupo] = useState(null)
+  const bersaglioInAttesaDiLupo = attesaLupo?.targetId
+  // i colpi di questa notte (uno solo, o due con la vendetta del Cucciolo),
+  // in ordine: restano TUTTI modificabili finché non si preme "Avanti".
+  // Ognuno registra ESATTAMENTE i campi toccati, sul valore che avevano PRIMA,
+  // così si può deselezionare (click sulla chip premuta) o cambiare
+  // bersaglio disfacendolo del tutto (morte con la sua catena inclusa). Le
+  // chip restano sempre tutte visibili e cliccabili: il Progenitore è un
+  // pulsante unico sotto di loro che agisce sull'ultimo bersaglio scelto.
+  // { targetId, tipo: 'sbrana'|'trasforma', originali, letali, consumaVendetta }
+  const [colpi, setColpi] = useState([])
   // feedback sull'ultimo morso: perché non ha avuto effetto, o cosa comporta
   const [esito, setEsito] = useState(null)
+  // vendetta già attiva prima di cominciare (Cucciolo morto in precedenza):
+  // se invece l'ha fatta scattare il primo colpo, disfarlo la disattiva
+  const [vendettaIniziale] = useState(() => giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo))
   // il bersaglio appena sbranato resta in lista (anche se non più vivo),
   // altrimenti la sua chip sparirebbe subito dopo il click invece di
   // restare visibile e cliccabile (vedi AzioneChupacabra)
   const vivi = giocatori.filter(
-    (g) => (g.vivo || g.id === colpoAttivo?.targetId || vittimeDefinitive.includes(g.id)) && !RUOLI_NON_SELEZIONABILI_DAL_BRANCO.includes(g.ruoloSlug),
+    (g) => (g.vivo || colpi.some((c) => c.targetId === g.id)) && !RUOLI_NON_SELEZIONABILI_DAL_BRANCO.includes(g.ruoloSlug),
   )
   const storditi = giocatori.some(
     (g) => ruoli.includes(g.ruoloSlug) && g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round,
   )
-  const vendettaAttiva = giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo)
+  // il flag viene consumato dalla seconda vittima: la vendetta resta attiva
+  // finché quel colpo c'è (così si può ancora cambiarlo)
+  const vendettaAttiva =
+    giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo) || colpi.some((c) => c.consumaVendetta)
   const limite = vendettaAttiva ? 2 : 1
   const usi = usiStanotte(giocatori, ruoli)
   const progenitore = giocatori.find((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo)
@@ -58,27 +72,19 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
     return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
   }
 
-  // con la vendetta del Cucciolo attiva (fino a due vittime distinte).
-  // annullare un colpo per rifarne un altro rischierebbe di disallineare il
-  // conteggio delle due sbranate, quindi lì un colpo resta definitivo. Nel
-  // caso comune (un solo colpo possibile) invece di bloccare del tutto,
-  // resta modificabile finché abbiamo la traccia per annullarlo (colpoAttivo);
-  // se non ce l'abbiamo (es. era già stato dato prima che questo passo
-  // esistesse) il colpo resta comunque definitivo, non essendoci nulla da annullare
-  if (usi >= limite && (vendettaAttiva || !colpoAttivo)) {
-    // con la vendetta già consumata il limite torna a 1 ma le vittime sono due
+  // senza traccia di colpi (es. già dati prima che questo passo esistesse)
+  // non c'è nulla da annullare: il branco ha già sbranato
+  if (usi >= limite && colpi.length === 0) {
     return <p>Il branco ha già sbranato {usi >= 2 ? 'le sue vittime' : 'una vittima'} questa notte.</p>
   }
 
-  function segnaUsoBranco() {
+  function segnaUsoBranco(consumaVendetta) {
     giocatori
       .filter((g) => ruoli.includes(g.ruoloSlug))
       .forEach((g) => {
-        const nuoviUsi = [...(g.usiNotte ?? []), POTERE]
-        const haRaggiuntoLimite = nuoviUsi.filter((u) => u === POTERE).length >= limite
         aggiornaGiocatore(g.id, {
-          usiNotte: nuoviUsi,
-          ...(haRaggiuntoLimite && vendettaAttiva ? { vendettaCucciolo: false } : {}),
+          usiNotte: [...(g.usiNotte ?? []), POTERE],
+          ...(consumaVendetta ? { vendettaCucciolo: false } : {}),
         })
       })
   }
@@ -100,13 +106,15 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
       : risolviAttaccoBranco(giocatori, targetId, round, ruoli, berserkerLupoSceltoId)
   }
 
-  // se il colpo precedente è ancora annullabile (caso comune, niente
-  // vendetta in corso) lo disfa: le morti con annullaMorte (catena inclusa),
-  // gli altri campi ripristinando esattamente i valori di prima
-  function annullaColpoAttivo() {
-    for (const [id, originali] of Object.entries(colpoAttivo.originali)) {
-      if (colpoAttivo.letali.includes(id)) annullaColpo(id, aggiornaGiocatore, annullaMorte)
+  // disfa gli effetti di un colpo (non gli usi): le morti con annullaMorte
+  // (catena inclusa), gli altri campi ripristinando i valori di prima
+  function disfaEffetti(colpo) {
+    for (const [id, originali] of Object.entries(colpo.originali)) {
+      if (colpo.letali.includes(id)) annullaColpo(id, aggiornaGiocatore, annullaMorte)
       else aggiornaGiocatore(id, originali)
+    }
+    if (colpo.consumaVendetta) {
+      giocatori.filter((g) => ruoli.includes(g.ruoloSlug)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: true }))
     }
   }
 
@@ -128,13 +136,26 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
     return null
   }
 
-  function applica(tipo, targetId, berserkerLupoSceltoId) {
-    // il colpo precedente resta annullabile solo se la vendetta non è in
-    // corso: se è stato proprio lui a farla scattare (Cucciolo sbranato),
-    // diventa la prima delle due vittime definitive
-    const annullabile = colpoAttivo && !vendettaAttiva
-    if (annullabile) annullaColpoAttivo()
-    else if (colpoAttivo) setVittimeDefinitive((prev) => [...prev, colpoAttivo.targetId])
+  // deselezione: toglie il colpo i. Se la vendetta l'aveva fatta scattare il
+  // primo colpo (Cucciolo sbranato), disfarlo la disattiva e porta via anche
+  // le vittime successive, che senza vendetta non ci sarebbero
+  function deseleziona(i) {
+    const tolti = !vendettaIniziale && i === 0 ? colpi : [colpi[i]]
+    ;[...tolti].reverse().forEach(disfaEffetti)
+    const n = tolti.length
+    giocatori
+      .filter((g) => ruoli.includes(g.ruoloSlug))
+      .forEach((g) => aggiornaGiocatore(g.id, { usiNotte: senzaUltimiUsi(g.usiNotte ?? [], n) }))
+    setColpi(colpi.filter((c) => !tolti.includes(c)))
+    setEsito(null)
+  }
+
+  // `sostituisce`: rimpiazza l'ultimo colpo invece di aggiungerne uno (il
+  // conteggio degli usi non cambia)
+  function applica(tipo, targetId, berserkerLupoSceltoId, sostituisce = colpi.length >= limite) {
+    const restano = sostituisce ? colpi.slice(0, -1) : colpi
+    if (sostituisce) disfaEffetti(colpi[colpi.length - 1])
+    const consumaVendetta = vendettaAttiva && restano.length + 1 >= 2
     const patches = calcolaPatch(tipo, targetId, berserkerLupoSceltoId)
     const originali = {}
     const letali = []
@@ -145,51 +166,46 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
       aggiornaGiocatore(id, patch)
     }
     setEsito(descriviEsito(targetId, patches))
-    setColpoAttivo(vendettaAttiva ? null : { targetId, tipo, originali, letali })
-    if (vendettaAttiva) setVittimeDefinitive((prev) => [...prev, targetId])
-    // conta come nuovo uso solo la vendetta (ogni colpo è definitivo, quindi
-    // ognuno va contato) o il primissimo colpo nel caso comune: sostituire
-    // un colpo già annullabile non deve incrementare di nuovo
-    if (vendettaAttiva || !annullabile) {
-      segnaUsoBranco()
+    setColpi([...restano, { targetId, tipo, originali, letali, consumaVendetta }])
+    if (!sostituisce) segnaUsoBranco(consumaVendetta)
+    else if (consumaVendetta) {
+      giocatori.filter((g) => ruoli.includes(g.ruoloSlug)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
     }
-    setBersaglioInAttesaDiLupo(null)
+    setAttesaLupo(null)
   }
 
   // Berserker: se i lupi vivi più vicini sono due (parità di distanza a
   // destra e sinistra), il narratore sceglie quale muore per la vendetta,
   // invece di lasciarlo decidere in automatico (pag. 10)
-  function procediConAttacco(targetId) {
+  function procediConAttacco(targetId, sostituisce) {
     const target = giocatori.find((g) => g.id === targetId)
     const candidatiLupo = target?.ruoloSlug === 'berserker' ? berserkerLupiCandidati(giocatori, targetId) : []
     if (candidatiLupo.length > 1) {
-      setBersaglioInAttesaDiLupo(targetId)
+      setAttesaLupo({ targetId, sostituisce })
       return
     }
-    applica('sbrana', targetId)
+    applica('sbrana', targetId, undefined, sostituisce)
   }
 
-  // scegliere una chip sbrana sempre normalmente: il Progenitore è
-  // un'opzione separata che si applica DOPO, sul bersaglio già scelto
-  // (pulsante qui sotto), non un fork che sostituisce le chip
+  // click su una chip: se è già tra i colpi si deseleziona, altrimenti si
+  // sbrana (il Progenitore è un'opzione separata, sul pulsante qui sotto)
   function confermaScelta(targetId) {
-    if (targetId === colpoAttivo?.targetId) return
-    procediConAttacco(targetId)
+    const i = colpi.findIndex((c) => c.targetId === targetId)
+    if (i >= 0) deseleziona(i)
+    else procediConAttacco(targetId)
   }
 
-  // il pulsante del Progenitore è un interruttore sul bersaglio corrente:
+  // il pulsante del Progenitore è un interruttore sull'ultimo bersaglio:
   // trasforma invece di sbranare, o torna a sbranare (gestendo di nuovo
   // l'eventuale parità del Berserker se il bersaglio lo richiede)
   function toggleTrasformazione() {
-    if (!colpoAttivo) return
-    if (colpoAttivo.tipo === 'trasforma') {
-      procediConAttacco(colpoAttivo.targetId)
-    } else {
-      applica('trasforma', colpoAttivo.targetId)
-    }
+    const ultimo = colpi[colpi.length - 1]
+    if (!ultimo) return
+    if (ultimo.tipo === 'trasforma') procediConAttacco(ultimo.targetId, true)
+    else applica('trasforma', ultimo.targetId, undefined, true)
   }
 
-  if (bersaglioInAttesaDiLupo) {
+  if (attesaLupo) {
     const candidatiLupo = berserkerLupiCandidati(giocatori, bersaglioInAttesaDiLupo)
     return (
       <div className="scelta-giocatore__chips" role="group" aria-label="Quale lupo uccide il Berserker">
@@ -199,19 +215,20 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
             key={g.id}
             type="button"
             className="chip"
-            onClick={() => applica('sbrana', bersaglioInAttesaDiLupo, g.id)}
+            onClick={() => applica('sbrana', bersaglioInAttesaDiLupo, g.id, attesaLupo.sostituisce)}
           >
             {g.nome}
           </button>
         ))}
-        <button type="button" onClick={() => setBersaglioInAttesaDiLupo(null)}>
+        <button type="button" onClick={() => setAttesaLupo(null)}>
           Annulla (cambia bersaglio)
         </button>
       </div>
     )
   }
 
-  const bersaglioCorrente = colpoAttivo && giocatori.find((g) => g.id === colpoAttivo.targetId)
+  const ultimoColpo = colpi[colpi.length - 1]
+  const bersaglioCorrente = ultimoColpo && giocatori.find((g) => g.id === ultimoColpo.targetId)
 
   return (
     <div className="scelta-giocatore">
@@ -219,7 +236,7 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
       {vendettaAttiva && (
         <p className="avviso">
           🐺 Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima{' '}
-          {Math.min(usi + 1, 2)} di 2).
+          {Math.min(colpi.length + 1, 2)} di 2).
         </p>
       )}
       <div className="scelta-giocatore__chips" role="group" aria-label="Il branco sbrana">
@@ -227,23 +244,24 @@ export function AzioneBrancoLupi({ giocatori, aggiornaGiocatore, annullaMorte, r
           <button
             key={g.id}
             type="button"
-            className={`chip${colpoAttivo?.targetId === g.id && colpoAttivo.tipo === 'trasforma' ? ' chip--trasformato' : ''}`}
-            aria-pressed={colpoAttivo?.targetId === g.id || vittimeDefinitive.includes(g.id)}
+            className={`chip${colpi.some((c) => c.targetId === g.id && c.tipo === 'trasforma') ? ' chip--trasformato' : ''}`}
+            aria-pressed={colpi.some((c) => c.targetId === g.id)}
             onClick={() => confermaScelta(g.id)}
           >
             {g.nome}
           </button>
         ))}
       </div>
+      {vendettaAttiva && colpi.length >= 2 && <p>Il branco ha già sbranato le sue vittime questa notte.</p>}
       {esito && <p className="avviso">⚠️ {esito}</p>}
       {progenitorePuoTrasformare && bersaglioCorrente && (
         <button
           type="button"
-          className={colpoAttivo.tipo === 'trasforma' ? 'chip--trasformato' : ''}
-          aria-pressed={colpoAttivo.tipo === 'trasforma'}
+          className={ultimoColpo.tipo === 'trasforma' ? 'chip--trasformato' : ''}
+          aria-pressed={ultimoColpo.tipo === 'trasforma'}
           onClick={toggleTrasformazione}
         >
-          {colpoAttivo.tipo === 'trasforma'
+          {ultimoColpo.tipo === 'trasforma'
             ? 'Sbrana normalmente'
             : `Il Progenitore trasforma ${bersaglioCorrente.nome} in Lupo Mannaro`}
         </button>

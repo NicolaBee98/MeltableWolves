@@ -187,3 +187,48 @@ test('Medium: propone solo i giocatori morti come bersaglio', () => {
   expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Luca' })).toBeInTheDocument()
 })
+
+test('Cartomante: la carta di un bersaglio ignoto si cambia e si deseleziona (torna a ruolo ignoto) senza residui', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], storiaRuoli: [] },
+  ]
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  }
+  const el = () => (
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'villico', 'lupo-mannaro']}
+      quantita={{ cartomante: 1, villico: 1, 'lupo-mannaro': 1 }}
+    />
+  )
+  const { rerender } = render(el())
+  const clic = async (nome) => {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(el())
+  }
+
+  await clic('Marco')
+  await clic('Villico')
+  expect(giocatori[1]).toMatchObject({ ruoloSlug: 'villico', storiaRuoli: ['villico'] })
+  // la carta scelta resta in lista (quantità esaurita) e premuta
+  expect(screen.getByRole('button', { name: 'Villico' })).toHaveAttribute('aria-pressed', 'true')
+
+  await clic('Lupo Mannaro')
+  expect(giocatori[1]).toMatchObject({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'] })
+  expect(giocatori[0].ultimaIndagine.ruoloRivelato).toBe('lupo-mannaro')
+  expect(giocatori[0].usiNotte).toEqual(['cartomante-indagine'])
+
+  await clic('Lupo Mannaro')
+  expect(giocatori[1].ruoloSlug).toBeUndefined()
+  expect(giocatori[1].storiaRuoli).toEqual([])
+  expect(giocatori[0].ultimaIndagine).toBeNull()
+  expect(giocatori[0].usiNotte).toEqual([])
+})

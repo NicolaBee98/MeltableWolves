@@ -25,9 +25,26 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // ucciso l'ultimo lupo, cambiare bersaglio non deve poter uccidere un non-lupo
   const nessunLupoVivo = !candidati.some((g) => eLupo(g.ruoloSlug))
 
+  // deselezione (click sulla chip premuta): niente bersaglio, uso del potere tolto
+  function deseleziona() {
+    if (colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
+    giocatori
+      .filter((g) => RUOLI.includes(g.ruoloSlug))
+      .forEach((g) => {
+        const usi = [...(g.usiNotte ?? [])]
+        const idx = usi.lastIndexOf(POTERE)
+        if (idx >= 0) usi.splice(idx, 1)
+        aggiornaGiocatore(g.id, { usiNotte: usi })
+      })
+    setTarget(null)
+    setColpito(false)
+    setAvviso(null)
+  }
+
   function confermaScelta(targetId) {
-    if (targetId === target) return
+    if (targetId === target) return deseleziona()
     if (target && colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
+    const eraScelto = Boolean(target)
     setTarget(targetId)
     setColpito(false)
     setAvviso(null)
@@ -45,7 +62,8 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         }
       }
     }
-    segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
+    // cambiare bersaglio non è un nuovo uso
+    if (!eraScelto) segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
   }
 
   if (candidati.length === 0) {

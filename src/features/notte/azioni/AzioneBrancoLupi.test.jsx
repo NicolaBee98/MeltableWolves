@@ -369,3 +369,108 @@ test('vendetta del Cucciolo: indicatore delle due vittime, la seconda non annull
   expect(annullaMorte).not.toHaveBeenCalled()
   expect(screen.getByText(/ha già sbranato le sue vittime/i)).toBeInTheDocument()
 })
+
+test('cliccare di nuovo la chip premuta deseleziona il colpo: nessuna vittima e nessun uso residuo', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const annullaMorte = vi.fn((id) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, vivo: true } : g))
+  })
+  const props = () => ({ giocatori, aggiornaGiocatore, annullaMorte, round: 2, ruoli: ['lupo-mannaro'] })
+  const { rerender } = render(<AzioneBrancoLupi {...props()} />)
+
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+
+  expect(annullaMorte).toHaveBeenCalledWith('1')
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+  expect(giocatori.find((g) => g.id === '3').usiNotte).toEqual([])
+})
+
+// il mock emula la catena: la morte del Cucciolo accende la vendetta sui lupi
+function montaVendetta(vendettaIniziale) {
+  let giocatori = [
+    { id: 'C', nome: 'Cuc', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], vendettaCucciolo: vendettaIniziale },
+  ]
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+    if (id === 'C' && patch.vivo === false) {
+      giocatori = giocatori.map((g) => (g.id === '3' ? { ...g, vendettaCucciolo: true } : g))
+    }
+  }
+  const annullaMorte = (id) => {
+    giocatori = giocatori.map((g) =>
+      g.id === id ? { ...g, vivo: true } : g.id === '3' ? { ...g, vendettaCucciolo: vendettaIniziale } : g,
+    )
+  }
+  const props = () => ({ giocatori, aggiornaGiocatore, annullaMorte, round: 2, ruoli: ['lupo-mannaro'] })
+  return { props, get: (id) => giocatori.find((g) => g.id === id) }
+}
+
+test('vendetta scattata dal primo morso (Cucciolo): deselezionare la seconda vittima la disfà e riattiva la vendetta', async () => {
+  const user = userEvent.setup()
+  const m = montaVendetta(false)
+  const { rerender } = render(<AzioneBrancoLupi {...m.props()} />)
+  const clic = async (nome) => {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(<AzioneBrancoLupi {...m.props()} />)
+  }
+
+  await clic('Cuc')
+  await clic('Carlo')
+  expect(screen.getByText(/ha già sbranato le sue vittime/i)).toBeInTheDocument()
+  expect(m.get('3').vendettaCucciolo).toBe(false)
+
+  await clic('Carlo')
+  expect(m.get('2').vivo).toBe(true)
+  expect(m.get('3')).toMatchObject({ vendettaCucciolo: true, usiNotte: ['branco-lupi-sbrana'] })
+  expect(screen.getByRole('button', { name: 'Cuc' })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('vendetta scattata dal primo morso: deselezionare il Cucciolo spegne la vendetta e porta via anche la seconda vittima', async () => {
+  const user = userEvent.setup()
+  const m = montaVendetta(false)
+  const { rerender } = render(<AzioneBrancoLupi {...m.props()} />)
+  const clic = async (nome) => {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(<AzioneBrancoLupi {...m.props()} />)
+  }
+
+  await clic('Cuc')
+  await clic('Carlo')
+  await clic('Cuc')
+
+  expect(m.get('C').vivo).toBe(true)
+  expect(m.get('2').vivo).toBe(true)
+  expect(m.get('3')).toMatchObject({ vendettaCucciolo: false, usiNotte: [] })
+  expect(screen.queryByText(/vendetta del cucciolo/i)).not.toBeInTheDocument()
+})
+
+test('vendetta già attiva: ogni vittima si può cambiare, la prima senza toccare la seconda', async () => {
+  const user = userEvent.setup()
+  const m = montaVendetta(true)
+  const { rerender } = render(<AzioneBrancoLupi {...m.props()} />)
+  const clic = async (nome) => {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(<AzioneBrancoLupi {...m.props()} />)
+  }
+
+  await clic('Cuc')
+  await clic('Carlo')
+  await clic('Cuc')
+
+  expect(m.get('C').vivo).toBe(true)
+  expect(m.get('2').vivo).toBe(false)
+  expect(screen.getByRole('button', { name: 'Carlo' })).toHaveAttribute('aria-pressed', 'true')
+  expect(m.get('3').usiNotte).toEqual(['branco-lupi-sbrana'])
+})

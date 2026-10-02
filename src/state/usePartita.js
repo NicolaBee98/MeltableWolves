@@ -75,6 +75,16 @@ export function propagaMorti(giocatori, giaProcessati) {
   }
 }
 
+// campi che le azioni notturne scrivono DOPO la morte (uso del potere, fine
+// della vendetta del Cucciolo): non devono impedire di disfare la catena
+const CAMPI_USO = ['usiNotte', 'poteriUsati', 'vendettaCucciolo']
+
+function invariatoDopoMorte(g, dopo) {
+  return (
+    g === dopo || (Boolean(dopo) && Object.keys({ ...g, ...dopo }).every((k) => CAMPI_USO.includes(k) || g[k] === dopo[k]))
+  )
+}
+
 export function usePartita() {
   const [giocatori, setGiocatori] = useState(loadGiocatori)
   // {id: {prima, dopo}}: stato dell'intera lista prima e subito dopo una
@@ -143,7 +153,9 @@ export function usePartita() {
       return prev.map((g) => {
         const prima = snap.prima.find((p) => p.id === g.id)
         const dopo = snap.dopo.find((p) => p.id === g.id)
-        return prima && (g.id === id || g === dopo) ? prima : g
+        if (!prima || !(g.id === id || invariatoDopoMorte(g, dopo))) return g
+        // l'uso del potere (scritto dopo la morte) lo gestisce chi annulla
+        return { ...prima, usiNotte: g.usiNotte, poteriUsati: g.poteriUsati }
       })
     })
   }

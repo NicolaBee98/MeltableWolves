@@ -34,7 +34,14 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, impostaGiocatori
   }
 
   function confermaScelta(targetId) {
-    if (!attore || targetId === target) return
+    if (!attore) return
+    if (targetId === target) {
+      // deselezione: torna morto e il potere si rilascia (come la Strega)
+      ripristinaMorto(scelto)
+      aggiornaGiocatore(attore.id, { poteriUsati: (attore.poteriUsati ?? []).filter((p) => p !== potereSlug) })
+      setScelto(null)
+      return
+    }
     if (scelto) ripristinaMorto(scelto)
     const nuovoBersaglio = giocatori.find((g) => g.id === targetId)
     const patch = nuovoBersaglio && resuscitaPatch(nuovoBersaglio, round)
