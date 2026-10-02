@@ -1,5 +1,6 @@
 import { ruoliAssegnabili, eMimoCopiante } from './assegnazione'
 import { RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
+import { eLupo } from './roles'
 
 // Ruoli con un evento tutto loro: Alchimista/Boia/Scemo del
 // Villaggio perché la rivelazione diurna coincide con l'uso stesso del
@@ -58,10 +59,16 @@ export function rivelazioneContestualeDisponibile(slug, ruoliSelezionati, giocat
   )
 }
 
-// Bardo e Gallo Mannaro: ogni giocatore ha il proprio uso (il Mimo che li copia
-// ne ha uno suo, spec 2.2); il primo vivo che non l'ha ancora speso
+// Bardo e Gallo Mannaro: non si distingue se a usare il potere sia il titolare
+// o il Mimo che lo copia (tenerne traccia spetta al narratore). Regola: il
+// potere è disponibile se almeno un titolare è vivo e almeno uno non l'ha
+// ancora speso. Ritorna il titolare su cui segnare l'uso (il primo vivo non
+// ancora usato, altrimenti il primo non usato), o undefined se non disponibile.
 export function conPotereDisponibile(giocatori, slug, potere) {
-  return giocatori.find((g) => g.ruoloSlug === slug && g.vivo && !(g.poteriUsati ?? []).includes(potere))
+  const titolari = giocatori.filter((g) => g.ruoloSlug === slug)
+  const nonUsato = (g) => !(g.poteriUsati ?? []).includes(potere)
+  if (!titolari.some((g) => g.vivo)) return undefined
+  return titolari.find((g) => g.vivo && nonUsato(g)) ?? titolari.find(nonUsato)
 }
 
 export function bardoDisponibile(giocatori) {
@@ -78,4 +85,36 @@ export function galloDisponibile(giocatori) {
 export function borgomastroDisponibile(ruoliSelezionati, giocatori) {
   if (!ruoliSelezionati.includes('borgomastro')) return false
   return !giocatori.some((g) => g.eBorgomastro && g.vivo)
+}
+
+// Promemoria per il narratore: conseguenze note della morte sul colpo / al
+// rogo di `id` (stringhe già pronte). Se è ancora vivo sono previsioni; se è
+// già morto resta solo il crepacuore dei partner, il resto è già applicato.
+export function conseguenzeMorte(giocatori, id) {
+  const t = giocatori.find((g) => g.id === id)
+  if (!t) return []
+  const nome = (x) => giocatori.find((g) => g.id === x)?.nome
+  const partner = (t.condizioni ?? []).includes('innamorato')
+    ? t.innamoratiCon?.length
+      ? t.innamoratiCon.map((x) => giocatori.find((g) => g.id === x)).filter(Boolean)
+      : giocatori.filter((g) => g.id !== id && (g.condizioni ?? []).includes('innamorato'))
+    : []
+  if (!t.vivo) {
+    return partner.filter((g) => g.causaMorte === 'crepacuore').map((g) => `È morto anche ${g.nome} (crepacuore).`)
+  }
+  const out = partner.filter((g) => g.vivo).map((g) => `Morirà anche ${g.nome} (crepacuore).`)
+  const legati = (tipo) =>
+    giocatori.filter((g) => g.vivo && ['legame', 'legameMimo'].some((c) => g[c]?.tipo === tipo && g[c].targetId === id))
+  legati('cavaliere').forEach((g) => out.push(`Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`))
+  legati('apprendista').forEach((g) => out.push(`L'Apprendista ${g.nome} erediterà il suo ruolo.`))
+  legati('figlia-dei-lupi').forEach((g) => out.push(`La Figlia dei Lupi ${g.nome} diventa Lupo Mannaro.`))
+  if (t.ruoloSlug === 'cucciolo-di-lupo-mannaro' && !giocatori.some((g) => g.vendettaInnescata))
+    out.push('Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.')
+  else if (eLupo(t.ruoloSlug) && giocatori.some((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'))
+    out.push('Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
+  if (t.ruoloSlug === 'lantico' && t.anticoSbranatoNotte === undefined)
+    out.push("L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte nessun potere si sveglia.")
+  if (t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
+  if (t.ruoloSlug === 'spilungone') out.push('Lo Spilungone si rivela e non muore al primo rogo.')
+  return out
 }

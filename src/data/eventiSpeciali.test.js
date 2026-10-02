@@ -5,6 +5,8 @@ import {
   borgomastroDisponibile,
   RUOLI_NON_CARTA_SEGRETA,
   candidatiRivelazione,
+  conPotereDisponibile,
+  conseguenzeMorte,
 } from './eventiSpeciali'
 
 test('RUOLI_NON_CARTA_SEGRETA copre Fantasma Onnisciente, Suocera, Borgomastro e i 4 ruoli con un evento tutto loro (mai una carta segreta assegnabile da Mimo/Cartomante)', () => {
@@ -97,4 +99,49 @@ test('Bardo: con Bardo e Mimo-Bardo la notte salta due volte (un uso a testa)', 
   const b = { id: '2', vivo: true, ruoloSlug: 'bardo' }
   expect(bardoDisponibile([a, b])).toBe(true)
   expect(bardoDisponibile([a, { ...b, poteriUsati: ['bardo-salta-notte'] }])).toBe(false)
+})
+
+test('Bardo con Mimo: disponibile se almeno un titolare è vivo e almeno uno non ha usato il potere (regola letterale)', () => {
+  const usato = ['bardo-salta-notte']
+  const g = (vivo, poteriUsati) => ({ id: String(Math.random()), ruoloSlug: 'bardo', vivo, poteriUsati })
+  // Bardo ha usato ed è morto, Mimo-Bardo vivo non ha usato
+  expect(bardoDisponibile([g(false, usato), g(true, [])])).toBe(true)
+  // Bardo non ha usato ed è morto, Mimo-Bardo vivo ha usato: la regola letterale dice disponibile
+  const morto = g(false, [])
+  expect(bardoDisponibile([morto, g(true, usato)])).toBe(true)
+  // l'uso si segna sul morto non usato, perché non c'è un vivo non usato
+  expect(conPotereDisponibile([morto, g(true, usato)], 'bardo', 'bardo-salta-notte')).toBe(morto)
+  // entrambi hanno usato, oppure nessuno è vivo
+  expect(bardoDisponibile([g(true, usato), g(true, usato)])).toBe(false)
+  expect(bardoDisponibile([g(false, []), g(false, [])])).toBe(false)
+  // con due non usati si segna il primo vivo
+  const a = g(false, [])
+  const b = g(true, [])
+  expect(conPotereDisponibile([a, b], 'bardo', 'bardo-salta-notte')).toBe(b)
+})
+
+test('conseguenzeMorte ricorda crepacuore (più coppie), legami, Antico, Alchimista e vendetta del Cucciolo', () => {
+  const gs = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2', '3'] },
+    { id: '2', nome: 'Bea', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    { id: '3', nome: 'Carlo', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    { id: '4', nome: 'Dino', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+    { id: '5', nome: 'Elio', vivo: true, condizioni: [], ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '1' } },
+    { id: '6', nome: 'Fio', vivo: true, condizioni: [], ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+    { id: '7', nome: 'Gigi', vivo: true, condizioni: [], ruoloSlug: 'lantico' },
+    { id: '8', nome: 'Ugo', vivo: true, condizioni: [], ruoloSlug: 'alchimista' },
+  ]
+  expect(conseguenzeMorte(gs, '1')).toEqual([
+    'Morirà anche Bea (crepacuore).',
+    'Morirà anche Carlo (crepacuore).',
+    'Il Cavaliere Dino lo protegge: si immola al suo posto.',
+    "L'Apprendista Elio erediterà il suo ruolo.",
+  ])
+  expect(conseguenzeMorte(gs, '6')[0]).toMatch(/Vendetta del Cucciolo/)
+  expect(conseguenzeMorte(gs, '7')[0]).toMatch(/Antico sopravvive/)
+  expect(conseguenzeMorte(gs, '8')[0]).toMatch(/Alchimista esplode/)
+  expect(conseguenzeMorte(gs, '2')).toEqual(['Morirà anche Anna (crepacuore).'])
+  // a morte avvenuta resta solo chi è già morto di crepacuore
+  const dopo = gs.map((g) => (g.id === '1' ? { ...g, vivo: false } : g.id === '2' ? { ...g, vivo: false, causaMorte: 'crepacuore' } : g))
+  expect(conseguenzeMorte(dopo, '1')).toEqual(['È morto anche Bea (crepacuore).'])
 })

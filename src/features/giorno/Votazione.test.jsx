@@ -213,6 +213,8 @@ test("un designato di ruolo ignoto può rivelarsi l'Alchimista al rogo: chiede p
 
   await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
   await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(onAlchimistaEsplode).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onRogo).not.toHaveBeenCalled()
   expect(onAlchimistaEsplode).toHaveBeenCalledWith('1', '2')
@@ -488,4 +490,18 @@ test("L'Antico rivelato (ora Villico, storiaRuoli con 'lantico') mantiene l'icon
   })
   expect(screen.getByAltText("L'Antico")).toBeInTheDocument()
   expect(screen.getAllByAltText('Villico')).toHaveLength(1)
+})
+
+test("l'esito del rogo ricorda il crepacuore del partner del designato prima di confermare", () => {
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    ],
+    voti: { 1: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1', '2'],
+  })
+
+  expect(screen.getByText('Morirà anche Marco (crepacuore).')).toBeInTheDocument()
 })

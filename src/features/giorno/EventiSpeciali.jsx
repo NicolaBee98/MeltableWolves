@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
+import { PromemoriaMorte } from './PromemoriaMorte'
 import { useDialogA11y } from '../../components/useDialogA11y'
 import { ruoliAssegnabili, eMimoCopiante } from '../../data/assegnazione'
 import {
@@ -14,7 +15,7 @@ import {
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
 // chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
 // Borgomastro, Fantasma Onnisciente.
-function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = false }) {
+function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = true, dettaglio }) {
   return (
     <>
       {messaggio && <p>{messaggio}</p>}
@@ -25,6 +26,7 @@ function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnu
         etichetta={etichetta}
         etichettaSalta="Annulla"
         richiedeConferma={richiedeConferma}
+        dettaglioSelezione={dettaglio}
       />
     </>
   )
@@ -41,19 +43,21 @@ function EventoDueGiocatori({
   escludiAttoreDaBersagli = false,
   onConferma,
   onAnnulla,
-  richiedeConferma = false,
+  richiedeConferma = true,
+  dettaglio,
 }) {
   const [attoreId, setAttoreId] = useState(null)
 
   if (!attoreId) {
     return (
       <>
-          <SceltaGiocatore
+        <SceltaGiocatore
           candidati={candidatiAttore}
           onConferma={setAttoreId}
           onSalta={onAnnulla}
           etichetta={etichettaAttore}
           etichettaSalta="Annulla"
+          richiedeConferma={richiedeConferma}
         />
       </>
     )
@@ -68,6 +72,7 @@ function EventoDueGiocatori({
       etichetta={etichettaBersaglio}
       etichettaSalta="Annulla"
       richiedeConferma={richiedeConferma}
+      dettaglioSelezione={dettaglio}
     />
   )
 }
@@ -246,8 +251,8 @@ export function EventiSpeciali({
                 onScemoSbaglia(id)
                 chiudi()
               }}
+              dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -261,7 +266,6 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -274,8 +278,7 @@ export function EventiSpeciali({
                 onMorteUnzione(id)
                 chiudi()
               }}
-              onAnnulla={chiudi}
-              richiedeConferma
+                            onAnnulla={chiudi}
             />
           )}
 
@@ -288,7 +291,6 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -302,8 +304,8 @@ export function EventiSpeciali({
                 onBoiaGiustizia(boiaId, id)
                 chiudi()
               }}
+              dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -318,8 +320,8 @@ export function EventiSpeciali({
                 onAlchimistaEsplode(alchimistaId, id)
                 chiudi()
               }}
+              dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -354,7 +356,6 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -368,7 +369,6 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 
@@ -382,7 +382,6 @@ export function EventiSpeciali({
                 chiudi()
               }}
               onAnnulla={chiudi}
-              richiedeConferma
             />
           )}
 

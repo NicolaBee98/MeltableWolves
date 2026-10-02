@@ -16,6 +16,9 @@ export function SceltaGiocatore({
   // scelta già applicata dal chiamante: la chip risulta premuta (cliccarla
   // di nuovo spetta a onConferma, che la annulla)
   selezionatoEsternoId,
+  // nodo mostrato sotto le chip per la chip selezionata (solo richiedeConferma),
+  // es. promemoria delle conseguenze prima di confermare
+  dettaglioSelezione,
 }) {
   const [selezionatoId, setSelezionatoId] = useState(null)
 
@@ -46,6 +49,7 @@ export function SceltaGiocatore({
           </button>
         ))}
       </div>
+      {richiedeConferma && selezionatoId && dettaglioSelezione?.(selezionatoId)}
       {richiedeConferma && (
         <button type="button" disabled={!selezionatoId} onClick={() => onConferma(selezionatoId)}>
           Conferma

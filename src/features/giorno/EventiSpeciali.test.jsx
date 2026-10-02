@@ -159,6 +159,8 @@ test('Il Boia giustizia chiede prima chi è il Boia, poi chi giustizia, senza bi
   expect(screen.getByText('Chi è il Boia')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  expect(onBoiaGiustizia).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(screen.getByText('Chi giustizia il Boia')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
@@ -192,6 +194,7 @@ test('il Boia può giustiziare se stesso: resta tra i candidati del secondo pass
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(screen.getByRole('button', { name: 'Ivo' })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
@@ -228,6 +231,7 @@ test("L'Alchimista esplode chiede prima chi è l'Alchimista, poi chi trascina co
   expect(screen.getByText("Chi è l'Alchimista")).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(screen.getByText("Chi trascina con sé l'Alchimista")).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Ivo' })).not.toBeInTheDocument() // non può trascinare sé stesso
 
@@ -348,6 +352,8 @@ test('Annulla morte giocatore propone tutti i morti (qualunque ruolo), in qualun
   expect(screen.queryByRole('button', { name: 'Luca' })).not.toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(onAnnullaMorte).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(onAnnullaMorte).toHaveBeenCalledWith('2')
 })
 
@@ -444,4 +450,22 @@ test('il Mimo-Boia compare come attore del Boia accanto al titolare ancora ignot
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: /conferma/i }))
   expect(onBoiaGiustizia).toHaveBeenCalledWith('2', '1')
+})
+
+test('Boia: scelto il bersaglio innamorato, prima di confermare compare il promemoria del crepacuore', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', vivo: true },
+    { id: '2', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['3'] },
+    { id: '3', nome: 'Bea', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+
+  expect(screen.getByText('Morirà anche Bea (crepacuore).')).toBeInTheDocument()
 })
