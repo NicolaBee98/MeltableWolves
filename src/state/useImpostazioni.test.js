@@ -57,3 +57,14 @@ test('promemoriaRuoliMorti è true di default e persiste', () => {
   const { result: result2 } = renderHook(() => useImpostazioni())
   expect(result2.current.promemoriaRuoliMorti).toBe(false)
 })
+
+test('addolorataEreditaScelte è true di default e persiste quando disattivata', () => {
+  const { result, unmount } = renderHook(() => useImpostazioni())
+  expect(result.current.addolorataEreditaScelte).toBe(true)
+  act(() => {
+    result.current.setAddolorataEreditaScelte(false)
+  })
+  unmount()
+  const { result: result2 } = renderHook(() => useImpostazioni())
+  expect(result2.current.addolorataEreditaScelte).toBe(false)
+})

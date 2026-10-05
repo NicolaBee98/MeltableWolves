@@ -656,3 +656,53 @@ test('Ubriaco sbranato: avviso subito e riga di registro (si scrive con Avanti)'
   expect(screen.getByText(/Ugo è l'Ubriaco: il branco sarà stordito la prossima notte/)).toBeInTheDocument()
   expect(impostaEventiAvanti).toHaveBeenLastCalledWith('branco', ["L'Ubriaco Ugo è stato sbranato: il branco sarà stordito la prossima notte."])
 })
+
+describe('Mimo × Progenitore: poteri di trasformazione separati', () => {
+  const RUOLI = ['lupo-mannaro-progenitore']
+  const mk = (usatoProg, usatoMimo) => [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: usatoProg ? ['progenitore-trasforma'] : [], storiaRuoli: ['lupo-mannaro-progenitore'] },
+    { id: '3', nome: 'Mia', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: usatoMimo ? ['progenitore-trasforma'] : [], storiaRuoli: ['mimo', 'lupo-mannaro-progenitore'], legame: { tipo: 'mimo', targetId: '2' } },
+  ]
+
+  async function trasforma(giocatoriIniziali) {
+    const user = userEvent.setup()
+    let giocatori = giocatoriIniziali
+    const aggiornaGiocatore = vi.fn((id, patch) => {
+      giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+    })
+    const impostaEventiAvanti = vi.fn()
+    const el = () => <AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={RUOLI} impostaEventiAvanti={impostaEventiAvanti} />
+    const { rerender } = render(el())
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    rerender(el())
+    await user.click(screen.getByRole('button', { name: /progenitore trasforma anna/i }))
+    rerender(el())
+    return { giocatori, impostaEventiAvanti }
+  }
+
+  test('se il Progenitore ha già usato il suo potere, trasforma il Mimo (e viceversa); l\'uso si segna solo su chi trasforma', async () => {
+    const { giocatori } = await trasforma(mk(true, false))
+    expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
+    expect(giocatori.find((g) => g.id === '3').poteriUsati).toEqual(['progenitore-trasforma'])
+    expect(giocatori.find((g) => g.id === '2').poteriUsati).toEqual(['progenitore-trasforma'])
+  })
+
+  test('se il Mimo ha già usato il suo potere, il Progenitore vero può ancora trasformare', async () => {
+    const { giocatori } = await trasforma(mk(false, true))
+    expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
+    expect(giocatori.find((g) => g.id === '2').poteriUsati).toEqual(['progenitore-trasforma'])
+  })
+
+  test('entrambi liberi: trasforma il Progenitore vero, il Mimo conserva il suo; la trasformazione lascia una voce nel registro', async () => {
+    const { giocatori, impostaEventiAvanti } = await trasforma(mk(false, false))
+    expect(giocatori.find((g) => g.id === '2').poteriUsati).toEqual(['progenitore-trasforma'])
+    expect(giocatori.find((g) => g.id === '3').poteriUsati).toEqual([])
+    expect(impostaEventiAvanti).toHaveBeenLastCalledWith('branco', ['Il Progenitore Dario trasforma Anna in Lupo Mannaro.'])
+  })
+
+  test('nessun pulsante se entrambi hanno già trasformato', () => {
+    render(<AzioneBrancoLupi giocatori={mk(true, true)} aggiornaGiocatore={() => {}} round={2} ruoli={RUOLI} />)
+    expect(screen.queryByRole('button', { name: /progenitore trasforma/i })).not.toBeInTheDocument()
+  })
+})

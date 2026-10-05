@@ -17,6 +17,8 @@ export function LogImpostazioniPopup({
   onCambiaPromemoriaRuoliMorti,
   varianteMedium,
   onCambiaVarianteMedium,
+  addolorataEreditaScelte = true,
+  onCambiaAddolorataEreditaScelte = () => {},
 }) {
   const [aperto, setAperto] = useState(false)
   const [tab, setTab] = useState('impostazioni')
@@ -121,6 +123,14 @@ export function LogImpostazioniPopup({
                       onChange={(e) => onCambiaVarianteMedium(e.target.checked)}
                     />
                     Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto
+                  </label>
+                  <label className="impostazioni__toggle">
+                    <input
+                      type="checkbox"
+                      checked={addolorataEreditaScelte}
+                      onChange={(e) => onCambiaAddolorataEreditaScelte(e.target.checked)}
+                    />
+                    L'Addolorata eredita le scelte dei legami (maestro, protetto, genitore)
                   </label>
                   <label className="impostazioni__campo">
                     Durata timer arringa/spareggio (secondi)

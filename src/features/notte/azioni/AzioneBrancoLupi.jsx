@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
 import { annullaColpo, eColpoLetale } from './annullaColpo'
-import { conRuolo } from '../../../data/assegnazione'
+import { conRuolo, eMimoCopiante } from '../../../data/assegnazione'
 
 const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
@@ -73,9 +73,26 @@ function colpiDaStato(ingresso, giocatori, ruoli) {
     if (patch.vivo === false || patch.anticoSbranatoNotte !== undefined) colpo.letali.push(m.id)
   }
   for (const c of colpi) {
-    if (c.tipo !== 'trasforma') c.avvisi = avvisiColpo(ingresso, c.targetId, c.patches, 'branco')
+    c.avvisi = c.tipo === 'trasforma' ? avvisoTrasforma(ingresso, c.targetId, chiTrasforma(ingresso)) : avvisiColpo(ingresso, c.targetId, c.patches, 'branco')
   }
   return colpi
+}
+
+// Il Progenitore e il Mimo che lo copia hanno un potere di trasformazione CIASCUNO
+// (uso separato, `progenitore-trasforma` sul proprio giocatore): trasforma chi non
+// l'ha ancora usato, il Progenitore vero prima del Mimo
+function chiTrasforma(lista) {
+  return lista
+    .filter((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo && !(g.poteriUsati ?? []).includes(POTERE_TRASFORMA))
+    .sort((a, b) => eMimoCopiante(a) - eMimoCopiante(b))[0]
+}
+
+// solo per il registro (nessun testo a schermo: lo dice già "verrà trasformato")
+function avvisoTrasforma(lista, targetId, attore) {
+  const nome = lista.find((g) => g.id === targetId)?.nome
+  if (!attore || !nome) return []
+  const chi = eMimoCopiante(attore) ? `${attore.nome} (Mimo del Progenitore)` : `Il Progenitore ${attore.nome}`
+  return [{ log: `${chi} trasforma ${nome} in Lupo Mannaro.` }]
 }
 
 export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
@@ -130,15 +147,14 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo) || colpi.some((c) => c.consumaVendetta)
   const limite = vendettaAttiva ? 2 : 1
   const usi = usiStanotte(giocatori, ruoli)
-  const progenitore = giocatori.find((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo)
   // snapshot all'ingresso nel passo: usarla dal vivo farebbe sparire il
   // pulsante di trasformazione nello stesso istante in cui lo si preme
   // (il potere risulterebbe "già usato" a trasformazione appena applicata),
-  // impedendo di tornare indietro con "Sbrana normalmente" prima di Avanti
-  const [progenitorePuoTrasformare] = useState(() => {
-    const p = iniziali.find((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo)
-    return Boolean(p) && !(p.poteriUsati ?? []).includes(POTERE_TRASFORMA)
-  })
+  // impedendo di tornare indietro con "Sbrana normalmente" prima di Avanti.
+  // Chi trasforma è il titolare (Progenitore o Mimo) che non ha ancora usato il suo potere.
+  const [progenitoreId] = useState(() => chiTrasforma(iniziali)?.id)
+  const progenitore = giocatori.find((g) => g.id === progenitoreId)
+  const progenitorePuoTrasformare = Boolean(progenitoreId)
 
   if (storditi) {
     return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
@@ -248,7 +264,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
       aggiornaGiocatore(id, patch)
     }
     setEsito(descriviEsito(targetId, patches, base))
-    const avvisi = tipo === 'trasforma' ? [] : avvisiColpo(base, targetId, patches, 'branco')
+    const avvisi = tipo === 'trasforma' ? avvisoTrasforma(base, targetId, progenitore) : avvisiColpo(base, targetId, patches, 'branco')
     const nuovo = { targetId, tipo, originali, letali, consumaVendetta, avvisi }
     // sostituendo un colpo non l'ultimo (con la vendetta il Cucciolo ucciso dal
     // primo morso attiva il secondo): il resto resta com'è
@@ -350,7 +366,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
       </div>
       {vendettaAttiva && colpi.length >= 2 && <p>Il branco ha già sbranato le sue vittime questa notte.</p>}
       {esito && <p className="avviso">⚠️ {esito}</p>}
-      {avvisiMorsi.map((a) => (
+      {avvisiMorsi.filter((a) => a.testo).map((a) => (
         <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
       ))}
       {colpi.filter((c) => c.tipo === 'trasforma').map((c) => (
