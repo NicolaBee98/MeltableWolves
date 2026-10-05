@@ -14,7 +14,9 @@ let hash = 0
 for (const c of JSON.stringify(VOCI)) hash = (hash * 31 + c.charCodeAt(0)) | 0
 const CACHE_NAME = `meltable-wolves-${(hash >>> 0).toString(36)}`
 // '/' oltre ai file del build: è l'URL di start_url, cioè quello che apre la PWA
-const URL_DA_PRECARICARE = ['/', ...VOCI.map((voce) => voce.url)]
+// Set: le icone del manifest compaiono due volte in __WB_MANIFEST e addAll()
+// rifiuta tutto l'elenco per richieste duplicate (il SW non si installava mai)
+const URL_DA_PRECARICARE = [...new Set(['/', ...VOCI.map((voce) => voce.url)])]
 
 // niente self.skipWaiting(): una nuova versione resta in attesa e si attiva
 // al prossimo avvio dell'app (tutte le schede chiuse), così un aggiornamento
