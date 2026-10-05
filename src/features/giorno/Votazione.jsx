@@ -125,13 +125,13 @@ export function Votazione({
   // successiva, l'esito resterebbe comunque corretto (nessuna vittima, o
   // per L'Antico normale morte da Villico) ma salterebbe il passo di
   // conferma. Da rivedere se capita davvero in una partita reale.
-  const [spilungoneRivelatoId, setSpilungoneRivelatoId] = useState(null)
+  const [spilungoneRivelatoStato, setSpilungoneRivelatoId] = useState(null)
   const [anticoRivelatoStato, setAnticoRivelatoId] = useState(null)
   // l'Alchimista ha bisogno di un secondo click (chi trascina con sé
   // nell'esplosione, pag. 5): attesaVittimaId mentre si sceglie, poi
   // l'esito finale una volta scelta la vittima
   const [alchimistaInAttesaVittimaId, setAlchimistaInAttesaVittimaId] = useState(null)
-  const [alchimistaEsploso, setAlchimistaEsploso] = useState(null)
+  const [alchimistaEsplosoStato, setAlchimistaEsploso] = useState(null)
   // spareggio: la chip resta selezionabile/cambiabile finché non si preme
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
@@ -167,6 +167,11 @@ export function Votazione({
     // L'Antico sopravvissuto si deduce anche dallo stato già scritto sul
     // giocatore (villaggioMaledettoFinoA di questo giorno), così dopo un
     // reload l'esito risulta ancora confermato
+    // (come lo Spilungone: marcatore spilungoneRivelatoRound di questo giorno)
+    const spilungoneRivelatoId =
+      spilungoneRivelatoStato ??
+      designati.find((id) => round !== undefined && giocatori.find((g) => g.id === id)?.spilungoneRivelatoRound === round) ??
+      null
     const anticoRivelatoId =
       anticoRivelatoStato ??
       designati.find((id) => round !== undefined && giocatori.find((g) => g.id === id)?.villaggioMaledettoFinoA === round) ??
@@ -181,6 +186,21 @@ export function Votazione({
     const protettoImmolatoId = cavaliereImmolato
       ? designati.find((id) => giocatori.find((g) => g.id === id)?.vivo)
       : undefined
+    // dopo un reload: l'Alchimista bruciato oggi e chi ha trascinato con sé
+    // (morto sul colpo per l'esplosione, mortoDa 'alchimista') si deducono dallo stato
+    const alchimistaBruciatoId = designati.find((id) => {
+      const g = giocatori.find((x) => x.id === id)
+      return round !== undefined && g && !g.vivo && g.ruoloSlug === 'alchimista' && g.causaMorte === 'rogo' && g.mortoNotte === round
+    })
+    const vittimaEsplosione = giocatori.find((g) => !g.vivo && g.causaMorte === 'colpo' && g.mortoDa === 'alchimista' && g.mortoGiorno === round)
+    const alchimistaEsploso =
+      alchimistaEsplosoStato ??
+      (alchimistaBruciatoId && vittimaEsplosione ? { alchimistaId: alchimistaBruciatoId, vittimaId: vittimaEsplosione.id, salvo: false } : null)
+    // il condannato di oggi (rogo di questo giorno) per "Vittima designata" dopo un reload nello spareggio
+    const condannatoDedottoId = designati.find((id) => {
+      const g = giocatori.find((x) => x.id === id)
+      return round !== undefined && g && !g.vivo && g.causaMorte === 'rogo' && g.mortoNotte === round
+    })
     const designatoSpareggioValido = designati.includes(designatoSpareggio) ? designatoSpareggio : null
     const morteConfermata =
       designati.some((id) => giocatori.find((g) => g.id === id)?.vivo === false) ||
@@ -196,6 +216,7 @@ export function Votazione({
     // narratore deve poterli rivelare qui invece di doverli assegnare in
     // anticipo da "Eventi speciali" (altrimenti morirebbero come un
     // designato qualsiasi).
+    const potereAlchimista = (g) => !(g.poteriUsati ?? []).includes('alchimista-esplosione')
     function rivelabileOra(slug) {
       return ruoliSelezionati?.includes(slug) && ruoliAssegnabili([slug], giocatori, quantita).length > 0
     }
@@ -205,15 +226,18 @@ export function Votazione({
     // successiva sarebbe un secondo click ridondante
     function confermaMorte(id) {
       const target = giocatori.find((g) => g.id === id)
-      if (target?.ruoloSlug === 'spilungone') {
+      if (target?.ruoloSlug === 'spilungone' && target.spilungoneRivelatoRound === undefined) {
+        // solo il primo rogo: il marcatore (onRivelazione) ricostruisce l'esito dopo un reload
+        onRivelazione('spilungone', id)
         setSpilungoneRivelatoId(id)
       } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined) {
         // già sbranato di notte (anticoSbranatoNotte definito) ha perso la sua
         // prima vita: al rogo muore come chiunque altro, senza maledizione
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
-      } else if (target?.ruoloSlug === 'alchimista' && cavalieriDi(giocatori, id).length === 0) {
-        // con un Cavaliere che lo salva non muore al rogo, quindi non esplode
+      } else if (target?.ruoloSlug === 'alchimista' && potereAlchimista(target) && cavalieriDi(giocatori, id).length === 0) {
+        // con un Cavaliere che lo salva non muore al rogo, quindi non esplode;
+        // con il potere già speso (non ricaricato) muore come chiunque altro
         setAlchimistaInAttesaVittimaId(id)
       } else {
         setRiepilogoMorte((r) => ({ ...r, [id]: conseguenzeMorte(giocatori, id, true) }))
@@ -223,12 +247,17 @@ export function Votazione({
 
     // morte confermata: riepilogo salvato al click (o, dopo un reload, solo il
     // crepacuore dei partner che si deduce dallo stato)
-    function riepilogoDi(id) {
-      return riepilogoMorte[id]?.length ? (
-        <RigheConseguenze righe={riepilogoMorte[id]} />
-      ) : (
-        <PromemoriaMorte giocatori={giocatori} id={id} />
-      )
+    // le righe congelate al click possono essere superate (es. l'Antico rivelato
+    // dopo la morte riporta in vita il partner): si scartano quelle sul crepacuore
+    // di chi ora è vivo. `con`: altre morti da riepilogare dallo stato (Alchimista)
+    function riepilogoDi(id, con = []) {
+      const vivoOra = (nome) => giocatori.some((g) => g.vivo && g.nome === nome)
+      const righe = (
+        riepilogoMorte[id]?.length
+          ? riepilogoMorte[id]
+          : [...new Set([id, ...con].flatMap((x) => conseguenzeMorte(giocatori, x)))]
+      ).filter((r) => !vivoOra(r.match(/^È morto anche (.+) \(crepacuore\)\.$/)?.[1]))
+      return <RigheConseguenze righe={righe} />
     }
 
     // come sopra, ma per un ruolo non ancora assegnato in app: lo rivela
@@ -307,15 +336,17 @@ export function Votazione({
       if (alchimistaEsploso?.alchimistaId === id) {
         const nome = giocatori.find((g) => g.id === id)?.nome
         const vittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)
+        // la vittima può essere tornata in vita dopo: era l'Antico, rivelato poi
+        const salvo = alchimistaEsploso.salvo || (vittima?.vivo && (vittima.storiaRuoli ?? []).includes('lantico'))
         return (
           <>
             <p>
               {nome} rivela la propria carta: è l'Alchimista{' '}
-              {alchimistaEsploso.salvo
+              {salvo
                 ? `ed esplode, ma ${vittima.nome} sopravvive (non muore).`
                 : `e trascina con sé ${vittima?.nome} nell'aldilà con una grande esplosione pirotecnica.`}
             </p>
-            {riepilogoMorte[alchimistaEsploso.vittimaId]?.length > 0 && riepilogoDi(alchimistaEsploso.vittimaId)}
+            {riepilogoDi(alchimistaEsploso.vittimaId, [id])}
           </>
         )
       }
@@ -339,7 +370,9 @@ export function Votazione({
         const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug
         const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug
         const protettori = cavalieriDi(giocatori, id)
-        const alchimistaPossibile = rivelabileOra('alchimista') && !target?.ruoloSlug
+        // anche un Alchimista già noto (Mimo, resuscitato) con il potere (ri)caricato
+        const alchimistaPossibile =
+          (rivelabileOra('alchimista') && !target?.ruoloSlug) || (target?.ruoloSlug === 'alchimista' && potereAlchimista(target))
         // con un Cavaliere che lo salva l'Alchimista non muore al rogo: niente esplosione
         const puoEssereAlchimista = alchimistaPossibile && protettori.length === 0
         if (rivelazioneInConferma?.id === id) {
@@ -406,6 +439,7 @@ export function Votazione({
       anticoRivelatoId ??
       alchimistaEsploso?.alchimistaId ??
       protettoImmolatoId ??
+      condannatoDedottoId ??
       null
 
     return (

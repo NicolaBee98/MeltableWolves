@@ -265,3 +265,11 @@ test('Mimo-Suocera vivo conta come abitante; la Suocera titolare nascosta resta 
   // abitanti: Mimo-Suocera (1) + la Suocera nascosta (-1) + ignoto (1) -> 1 abitante, 1 lupo: vincono i lupi
   expect(condizioniVittoria(giocatori, { suocera: 1 }).join(' ')).toMatch(/Lupi Mannari/)
 })
+
+test('Pifferaio morto e Mimo-Pifferaio vivo: il Mimo vince da solo come ultimo sopravvissuto', () => {
+  const giocatori = [
+    { id: '1', vivo: false, ruoloSlug: 'pifferaio', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'pifferaio', storiaRuoli: ['mimo', 'pifferaio'], condizioni: [] },
+  ]
+  expect(condizioniVittoria(giocatori)).toEqual(["Il Pifferaio è l'ultimo sopravvissuto: vince lui."])
+})

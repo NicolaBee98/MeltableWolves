@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Votazione } from './Votazione'
 import { GiornoPanel } from './GiornoPanel'
@@ -723,5 +723,142 @@ test("Alchimista bruciato: è la vittima del rogo (Addolorata) e chi trascina co
   expect(vittimeRogo.map((g) => g.id)).toEqual(['1'])
   // l'Antico trascinato consuma la prima vita di giorno: sopravvive e maledice
   expect(s['2']).toMatchObject({ vivo: true, ruoloSlug: 'villico', villaggioMaledettoFinoA: 2 })
+  localStorage.clear()
+})
+
+// "refresh": si smonta e si rimonta il giorno con lo stato salvato in localStorage
+function giornoRimontato(props = {}) {
+  return giornoReale(JSON.parse(localStorage.getItem('meltable-wolves-partita')), props)
+}
+
+test('Alchimista resuscitato (potere ricaricato): "Si rivela" e l\'esplosione sono di nuovo offerti, poteriUsati senza duplicati', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'alchimista', storiaRuoli: ['alchimista'], condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ])
+  const user = userEvent.setup()
+  expect(screen.getByText(/L'Alchimista esplode e trascina/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  const s = salvati()
+  expect([s['1'].vivo, s['2'].vivo]).toEqual([false, false])
+  expect(s['1'].poteriUsati).toEqual(['alchimista-esplosione'])
+  localStorage.clear()
+})
+
+test('Alchimista con il potere già speso (non ricaricato): niente esplosione né anteprima, muore come chiunque altro', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'alchimista', storiaRuoli: ['alchimista'], condizioni: [], poteriUsati: ['alchimista-esplosione'] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ])
+  const user = userEvent.setup()
+  expect(screen.queryByText(/L'Alchimista esplode/)).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: "Si rivela: è l'Alchimista" })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.queryByText(/Chi trascina con sé/)).not.toBeInTheDocument()
+  const s = salvati()
+  expect([s['1'].vivo, s['2'].vivo]).toEqual([false, true])
+  expect(s['1'].poteriUsati).toEqual(['alchimista-esplosione'])
+  localStorage.clear()
+})
+
+test('refresh nello spareggio dopo "Dichiara morte sul rogo": "Vittima designata" mostra il condannato', async () => {
+  giornoReale(
+    [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    ],
+    { voti: { 1: 2, 2: 2 } },
+  )
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  cleanup()
+  giornoRimontato({ voti: { 1: 2, 2: 2 } })
+  expect(screen.getByText(/Vittima designata:/).textContent).toMatch(/Anna/)
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+  localStorage.clear()
+})
+
+test('refresh con Spilungone al rogo: resta l\'esito confermato e "È notte nel villaggio"; al secondo rogo muore', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'spilungone', storiaRuoli: ['spilungone'], condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ])
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  cleanup()
+  giornoRimontato()
+  expect(screen.queryByRole('button', { name: 'Dichiara morte sul rogo' })).not.toBeInTheDocument()
+  expect(screen.getByText(/è lo Spilungone, troppo alto per il rogo/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+  expect(salvati()['1'].vivo).toBe(true)
+  cleanup()
+  // un altro giorno: l'esito non è più quello del primo rogo e lo Spilungone muore
+  giornoRimontato({ round: 3 })
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(salvati()['1'].vivo).toBe(false)
+  localStorage.clear()
+})
+
+test("refresh dopo l'esplosione dell'Alchimista: restano \"trascina con sé\" e la vendetta del Cucciolo", async () => {
+  giornoReale(
+    [
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'cucciolo-di-lupo-mannaro', condizioni: [] },
+      { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    ],
+    { voti: { 1: 2 }, candidatiEsito: ['1'] },
+  )
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText(/trascina con sé Marco/)).toBeInTheDocument()
+  cleanup()
+  giornoRimontato({ voti: { 1: 2 }, candidatiEsito: ['1'] })
+  expect(screen.getByText(/trascina con sé Marco/)).toBeInTheDocument()
+  expect(screen.getByText(/Vendetta del Cucciolo: i lupi sbraneranno due persone/)).toBeInTheDocument()
+  localStorage.clear()
+})
+
+test('riepilogo non stantio: il partner morto di crepacuore tornato in vita sparisce dalle righe', async () => {
+  function Giorno() {
+    const p = usePartita()
+    return (
+      <>
+        <GiornoPanel
+          giocatori={p.giocatori}
+          voti={{ 1: 3 }}
+          fase="esito"
+          candidatiEsito={['1']}
+          aggiornaGiocatore={p.aggiornaGiocatore}
+          annullaMorte={p.annullaMorte}
+          ruoliSelezionati={['alchimista']}
+          quantita={{ alchimista: 1 }}
+          round={2}
+          onProsegui={() => {}}
+        />
+        <button onClick={() => p.aggiornaGiocatore('3', { vivo: true, causaMorte: undefined, mortoGiorno: undefined })}>Torna vivo</button>
+      </>
+    )
+  }
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['3'] },
+      { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    ]),
+  )
+  render(<Giorno />)
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText(/È morto anche Luca \(crepacuore\)/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Torna vivo' }))
+  expect(screen.queryByText(/È morto anche Luca/)).not.toBeInTheDocument()
   localStorage.clear()
 })

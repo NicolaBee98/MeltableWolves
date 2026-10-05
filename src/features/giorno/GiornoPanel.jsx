@@ -1,7 +1,7 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
 import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile, cavalieriDi } from '../../data/eventiSpeciali'
+import { conPotereDisponibile, conPotere, cavalieriDi } from '../../data/eventiSpeciali'
 import {
   annullaMorteCompleta,
   dichiaraAnticoSbranato,
@@ -96,14 +96,17 @@ export function GiornoPanel({
     }
     // il Mimo-Suocera ha già lo slug: si segna solo che si è rivelato
     if (ruoloSlug === 'suocera' && target?.ruoloSlug === 'suocera') {
-      aggiornaGiocatore(id, { poteriUsati: [...(target.poteriUsati ?? []), 'suocera-rivelata'] })
+      aggiornaGiocatore(id, { poteriUsati: conPotere(target.poteriUsati, 'suocera-rivelata') })
       return
     }
     aggiornaGiocatore(id, {
       ruoloSlug,
       storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
       // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
-      ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
+      ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
+      // lo Spilungone non muore al primo rogo: il marcatore (con il giorno) resta
+      // anche dopo un reload, così l'esito del rogo si ricostruisce dallo stato
+      ...(ruoloSlug === 'spilungone' && { spilungoneRivelatoRound: round }),
     })
   }
 
@@ -124,7 +127,7 @@ export function GiornoPanel({
       vivo: false,
       causaMorte: 'rogo',
       mortoNotte: round,
-      poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],
+      poteriUsati: conPotere(alchimista?.poteriUsati, 'alchimista-esplosione'),
     })
     dichiaraColpo(vittimaId, { mortoDa: 'alchimista' })
   }
@@ -133,7 +136,7 @@ export function GiornoPanel({
     const bardo = conPotereDisponibile(giocatori, 'bardo', 'bardo-salta-notte')
     if (!bardo) return
     aggiornaGiocatore(bardo.id, {
-      poteriUsati: [...(bardo.poteriUsati ?? []), 'bardo-salta-notte'],
+      poteriUsati: conPotere(bardo.poteriUsati, 'bardo-salta-notte'),
       notteBloccataFinoA: round,
     })
   }

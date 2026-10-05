@@ -104,3 +104,13 @@ test("l'alba annuncia crepacuore, Mezzosangue trasformato, Apprendista e Figlia 
   expect(testo).toMatch(/Eva si rivela: è la Figlia dei Lupi/)
   expect(annunciAlba(giocatori, 3)).toEqual([])
 })
+
+test('non annuncia unti o trasformati già morti', () => {
+  const giocatori = [
+    { id: '1', nome: 'Marco', ruoloSlug: 'villico', vivo: false, condizioni: ['unto'] },
+    { id: '2', nome: 'Gino', ruoloSlug: 'villico', vivo: false, condizioni: ['trasformato'] },
+    { id: '3', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['unto'] },
+  ]
+  const annunci = annunciAlba(giocatori, 1)
+  expect(annunci).toEqual(["Anna è stato unto dall'Untore."])
+})

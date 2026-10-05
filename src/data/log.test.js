@@ -211,3 +211,10 @@ test('registro: crepacuore e Mezzosangue notturni non sono doppi (ci sono gli an
   const gallo = rilevaEventi(base, [{ ...base[0], poteriUsati: ['gallo-salta-giorno'] }, ...base.slice(1)], 1, 'alba')
   expect(gallo[0].fase).toBe('giorno')
 })
+
+test("la maledizione del villaggio per l'Antico (villaggioMaledettoFinoA) è nel registro", () => {
+  const prima = [{ id: '1', nome: 'Gigi', vivo: false, ruoloSlug: 'lantico', storiaRuoli: ['lantico'] }]
+  const dopo = [{ id: '1', nome: 'Gigi', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], villaggioMaledettoFinoA: 3 }]
+  const messaggi = rilevaEventi(prima, dopo, 2, 'giorno').map((e) => e.messaggio)
+  expect(messaggi).toContain('Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno')
+})

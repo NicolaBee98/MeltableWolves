@@ -124,3 +124,14 @@ test("annullare la morte dell'amante disfa il crepacuore sull'Antico e la maledi
   expect(result.current.giocatori[1].villaggioMaledettoFinoA).toBeUndefined()
   localStorage.clear()
 })
+
+test('dichiaraBoiaGiustizia non duplica il potere già segnato', async () => {
+  const { dichiaraBoiaGiustizia } = await import('./annullaMorte')
+  const giocatori = [
+    { id: '1', ruoloSlug: 'boia', poteriUsati: ['boia-giustizia'], vivo: true },
+    { id: '2', vivo: true },
+  ]
+  const agg = vi.fn()
+  dichiaraBoiaGiustizia('1', '2', giocatori, agg, 2)
+  expect(agg.mock.calls[0][1].poteriUsati).toEqual(['boia-giustizia'])
+})

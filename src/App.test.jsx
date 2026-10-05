@@ -229,4 +229,14 @@ test("l'avviso del conteggio cita solo le esclusioni dei ruoli presenti nel mazz
   const avviso = screen.getByText(/serve 1 giocatore/i).textContent
   expect(avviso).toMatch(/esclusi il Borgomastro,/)
   expect(avviso).not.toMatch(/Ladro|Fantasma/)
+
+  // più esclusioni: concordanza (escluse/esclusi) e "e" finale
+  await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
+  await user.click(screen.getByRole('button', { name: 'Ladro' }))
+  await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByText(/serve 1 giocatore/i).textContent).toMatch(
+    /\(escluse le 2 carte extra del Ladro; esclusi il Borgomastro e il Fantasma Onnisciente, che non sono giocatori in più\)/,
+  )
 })

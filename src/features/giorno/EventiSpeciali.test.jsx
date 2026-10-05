@@ -587,3 +587,28 @@ test("L'Antico morto di crepacuore di giorno (Boia/unzione...) è tra i candidat
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   expect(screen.getByRole('button', { name: "L'Antico si rivela" })).toBeInTheDocument()
 })
+
+test("L'Antico giustiziato dal Boia (morte diurna) si rivela: il testo dice che il villaggio è maledetto; morto di notte no", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Giustiziato', vivo: false, causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3 },
+    { id: '2', nome: 'Notturno', vivo: false, causaMorte: 'notte', mortoNotte: 2 },
+  ]
+  setup({ giocatori, round: 2, contesto: 'esito', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
+  await user.click(screen.getByRole('button', { name: 'Notturno' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText(/Notturno si è rivelato\/a: è L'Antico/).textContent).not.toMatch(/maledetto/)
+})
+
+test("L'Antico giustiziato dal Boia si rivela: il testo dice che il villaggio è maledetto", async () => {
+  const user = userEvent.setup()
+  const giocatori = [{ id: '1', nome: 'Giustiziato', vivo: false, causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3 }]
+  setup({ giocatori, round: 2, contesto: 'esito', ruoliSelezionati: ['lantico'], quantita: { lantico: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
+  await user.click(screen.getByRole('button', { name: 'Giustiziato' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText(/Giustiziato si è rivelato\/a: è L'Antico.*Il villaggio è maledetto/)).toBeInTheDocument()
+})

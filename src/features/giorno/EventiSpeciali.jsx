@@ -5,6 +5,7 @@ import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
 import { useDialogA11y } from '../../components/useDialogA11y'
 import { ruoliAssegnabili, eMimoCopiante } from '../../data/assegnazione'
 import { viciniVivi } from '../../data/vicinanza'
+import { roundMorteDiurna } from '../../data/effettiNotte'
 import {
   candidatiRivelazione,
   rivelazioneContestualeDisponibile,
@@ -333,8 +334,13 @@ export function EventiSpeciali({
               candidati={candidatiAntico}
               etichetta="Chi è L'Antico?"
               onConferma={(id) =>
-                applica(`${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.`, () =>
-                  onRivelazione('lantico', id),
+                applica(
+                  `${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.` +
+                    // morto di giorno (rogo, Boia, esplosione...): come al rogo, maledice il villaggio
+                    (roundMorteDiurna(giocatori.find((g) => g.id === id)) !== undefined
+                      ? " Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno."
+                      : ''),
+                  () => onRivelazione('lantico', id),
                 )
               }
               onAnnulla={chiudi}
