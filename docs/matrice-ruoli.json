@@ -313,7 +313,8 @@
         }
       ],
       "fonti": [
-        "batch3D t3/t17 2026-10-05"
+        "batch3D t3/t17 2026-10-05",
+        "batch4G d1-d3"
       ]
     },
     {
@@ -327,7 +328,8 @@
         }
       ],
       "fonti": [
-        "batch3D t7 2026-10-05"
+        "batch3D t7 2026-10-05",
+        "batch4G c1-c6"
       ]
     },
     {
@@ -350,7 +352,8 @@
         }
       ],
       "fonti": [
-        "batch3D t1/t2 2026-10-05"
+        "batch3D t1/t2 2026-10-05",
+        "batch4G e1-e3"
       ]
     },
     {
@@ -440,7 +443,8 @@
         }
       ],
       "fonti": [
-        "batch3D t11 2026-10-05"
+        "batch3D t11 2026-10-05",
+        "batch4G e3"
       ]
     },
     {
@@ -572,7 +576,8 @@
         }
       ],
       "fonti": [
-        "batch3F sa2, sc3"
+        "batch3F sa2, sc3",
+        "batch4I seed51 (maestro morto con ruolo ignoto: avviso di attesa)"
       ]
     },
     {
@@ -627,7 +632,9 @@
         }
       ],
       "fonti": [
-        "batch3F sn1 (screenshot sn-alch.png)"
+        "batch3F sn1 (screenshot sn-alch.png)",
+        "batch4G a4/a5",
+        "batch4I seed21 (Cavaliere protegge l'Alchimista: niente esplosione, si immola)"
       ]
     },
     {
@@ -676,6 +683,20 @@
     },
     {
       "a": "alchimista",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Alchimista resuscitato e bruciato esplode una seconda volta: \"Dichiara morte\" apre la scelta con potere gia usato mentre \"Si rivela\" e nascosto, anteprima dice \"esplode\"; poteriUsati duplicato (dubbio di regolamento)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H g1 (g1-esito2.png)"
+      ]
+    },
+    {
+      "a": "alchimista",
       "b": "innocente",
       "valutata": "parziale",
       "problemi": [],
@@ -687,10 +708,16 @@
     {
       "a": "alchimista",
       "b": "lantico",
-      "valutata": "parziale",
-      "problemi": [],
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "maledizione ok; il riepilogo del rogo dice ancora \"trascina con se G08\" dopo la rivelazione dell'Antico che sopravvive",
+          "stato": "aperto"
+        }
+      ],
       "fonti": [
-        "test:data/eventiSpeciali.test.js:123"
+        "test:data/eventiSpeciali.test.js:123",
+        "batch4G t1"
       ]
     },
     {
@@ -708,7 +735,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 B5",
-        "commit:b1dcad5"
+        "commit:b1dcad5",
+        "batch4I seed26 (Mimo-Alchimista designato in spareggio: parte subito la scelta di chi trascinare)"
       ]
     },
     {
@@ -728,6 +756,15 @@
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+      ]
+    },
+    {
+      "a": "alchimista",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H g1"
       ]
     },
     {
@@ -756,6 +793,24 @@
       "problemi": [],
       "fonti": [
         "test:data/nightSteps.test.js:75"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "inquisitore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H l1"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "mezzosangue",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H l1"
       ]
     },
     {
@@ -856,7 +911,8 @@
       "fonti": [
         "test:data/risoluzioneNotte.test.js:168",
         "test:data/risoluzioneNotte.test.js:270",
-        "bug-partite-2026-10-02 #16"
+        "bug-partite-2026-10-02 #16",
+        "batch4G j1-j2"
       ]
     },
     {
@@ -937,7 +993,8 @@
         }
       ],
       "fonti": [
-        "batch3F sg4, sg5"
+        "batch3F sg4, sg5",
+        "batch4G k1-k3"
       ]
     },
     {
@@ -1221,7 +1278,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:state/usePartita.test.js:383"
+        "test:state/usePartita.test.js:383",
+        "batch4I seed11 (morte del lupo fa diventare adulto il Cucciolo)"
       ]
     },
     {
@@ -1304,7 +1362,8 @@
         "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:571",
         "bug-partite-2026-10-02 #4",
         "revisione-codice-2026-09-23 Copertura",
-        "commit:5013ce4"
+        "commit:5013ce4",
+        "batch4I seed11 (Berserker sbranato uccide il lupo piu' vicino)"
       ]
     },
     {
@@ -1422,6 +1481,15 @@
     },
     {
       "a": "boia",
+      "b": "cucciolo-di-lupo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4I seed2 (Boia giustizia un lupo: Cucciolo adulto)"
+      ]
+    },
+    {
+      "a": "boia",
       "b": "fantasma-onnisciente",
       "valutata": "parziale",
       "problemi": [],
@@ -1437,6 +1505,15 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+      ]
+    },
+    {
+      "a": "boia",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H p1"
       ]
     },
     {
@@ -1477,13 +1554,18 @@
         {
           "testo": "Boia su Antico: sopravvive, nessuna maledizione (D3)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "testo di rivelazione \"perde la prima vita e da ora gioca da Villico\" senza menzione della maledizione (il villaggio e maledetto davvero)",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "test:data/log.test.js:164",
         "test:features/giorno/EventiSpeciali.test.jsx:428",
         "commit:295b035",
-        "batch3F sr1, sr2"
+        "batch3F sr1, sr2",
+        "batch4G l1-l4"
       ]
     },
     {
@@ -1512,6 +1594,20 @@
     },
     {
       "a": "boia",
+      "b": "nano",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il Boia puo giustiziare il Nano (testo: puo morire solo al rogo) (dubbio)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H j2"
+      ]
+    },
+    {
+      "a": "boia",
       "b": "sacerdote",
       "valutata": "si",
       "problemi": [
@@ -1521,7 +1617,8 @@
         }
       ],
       "fonti": [
-        "batch3F sb6, s14"
+        "batch3F sb6, s14",
+        "batch4G p1-p2"
       ]
     },
     {
@@ -1532,6 +1629,15 @@
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+      ]
+    },
+    {
+      "a": "boia",
+      "b": "strega",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H o1"
       ]
     },
     {
@@ -1620,10 +1726,11 @@
     {
       "a": "borgomastro",
       "b": "gallo-mannaro",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "fixture:features/giorno/EventiSpeciali.test.jsx"
+        "fixture:features/giorno/EventiSpeciali.test.jsx",
+        "batch4I seed55 (giorno saltato dal Gallo, poi rogo del Borgomastro e rielezione)"
       ]
     },
     {
@@ -1633,6 +1740,15 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H f1"
       ]
     },
     {
@@ -1710,6 +1826,15 @@
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "strega",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H e3b"
       ]
     },
     {
@@ -1879,6 +2004,24 @@
     },
     {
       "a": "cartomante",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H a2"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H i2"
+      ]
+    },
+    {
+      "a": "cartomante",
       "b": "scemo-del-villaggio",
       "valutata": "si",
       "problemi": [
@@ -1997,7 +2140,8 @@
       "fonti": [
         "test:data/effettiNotte.test.js:415",
         "audit-ruoli-2026-09-22 §Cavaliere",
-        "bug-report-2026-09-17 #5"
+        "bug-report-2026-09-17 #5",
+        "batch4I seed53"
       ]
     },
     {
@@ -2046,7 +2190,9 @@
         }
       ],
       "fonti": [
-        "batch3F sm1, st1"
+        "batch3F sm1, st1",
+        "batch4G o1",
+        "batch4I seed47 (Cavaliere si immola per il protetto, innamorato partner muore di crepacuore all'alba)"
       ]
     },
     {
@@ -2061,6 +2207,15 @@
       ],
       "fonti": [
         "batch3F sf2"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "spilungone",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H k1"
       ]
     },
     {
@@ -2108,7 +2263,8 @@
       "fonti": [
         "test:data/risoluzioneNotte.test.js:104",
         "test:data/risoluzioneNotte.test.js:113",
-        "test:features/notte/azioni/AzioneChupacabra.test.jsx:183"
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
+        "batch4I seed53"
       ]
     },
     {
@@ -2168,6 +2324,15 @@
     },
     {
       "a": "chupacabra",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "batch4H c1"
+      ]
+    },
+    {
+      "a": "chupacabra",
       "b": "inquisitore",
       "valutata": "si",
       "problemi": [],
@@ -2206,6 +2371,10 @@
         {
           "testo": "Il Chupacabra che sbrana l'unico lupo rimasto perdeva la scelta appena fatta",
           "stato": "risolto"
+        },
+        {
+          "testo": "Chupacabra non ancora assegnato (notte 1) ucciso dal branco: lo step Chupacabra non e' completabile (chip senza il morto, Avanti disabilitato) salvo Indietro",
+          "stato": "aperto"
         }
       ],
       "fonti": [
@@ -2215,7 +2384,8 @@
         "test:features/notte/NightSequencer.test.jsx:1308",
         "test:features/notte/NightSequencer.test.jsx:1908",
         "test:features/notte/azioni/AzioneInquisitore.test.jsx:59",
-        "bug-partite-2026-10-05 dubbi"
+        "bug-partite-2026-10-05 dubbi",
+        "batch4I seed70, minimo: mazzo Chupacabra+2 Lupi+Veggente+8 Villici, branco sbrana il Chupacabra"
       ]
     },
     {
@@ -2249,6 +2419,15 @@
         "commit:9cb3fe9",
         "spec-mimo-2026-10-02 Q15",
         "audit-mimo-2026-10-02 P7"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "mucca-mannara",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H c1 (c1-alba4.png)"
       ]
     },
     {
@@ -2288,6 +2467,33 @@
       "problemi": [],
       "fonti": [
         "fixture:data/vittoria.test.js"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H c1"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H c1"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "spilungone",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H k1"
       ]
     },
     {
@@ -2391,7 +2597,8 @@
         }
       ],
       "fonti": [
-        "batch3F sl1"
+        "batch3F sl1",
+        "batch4G i2"
       ]
     },
     {
@@ -2431,7 +2638,8 @@
         "test:data/risoluzioneNotte.test.js:185",
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
         "audit-regolamento-2026-09-21 #1",
-        "commit:68cf67c"
+        "commit:68cf67c",
+        "batch4I seed22 (cliente sbranato, muore anche lei)"
       ]
     },
     {
@@ -2512,6 +2720,15 @@
     },
     {
       "a": "cortigiana",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "batch4H a2"
+      ]
+    },
+    {
+      "a": "cortigiana",
       "b": "strega",
       "valutata": "si",
       "problemi": [
@@ -2566,7 +2783,17 @@
         "test:data/vittoria.test.js:51",
         "test:data/vittoria.test.js:61",
         "commit:b779f69",
-        "audit-regolamento-2026-09-21 #3"
+        "audit-regolamento-2026-09-21 #3",
+        "batch4I seed1"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4I seed6"
       ]
     },
     {
@@ -2886,6 +3113,20 @@
     },
     {
       "a": "fantasma-onnisciente",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il Fantasma resuscitato conserva la carta Fantasma da vivo e non si puo riassegnare (dubbio di regolamento)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H e3b"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
       "b": "innocente",
       "valutata": "parziale",
       "problemi": [],
@@ -2952,6 +3193,20 @@
     },
     {
       "a": "fantasma-onnisciente",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Come Guaritore: resuscitato conserva eFantasmaOnnisciente (dubbio)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H e3b"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
       "b": "suocera",
       "valutata": "parziale",
       "problemi": [],
@@ -2996,7 +3251,8 @@
         }
       ],
       "fonti": [
-        "batch3F sp11"
+        "batch3F sp11",
+        "batch4G h2-h3"
       ]
     },
     {
@@ -3065,11 +3321,12 @@
     {
       "a": "fattucchiera",
       "b": "veggente",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "fixture:data/nightSteps.test.js",
-        "batch3F sp1"
+        "batch3F sp1",
+        "batch4G r1"
       ]
     },
     {
@@ -3142,6 +3399,15 @@
       "fonti": [
         "test:data/log.test.js:130",
         "batch3F se2"
+      ]
+    },
+    {
+      "a": "figlia-dei-lupi",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4I seed55 (genitore Sciacallo morto: Figlia diventa Lupo Mannaro)"
       ]
     },
     {
@@ -3250,6 +3516,20 @@
     },
     {
       "a": "gallo-mannaro",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Dopo refresh la coppia scelta dal Pifferaio resta ipnotizzata ma non e evidenziata (reselezione sostituisce); giorno saltato ok",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "batch4H m1 (m1-reload.png)"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
       "b": "villico",
       "valutata": "parziale",
       "problemi": [],
@@ -3295,7 +3575,8 @@
         "test:features/notte/NightSequencer.test.jsx:1275",
         "test:features/notte/azioni/AzioneMimo.test.jsx:119",
         "bug-report-2026-09-17 #10",
-        "commit:2cc8833"
+        "commit:2cc8833",
+        "batch4G s1"
       ]
     },
     {
@@ -3306,6 +3587,10 @@
         {
           "testo": "Guardia Mannara: la traditrice casuale poteva essere il Mimo, assegnata piu' volte",
           "stato": "risolto"
+        },
+        {
+          "testo": "Mimo-guardia incluso tra i vivi del passo, senza etichetta (non verificato quale carta imita)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
@@ -3313,7 +3598,8 @@
         "test:features/notte/azioni/AzioneMimo.test.jsx:119",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 B2"
+        "audit-mimo-2026-10-02 B2",
+        "batch4G s1"
       ]
     },
     {
@@ -3497,16 +3783,35 @@
     },
     {
       "a": "guaritore",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Con un solo giocatore non ipnotizzato rimasto (o dopo un conteggio dispari) il Pifferaio non puo ipnotizzarlo: \"Servono almeno due bersagli disponibili\" e Chiudi senza effetto, vittoria irraggiungibile; l'ultimo non ipnotizzato bruciato al rogo non da vittoria subito ma solo all'alba dopo (dubbio); resuscitato non ipnotizzato blocca correttamente la vittoria",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "batch4H b1,b2 (b2-n2.png, b1-n3.png)"
+      ]
+    },
+    {
+      "a": "guaritore",
       "b": "sacerdote",
       "valutata": "si",
       "problemi": [
         {
           "testo": "partner morto di crepacuore resta morto senza avviso (D5)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "innamorato resuscitato resta \"innamorato\" con il partner morto (nessun avviso ne' rimozione della condizione)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
-        "batch3F sj4"
+        "batch3F sj4",
+        "batch4I seed47"
       ]
     },
     {
@@ -3652,6 +3957,34 @@
       ],
       "fonti": [
         "batch3F sp4"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Aura del Pifferaio benevola: l'Inquisitore perde il potere interrogandolo (dubbio di regolamento)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H a2"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Aura benevola dei mannari non-branco (Sciacallo, Polpo, Mucca, Gallo): Inquisitore perde il potere (dubbio, come Guardia Mannara)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H i2"
       ]
     },
     {
@@ -3936,7 +4269,9 @@
       "fonti": [
         "test:data/nightSteps.test.js:198",
         "commit:c61473e",
-        "commit:6a063db"
+        "commit:6a063db",
+        "batch4G m1,b1",
+        "batch4I seed4 (Antico sbranato: conferma rivelazione all'alba, poi si vota come Villico)"
       ]
     },
     {
@@ -3978,10 +4313,15 @@
         {
           "testo": "Antico innamorato: rogo ok; crepacuore consuma la prima vita (D2)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "crepacuore: Antico sopravvive, maledizione ok, partner morto; il riepilogo dice ancora \"E morto anche G08\" dopo la rivelazione",
+          "stato": "aperto"
         }
       ],
       "fonti": [
-        "batch3F s8, sj2"
+        "batch3F s8, sj2",
+        "batch4G n1-n2"
       ]
     },
     {
@@ -4181,7 +4521,8 @@
       ],
       "fonti": [
         "test:data/effettiNotte.test.js:168",
-        "audit-regolamento-2026-09-21 #2"
+        "audit-regolamento-2026-09-21 #2",
+        "batch4I seed3"
       ]
     },
     {
@@ -4281,7 +4622,8 @@
       "fonti": [
         "audit-regolamento-2026-09-21 #8",
         "bug-partite-2026-10-02 #24",
-        "commit:5013ce4"
+        "commit:5013ce4",
+        "batch4I seed3"
       ]
     },
     {
@@ -4347,10 +4689,16 @@
     {
       "a": "lupo-mannaro-capobranco",
       "b": "lupo-mannaro-progenitore",
-      "valutata": "parziale",
-      "problemi": [],
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il Progenitore puo \"trasformare\" un lupo (fratello sbranato): potere consumato senza effetto",
+          "stato": "aperto"
+        }
+      ],
       "fonti": [
-        "test:data/nightSteps.test.js:86"
+        "test:data/nightSteps.test.js:86",
+        "batch4H n1"
       ]
     },
     {
@@ -4398,7 +4746,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "bug-partite-2026-10-02 #4 C"
+        "bug-partite-2026-10-02 #4 C",
+        "batch4I seed24 (Mezzosangue sbranato diventa lupo nello stesso passo del Progenitore)"
       ]
     },
     {
@@ -4412,7 +4761,17 @@
         }
       ],
       "fonti": [
-        "batch3E (M2c.png, M2d.png)"
+        "batch3E (M2c.png, M2d.png)",
+        "batch4G g1-g8"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "pastore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H h1"
       ]
     },
     {
@@ -4527,6 +4886,29 @@
       "problemi": [],
       "fonti": [
         "fixture:data/nightSteps.test.js"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "batch4H a2"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il Medium interroga anche defunti della fazione lupi (testo: membro del villaggio) (dubbio)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H i2"
       ]
     },
     {
@@ -4677,7 +5059,8 @@
         "test:features/notte/NightSequencer.test.jsx:1616",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 P7"
+        "audit-mimo-2026-10-02 P7",
+        "batch4I seed53"
       ]
     },
     {
@@ -4983,6 +5366,20 @@
     },
     {
       "a": "mucca-mannara",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [
+        {
+          "testo": "Il branco puo sbranare Polpo/Mucca/Sciacallo senza alcun avviso (dubbio di regolamento)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "batch4H c1"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
       "b": "villico",
       "valutata": "parziale",
       "problemi": [],
@@ -5029,12 +5426,30 @@
       ]
     },
     {
+      "a": "nano",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H j2"
+      ]
+    },
+    {
       "a": "nonna",
       "b": "nonna",
       "valutata": "si",
       "problemi": [],
       "fonti": [
         "audit-ruoli-2026-09-22 §Nonna"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "pastore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H h1"
       ]
     },
     {
@@ -5054,6 +5469,15 @@
       "problemi": [],
       "fonti": [
         "audit-ruoli-2026-09-22 §Paladino"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "batch4H a2"
       ]
     },
     {
@@ -5108,6 +5532,24 @@
       ]
     },
     {
+      "a": "pastore",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H h1"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H h1"
+      ]
+    },
+    {
       "a": "pifferaio",
       "b": "pifferaio",
       "valutata": "si",
@@ -5146,6 +5588,15 @@
         "test:features/notte/azioni/SceltaDoppiaGiocatore.test.jsx:11",
         "test:data/vittoria.test.js:213",
         "bug-partite-2026-10-02 #6"
+      ]
+    },
+    {
+      "a": "pifferaio",
+      "b": "strega",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "batch4H a2"
       ]
     },
     {
@@ -5268,10 +5719,15 @@
         {
           "testo": "Sciacallo resuscita anche gli amanti: il partner morto resta morto senza avviso",
           "stato": "dubbio"
+        },
+        {
+          "testo": "idem: innamorato resuscitato dallo Sciacallo resta \"innamorato\" con il partner ancora morto",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
-        "bug-partite-2026-10-05 dubbi"
+        "bug-partite-2026-10-05 dubbi",
+        "batch4I seed55"
       ]
     },
     {
@@ -5379,6 +5835,20 @@
     },
     {
       "a": "strega",
+      "b": "suocera",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Dato: mortoDa non impostato per la vittima della pozione mortale (solo dato)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "batch4H e2"
+      ]
+    },
+    {
+      "a": "strega",
       "b": "ubriaco",
       "valutata": "si",
       "problemi": [],
@@ -5472,6 +5942,15 @@
       "problemi": [],
       "fonti": [
         "batch3F sp4"
+      ]
+    },
+    {
+      "a": "untore",
+      "b": "villico",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "batch4G q2"
       ]
     },
     {
