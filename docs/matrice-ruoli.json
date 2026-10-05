@@ -1,0 +1,4648 @@
+{
+ "ruoli": [
+  {
+   "slug": "addolorata",
+   "nome": "Addolorata",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "alchimista",
+   "nome": "Alchimista",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "ambasciatore",
+   "nome": "Ambasciatore",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "apprendista",
+   "nome": "Apprendista",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "bardo",
+   "nome": "Bardo",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "berserker",
+   "nome": "Berserker",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "boia",
+   "nome": "Boia",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "borgomastro",
+   "nome": "Borgomastro",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "cartomante",
+   "nome": "Cartomante",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "cavaliere",
+   "nome": "Cavaliere",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "chupacabra",
+   "nome": "Chupacabra",
+   "fazione": "indipendente"
+  },
+  {
+   "slug": "cortigiana",
+   "nome": "Cortigiana",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "criceto-malvagio",
+   "nome": "Criceto Malvagio",
+   "fazione": "indipendente"
+  },
+  {
+   "slug": "cucciolo-di-lupo-mannaro",
+   "nome": "Cucciolo di Lupo Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "eremita",
+   "nome": "Eremita",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "fantasma-onnisciente",
+   "nome": "Fantasma Onnisciente",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "fattucchiera",
+   "nome": "Fattucchiera",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "figlia-dei-lupi",
+   "nome": "Figlia dei Lupi",
+   "fazione": "sconosciuto"
+  },
+  {
+   "slug": "gallo-mannaro",
+   "nome": "Gallo Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "guardia",
+   "nome": "Guardia",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "guardia-mannara",
+   "nome": "Guardia Mannara",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "guaritore",
+   "nome": "Guaritore",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "innocente",
+   "nome": "Innocente",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "inquisitore",
+   "nome": "Inquisitore",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "ladro",
+   "nome": "Ladro",
+   "fazione": "sconosciuto"
+  },
+  {
+   "slug": "lantico",
+   "nome": "L'Antico",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "lupo-mannaro",
+   "nome": "Lupo Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "lupo-mannaro-capobranco",
+   "nome": "Lupo Mannaro Capobranco",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "lupo-mannaro-progenitore",
+   "nome": "Lupo Mannaro Progenitore",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "maga",
+   "nome": "Maga",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "medium",
+   "nome": "Medium",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "mezzosangue",
+   "nome": "Mezzosangue",
+   "fazione": "sconosciuto"
+  },
+  {
+   "slug": "mimo",
+   "nome": "Mimo",
+   "fazione": "sconosciuto"
+  },
+  {
+   "slug": "mucca-mannara",
+   "nome": "Mucca Mannara",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "nano",
+   "nome": "Nano",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "nonna",
+   "nome": "Nonna",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "paladino",
+   "nome": "Paladino",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "pastore",
+   "nome": "Pastore",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "pifferaio",
+   "nome": "Pifferaio",
+   "fazione": "indipendente"
+  },
+  {
+   "slug": "polpo-mannaro",
+   "nome": "Polpo Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "sacerdote",
+   "nome": "Sacerdote",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "scemo-del-villaggio",
+   "nome": "Scemo del Villaggio",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "sciacallo-mannaro",
+   "nome": "Sciacallo Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "spilungone",
+   "nome": "Spilungone",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "strega",
+   "nome": "Strega",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "suocera",
+   "nome": "Suocera",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "ubriaco",
+   "nome": "Ubriaco",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "untore",
+   "nome": "Untore",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "veggente",
+   "nome": "Veggente",
+   "fazione": "villaggio"
+  },
+  {
+   "slug": "veggente-mannaro",
+   "nome": "Veggente Mannaro",
+   "fazione": "lupi"
+  },
+  {
+   "slug": "villico",
+   "nome": "Villico",
+   "fazione": "villaggio"
+  }
+ ],
+ "celle": [
+  {
+   "a": "addolorata",
+   "b": "addolorata",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il morto con cui si scambia ha storiaRuoli senza il ruolo precedente",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Dati: mortoNotte errato dopo un rogo del giorno 1 (mortoNotte:2)",
+     "stato": "aperto"
+    },
+    {
+     "testo": "Scambio non eredita i poteri usati del ruolo di provenienza (appendice E)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Addolorata",
+    "bug-partite-2026-10-02 #17",
+    "bug-partite-2026-10-05 #13",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:106",
+    "audit-ruoli-2026-09-22 appendice E"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "ladro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "commit:e629237"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "lantico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Se nessuno muore al rogo (Spilungone/Antico) il potere resta bloccato: corretto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Addolorata"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Addolorata e Addolorata scambiavano con la stessa vittima, che diventava Addolorata (non mimo-villico)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1984",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:22",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:47",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 #15",
+    "commit:46ca7c2",
+    "spec-mimo-2026-10-02 §2.3"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "spilungone",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Se nessuno muore al rogo (Spilungone/Antico) il potere resta bloccato: corretto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Addolorata"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "L'Addolorata che diventa Strega riparte con pozioni fresche (non eredita i poteri usati)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Addolorata e appendice E"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/assegnazione.test.js"
+   ]
+  },
+  {
+   "a": "addolorata",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1984",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:22",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:47"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "alchimista",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Alchimista: riepilogo delle conseguenze scompare dopo il Conferma",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Alchimista",
+    "bug-partite-2026-10-05 Ancora presenti",
+    "commit:a997fe0"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "boia",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "\"Il Boia giustizia\" e \"L'Alchimista esplode\" richiedevano un ruoloSlug mai assegnato (rivelazione diurna)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "audit-ruoli-2026-09-22 correzioni 4"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "borgomastro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "cartomante",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:123"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "fantasma-onnisciente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "figlia-dei-lupi",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Alchimista che trascina chi ha una Figlia dei Lupi legata: nessun riepilogo dopo il Conferma",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/giorno/Votazione.test.jsx:600",
+    "bug-partite-2026-10-05 Ancora presenti",
+    "commit:a997fe0"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "guardia-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "innocente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:123"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo non poteva imitare l'Alchimista (B5)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 B5",
+    "commit:b1dcad5"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "alchimista",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "ambasciatore",
+   "b": "ambasciatore",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ambasciatore"
+   ]
+  },
+  {
+   "a": "ambasciatore",
+   "b": "berserker",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:75"
+   ]
+  },
+  {
+   "a": "ambasciatore",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo con Pastore/Ambasciatore e aura non provato in browser",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 Non coperto"
+   ]
+  },
+  {
+   "a": "ambasciatore",
+   "b": "polpo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Veggente accecato: l'Ambasciatore annuncia la percezione falsata (coerente col regolamento)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ambasciatore"
+   ]
+  },
+  {
+   "a": "ambasciatore",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Annuncio anche se il Veggente muore la stessa notte (non controlla vivo)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:27",
+    "audit-mimo-2026-10-02 §2.3"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "apprendista",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Apprendista con maestro senza ruolo noto non eredita mai (es. Suocera sbranata poi rivelata)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Apprendista eredita Cavaliere con legame null senza chiedere chi proteggere",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Risoluzione del legame ritardata di un giorno se il maestro muore al rogo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Apprendista",
+    "bug-partite-2026-10-05 #3",
+    "bug-partite-2026-10-02 #16",
+    "audit-regolamento-2026-09-21 #6",
+    "commit:46ca7c2",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "cavaliere",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Apprendista eredita Cavaliere: legame null, il passo non chiede chi proteggere (poi marcatore legame-ereditato)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Cavaliere e Apprendista sullo stesso bersaglio: se il Cavaliere salva, l'Apprendista non eredita",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:168",
+    "test:data/risoluzioneNotte.test.js:270",
+    "bug-partite-2026-10-02 #16"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "chupacabra",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:state/usePartita.test.js"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "figlia-dei-lupi",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/alba.test.js:92",
+    "test:data/log.test.js:130"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "guaritore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Apprendista che eredita un Guaritore/Sciacallo gia' usato riceve la carta senza potere",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:12",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "ladro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:149"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/alba.test.js:92"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/alba.test.js:92"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Apprendista: due maestri indipendenti, eredita il ruolo del proprio maestro (P5)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:206",
+    "test:data/risoluzioneNotte.test.js:218",
+    "test:data/risoluzioneNotte.test.js:233",
+    "test:data/risoluzioneNotte.test.js:252",
+    "test:features/notte/NightSequencer.test.jsx:1641",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/risoluzioneNotte.test.js"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "sacerdote",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:130"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Apprendista che eredita un Guaritore/Sciacallo gia' usato riceve la carta senza potere",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:12",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Apprendista che eredita Strega gia' usata riparte con entrambe le pozioni",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 appendice E",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Maestro Suocera sbranata e poi rivelata: l'Apprendista non ereditava",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:state/usePartita.test.js",
+    "bug-partite-2026-10-05 #3",
+    "commit:46ca7c2"
+   ]
+  },
+  {
+   "a": "apprendista",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:233"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "bardo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Notte saltata dal Bardo: layout schiacciato e nessun feedback dopo il Conferma",
+     "stato": "aperto"
+    },
+    {
+     "testo": "\"Salta la notte\" neutralizza i poteri invece di saltare la fase (semplificazione mai confermata)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Bardo",
+    "bug-partite-2026-10-02 #8",
+    "bug-partite-2026-10-05 #12",
+    "audit-ruoli-2026-09-22 appendice A",
+    "commit:a45adb0"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "borgomastro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/giorno/EventiSpeciali.test.jsx"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "eremita",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "gallo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:124",
+    "test:data/nightSteps.test.js:55"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "lantico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La maledizione dell'Antico non blocca la notte del Bardo (avviso generico)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:884"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:55"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Bardo + Mimo-Bardo: potere riproposto dopo un uso se resta il morto non usato (caso da chiarire)",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Bardo ricaricato dal Mimo dopo la morte di chi l'aveva usato",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:97",
+    "test:data/eventiSpeciali.test.js:104",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 B4",
+    "bug-partite-2026-10-05 #5",
+    "commit:4d639e9"
+   ]
+  },
+  {
+   "a": "bardo",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "berserker",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Berserker con due lupi alla stessa distanza: scelta non vincolante e persa al refresh",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Berserker",
+    "bug-partite-2026-10-05 #6",
+    "commit:46ca7c2"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "chupacabra",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx",
+    "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:state/usePartita.test.js:383"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "gallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Un Gallo Mannaro non e' un lupo per il Berserker",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:data/effettiNotte.test.js",
+    "test:data/effettiNotte.test.js:226"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Berserker sbranato non uccideva il lupo piu' vicino; parita' non vincolante",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/usePartita.test.js:383",
+    "test:data/effettiNotte.test.js:185",
+    "test:data/effettiNotte.test.js:234",
+    "test:features/notte/NightSequencer.test.jsx:1935",
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:107",
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:571",
+    "audit-regolamento-2026-09-21 #7",
+    "bug-partite-2026-10-05 #6",
+    "commit:68cf67c",
+    "commit:46ca7c2",
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "lupo-mannaro-progenitore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "\"Il Progenitore trasforma X\" poi \"Sbrana normalmente\": bersaglio valutato col ruolo trasformato (salta parita' Berserker e avviso)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Combinazione Berserker in parita' + Progenitore sullo stesso bersaglio non testata end-to-end (09-23)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:571",
+    "bug-partite-2026-10-02 #4",
+    "revisione-codice-2026-09-23 Copertura",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "spilungone",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)"
+   ]
+  },
+  {
+   "a": "berserker",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "boia",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Boia poteva giustiziare se stesso (preselezione)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Vittima del Boia all'alba assente dai morti della pagina Alba",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Dati: mortoGiorno errato dopo Boia all'alba, storiaRuoli con duplicati (\"boia\",\"boia\")",
+     "stato": "aperto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Boia",
+    "revisione-codice-2026-09-23 #2",
+    "bug-partite-2026-10-02 #5",
+    "bug-partite-2026-10-05 #13 #14",
+    "commit:8f1cedb",
+    "commit:a997fe0"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "borgomastro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:164",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "cartomante",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "fantasma-onnisciente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "guardia-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "innocente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/giorno/EventiSpeciali.test.jsx:445",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "ladro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Boia preso dal Ladro non poteva agire dagli Eventi speciali",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/giorno/EventiSpeciali.test.jsx:140",
+    "commit:80a79ab"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "lantico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Antico rivelabile dopo i colpi del Boia; l'Antico noto sopravvive ai colpi",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/log.test.js:164",
+    "test:features/giorno/EventiSpeciali.test.jsx:428",
+    "commit:295b035"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo non poteva imitare Boia (B5): ora attore indipendente",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Il Mimo-Boia compare accanto al titolare ancora ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:88",
+    "test:features/giorno/EventiSpeciali.test.jsx:453",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 B5",
+    "commit:b1dcad5"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/giorno/EventiSpeciali.test.jsx:453",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "boia",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "borgomastro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Elezione Borgomastro sempre proponibile anche con Borgomastro in carica",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Voto doppio non automatizzato: solo promemoria visivo",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Morte del Borgomastro assente dal registro",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Borgomastro",
+    "revisione-codice-2026-09-23 #3",
+    "audit-ruoli-2026-09-22 appendice B",
+    "commit:a5596c3",
+    "commit:9cb3fe9"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "cartomante",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "fantasma-onnisciente",
+   "valutata": "parziale",
+   "problemi": [
+    {
+     "testo": "Borgomastro e Fantasma non contano come giocatori in piu' nel conteggio atteso",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:App.test.jsx:112",
+    "test:data/log.test.js:84",
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/mazzo/MazzoBuilder.test.jsx:16",
+    "test:features/mazzo/MazzoBuilder.test.jsx:147",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "gallo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/giorno/EventiSpeciali.test.jsx"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "guardia-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "innocente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "ladro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Conteggio giocatori atteso con Ladro e Borgomastro / avviso mostrato senza questi ruoli",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/log.test.js:84",
+    "test:features/mazzo/MazzoBuilder.test.jsx:154",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "bug-partite-2026-10-02 #19",
+    "commit:a6f8099",
+    "commit:e259630"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:84",
+    "test:data/log.test.js:164"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Mimo non puo' copiare il Borgomastro (deciso); puo' esserne eletto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 Q14"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneLadro.test.jsx"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneLadro.test.jsx"
+   ]
+  },
+  {
+   "a": "borgomastro",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:250"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "cartomante",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cartomante non distingueva la Guardia Mannara",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Cartomante",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "fantasma-onnisciente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "guardia",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cartomante distingue la Guardia Mannara dalla Guardia",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:236",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "guardia-mannara",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cartomante distingue la Guardia Mannara dalla Guardia",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneRivelaRuolo.test.jsx",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:236",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "innocente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "inquisitore",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "audit-regolamento-2026-09-21 #11 verifica dal vivo"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "medium",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cartomante su un Mimo mostra il ruolo copiato o la carta Mimo (Q4)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 Q4",
+    "spec-mimo-2026-10-02 Q9",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "scemo-del-villaggio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+    "commit:dc3f9a0"
+   ]
+  },
+  {
+   "a": "cartomante",
+   "b": "veggente-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "cavaliere",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cavaliere al rogo: la UI non cambia, un secondo click uccide anche il protetto",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Scelta del legame facoltativa senza avviso",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Cavaliere",
+    "bug-partite-2026-10-02 #1",
+    "bug-partite-2026-10-05 #4",
+    "commit:8f1cedb",
+    "commit:46ca7c2"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "chupacabra",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/effettiNotte.test.js:415"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/effettiNotte.test.js:415"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "figlia-dei-lupi",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Protezione del Cavaliere vale per sbranamento e rogo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:415",
+    "audit-ruoli-2026-09-22 §Cavaliere",
+    "bug-report-2026-09-17 #5"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Cavaliere e Cavaliere sullo stesso giocatore: vincolo o indipendenza?",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLegame.test.jsx:88",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Cavaliere salva da qualsiasi causa (es. Strega); al rogo il sacrificio non ha mortoNotte",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:155"
+   ]
+  },
+  {
+   "a": "cavaliere",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "chupacabra",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Chupacabra rispetta la protezione (assunzione non confermata dal testo)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Chupacabra"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "cortigiana",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:104",
+    "test:data/risoluzioneNotte.test.js:113",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:183"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "criceto-malvagio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nano/Criceto immuni al Chupacabra",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:83",
+    "commit:c6d0658"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Lupo mangiato dal Chupacabra: il Cucciolo matura e scatta la vendetta (avviso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:259",
+    "test:data/effettiNotte.test.js:415",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:183"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "eremita",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "gallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Gallo Mannaro non conta come lupo per il Chupacabra",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneChupacabra.test.jsx",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:149"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "inquisitore",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneInquisitore.test.jsx",
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Chupacabra + Lupo 1 contro 1: vincono i Lupi anche con il Chupacabra vivo",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Il Chupacabra che sbrana l'unico lupo rimasto perdeva la scelta appena fatta",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:415",
+    "test:data/vittoria.test.js:15",
+    "test:data/vittoria.test.js:242",
+    "test:features/notte/NightSequencer.test.jsx:1308",
+    "test:features/notte/NightSequencer.test.jsx:1908",
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59",
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "mezzosangue",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Mezzosangue (solo il morso lo converte)"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Chupacabra: team di vittoria (ultimi due sopravvissuti), banner neutro",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:data/vittoria.test.js:195",
+    "test:data/vittoria.test.js:254",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "commit:9cb3fe9",
+    "spec-mimo-2026-10-02 Q15",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "nano",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nano/Criceto immuni al Chupacabra",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:83",
+    "commit:c6d0658"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "paladino",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Chupacabra rispetta la protezione del Paladino (coerente con conditions.js)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Paladino",
+    "audit-regolamento-2026-09-21 §1"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "pifferaio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/vittoria.test.js"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/effettiNotte.test.js:259",
+    "audit-ruoli-2026-09-22 §Chupacabra"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/vittoria.test.js:177"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "ubriaco",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ubriaco"
+   ]
+  },
+  {
+   "a": "chupacabra",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js",
+    "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "cortigiana",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Morte della Cortigiana invisibile all'alba",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Cortigiana rimane nell'elenco mazzo dopo la selezione",
+     "stato": "risolto"
+    },
+    {
+     "testo": "\"Sbranato dal branco\" o \"morto di notte\" in generale: lettura ampia mantenuta",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Cortigiana",
+    "revisione-codice-2026-09-23 #1",
+    "bug-partite-2026-10-02 #25",
+    "audit-ruoli-2026-09-22 appendice D"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "criceto-malvagio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:50"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:183"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "gallo-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:87"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "La Cortigiana poteva essere sbranata direttamente; muore comunque se il cliente e' un lupo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:163",
+    "test:data/effettiNotte.test.js:406",
+    "test:data/risoluzioneNotte.test.js:78",
+    "test:data/risoluzioneNotte.test.js:87",
+    "test:data/risoluzioneNotte.test.js:131",
+    "test:data/risoluzioneNotte.test.js:185",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
+    "audit-regolamento-2026-09-21 #1",
+    "commit:68cf67c"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/effettiNotte.test.js:406"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cortigiana e Mimo-Cortigiana con lo stesso cliente: muoiono entrambe se lupo/sbranato",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:241",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 verifica",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "nano",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:50"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "commit:6a063db"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "pastore",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx"
+   ]
+  },
+  {
+   "a": "cortigiana",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cortigiana sopravvive se il cliente muore per la pozione mortale (lettura \"sbranato dal branco\")",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:122",
+    "audit-ruoli-2026-09-22 appendice D"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "criceto-malvagio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Criceto Malvagio solo: banner \"vince il Villaggio\"",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Criceto Malvagio",
+    "bug-partite-2026-10-02 #6",
+    "commit:7ab1c00",
+    "commit:b779f69"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Criceto Malvagio non era immune; ruba la vittoria ai lupi (non ultimo sopravvissuto)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:173",
+    "test:data/vittoria.test.js:51",
+    "test:data/vittoria.test.js:61",
+    "commit:b779f69",
+    "audit-regolamento-2026-09-21 #3"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "nano",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:50",
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:331",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:83"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "pifferaio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pifferaio solo / Criceto solo mostravano anche \"vince il Villaggio\"",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/vittoria.test.js:213",
+    "bug-partite-2026-10-02 #6",
+    "commit:7ab1c00"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "sacerdote",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/vittoria.test.js:213"
+   ]
+  },
+  {
+   "a": "criceto-malvagio",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Criceto immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 appendice C"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "cucciolo-di-lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Vendetta del Cucciolo solo se sbranato dal branco (non per altra causa)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Cucciolo resuscitato dal Guaritore la notte della vendetta: i lupi sbranano comunque due vittime",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Cucciolo di Lupo Mannaro",
+    "audit-ruoli-2026-09-22 correzioni 1",
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "gallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Un Gallo Mannaro morto non fa maturare il Cucciolo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:data/effettiNotte.test.js",
+    "test:data/effettiNotte.test.js:291",
+    "commit:d3e1d00"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "guaritore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cucciolo resuscitato dal Guaritore la notte della vendetta: i lupi sbranano comunque due vittime",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:123"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Cucciolo matura solo per un lupo vero (non Gallo)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/usePartita.test.js:217",
+    "test:state/usePartita.test.js:284",
+    "test:state/usePartita.test.js:383",
+    "test:data/effettiNotte.test.js:281",
+    "test:data/effettiNotte.test.js:415",
+    "test:data/nightSteps.test.js:62",
+    "test:features/notte/NightSequencer.test.jsx:904",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
+    "commit:d3e1d00"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "lupo-mannaro-capobranco",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "lupo-mannaro-progenitore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Con la vendetta del Cucciolo il Progenitore sceglie quale vittima trasformare",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Progenitore e sbranamento non esclusivi",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:593",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Vendetta del Cucciolo una sola volta anche con Mimo-Cucciolo (conta come primo lupo morto)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/usePartita.test.js:435",
+    "test:data/effettiNotte.test.js:379",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 Q11"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "mucca-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/vittoria.test.js"
+   ]
+  },
+  {
+   "a": "cucciolo-di-lupo-mannaro",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Vendetta del Cucciolo anche se muore per la Strega",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:259",
+    "audit-ruoli-2026-09-22 correzioni 1"
+   ]
+  },
+  {
+   "a": "eremita",
+   "b": "eremita",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Eremita"
+   ]
+  },
+  {
+   "a": "eremita",
+   "b": "inquisitore",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+   ]
+  },
+  {
+   "a": "eremita",
+   "b": "lupo-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+   ]
+  },
+  {
+   "a": "eremita",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "eremita",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "fantasma-onnisciente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Fantasma solo manuale, senza promemoria dopo il primo rogo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Fantasma Onnisciente",
+    "bug-partite-2026-10-05 #9",
+    "commit:a997fe0",
+    "commit:e12815c"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "guardia-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "innocente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "ladro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Avviso conteggio giocatori citava Ladro/Fantasma anche senza questi ruoli",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/log.test.js:84",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "bug-partite-2026-10-02 #19",
+    "commit:a6f8099"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:84"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Mimo non puo' copiare il Fantasma (deciso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 §2.4"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/giorno/annullaMorte.test.js:11",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "fantasma-onnisciente",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "fattucchiera",
+   "b": "fattucchiera",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Inibizione solo come badge: l'app non blocca il giocatore inibito",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Fattucchiera",
+    "commit:7d81971"
+   ]
+  },
+  {
+   "a": "fattucchiera",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo inibito dalla Fattucchiera: inibizione condivisa o per persona (Q12)",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 Q12",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "fattucchiera",
+   "b": "strega",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "fattucchiera",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "figlia-dei-lupi",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Figlia dei Lupi trascinata dall'Alchimista: nessun riepilogo dopo il Conferma",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Figlia dei Lupi",
+    "bug-partite-2026-10-05 Ancora presenti",
+    "commit:a997fe0"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:61"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/alba.test.js:92"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "sacerdote",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:130"
+   ]
+  },
+  {
+   "a": "figlia-dei-lupi",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "gallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Gallo che salta il giorno provato solo come dialog, non end-to-end",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Gallo Mannaro",
+    "bug-partite-2026-10-05 Non coperto"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "ladro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Gallo non conta come lupo; vince \"il Villaggio\" con i lupi veri morti (deciso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:226",
+    "test:data/effettiNotte.test.js:291",
+    "test:data/validaMazzo.test.js:40",
+    "test:data/risoluzioneNotte.test.js:87",
+    "test:data/nightSteps.test.js:55",
+    "test:features/notte/azioni/AzioneChupacabra.test.jsx:149",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268",
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:184"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Gallo ricaricato dal Mimo dopo la morte di chi l'aveva usato",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 B4",
+    "commit:4d639e9"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "mucca-mannara",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nessun belato con Gallo vicino",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-05 verifica"
+   ]
+  },
+  {
+   "a": "gallo-mannaro",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268"
+   ]
+  },
+  {
+   "a": "guardia",
+   "b": "guardia",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Guardia e Guardia Mannara indistinguibili: traditrice scelta a caso dall'app",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Guardia",
+    "commit:2cc8833"
+   ]
+  },
+  {
+   "a": "guardia",
+   "b": "guardia-mannara",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Guardia Mannara richiede Guardie (vincolo in UI e nello state)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Guardie scelte come un unico gruppo, mai chi e' la traditrice",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/useMazzo.test.js:67",
+    "test:features/mazzo/MazzoBuilder.test.jsx:107",
+    "test:features/notte/AssegnaRuolo.test.jsx:173",
+    "test:features/notte/AssegnaRuolo.test.jsx:193",
+    "test:features/notte/AssegnaRuolo.test.jsx:215",
+    "test:features/notte/NightSequencer.test.jsx:1275",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:119",
+    "bug-report-2026-09-17 #10",
+    "commit:2cc8833"
+   ]
+  },
+  {
+   "a": "guardia",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Guardia Mannara: la traditrice casuale poteva essere il Mimo, assegnata piu' volte",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/assegnazione.test.js:80",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:119",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 B2"
+   ]
+  },
+  {
+   "a": "guardia",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "guardia-mannara",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Sbranando la Guardia Mannara una volta \"Nessuno e' morto\" (non riprodotto)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Guardia Mannara",
+    "bug-partite-2026-10-02 dubbi"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "innocente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Con i lupi veri morti e questo ruolo vivo si annuncia \"vince il Villaggio\" (deciso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:82",
+    "bug-partite-2026-10-05 dubbi",
+    "bug-partite-2026-10-02 dubbi"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo che copia la Guardia Mannara: la rende mannara? (deciso: copia effettiva, vede la carta)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/aura.test.js:18",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:119",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 Q9"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nessun belato con la Guardia Mannara vicina",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:82"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+   ]
+  },
+  {
+   "a": "guardia-mannara",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Veggente su Guardia Mannara: \"Aura benevola\"",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "fixture:data/log.test.js",
+    "bug-partite-2026-10-02 dubbi",
+    "test:data/aura.test.js:18"
+   ]
+  },
+  {
+   "a": "guaritore",
+   "b": "guaritore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Gate generico nascondeva l'azione del Guaritore morto",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Guaritore",
+    "audit-ruoli-2026-09-22 correzioni 2"
+   ]
+  },
+  {
+   "a": "guaritore",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "guaritore",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Poteri unici separati (Q5=B): implementazione per Guaritore senza test dedicato",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 Q5"
+   ]
+  },
+  {
+   "a": "guaritore",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Guaritore e Sciacallo nascosti quando morti, ma agiscono da morti",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/risoluzioneNotte.test.js:12",
+    "test:features/notte/NightSequencer.test.jsx:202",
+    "audit-ruoli-2026-09-22 correzioni 2"
+   ]
+  },
+  {
+   "a": "innocente",
+   "b": "innocente",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Innocente"
+   ]
+  },
+  {
+   "a": "innocente",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/log.test.js"
+   ]
+  },
+  {
+   "a": "innocente",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Scemo/Innocente non provati in partita",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 Non coperto",
+    "spec-mimo-2026-10-02 §2.4"
+   ]
+  },
+  {
+   "a": "innocente",
+   "b": "scemo-del-villaggio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "innocente",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "inquisitore",
+   "b": "inquisitore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nessuna azione interattiva (solo informativo)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Inquisitore",
+    "audit-regolamento-2026-09-21 #11"
+   ]
+  },
+  {
+   "a": "inquisitore",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+   ]
+  },
+  {
+   "a": "inquisitore",
+   "b": "medium",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "inquisitore",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il potere puo' fallire due volte (una per titolare)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneInquisitore.test.jsx:94",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 §2.3"
+   ]
+  },
+  {
+   "a": "inquisitore",
+   "b": "veggente-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "ladro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Carta del Ladro in mano al narratore non svegliata se la quantita' scende a 0",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Il Ladro poteva scartare una carta gia' in mano ad altri / la stessa in entrambe le tendine",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Ruolo assunto dal Ladro invisibile ai passi notturni successivi",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ladro",
+    "bug-partite-2026-10-02 #3",
+    "revisione-codice-2026-09-23 #4",
+    "audit-regolamento-2026-09-21 #24",
+    "commit:5013ce4",
+    "commit:85335b3"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "lantico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/log.test.js:84"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "\"Resta Villico\" nascosto se le carte sono lupi veri (non Gallo/Mucca)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:23",
+    "commit:61b667b"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "lupo-mannaro-capobranco",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/azioni/AzioneLadro.test.jsx"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "medium",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Ladro: riassegnando la chip il Ladro-Mimo resta senza ruolo",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Dopo il Ladro si torna al passo Mimo anche se nessuno ha preso la carta Mimo",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Le 2 carte extra del Ladro non erano imitabili dal Mimo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/log.test.js:96",
+    "test:data/assegnazione.test.js:93",
+    "test:features/notte/NightSequencer.test.jsx:1728",
+    "test:features/notte/NightSequencer.test.jsx:1830",
+    "test:features/notte/NightSequencer.test.jsx:2017",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:195",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:146",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:312",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-02 #15",
+    "bug-partite-2026-10-05 #18",
+    "commit:b1a986d",
+    "commit:e1ef4fd"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "mucca-mannara",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/vittoria.test.js:143"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il ruolo assunto dal Ladro (Veggente) non generava i passi notturni",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/nightSteps.test.js:226",
+    "audit-regolamento-2026-09-21 #24",
+    "commit:85335b3"
+   ]
+  },
+  {
+   "a": "ladro",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:23",
+    "audit-regolamento-2026-09-21 §17"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "lantico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Antico: due vite, rivelazione e icona (registro \"e' tornato in vita\" ridondante)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Antico sbranato non identificato non rivelabile",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §L'Antico",
+    "bug-partite-2026-10-05 verifica",
+    "commit:c61473e",
+    "commit:d2e0e02"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Antico sbranato non identificato non rivelabile; maledizione blocca i passi buoni, lupi e indipendenti",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/nightSteps.test.js:198",
+    "commit:c61473e",
+    "commit:6a063db"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "medium",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Medium indaga l'ex Antico come \"villico\"",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-02 dubbi"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Antico: due vite proprie (deciso); non provato in partita",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 Q13",
+    "bug-partite-2026-10-02 Non coperto"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "scemo-del-villaggio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Antico rivelabile dopo i colpi dello Scemo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "commit:295b035"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "spilungone",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/giorno/EventiSpeciali.test.jsx:151",
+    "test:features/giorno/Votazione.test.jsx:115",
+    "test:features/giorno/Votazione.test.jsx:144"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "untore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Antico rivelabile dopo unzione",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "commit:295b035"
+   ]
+  },
+  {
+   "a": "lantico",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/effettiNotte.test.js:367",
+    "test:features/giorno/annullaMorte.test.js:35",
+    "test:features/giorno/GiornoPanel.test.jsx:124",
+    "test:features/giorno/Votazione.test.jsx:456",
+    "test:features/giorno/Votazione.test.jsx:471",
+    "test:features/giorno/Votazione.test.jsx:490",
+    "test:features/giorno/Votazione.test.jsx:645",
+    "test:features/alba/AlbaPanel.test.jsx:160",
+    "test:features/alba/AlbaPanel.test.jsx:263"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "lupo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Branco chiamato anche con tutti i lupi morti (\"richiama i morti\")",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Passo Branco della notte 1 saltato quando Lupo Mannaro e' l'ultimo passo",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Branco dopo refresh: chip sparite / vittima 1 di 2 con morso gia' registrato",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Lupo Mannaro",
+    "bug-partite-2026-10-02 #7 dubbi",
+    "bug-partite-2026-10-05 #2 e dubbi",
+    "commit:46ca7c2",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "lupo-mannaro-capobranco",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/vittoria.test.js:247"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "lupo-mannaro-progenitore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il lupo appena trasformato non deve comparire in \"Vivi:\" prima di Avanti",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1869",
+    "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:571"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "mezzosangue",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mezzosangue sbranato non diventava lupo",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:178",
+    "test:data/effettiNotte.test.js:406",
+    "audit-regolamento-2026-09-21 #9"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Branco: il Mimo-lupo conta come lupo (vittoria, aura, Pastore)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Mimo che copia i Lupi non occupa un posto dei titolari",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/vittoria.test.js:247",
+    "test:features/notte/NightSequencer.test.jsx:1585",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 §2.3",
+    "commit:6f08328"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "mucca-mannara",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mucca Mannara conta tra gli abitanti e vince con i lupi nel banner",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:11",
+    "test:data/vittoria.test.js:231",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268",
+    "commit:9cb3fe9"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "nano",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nano non era immune ai lupi",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:168",
+    "audit-regolamento-2026-09-21 #2"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "nonna",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/aura.test.js:9",
+    "test:data/nightSteps.test.js:80"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "paladino",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il morso del branco e' bloccato da \"protetto\"",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "bug-report-2026-09-17 #1",
+    "audit-ruoli-2026-09-22 §Lupo Mannaro",
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Belati solo con un lupo del branco vicino",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:3",
+    "test:data/alba.test.js:11",
+    "test:data/alba.test.js:19",
+    "test:data/alba.test.js:82",
+    "commit:68cf67c"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Con i lupi veri morti e questo ruolo vivo si annuncia \"vince il Villaggio\" (deciso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-05 dubbi",
+    "bug-partite-2026-10-02 dubbi"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "spilungone",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "\"La notte cala senza vittime\" ma i lupi possono sbranare",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 appendice I",
+    "bug-partite-2026-10-02 dubbi",
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "strega",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "ubriaco",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Ubriaco sbranato: blocco dei lupi la notte dopo; nessun log/avviso",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-regolamento-2026-09-21 #8",
+    "bug-partite-2026-10-02 #24",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "veggente-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Con i lupi veri morti e questo ruolo vivo si annuncia \"vince il Villaggio\" (deciso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-05 dubbi",
+    "bug-partite-2026-10-02 dubbi"
+   ]
+  },
+  {
+   "a": "lupo-mannaro",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:23",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:95",
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268",
+    "bug-report-2026-09-17 partita dal vivo",
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "lupo-mannaro-capobranco",
+   "b": "lupo-mannaro-capobranco",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Lupo Mannaro Capobranco"
+   ]
+  },
+  {
+   "a": "lupo-mannaro-capobranco",
+   "b": "lupo-mannaro-progenitore",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:86"
+   ]
+  },
+  {
+   "a": "lupo-mannaro-capobranco",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Capobranco + Mimo-Capobranco ultimi due: \"vincono i Lupi\" a 2 contro 2",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/vittoria.test.js:247",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 dubbi",
+    "commit:9cb3fe9"
+   ]
+  },
+  {
+   "a": "lupo-mannaro-progenitore",
+   "b": "lupo-mannaro-progenitore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Potere di trasformazione del Progenitore non implementato",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Dopo \"trasforma\" il bottone \"Sbrana normalmente\" risulta evidenziato (ambiguo)",
+     "stato": "aperto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Lupo Mannaro Progenitore",
+    "audit-ruoli-2026-09-22 appendice F",
+    "bug-partite-2026-10-05 #20",
+    "commit:4a5798f"
+   ]
+  },
+  {
+   "a": "lupo-mannaro-progenitore",
+   "b": "mezzosangue",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-partite-2026-10-02 #4 C"
+   ]
+  },
+  {
+   "a": "maga",
+   "b": "maga",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Condizione \"trasformato\" mai rimossa",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Maga",
+    "audit-regolamento-2026-09-21 #5"
+   ]
+  },
+  {
+   "a": "maga",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "medium",
+   "b": "medium",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Variante del regolamento (solo aura) non implementata",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Medium indaga l'ex Antico come \"villico\"",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Medium",
+    "audit-ruoli-2026-09-22 appendice G",
+    "bug-partite-2026-10-02 dubbi",
+    "commit:a5596c3"
+   ]
+  },
+  {
+   "a": "medium",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Medium su un Mimo morto mostra il ruolo copiato (Q4)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 Q4"
+   ]
+  },
+  {
+   "a": "medium",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "medium",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/nightSteps.test.js"
+   ]
+  },
+  {
+   "a": "medium",
+   "b": "veggente-mannaro",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:data/nightSteps.test.js:150"
+   ]
+  },
+  {
+   "a": "mezzosangue",
+   "b": "mezzosangue",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Trasformazione del Mezzosangue non annunciata all'alba / registrata 2-3 volte",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Mezzosangue",
+    "bug-partite-2026-10-02 #11",
+    "bug-partite-2026-10-05 #11",
+    "commit:7ab1c00"
+   ]
+  },
+  {
+   "a": "mezzosangue",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mezzosangue",
+   "b": "paladino",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "commit:6a063db"
+   ]
+  },
+  {
+   "a": "mezzosangue",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Mezzosangue (solo il morso lo converte)"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "mimo",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Percorso 2 (Mimo resta \"mimo\" per sempre se non sceglie la carta)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Cambiando bersaglio la carta scelta resta applicata al nuovo bersaglio",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Refresh nel passo Mimo perde la carta scelta",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Mimo assegnato senza \"Chi imitare\": passo Mimo riproposto, contatori passi instabili",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Mimo",
+    "audit-mimo-2026-10-02 B1 B3 P4",
+    "spec-mimo-2026-10-02 intro",
+    "bug-partite-2026-10-05 #7",
+    "commit:b1a986d",
+    "commit:46ca7c2",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:171"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "mucca-mannara",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "nano",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "nonna",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "paladino",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1616",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo con Pastore/Ambasciatore e aura non provato in browser",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 Non coperto"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "pifferaio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pifferaio + Mimo-Pifferaio: una sola scelta condivisa di 2 ipnotizzati (coerente con spec)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Il Pifferaio puo' ri-ipnotizzare chi lo e' gia'",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneCondizioneDoppia.test.jsx:228",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 #16",
+    "commit:46ca7c2",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "polpo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Accecamento rimosso alla morte di qualunque Polpo anche se resta il Mimo-Polpo",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Polpo su Veggente+Mimo-Veggente: acceca entrambi",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:392",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:106",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 P9"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "sacerdote",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Due coppie di innamorati indipendenti; crepacuore con una sola coppia supposta",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/effettiNotte.test.js:372",
+    "test:features/notte/NightSequencer.test.jsx:1666",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "commit:9d84b74"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "scemo-del-villaggio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Scemo/Innocente non provati in partita",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "annullaMorte del Mimo-Scemo cancellava il ruolo copiato",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/usePartita.test.js:428",
+    "test:features/giorno/annullaMorte.test.js:47",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 Non coperto"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Poteri unici separati (Q5=B): implementazione per Sciacallo senza test dedicato",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 Q5"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "spilungone",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Strega e Mimo-Strega condividevano un solo set di pozioni (poteri unici separati per Q5)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/AzioneStrega.test.jsx:119",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 #8",
+    "commit:46ca7c2"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo-Suocera: si poteva scegliere ma non rivelava nulla alla morte",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/vittoria.test.js:259",
+    "test:data/eventiSpeciali.test.js:12",
+    "test:features/giorno/EventiSpeciali.test.jsx:453",
+    "test:features/giorno/EventiSpeciali.test.jsx:487",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-05 dubbi",
+    "commit:a997fe0"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "ubriaco",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "untore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Aura/indagine: esito sincronizzato su entrambi i titolari",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Togliere il Mimo dagli indagabili: non fondamentale (spec)",
+     "stato": "aperto"
+    },
+    {
+     "testo": "Registro: \"imita Veggente\" mostrava il ruolo finale",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/log.test.js:72",
+    "test:data/effettiNotte.test.js:392",
+    "test:data/risoluzioneNotte.test.js:233",
+    "test:features/notte/NightSequencer.test.jsx:988",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:106",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:154",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "bug-partite-2026-10-02 #10",
+    "spec-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "veggente-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "audit-mimo-2026-10-02 P7"
+   ]
+  },
+  {
+   "a": "mimo",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mimo assegnato a ruolo ignoto senza specificare: convertito in Villico",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1693",
+    "test:features/notte/NightSequencer.test.jsx:1964",
+    "test:features/notte/NightSequencer.test.jsx:1984",
+    "test:features/notte/azioni/AzioneMimo.test.jsx:215",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:22",
+    "test:features/notte/azioni/AzioneAddolorata.test.jsx:47",
+    "audit-mimo-2026-10-02 §2-4",
+    "spec-mimo-2026-10-02",
+    "spec-mimo-2026-10-02 intro",
+    "commit:b1a986d"
+   ]
+  },
+  {
+   "a": "mucca-mannara",
+   "b": "mucca-mannara",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Mucca Mannara vince \"assieme ai lupi\" (roles.js) ma con lupi morti si annuncia il Villaggio",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Mucca Mannara",
+    "bug-partite-2026-10-05 dubbi",
+    "commit:9cb3fe9",
+    "test:data/vittoria.test.js:231"
+   ]
+  },
+  {
+   "a": "mucca-mannara",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nessun belato con Mucca vicina",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:data/alba.test.js:11",
+    "bug-partite-2026-10-05 verifica"
+   ]
+  },
+  {
+   "a": "mucca-mannara",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneLadro.test.jsx:268"
+   ]
+  },
+  {
+   "a": "nano",
+   "b": "nano",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nano e Criceto immuni solo ai lupi: la frase \"puo' morire solo al rogo\" potrebbe valere per ogni potere",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Nano",
+    "audit-ruoli-2026-09-22 appendice C"
+   ]
+  },
+  {
+   "a": "nano",
+   "b": "pifferaio",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:features/notte/NightSequencer.test.jsx"
+   ]
+  },
+  {
+   "a": "nano",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Nano immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 appendice C"
+   ]
+  },
+  {
+   "a": "nonna",
+   "b": "nonna",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Nonna"
+   ]
+  },
+  {
+   "a": "nonna",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/aura.test.js:9",
+    "audit-ruoli-2026-09-22 §Meccanismi condivisi"
+   ]
+  },
+  {
+   "a": "paladino",
+   "b": "paladino",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Paladino"
+   ]
+  },
+  {
+   "a": "paladino",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pozione mortale ignorata dalla protezione del Paladino (era bloccata)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "bug-report-2026-09-17 #1",
+    "commit:c6d0658",
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "paladino",
+   "b": "veggente",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "fixture:data/assegnazione.test.js",
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "paladino",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "pastore",
+   "b": "pastore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pastore con piu' lupi non coperto",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Pastore",
+    "bug-partite-2026-10-02 Non coperto",
+    "bug-partite-2026-10-05 Non coperto"
+   ]
+  },
+  {
+   "a": "pifferaio",
+   "b": "pifferaio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pifferaio: una sola azione per notte non bloccata (doppio uso)",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Illustrazioni ipnotizzati: ruolo reale invece di Villico",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Totale passi sovrastimato se il Pifferaio non ipnotizza",
+     "stato": "aperto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Pifferaio",
+    "bug-report-2026-09-17 #4",
+    "bug-partite-2026-10-02 #20",
+    "bug-partite-2026-10-05 #19"
+   ]
+  },
+  {
+   "a": "pifferaio",
+   "b": "sacerdote",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Innamorati soli mostravano anche \"vince il Villaggio\"",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/azioni/SceltaDoppiaGiocatore.test.jsx:11",
+    "test:data/vittoria.test.js:213",
+    "bug-partite-2026-10-02 #6"
+   ]
+  },
+  {
+   "a": "pifferaio",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:data/vittoria.test.js:186",
+    "commit:749c053"
+   ]
+  },
+  {
+   "a": "pifferaio",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:1558"
+   ]
+  },
+  {
+   "a": "polpo-mannaro",
+   "b": "polpo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Accecamento del Veggente non impostato/rimosso",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Polpo Mannaro",
+    "audit-regolamento-2026-09-21 #4"
+   ]
+  },
+  {
+   "a": "polpo-mannaro",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Veggente non veniva mai accecato dal Polpo / accecamento non rimosso",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:state/usePartita.test.js:195",
+    "test:data/effettiNotte.test.js:149",
+    "test:data/effettiNotte.test.js:392",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:69",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:91",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:106",
+    "audit-regolamento-2026-09-21 #4"
+   ]
+  },
+  {
+   "a": "polpo-mannaro",
+   "b": "veggente-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:69"
+   ]
+  },
+  {
+   "a": "sacerdote",
+   "b": "sacerdote",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Refresh a meta' passo: coppia nello stato ma nessuna chip, 4 innamorati da un solo Sacerdote",
+     "stato": "risolto"
+    },
+    {
+     "testo": "\"Innamorati si riconoscono\" con due coppie mostra tutti e 4",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Coppia incompleta: Avanti abilitato senza avviso, legame perso in silenzio",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Sacerdote",
+    "bug-partite-2026-10-02 #2 #14",
+    "bug-partite-2026-10-05 #4",
+    "commit:46ca7c2",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "sacerdote",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Sciacallo resuscita anche gli amanti: il partner morto resta morto senza avviso",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "scemo-del-villaggio",
+   "b": "scemo-del-villaggio",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Morte dello Scemo indistinguibile da Boia/unzione nel registro (causaMorte colpo)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Scemo del Villaggio",
+    "commit:80a79ab"
+   ]
+  },
+  {
+   "a": "scemo-del-villaggio",
+   "b": "suocera",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+    "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+   ]
+  },
+  {
+   "a": "sciacallo-mannaro",
+   "b": "sciacallo-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Sciacallo resuscita anche gli amanti: il partner morto resta morto senza avviso",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Sciacallo Mannaro",
+    "bug-partite-2026-10-05 dubbi"
+   ]
+  },
+  {
+   "a": "spilungone",
+   "b": "spilungone",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "\"La notte cala senza vittime\" non blocca i poteri notturni",
+     "stato": "dubbio"
+    },
+    {
+     "testo": "Spilungone al rogo non protetto dall'immunita'",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Spilungone",
+    "audit-ruoli-2026-09-22 appendice I",
+    "audit-regolamento-2026-09-21 #15"
+   ]
+  },
+  {
+   "a": "spilungone",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "audit-regolamento-2026-09-21 partita dal vivo"
+   ]
+  },
+  {
+   "a": "strega",
+   "b": "strega",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Pozione mortale bloccata dalla protezione",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Pozione marcata usata senza effetto e senza avviso",
+     "stato": "risolto"
+    },
+    {
+     "testo": "\"Richiama i morti\": Strega chiamata con entrambe le pozioni usate",
+     "stato": "dubbio"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Strega",
+    "bug-report-2026-09-17 #1 #7",
+    "bug-partite-2026-10-02 dubbi",
+    "commit:362b3c6"
+   ]
+  },
+  {
+   "a": "strega",
+   "b": "ubriaco",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ubriaco"
+   ]
+  },
+  {
+   "a": "strega",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Strega che uccide il Veggente (passo precedente che sparisce) faceva saltare la schermata e il Branco",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "test:features/notte/NightSequencer.test.jsx:634",
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "strega",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "suocera",
+   "b": "suocera",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Suocera"
+   ]
+  },
+  {
+   "a": "ubriaco",
+   "b": "ubriaco",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Ubriaco sbranato: nessun log ne' avviso all'alba",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Ubriaco",
+    "bug-partite-2026-10-02 #24",
+    "commit:5013ce4"
+   ]
+  },
+  {
+   "a": "untore",
+   "b": "untore",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Propagazione dell'unto ai vicini non implementata",
+     "stato": "risolto"
+    },
+    {
+     "testo": "Condizione \"unto\" mai rimossa",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Untore",
+    "audit-ruoli-2026-09-22 appendice H",
+    "audit-regolamento-2026-09-21 #5",
+    "test:data/effettiNotte.test.js (propagaUnzione)"
+   ]
+  },
+  {
+   "a": "veggente",
+   "b": "veggente",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Veggente: indagine ripetibile nella stessa notte (doppio uso)",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Veggente",
+    "bug-report-2026-09-17 #4"
+   ]
+  },
+  {
+   "a": "veggente",
+   "b": "veggente-mannaro",
+   "valutata": "si",
+   "problemi": [],
+   "fonti": [
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:47",
+    "test:features/notte/azioni/AzioneIndagine.test.jsx:69"
+   ]
+  },
+  {
+   "a": "veggente",
+   "b": "villico",
+   "valutata": "parziale",
+   "problemi": [],
+   "fonti": [
+    "bug-report-2026-09-17 partita dal vivo"
+   ]
+  },
+  {
+   "a": "veggente-mannaro",
+   "b": "veggente-mannaro",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Veggente Mannaro senza azione interattiva",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Veggente Mannaro",
+    "audit-regolamento-2026-09-21 #11"
+   ]
+  },
+  {
+   "a": "villico",
+   "b": "villico",
+   "valutata": "si",
+   "problemi": [
+    {
+     "testo": "Il Villico (e i ruoli senza passo notturno) non veniva mai assegnato a nessun giocatore",
+     "stato": "risolto"
+    }
+   ],
+   "fonti": [
+    "audit-ruoli-2026-09-22 §Villico",
+    "audit-regolamento-2026-09-21 #0"
+   ]
+  }
+ ]
+}
