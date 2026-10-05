@@ -218,7 +218,7 @@ test('un solo banner: Pifferaio solo, Pifferaio con ipnotizzati, innamorati soli
     [[v('1', 'villico', ['innamorato']), v('2', 'villico', ['innamorato'])], /innamorati/],
     [[v('1', 'lupo-mannaro', ['innamorato']), v('2', 'villico', ['innamorato'])], /innamorati/],
     [[v('1', 'criceto-malvagio')], /Criceto Malvagio è l'ultimo/],
-    [[v('1', 'criceto-malvagio'), v('2', 'criceto-malvagio')], /Criceto Malvagio e il Mimo/],
+    [[v('1', 'criceto-malvagio'), v('2', 'criceto-malvagio')], /Criceto Malvagio e Mimo-Criceto Malvagio/],
     [[v('1', 'chupacabra')], /Chupacabra è l'ultimo/],
   ]
   for (const [giocatori, atteso] of casi) {
@@ -226,4 +226,42 @@ test('un solo banner: Pifferaio solo, Pifferaio con ipnotizzati, innamorati soli
     expect(messaggi).toHaveLength(1)
     expect(messaggi[0]).toMatch(atteso)
   }
+})
+
+test('Mucca Mannara: conta tra gli abitanti, non tra i lupi, e vince con loro nel banner', () => {
+  const v = (id, ruoloSlug) => ({ id, vivo: true, ruoloSlug, condizioni: [] })
+  // 1 lupo vs Mucca: abitanti (1) <= lupi (1) -> vincono Lupi e Mucca
+  expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'mucca-mannara')]).join(' ')).toMatch(/vincono i Lupi e la Mucca Mannara/)
+  // 1 lupo vs Mucca + villico: la Mucca è un abitante, i lupi non vincono
+  expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'mucca-mannara'), v('3', 'villico')])).toEqual([])
+  // Mucca morta: banner normale
+  const morta = { ...v('2', 'mucca-mannara'), vivo: false }
+  expect(condizioniVittoria([v('1', 'lupo-mannaro'), morta]).join(' ')).not.toMatch(/Mucca/)
+})
+
+test('un lupo contro il Chupacabra: vincono i Lupi', () => {
+  const v = (id, ruoloSlug) => ({ id, vivo: true, ruoloSlug, condizioni: [] })
+  expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'chupacabra')]).join(' ')).toMatch(/vincono loro/)
+})
+
+test('Capobranco + Mimo-Capobranco ultimi: vincono i capibranco (lupi), non "il Mimo che lo imita"', () => {
+  const v = (id) => ({ id, vivo: true, ruoloSlug: 'lupo-mannaro-capobranco', condizioni: [] })
+  const m = condizioniVittoria([v('1'), v('2')])
+  expect(m).toHaveLength(1)
+  expect(m[0]).toMatch(/Capobranco e il Mimo-Capobranco.*Lupi/)
+})
+
+test('banner Chupacabra + Mimo: formula neutra', () => {
+  const v = (id) => ({ id, vivo: true, ruoloSlug: 'chupacabra', condizioni: [] })
+  expect(condizioniVittoria([v('1'), v('2')]).join(' ')).not.toMatch(/che lo imita/)
+})
+
+test('Mimo-Suocera vivo conta come abitante; la Suocera titolare nascosta resta -1', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'suocera', storiaRuoli: ['mimo', 'suocera'], condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: undefined, condizioni: [] },
+  ]
+  // abitanti: Mimo-Suocera (1) + la Suocera nascosta (-1) + ignoto (1) -> 1 abitante, 1 lupo: vincono i lupi
+  expect(condizioniVittoria(giocatori, { suocera: 1 }).join(' ')).toMatch(/Lupi Mannari/)
 })

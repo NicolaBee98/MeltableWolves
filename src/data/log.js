@@ -62,10 +62,38 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
         giocatore.causaMorte === 'colpo' && ETICHETTA_MORTE_DA[giocatore.mortoDa]
           ? ETICHETTA_MORTE_DA[giocatore.mortoDa]
           : (ETICHETTA_CAUSA[giocatore.causaMorte] ?? '')
-      eventi.push({ round, fase: faseMorte, messaggio: `${nome} è morto/a${causa}` })
+      const boia = giocatore.mortoDa === 'boia' && correnti.find((g) => g.id === giocatore.giustiziatoDa)
+      // il crepacuore notturno è già negli annunci dell'alba ("è morto/a di
+      // crepacuore per la morte del partner"): niente doppione dalla notte
+      if (!(giocatore.causaMorte === 'crepacuore' && fase === 'notte')) {
+        eventi.push({
+          round,
+          fase: faseMorte,
+          messaggio: boia ? `Il Boia ${nomeLog(boia)} giustizia ${giocatore.nome}` : `${nome} è morto/a${causa}`,
+        })
+      }
+      if (prima.eBorgomastro) {
+        eventi.push({ round, fase: faseMorte, messaggio: `${nome} era il Borgomastro: il villaggio dovrà eleggerne uno nuovo` })
+      }
     }
-    if (!prima.vivo && giocatore.vivo) {
-      eventi.push({ round, fase, messaggio: `${nome} è tornato/a in vita` })
+    // resurrezione (Guaritore/Sciacallo): una sola voce, che assorbe anche la
+    // condizione "resuscitato" scritta insieme (vedi sotto)
+    const condizioniDopoRes = giocatore.condizioni ?? []
+    const resuscitato = !prima.vivo && giocatore.vivo && condizioniDopoRes.includes('resuscitato') && !(prima.condizioni ?? []).includes('resuscitato')
+    // l'Antico che sopravvive (rivelato dopo la "morte") ha un testo suo: non è "tornato in vita"
+    const anticoSopravvive = !prima.vivo && giocatore.vivo && (giocatore.storiaRuoli ?? []).includes('lantico') && !(prima.storiaRuoli ?? []).includes('lantico')
+    if (!prima.vivo && giocatore.vivo && !anticoSopravvive) {
+      eventi.push({ round, fase, messaggio: resuscitato ? `${nome} è stato/a resuscitato/a` : `${nome} è tornato/a in vita` })
+    }
+    // scelta del Guaritore / dello Sciacallo Mannaro (la resurrezione avviene all'alba)
+    if (giocatore.resuscitaAllAlba !== undefined && prima.resuscitaAllAlba === undefined) {
+      const potere = correnti.flatMap((a) =>
+        ['guaritore-resuscita', 'sciacallo-mannaro-resuscita']
+          .filter((p) => (a.poteriUsati ?? []).includes(p) && !(mappaPrecedenti.get(a.id)?.poteriUsati ?? []).includes(p))
+          .map((p) => ({ a, p })),
+      )[0]
+      const chi = potere ? `${potere.p.startsWith('guaritore') ? 'Il Guaritore' : 'Lo Sciacallo Mannaro'} ${nomeLog(potere.a)}` : 'Il Guaritore/Sciacallo'
+      eventi.push({ round, fase, messaggio: `${chi} sceglie di resuscitare ${giocatore.nome}` })
     }
 
     // rivelazioni diurne, elezione del Borgomastro, Fantasma Onnisciente
@@ -75,7 +103,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       (fase !== 'notte' && nuoviInStoria.includes('lantico')) ||
       (prima.ruoloSlug === 'lantico' && giocatore.ruoloSlug === 'villico')
     if (anticoRivelato) {
-      eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e gioca da Villico` })
+      eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)` })
     }
     if (fase !== 'notte') {
       for (const slug of nuoviInStoria.filter((r) => RUOLI_RIVELAZIONE_DIURNA.includes(r))) {
@@ -102,6 +130,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     }
     for (const condizione of condizioniDopo) {
       if (condizione === 'innamorato' && partnerNuovi.length > 0) continue
+      if (condizione === 'resuscitato' && resuscitato) continue
       if (!condizioniPrima.includes(condizione)) {
         eventi.push({ round, fase, messaggio: `${nome} ha ottenuto la condizione "${condizione}"` })
       }
@@ -115,12 +144,18 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     for (const [potere, testo] of Object.entries(POTERI_DICHIARATI)) {
       const eraUsato = (prima.poteriUsati ?? []).includes(potere)
       const eUsato = (giocatore.poteriUsati ?? []).includes(potere)
-      if (!eraUsato && eUsato) eventi.push({ round, fase, messaggio: testo(nome) })
+      // il Gallo si dichiara all'alba ma salta il giorno: l'etichetta è "Giorno"
+      const faseVoce = potere === 'gallo-salta-giorno' ? 'giorno' : fase
+      if (!eraUsato && eUsato) eventi.push({ round, fase: faseVoce, messaggio: testo(nome) })
       if (eraUsato && !eUsato) eventi.push({ round, fase, messaggio: `${nome}: gesto annullato (${potere === 'gallo-salta-giorno' ? 'Gallo' : 'Bardo'})` })
     }
 
     // legami: scelta (Cavaliere/Apprendista/Figlia) e, quando decadono con un
     // cambio di carta, rivelazione (l'Apprendista eredita, la Figlia diventa lupo)
+    // di notte questi tre esiti hanno già la loro voce negli annunci dell'alba
+    // (annunciAlba, registrati da NightSequencer): niente doppione dal diff
+    const coperto = (campo) => fase === 'notte' && giocatore[campo] !== undefined && giocatore[campo] !== prima[campo]
+    const trasformatoMezzosangue = coperto('trasformatoNotte')
     let ereditato = false
     for (const campo of ['legame', 'legameMimo']) {
       const l0 = prima[campo]
@@ -132,14 +167,14 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       if (!l1 && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
         if (l0.tipo === 'apprendista') {
           ereditato = true
-          eventi.push({
+          if (!coperto('ereditaNotte')) eventi.push({
             round,
             fase,
             messaggio: `${nome} (Apprendista) eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}`,
           })
         } else if (l0.tipo === 'figlia-dei-lupi') {
           ereditato = true
-          eventi.push({ round, fase, messaggio: `${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro` })
+          if (!coperto('figliaLupoNotte')) eventi.push({ round, fase, messaggio: `${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro` })
         }
       }
     }
@@ -181,7 +216,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
           fase,
           messaggio: `Il Mimo ${giocatore.nome} imita ${nomeRuolo(ruoloPerDisplay(imitato))}${bersaglio ? ` (${bersaglio.nome})` : ''}`,
         })
-      } else if (!ereditato && !ladroSceglie) {
+      } else if (!ereditato && !ladroSceglie && !trasformatoMezzosangue) {
         eventi.push({ round, fase, messaggio: `${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}` })
       }
     }
