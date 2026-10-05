@@ -27,7 +27,7 @@ test('cavaliere muore al posto del bersaglio se sbranato di notte', () => {
   ]
   const patch = risolviLegami(giocatori)
   expect(patch['2']).toEqual({ vivo: true, causaMorte: undefined })
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: 3, legame: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'sacrificio', mortoNotte: 3, sacrificioDa: 'notte', legame: null })
 })
 
 test('cavaliere si rivela e si immola al posto del bersaglio anche se questo viene messo al rogo', () => {
@@ -44,6 +44,7 @@ test('cavaliere si rivela e si immola al posto del bersaglio anche se questo vie
     causaMorte: 'sacrificio',
     mortoNotte: undefined,
     sacrificioRogoRound: 2,
+    sacrificioDa: 'rogo',
     legame: null,
   })
 })
@@ -277,4 +278,54 @@ test('Apprendista che eredita un Cavaliere: legame null e marcatore "legame-ered
     legame: null,
     poteriUsati: ['x', 'legame-ereditato'],
   })
+})
+
+test('Cavaliere salvato: la patch ripulisce anche mortoGiorno e giustiziatoDa; sacrificioRogoRound è il giorno del rogo', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+    { ...base, id: '2', vivo: false, ruoloSlug: 'veggente', causaMorte: 'colpo', mortoDa: 'boia', giustiziatoDa: '9', mortoGiorno: 3 },
+  ]
+  const patch = risolviLegami(giocatori)
+  expect(patch['2']).toEqual({
+    vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined, mortoGiorno: undefined, giustiziatoDa: undefined,
+  })
+  giocatori[1] = { ...giocatori[1], causaMorte: 'rogo', mortoNotte: 3, mortoGiorno: undefined }
+  expect(risolviLegami(giocatori)['1'].sacrificioRogoRound).toBe(3)
+})
+
+test('Apprendista che eredita un Cavaliere morto SENZA sacrificarsi: eredita anche il legame (la persona protetta) e non il marcatore', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } },
+    { ...base, id: '2', vivo: false, ruoloSlug: 'cavaliere', causaMorte: 'notte', poteriUsati: [], legame: { tipo: 'cavaliere', targetId: '3' } },
+    { ...base, id: '3', ruoloSlug: 'veggente' },
+  ]
+  const p = risolviLegami(giocatori)['1']
+  expect(p).toMatchObject({ ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '3' } })
+  expect(p.poteriUsati).toBeUndefined()
+})
+
+test('Apprendista di un Antico: alla prima vita (morto senza flag) non eredita nulla; alla morte vera riceve un Villico', () => {
+  const mk = (maestro) => [
+    { ...base, id: '1', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } },
+    { ...base, id: '2', vivo: false, causaMorte: 'crepacuore', ...maestro },
+  ]
+  expect(risolviLegami(mk({ ruoloSlug: 'lantico' }))['1']).toBeUndefined()
+  expect(risolviLegami(mk({ ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], anticoSbranatoNotte: 1 }))['1']).toMatchObject({ ruoloSlug: 'villico' })
+})
+
+test('Cortigiana in visita alla Figlia dei Lupi il cui genitore muore la stessa notte: la Figlia è ancora abitante, la Cortigiana sopravvive; dalla notte dopo è lupo', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cortigiana', visitaNotturna: '2' },
+    { ...base, id: '2', ruoloSlug: 'lupo-mannaro', figliaLupoNotte: 1 },
+  ]
+  expect(risolviCortigiana(giocatori, 1)['1']).toEqual({ visitaNotturna: null })
+  expect(risolviCortigiana(giocatori, 2)['1']).toMatchObject({ vivo: false })
+})
+
+test('Cavaliere che salva da una morte sul colpo: marcatore di giorno = mortoGiorno (letto da roundMorteDiurna)', () => {
+  const giocatori = [
+    { ...base, id: '1', ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+    { ...base, id: '2', vivo: false, ruoloSlug: 'veggente', causaMorte: 'colpo', mortoGiorno: 4 },
+  ]
+  expect(risolviLegami(giocatori)['1']).toMatchObject({ causaMorte: 'sacrificio', sacrificioRogoRound: 4, sacrificioDa: 'colpo' })
 })

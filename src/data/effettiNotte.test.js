@@ -67,6 +67,14 @@ test('resuscitaPatch non duplica "resuscitato"', () => {
   expect(resuscitaPatch({ vivo: false, condizioni: ['resuscitato'] }, 3).condizioni).toEqual(['resuscitato'])
 })
 
+test('crepacuore per una morte sul colpo di giorno (Boia) eredita mortoGiorno, per l\'annuncio', () => {
+  const giocatori = [
+    { id: '1', vivo: false, causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3, condizioni: ['innamorato'] },
+    { id: '2', vivo: true, condizioni: ['innamorato'] },
+  ]
+  expect(applicaCrepacuore(giocatori, '1')[1]).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoGiorno: 3 })
+})
+
 test('Mezzosangue protetto non viene morso: resta mezzosangue', () => {
   const giocatori = [{ id: '1', ruoloSlug: 'mezzosangue', vivo: true, condizioni: ['protetto'], storiaRuoli: ['mezzosangue'] }]
   expect(risolviAttaccoBranco(giocatori, '1', 1, [])).toEqual({})
@@ -429,4 +437,33 @@ test('risolviAttaccoBranco: il Berserker protetto non viene morso e non muore ne
     { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: ['protetto'] },
   ]
   expect(risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO)).toEqual({})
+})
+
+// L'Antico (alla prima vita) partner di chi muore: sopravvive; di giorno maledice il villaggio
+describe("applicaCrepacuore e L'Antico", () => {
+  const antico = { id: '2', nome: 'Gigi', vivo: true, ruoloSlug: 'lantico', storiaRuoli: ['lantico'], condizioni: ['innamorato'], innamoratiCon: ['1'] }
+  const amante = (morte) => ({ id: '1', nome: 'Anna', vivo: false, condizioni: ['innamorato'], innamoratiCon: ['2'], ...morte })
+  const dopo = (morte) => applicaCrepacuore([amante(morte), antico], '1').find((g) => g.id === '2')
+
+  test.each([
+    ['rogo', { causaMorte: 'rogo', mortoNotte: 3 }],
+    ['unzione', { causaMorte: 'colpo', mortoDa: 'unzione', mortoGiorno: 3 }],
+    ['Boia', { causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3 }],
+    ['Alchimista', { causaMorte: 'colpo', mortoDa: 'alchimista', mortoGiorno: 3 }],
+  ])('amante morto di giorno (%s): resta vivo da Villico e maledice il villaggio', (_, morte) => {
+    expect(dopo(morte)).toMatchObject({ vivo: true, ruoloSlug: 'villico', anticoSbranatoNotte: null, villaggioMaledettoFinoA: 3 })
+  })
+
+  test('amante morto di notte: sopravvive (flag come per il morso) ma non maledice', () => {
+    const g = dopo({ causaMorte: 'notte', mortoNotte: 2 })
+    expect(g).toMatchObject({ vivo: true, ruoloSlug: 'lantico', anticoSbranatoNotte: 2 })
+    expect(g.villaggioMaledettoFinoA).toBeUndefined()
+  })
+
+  test("il partner normale muore e il lutto di una morte diurna resta 'di giorno' (mortoGiorno)", () => {
+    const partner = { id: '2', nome: 'Bea', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] }
+    const g = applicaCrepacuore([amante({ causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3 }), partner], '1')[1]
+    expect(g).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoGiorno: 3 })
+    expect(g.mortoNotte).toBeUndefined()
+  })
 })

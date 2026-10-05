@@ -7,6 +7,7 @@ const STORAGE_KEY_NOME_RUOLO = 'meltable-wolves-mostra-nome-ruolo'
 const STORAGE_KEY_DURATA_TIMER = 'meltable-wolves-durata-timer'
 const STORAGE_KEY_PROMEMORIA_MORTI = 'meltable-wolves-promemoria-ruoli-morti'
 const STORAGE_KEY_VARIANTE_MEDIUM = 'meltable-wolves-variante-medium'
+const STORAGE_KEY_ADDOLORATA_EREDITA = 'meltable-wolves-addolorata-eredita-scelte'
 // nascosti di default: in una sala stretta altri giocatori potrebbero
 // sbirciare lo schermo del narratore e vedere i ruoli a colpo d'occhio
 const DEFAULT_MOSTRA_RUOLI = false
@@ -60,6 +61,17 @@ export function useImpostazioni() {
   // benevola/malvagia del defunto invece del suo ruolo esatto
   const [varianteMedium, setVarianteMedium] = useState(() => loadBooleano(STORAGE_KEY_VARIANTE_MEDIUM, false))
 
+  // l'Addolorata che scambia eredita anche il legame di Apprendista/Cavaliere/Figlia
+  // (maestro, protetto, genitore); disattivata, eredita il ruolo "scarico" (in
+  // partita è difficile comunicare chi era il maestro/protetto/genitore)
+  const [addolorataEreditaScelte, setAddolorataEreditaScelte] = useState(() =>
+    loadBooleano(STORAGE_KEY_ADDOLORATA_EREDITA, true),
+  )
+
+  useEffect(() => {
+    salvaLocale(STORAGE_KEY_ADDOLORATA_EREDITA, String(addolorataEreditaScelte))
+  }, [addolorataEreditaScelte])
+
   useEffect(() => {
     salvaLocale(STORAGE_KEY, String(mostraRuoliInVotazione))
   }, [mostraRuoliInVotazione])
@@ -97,5 +109,7 @@ export function useImpostazioni() {
     setPromemoriaRuoliMorti,
     varianteMedium,
     setVarianteMedium,
+    addolorataEreditaScelte,
+    setAddolorataEreditaScelte,
   }
 }

@@ -204,3 +204,15 @@ test('il dialog è modale e Tab dall\'ultimo elemento torna al primo (focus trap
   expect(dialog.contains(document.activeElement)).toBe(true)
   expect(document.activeElement).toBe(bottoni[0])
 })
+
+test("l'opzione sull'eredità delle scelte dell'Addolorata è attiva di default e notifica il cambio", async () => {
+  const user = userEvent.setup()
+  const onCambia = vi.fn()
+  render(<LogImpostazioniPopup eventi={[]} onCambiaAddolorataEreditaScelte={onCambia} />)
+  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+
+  const opzione = screen.getByRole('checkbox', { name: /l'Addolorata eredita le scelte dei legami/i })
+  expect(opzione).toBeChecked()
+  await user.click(opzione)
+  expect(onCambia).toHaveBeenCalledWith(false)
+})

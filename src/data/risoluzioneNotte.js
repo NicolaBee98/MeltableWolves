@@ -12,8 +12,28 @@ export function applicaPatchMap(giocatori, patchMap) {
 // il Mimo ha `legame` occupato dal legame con chi imita: un eventuale legame
 // del ruolo copiato (Apprendista, Cavaliere, Figlia dei Lupi) sta in `legameMimo`
 const CAMPI_LEGAME = ['legame', 'legameMimo']
-const LEGAMI_PRIMA_NOTTE = ['apprendista', 'cavaliere', 'figlia-dei-lupi']
+export const LEGAMI_PRIMA_NOTTE = ['apprendista', 'cavaliere', 'figlia-dei-lupi']
 export const MARCATORE_LEGAME_EREDITATO = 'legame-ereditato'
+
+// Patch di chi prende la carta di `morto` (l'Apprendista dal maestro, l'Addolorata
+// dalla vittima del rogo). I poteri "una volta per partita" già usati passano come
+// usati. Il legame scelto la prima notte (maestro/protetto/genitore) passa solo se
+// `conLegame` e se `morto` non l'aveva ancora attivato (legame ancora presente verso
+// uno vivo, diverso da chi eredita): altrimenti l'erede ha un ruolo "scarico" (legame
+// vuoto, marcatore `legame-ereditato`). Il Sacerdote non ha legame: nessun marcatore.
+export function patchEredita(giocatori, erede, campo, morto, { conLegame = false } = {}) {
+  const slug = morto.ruoloSlug
+  const legameMorto = [morto.legame, morto.legameMimo].find((l) => l?.tipo === slug)
+  const bersaglio = legameMorto && giocatori.find((g) => g.id === legameMorto.targetId)
+  const legameVivo = conLegame && bersaglio?.vivo && bersaglio.id !== erede.id
+  const usati = [...(morto.poteriUsati ?? []), ...(LEGAMI_PRIMA_NOTTE.includes(slug) && !legameVivo ? [MARCATORE_LEGAME_EREDITATO] : [])]
+  return {
+    ruoloSlug: slug,
+    storiaRuoli: conRuolo(erede.storiaRuoli, slug),
+    [campo]: legameVivo ? { tipo: slug, targetId: bersaglio.id } : null,
+    ...(usati.length ? { poteriUsati: [...new Set([...(erede.poteriUsati ?? []), ...usati])] } : {}),
+  }
+}
 
 export function risolviLegami(giocatori) {
   const patch = {}
@@ -35,14 +55,24 @@ export function risolviLegami(giocatori) {
       // come morte "notturna" (mortoNotte del rogo coinciderebbe con il round
       // dell'Alba successiva): mortoNotte resta quindi undefined.
       salvati.add(target.id)
-      patch[target.id] = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoDa: undefined }
+      patch[target.id] = {
+        vivo: true,
+        causaMorte: undefined,
+        mortoNotte: undefined,
+        mortoDa: undefined,
+        mortoGiorno: undefined,
+        giustiziatoDa: undefined,
+      }
       patch[attore.id] = {
         vivo: false,
         causaMorte: 'sacrificio',
         mortoNotte: target.causaMorte === 'rogo' ? undefined : target.mortoNotte,
         // marcatore del sacrificio al rogo (round del rogo): la UI del giorno
         // lo riconosce da qui, dato che mortoNotte resta undefined
-        sacrificioRogoRound: target.causaMorte === 'rogo' ? target.mortoNotte : undefined,
+        // (anche per una morte sul colpo di giorno: round = mortoGiorno; `sacrificioDa`
+        // distingue rogo e colpo, per l'Addolorata che scambia solo con le vittime del rogo)
+        sacrificioRogoRound: target.causaMorte === 'rogo' ? target.mortoNotte : target.causaMorte === 'colpo' ? target.mortoGiorno : undefined,
+        sacrificioDa: target.causaMorte,
         [campo]: null,
       }
     }
@@ -55,24 +85,24 @@ export function risolviLegami(giocatori) {
       const target = giocatori.find((g) => g.id === legame.targetId)
       if (!target || target.vivo || salvati.has(target.id)) continue
 
-      // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta
-      if (legame.tipo === 'apprendista' && target.ruoloSlug) {
+      // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta.
+      // L'Antico morto con la prima vita ancora intera (es. crepacuore) non lascia
+      // nulla: l'Apprendista si svela solo alla morte vera, sempre come Villico
+      const primaVitaAntico = target.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined
+      if (legame.tipo === 'apprendista' && target.ruoloSlug && !primaVitaAntico) {
         // l'Apprendista scambia la carta: i poteri già usati dal maestro (pozioni
-        // della Strega, resurrezione di Guaritore/Sciacallo...) restano usati
-        // un Cavaliere/Figlia/Apprendista ereditato ha il legame già "scarico":
-        // resta null e il passo non chiede di sceglierlo (marcatore `legame-ereditato`)
-        const usati = [...(target.poteriUsati ?? []), ...(LEGAMI_PRIMA_NOTTE.includes(target.ruoloSlug) ? [MARCATORE_LEGAME_EREDITATO] : [])]
+        // della Strega, resurrezione di Guaritore/Sciacallo...) restano usati.
+        // Un Cavaliere morto senza sacrificarsi ha ancora il legame: l'erede
+        // protegge la stessa persona; altrimenti (e per Figlia/Apprendista) il
+        // legame è già "scarico" (marcatore `legame-ereditato`)
         patch[attore.id] = {
           ...patch[attore.id],
-          ruoloSlug: target.ruoloSlug,
-          storiaRuoli: conRuolo(attore.storiaRuoli, target.ruoloSlug),
-          [campo]: null,
+          ...patchEredita(giocatori, attore, campo, target, { conLegame: target.ruoloSlug === 'cavaliere' }),
           // marcatore per l'annuncio dell'alba (vedi annunciAlba): vale solo
           // per una morte notturna, il rogo non ha un "round dell'alba"
           ...(target.causaMorte !== 'rogo' && target.mortoNotte !== undefined
             ? { ereditaNotte: target.mortoNotte, ereditaDa: target.id }
             : {}),
-          ...(usati.length ? { poteriUsati: [...new Set([...(attore.poteriUsati ?? []), ...usati])] } : {}),
         }
       }
 
@@ -107,7 +137,10 @@ export function risolviCortigiana(giocatori, round) {
     // stessa notte — non se il cliente muore per la pozione mortale della
     // Strega o per qualunque altra causa (mortoDa distingue il "come", vedi
     // uccidiPatch in effettiNotte.js)
-    const clientePericoloso = eLupo(cliente.ruoloSlug) || cliente.ruoloSlug === 'chupacabra'
+    // la Figlia dei Lupi diventa lupo all'alba: se il genitore è morto questa notte
+    // (figliaLupoNotte) la Cortigiana in visita la trova ancora abitante
+    const diventataStanotte = cliente.figliaLupoNotte === round
+    const clientePericoloso = (eLupo(cliente.ruoloSlug) && !diventataStanotte) || cliente.ruoloSlug === 'chupacabra'
     const clienteSbranato = !cliente.vivo && (cliente.mortoDa === 'branco' || cliente.mortoDa === 'chupacabra')
     // è protetta solo se lo è il CLIENTE (Paladino o pozione vitale): la
     // protezione sulla Cortigiana stessa non conta, non è in casa

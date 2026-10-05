@@ -50,6 +50,8 @@ export default function App() {
     setPromemoriaRuoliMorti,
     varianteMedium,
     setVarianteMedium,
+    addolorataEreditaScelte,
+    setAddolorataEreditaScelte,
   } = useImpostazioni()
 
   // con il Ladro il mazzo fisico ha 2 carte in più dei giocatori (pag. 15):
@@ -149,6 +151,8 @@ export default function App() {
             onCambiaPromemoriaRuoliMorti={setPromemoriaRuoliMorti}
             varianteMedium={varianteMedium}
             onCambiaVarianteMedium={setVarianteMedium}
+            addolorataEreditaScelte={addolorataEreditaScelte}
+            onCambiaAddolorataEreditaScelte={setAddolorataEreditaScelte}
           />
         )}
       </header>
@@ -232,6 +236,7 @@ export default function App() {
           salvaIngresso={notte.salvaIngresso}
           promemoriaRuoliMorti={promemoriaRuoliMorti}
           varianteMedium={varianteMedium}
+          addolorataEreditaScelte={addolorataEreditaScelte}
           onTornaAiGiocatori={() => {
             // l'ingresso salvato ha la vecchia lista di giocatori: da scartare
             notte.salvaIngresso(undefined)
@@ -273,7 +278,6 @@ export default function App() {
           quantita={quantita}
           round={notte.round}
           onProsegui={proseguiAllaNotte}
-          onConcludiPartita={nuovaPartita}
           mostraRuoli={mostraRuoliInVotazione}
           variantiFaccia={variantiFaccia}
           mostraNomeRuolo={mostraNomeRuolo}

@@ -4,6 +4,7 @@ import { tieni } from '../../test/tieni'
 import userEvent from '@testing-library/user-event'
 import { NightSequencer } from './NightSequencer'
 import { useNotte } from '../../state/useNotte'
+import { useLog } from '../../state/useLog'
 
 function NightSequencerConNotte(props) {
   const notte = useNotte()
@@ -2045,4 +2046,120 @@ test('se il Pifferaio non ipnotizza nessuno il totale dei passi non resta sovras
   )
   // il passo ipnotizzati è atteso ma non compare: l'ultimo passo reale è "Passo 1 di 1"
   expect(screen.getByText('Passo 1 di 1')).toBeInTheDocument()
+})
+
+test('Avanti sul passo di un ruolo appena assegnato a chi è inibito dalla Fattucchiera avanza al primo click', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Fiora', ruoloSlug: 'fattucchiera', vivo: true, condizioni: [], storiaRuoli: ['fattucchiera'] },
+      { id: '2', nome: 'Gina', vivo: true, condizioni: [] },
+      { id: '3', nome: 'Zoe', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], storiaRuoli: ['chupacabra'] },
+    ],
+    ['fattucchiera', 'strega', 'chupacabra'],
+    { fattucchiera: 1, strega: 1, chupacabra: 1 },
+  )
+  await user.click(within(screen.getByRole('group', { name: 'Chi inibire' })).getByRole('button', { name: 'Gina' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByRole('heading', { name: /strega/i })).toBeInTheDocument()
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Gina' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(h.stato.giocatori[1].ruoloSlug).toBe('strega')
+  expect(screen.getByRole('heading', { name: /chupacabra/i })).toBeInTheDocument()
+})
+
+test('Fattucchiera su un lupo del Branco: nessun effetto se ci sono altri lupi; il branco è bloccato se il lupo inibito è l\'unico in vita', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const lupo = (id, nome, vivo = true, condizioni = []) => ({ id, nome, ruoloSlug: 'lupo-mannaro', vivo, condizioni, usiNotte: [] })
+  const { unmount } = render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={[lupo('1', 'Lia', true, ['inibito']), lupo('2', 'Leo'), { id: '3', nome: 'Anna', vivo: true, condizioni: [] }]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  expect(screen.getByRole('group', { name: 'Il branco sbrana' })).toBeInTheDocument()
+  unmount()
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro']}
+      giocatori={[lupo('1', 'Lia', true, ['inibito']), lupo('2', 'Leo', false), { id: '3', nome: 'Anna', vivo: true, condizioni: [] }]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  expect(screen.queryByRole('group', { name: 'Il branco sbrana' })).not.toBeInTheDocument()
+  expect(screen.getByText(/branco non può sbranare questa notte/i)).toBeInTheDocument()
+})
+
+test('Ladro assegnato e scelta nello stesso passo: all\'Avanti il registro scrive "sceglie ... scarta"', async () => {
+  const user = userEvent.setup()
+  const out = {}
+  function Harness() {
+    const [giocatori, setGiocatori] = useState([
+      { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ])
+    const [quantita, setQuantita] = useState({ ladro: 1, veggente: 1, paladino: 1, medium: 1 })
+    const notte = useNotte()
+    const log = useLog(giocatori, notte.round, 'notte')
+    out.eventi = log.eventi
+    return (
+      <NightSequencer
+        ruoliSelezionati={['ladro', 'veggente', 'paladino', 'medium']}
+        giocatori={giocatori}
+        quantita={quantita}
+        aggiornaGiocatore={(id, patch) => setGiocatori((p) => p.map((g) => (g.id === id ? { ...g, ...patch } : g)))}
+        impostaGiocatori={setGiocatori}
+        onCambiaQuantita={(s, n) => setQuantita((p) => ({ ...p, [s]: n }))}
+        registraEvento={log.aggiungiEvento}
+        confermaLog={log.confermaLog}
+        annullaLogPasso={log.annullaLogPasso}
+        {...notte}
+      />
+    )
+  }
+  render(<Harness />)
+  await user.click(within(screen.getByRole('group', { name: 'Chi ha questa carta' })).getByRole('button', { name: 'Anna' }))
+  await user.selectOptions(screen.getByLabelText('Prima carta'), 'veggente')
+  await user.selectOptions(screen.getByLabelText('Seconda carta'), 'paladino')
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(out.eventi.map((e) => e.messaggio)).toEqual(['Il Ladro Anna sceglie Veggente: scarta Paladino'])
+})
+
+test('Branco: il Mimo-Lupo compare con la sua illustrazione e non sposta la variante del lupo vero', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['mimo', 'lupo-mannaro']}
+      giocatori={[
+        { id: '1', nome: 'Sara', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'lupo-mannaro'], legame: { tipo: 'mimo', targetId: '2' } },
+        { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['lupo-mannaro'] },
+      ]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  const src = [...document.querySelectorAll('.night-sequencer__illustrazione')].map((e) => e.getAttribute('src'))
+  expect(src).toEqual(['/assets/personaggi/Mimo.svg', '/assets/personaggi/Lupo_Mannaro_1.svg'])
+})
+
+test('"Le Guardie si riconoscono": insieme Guardie, Guardia Mannara, Mimo-guardia e Ladro che ha preso la Guardia Mannara, senza etichette', () => {
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['guardia', 'guardia-mannara']}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+      giocatori={[
+        { id: '1', nome: 'Anna', ruoloSlug: 'guardia', vivo: true, condizioni: [], storiaRuoli: ['guardia'] },
+        { id: '2', nome: 'Bea', ruoloSlug: 'guardia', vivo: true, condizioni: [], storiaRuoli: ['guardia'] },
+        { id: '3', nome: 'Cleo', ruoloSlug: 'guardia', vivo: true, condizioni: [], storiaRuoli: ['mimo', 'guardia'], legame: { tipo: 'mimo', targetId: '2' } },
+        { id: '4', nome: 'Dino', ruoloSlug: 'guardia-mannara', vivo: true, condizioni: [], storiaRuoli: ['ladro', 'guardia-mannara'], poteriUsati: ['ladro-scelta'] },
+      ]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  expect(screen.getByRole('heading', { name: 'Le Guardie si riconoscono' })).toBeInTheDocument()
+  expect(sottotitolo()).toBe('Vivi: Anna, Bea, Cleo (Mimo), Dino')
 })

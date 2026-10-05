@@ -84,10 +84,12 @@ function vociIllustrazioni(giocatori, giocatoriCoinvolti, nascosti = false) {
   const idNascosti = nascosti ? new Set(giocatoriCoinvolti.map((g) => g.id)) : new Set()
   const visti = giocatori.map((x) => ({
     ...x,
-    ruoloSlug: idNascosti.has(x.id) ? 'villico' : (ruoloPerDisplay(x.ruoloSlug) ?? 'villico'),
+    // il Mimo che copia non conta tra i titolari del ruolo copiato: la variante
+    // (Lupo_Mannaro_N...) di chi ha davvero la carta non deve cambiare col Mimo
+    ruoloSlug: idNascosti.has(x.id) ? 'villico' : eMimoCopiante(x) ? 'mimo' : (ruoloPerDisplay(x.ruoloSlug) ?? 'villico'),
   }))
   return giocatoriCoinvolti.map((g) => {
-    const eMimo = g.legame?.tipo === 'mimo' && !idNascosti.has(g.id)
+    const eMimo = eMimoCopiante(g) && !idNascosti.has(g.id)
     // la Guardia Mannara si mostra come Guardia (il narratore non sa chi è)
     return {
       id: g.id,
@@ -197,6 +199,7 @@ export function NightSequencer({
   nuovaNotte,
   promemoriaRuoliMorti = false,
   varianteMedium = false,
+  addolorataEreditaScelte = true,
   onTornaAiGiocatori,
   ingressoSalvato = null,
   salvaIngresso = () => {},
@@ -620,17 +623,20 @@ export function NightSequencer({
   // la Fattucchiera blocca il potere del bersaglio per la notte (vedi
   // Inibito): controllato qui, in un unico punto per tutte le azioni,
   // invece che in ognuna. Solo per i passi a titolare singolo/doppio noto
-  // (step.ruoli.length === 1): il branco è un'azione collettiva, inibire
-  // un solo lupo non ha senso bloccare l'intero attacco. Mai sul passo della
+  // (step.ruoli.length === 1) e per il branco: inibire un lupo del branco non
+  // ferma la caccia degli altri, la blocca solo se TUTTI i lupi vivi sono
+  // inibiti (di norma l'unico lupo rimasto). Mai sul passo della
   // Fattucchiera stessa: nessun'altra azione applica 'inibito', quindi può
   // comparire sulla sua stessa titolare solo come residuo di un cambio di
   // "chi ha questa carta" (era stata scelta come bersaglio mentre la carta
   // era di qualcun altro) — un vero auto-blocco non esiste, il suo potere
   // non deve mai risultare inibito da lei stessa.
+  const eBranco = step.id === 'branco-lupi'
+  const titolariBloccabili = eBranco ? giocatoriCoinvolti.filter(vivoAIngresso) : giocatoriCoinvolti
   const attoreInibito =
     step.id !== 'fattucchiera' &&
-    step.ruoli?.length === 1 &&
-    giocatoriCoinvolti.length > 0 && giocatoriCoinvolti.every((g) => (g.condizioni ?? []).includes('inibito'))
+    (step.ruoli?.length === 1 || eBranco) &&
+    titolariBloccabili.length > 0 && titolariBloccabili.every((g) => (g.condizioni ?? []).includes('inibito'))
   const mostraAzione = step.tipo === 'azione' && azione && qualcunoCoinvolto && !attoreInibito
   // azioni a scelta (azione.perAttore): titolare e Mimo che lo copia hanno lo
   // stesso ruoloSlug ma ognuno compie la PROPRIA scelta, indipendente (la
@@ -654,6 +660,7 @@ export function NightSequencer({
       quantita={quantita}
       onCambiaQuantita={onCambiaQuantita}
       varianteMedium={varianteMedium}
+      ereditaScelte={addolorataEreditaScelte}
       vivoAIngresso={vivoAIngresso}
       giocatoriIngresso={snapIngresso}
       mimoRuoloScelto={mimoRuoloScelto}
@@ -882,7 +889,7 @@ export function NightSequencer({
       // riconoscimento, es. il branco) non ha nulla da fare qui, quindi
       // andrebbe avanti da solo invece di mostrare "Nessuna azione
       // richiesta" e richiedere un secondo click su Avanti
-      if (step.tipo === 'azione' && !mostraAzione) return
+      if (step.tipo === 'azione' && !mostraAzione && !attoreInibito) return
     } else {
       commitMimoSeSelezionato()
     }
@@ -900,7 +907,7 @@ export function NightSequencer({
       setSelezioniRuolo({})
       commitMimoSeSelezionato(listaAggiornata(), aggiorna)
       // un passo con un'azione resta sul passo: l'azione si può usare subito
-      if (step.tipo === 'azione' && !mostraAzione) return
+      if (step.tipo === 'azione' && !mostraAzione && !attoreInibito) return
     } else {
       commitMimoSeSelezionato(giocatori, aggiorna)
     }
@@ -1072,7 +1079,9 @@ export function NightSequencer({
 
       {attoreInibito && (
         <p className="night-sequencer__inibito">
-          🚫 Il potere è inibito questa notte dalla Fattucchiera: nessuna azione disponibile.
+          🚫 {eBranco
+            ? 'Tutti i lupi vivi sono inibiti dalla Fattucchiera: il branco non può sbranare questa notte.'
+            : 'Il potere è inibito questa notte dalla Fattucchiera: nessuna azione disponibile.'}
         </p>
       )}
 

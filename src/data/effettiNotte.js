@@ -275,6 +275,30 @@ export function aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlug, p
     .forEach((g) => aggiornaGiocatore(g.id, typeof patch === 'function' ? patch(g) : patch))
 }
 
+// round del giorno in cui `g` è morto, se la morte è diurna (rogo, colpo del
+// Boia/Scemo/unzione/Alchimista, sacrificio del Cavaliere al rogo, crepacuore
+// da una di queste): l'Antico che perde la prima vita così maledice il villaggio
+export function roundMorteDiurna(g) {
+  if (g.causaMorte === 'rogo') return g.mortoNotte
+  if (g.causaMorte === 'sacrificio') return g.sacrificioRogoRound
+  if (g.causaMorte === 'colpo' || g.causaMorte === 'crepacuore') return g.mortoGiorno
+  return undefined
+}
+
+// L'Antico alla prima vita non muore di crepacuore: sopravvive (il partner
+// resta morto). Di giorno si rivela Villico e maledice il villaggio; di notte
+// resta 'lantico' con il flag, come per il morso (vedi uccidiPatch).
+function anticoSopravvive(g, morto, giorno) {
+  if (giorno === undefined) return { ...g, anticoSbranatoNotte: morto.mortoNotte ?? null }
+  return {
+    ...g,
+    ruoloSlug: 'villico',
+    storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'],
+    anticoSbranatoNotte: null,
+    villaggioMaledettoFinoA: giorno,
+  }
+}
+
 // Ogni giocatore innamorato ricorda i propri partner in `innamoratiCon` (le
 // coppie sono più d'una se il Mimo copia il Sacerdote): al lutto muoiono solo
 // i partner del morto, non tutti gli innamorati. Senza `innamoratiCon` (dati
@@ -293,11 +317,13 @@ export function applicaCrepacuore(giocatori, idAppenaMorto) {
 
   const partner = morto.innamoratiCon ?? []
   const eIlSuoPartner = (g) => (partner.length ? partner.includes(g.id) : g.condizioni.includes('innamorato'))
-  return giocatori.map((g) =>
-    g.id !== idAppenaMorto && g.vivo && eIlSuoPartner(g)
-      ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte }
-      : g,
-  )
+  const giorno = roundMorteDiurna(morto)
+  return giocatori.map((g) => {
+    if (g.id === idAppenaMorto || !g.vivo || !eIlSuoPartner(g)) return g
+    if (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined) return anticoSopravvive(g, morto, giorno)
+    // mortoGiorno: il lutto di una morte diurna resta "di giorno" (Boia all'alba, Antico)
+    return { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte, mortoGiorno: giorno }
+  })
 }
 
 // "unto" (Untore) e "trasformato" (Maga) durano fino al calar della notte
