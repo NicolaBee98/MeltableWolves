@@ -268,3 +268,7 @@ describe('carte scartate dal Ladro, in mano al narratore', () => {
     expect(passiAttesi(['pifferaio'], 2, [], {}).map((p) => p.id)).not.toContain('ipnotizzati')
   })
 })
+
+test('il passo degli ipnotizzati ha l\'icona del Pifferaio (non il punto interrogativo)', () => {
+  expect(NIGHT_STEPS.find((s) => s.id === 'ipnotizzati').iconaSlug).toBe('pifferaio')
+})

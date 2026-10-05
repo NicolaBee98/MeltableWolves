@@ -443,3 +443,23 @@ test('la vendetta del Cucciolo parte una sola volta: i due Cuccioli (Mimo inclus
   // il primo lupo morto ha fatto maturare il secondo Cucciolo: nessuna seconda vendetta
   expect(result.current.giocatori.find((g) => g.id === 'B').ruoloSlug).toBe('lupo-mannaro')
 })
+
+// voce 3 del 2026-10-05: maestro morto con ruolo ignoto (es. Suocera): l'Apprendista
+// aspetta, e quando il ruolo diventa noto eredita
+test('Apprendista con maestro morto senza ruolo noto resta in attesa, poi eredita quando il ruolo del maestro viene rivelato', () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      mk('S', { ruoloSlug: 'apprendista', storiaRuoli: ['apprendista'], legame: { tipo: 'apprendista', targetId: 'M' } }),
+      mk('M'),
+    ]),
+  )
+  const { result } = renderHook(() => usePartita())
+  const sara = () => result.current.giocatori.find((g) => g.id === 'S')
+
+  act(() => result.current.aggiornaGiocatore('M', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
+  expect(sara()).toMatchObject({ ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: 'M' } })
+
+  act(() => result.current.aggiornaGiocatore('M', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] }))
+  expect(sara()).toMatchObject({ ruoloSlug: 'suocera', legame: null })
+})

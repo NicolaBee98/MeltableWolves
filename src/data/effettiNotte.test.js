@@ -422,3 +422,11 @@ describe('avvisiColpo', () => {
     expect(avvisiColpo(lupi, '1', mangiato, 'chupacabra')[0].testo).toMatch(/Cucciolo N2 diventa adulto/)
   })
 })
+
+test('risolviAttaccoBranco: il Berserker protetto non viene morso e non muore nessuno', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'berserker', vivo: true, condizioni: ['protetto'] },
+  ]
+  expect(risolviAttaccoBranco(giocatori, '2', 4, RUOLI_BRANCO)).toEqual({})
+})

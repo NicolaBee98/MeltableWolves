@@ -106,11 +106,15 @@ test('il Pifferaio (ipnotizzato è cumulativo tra notti): scegliere una nuova co
       etichetta="Chi ipnotizzare"
       ruoloSlugAttore="pifferaio"
       escludiAttore
+      escludiGiaCondizionati
     />,
   )
+  // chi è già ipnotizzato non è più un candidato (voce 16)
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
   // niente chip pre-selezionata per chi era già ipnotizzato da prima: la
   // scelta di stanotte è indipendente da quella delle notti precedenti
-  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
+  expect(screen.getByRole('button', { name: 'Luca' })).toHaveAttribute('aria-pressed', 'false')
 
   await user.click(screen.getByRole('button', { name: 'Luca' }))
   await user.click(screen.getByRole('button', { name: 'Sara' }))
@@ -201,4 +205,43 @@ test('dopo un ricaricamento a metà passo i due ipnotizzati di questa notte sono
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: [] })
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.anything())
+})
+
+test('Sacerdote con coppia incompleta: avviso non bloccante, sparisce a coppia completa', async () => {
+  const user = userEvent.setup()
+  render(
+    <AzioneCondizioneDoppia
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      condizione="innamorato"
+      etichetta="Chi unire"
+      ruoloSlugAttore="sacerdote"
+    />,
+  )
+  expect(screen.getByText(/coppia completa/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.getByText(/coppia completa/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(screen.queryByText(/coppia completa/)).not.toBeInTheDocument()
+})
+
+test('Pifferaio + Mimo-Pifferaio: una sola scelta di due ipnotizzati in totale, nessuno dei due titolari è candidato', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const gruppo = [
+    { id: 'p', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [] },
+    { id: 'm', nome: 'Mia', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [], legame: { tipo: 'mimo', targetId: 'p' } },
+    ...giocatori,
+  ]
+  render(
+    <AzioneCondizioneDoppia giocatori={gruppo} aggiornaGiocatore={aggiornaGiocatore} condizione="ipnotizzato" etichetta="Chi ipnotizzare" ruoloSlugAttore="pifferaio" escludiAttore escludiGiaCondizionati />,
+  )
+  expect(screen.getAllByRole('group')).toHaveLength(1)
+  expect(screen.queryByRole('button', { name: 'Mia' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+  expect(screen.getByText(/al massimo 2/)).toBeInTheDocument()
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('p', { usiNotte: ['pifferaio'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('m', { usiNotte: ['pifferaio'] })
 })
