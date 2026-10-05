@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { usePartita } from './usePartita'
+import { resuscitaPatch } from '../data/effettiNotte'
 import { ruoliAssegnabili } from '../data/assegnazione'
 
 beforeEach(() => {
@@ -462,4 +463,23 @@ test('Apprendista con maestro morto senza ruolo noto resta in attesa, poi eredit
 
   act(() => result.current.aggiornaGiocatore('M', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] }))
   expect(sara()).toMatchObject({ ruoloSlug: 'suocera', legame: null })
+})
+
+test('resuscitare un innamorato lo libera e libera il partner vivo; annullare una morte no', () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: 'a', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: ['innamorato'], innamoratiCon: ['b'] },
+      { id: 'b', nome: 'Bea', ruoloSlug: 'lantico', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['a'] },
+    ]),
+  )
+  const { result } = renderHook(() => usePartita())
+
+  act(() => result.current.aggiornaGiocatore('a', { vivo: true })) // annulla morte: resta innamorata
+  expect(result.current.giocatori[1].condizioni).toContain('innamorato')
+
+  act(() => result.current.aggiornaGiocatore('a', { vivo: false }))
+  act(() => result.current.aggiornaGiocatore('a', resuscitaPatch(result.current.giocatori[0], 2)))
+  expect(result.current.giocatori[0].condizioni).not.toContain('innamorato')
+  expect(result.current.giocatori[1]).toMatchObject({ condizioni: [], innamoratiCon: [] })
 })

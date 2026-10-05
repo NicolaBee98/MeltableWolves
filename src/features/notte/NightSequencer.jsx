@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { passiNotte, passiAttesi, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
-import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo } from '../../data/assegnazione'
+import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo, mortoStanotte } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
@@ -683,7 +683,7 @@ export function NightSequencer({
     0,
   )
   const selezionatiPendenti = ruoliPendenti.reduce((somma, slug) => somma + (selezioniRuolo[slug]?.length ?? 0), 0)
-  const personeDisponibili = giocatori.filter((g) => g.vivo && !g.ruoloSlug).length
+  const personeDisponibili = giocatori.filter((g) => (g.vivo || mortoStanotte(g, round)) && !g.ruoloSlug).length
   // non blocca "Avanti" se non ci sono abbastanza giocatori per completare
   // l'assegnazione: meglio lasciare un ruolo scoperto che bloccare la partita
   // col Ladro la carta Mimo può essere tra le due carte in più: il passo si
@@ -947,9 +947,10 @@ export function NightSequencer({
 
   // via di fuga per "ho dimenticato un giocatore": ha senso solo prima che
   // sia successo qualunque cosa questa partita (altrimenti si rischia di
-  // rimuovere qualcuno con già un ruolo/condizioni assegnati a metà notte)
+  // rimuovere qualcuno con già un ruolo/condizioni assegnati a metà notte).
+  // `fatti` (passi lasciati con Avanti) è persistito: un ricaricamento non lo fa riapparire
   const puoTornareAiGiocatori =
-    onTornaAiGiocatori && round === 1 && indiceValido === 0 && storico.length === 0 && !modificato
+    onTornaAiGiocatori && round === 1 && indiceValido === 0 && fatti.length === 0 && !modificato
 
   // Apprendista vivo il cui maestro è morto con ruolo ancora ignoto (es. Suocera):
   // eredita solo quando il ruolo del maestro viene rivelato
@@ -1064,6 +1065,7 @@ export function NightSequencer({
           onRimuovi={rimuoviAssegnazione}
           titolariIngresso={titolariIngresso}
           vivoAIngresso={vivoAIngresso}
+          round={round}
           illustrazioneSeparata={!step.ruoliMostraCoinvolti && !PASSI_CON_FIGURE_ATTESE.includes(step.id)}
           {...(domandaAssegnaRuolo ? { domanda: domandaAssegnaRuolo } : {})}
         />

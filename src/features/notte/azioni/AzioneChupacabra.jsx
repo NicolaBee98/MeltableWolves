@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { eLupo } from '../../../data/roles'
-import { uccidiPatch, avvisiColpo, segnaUsoStanotte, RUOLI_IMMUNI_AL_CHUPACABRA } from '../../../data/effettiNotte'
+import { uccidiPatch, avvisiColpo, segnaUsoStanotte, avvisoImmuneNotte, RUOLI_IMMUNI_ALLA_NOTTE } from '../../../data/effettiNotte'
 import { annullaColpo } from './annullaColpo'
 
 const RUOLI = ['chupacabra']
@@ -28,7 +28,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // il bersaglio appena colpito resta in lista anche se non è più vivo,
   // altrimenti la sua chip sparirebbe subito dopo il click
   const candidati = giocatori.filter(
-    (g) => (vivoAIngresso(g) || g.id === target) && g.id !== chupacabra?.id && !RUOLI_IMMUNI_AL_CHUPACABRA.includes(g.ruoloSlug),
+    (g) => (vivoAIngresso(g) || g.id === target) && g.id !== chupacabra?.id,
   )
   // calcolato con il bersaglio ancora tra i vivi: se il colpo ha appena
   // ucciso l'ultimo lupo, cambiare bersaglio non deve poter uccidere un non-lupo
@@ -69,6 +69,8 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
           aggiornaGiocatore(targetId, patch)
           setColpito(true)
           setAvvisiEffetti(avvisiColpo(giocatori, targetId, { [targetId]: patch }, 'chupacabra'))
+        } else if (RUOLI_IMMUNI_ALLA_NOTTE.includes(bersaglio.ruoloSlug)) {
+          setAvviso(`${avvisoImmuneNotte(bersaglio)}: la caccia non ha alcun effetto su ${bersaglio.nome}.`)
         } else {
           setAvviso(`${bersaglio.nome} è protetto/a: la caccia non ha alcun effetto.`)
         }

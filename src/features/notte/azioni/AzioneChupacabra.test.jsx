@@ -80,16 +80,21 @@ test('uccide chiunque se non ci sono più lupi vivi', async () => {
   })
 })
 
-test('il Nano e il Criceto Malvagio sono immuni al Chupacabra: non compaiono tra i candidati', () => {
+test('il Nano e il Criceto Malvagio sono immuni al Chupacabra: selezionabili, ma nessuna morte e avviso a schermo', async () => {
+  const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Nino', ruoloSlug: 'nano', vivo: true, condizioni: [], note: '' },
     { id: '2', nome: 'Rita', ruoloSlug: 'criceto-malvagio', vivo: true, condizioni: [], note: '' },
     { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], note: '' },
   ]
-  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
+  const aggiornaGiocatore = vi.fn()
+  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
 
-  expect(screen.queryByRole('button', { name: 'Nino' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Rita' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Nino' }))
+  expect(screen.getByText(/il nano non può morire di notte/i)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Rita' }))
+  expect(screen.getByText(/il criceto malvagio non può morire di notte/i)).toBeInTheDocument()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ vivo: false }))
 })
 
 test('il Chupacabra non può sbranare se stesso: non compare tra i propri candidati', () => {

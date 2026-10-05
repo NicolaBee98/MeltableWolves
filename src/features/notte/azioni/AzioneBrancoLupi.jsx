@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
 import { annullaColpo, eColpoLetale } from './annullaColpo'
 import { conRuolo, eMimoCopiante } from '../../../data/assegnazione'
+import { eLupo } from '../../../data/roles'
 
 const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
@@ -341,6 +342,9 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   const trasformabili = colpi
     .map((c, i) => ({ c, i }))
     .filter(({ c }) => c.tipo === 'trasforma' || !colpi.some((x) => x.tipo === 'trasforma'))
+    // un lupo vero (anche il Progenitore stesso) non si trasforma: il potere non si consuma
+    // (si guarda il ruolo di PRIMA del colpo: un Mezzosangue sbranato è già Lupo Mannaro)
+    .filter(({ c, i }) => c.tipo === 'trasforma' || !eLupo(baseDi(i).find((g) => g.id === c.targetId)?.ruoloSlug))
 
   return (
     <div className="scelta-giocatore">

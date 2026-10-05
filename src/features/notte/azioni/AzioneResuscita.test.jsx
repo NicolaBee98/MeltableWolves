@@ -156,3 +156,15 @@ test('i morti di questa notte non sono candidati (solo morti dei giorni/notti pr
   expect(screen.getByRole('button', { name: 'Bruno' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Carla' })).toBeInTheDocument()
 })
+
+test('il Fantasma Onnisciente non può essere resuscitato: non è tra i candidati', () => {
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], note: '', poteriUsati: [] },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], note: '' },
+    { id: '3', nome: 'Fede', ruoloSlug: 'villico', vivo: false, eFantasmaOnnisciente: true, condizioni: [], note: '' },
+  ]
+  render(<AzioneResuscita giocatori={giocatori} aggiornaGiocatore={() => {}} potereSlug="guaritore-resuscita" ruoloSlugAttore="guaritore" round={2} />)
+
+  expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Fede' })).not.toBeInTheDocument()
+})

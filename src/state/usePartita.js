@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo, attivaVendettaCucciolo } from '../data/effettiNotte'
+import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo, attivaVendettaCucciolo, liberaPartnerDi } from '../data/effettiNotte'
 import { risolviLegami, applicaPatchMap } from '../data/risoluzioneNotte'
 import { RUOLI_BRANCO_LUPI } from '../data/nightSteps'
 import { salvaLocale } from './salvaLocale'
@@ -139,6 +139,10 @@ export function usePartita() {
       // una nuova morte: le reazioni a catena dei morti non si rilanciano
       const prima = prev.find((g) => g.id === id)
       const rivelaMorto = Boolean(patch.ruoloSlug) && prima && !prima.vivo && !prima.ruoloSlug
+      // resuscitato: non è più innamorato, e il partner vivo senza altri partner si libera
+      if (patch.vivo === true && prima && !prima.vivo && prima.condizioni?.includes('innamorato') && patch.condizioni && !patch.condizioni.includes('innamorato')) {
+        aggiornati = liberaPartnerDi(aggiornati, id, prima.innamoratiCon)
+      }
       if (eMorte || rivelaMorto) {
         const giaMorti = prev.filter((g) => !g.vivo && (rivelaMorto || g.id !== id)).map((g) => g.id)
         aggiornati = propagaMorti(aggiornati, giaMorti)

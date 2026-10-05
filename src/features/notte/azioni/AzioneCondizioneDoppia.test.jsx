@@ -245,3 +245,28 @@ test('Pifferaio + Mimo-Pifferaio: una sola scelta di due ipnotizzati in totale, 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('p', { usiNotte: ['pifferaio'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('m', { usiNotte: ['pifferaio'] })
 })
+
+describe('Pifferaio con meno di due bersagli non ipnotizzati', () => {
+  const piff = { id: 'p', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [] }
+  const ipno = (id, nome) => ({ id, nome, ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'] })
+  const monta = (gruppo, aggiornaGiocatore) =>
+    render(
+      <AzioneCondizioneDoppia giocatori={gruppo} aggiornaGiocatore={aggiornaGiocatore} condizione="ipnotizzato" etichetta="Chi ipnotizzare" ruoloSlugAttore="pifferaio" escludiAttore escludiGiaCondizionati />,
+    )
+
+  test('con un solo non ipnotizzato rimasto lo si ipnotizza da solo', async () => {
+    const user = userEvent.setup()
+    const aggiornaGiocatore = vi.fn()
+    monta([piff, ipno('1', 'Anna'), ipno('2', 'Bea'), { id: '3', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [] }], aggiornaGiocatore)
+
+    await user.click(screen.getByRole('button', { name: 'Carlo' }))
+
+    expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['ipnotizzato'] })
+    expect(screen.queryByText(/servono almeno due/i)).not.toBeInTheDocument()
+  })
+
+  test('senza bersagli il passo è informativo', () => {
+    monta([piff, ipno('1', 'Anna')], vi.fn())
+    expect(screen.getByText(/nessun giocatore da ipnotizzare/i)).toBeInTheDocument()
+  })
+})

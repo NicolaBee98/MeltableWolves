@@ -29,7 +29,7 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
 
   await user.click(chipAnnaMortale)
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2, mortoDa: 'strega' })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
 })
 
@@ -43,7 +43,7 @@ test('la pozione mortale uccide anche un bersaglio protetto (la protezione non b
 
   await user.click(chipAnnaMortale)
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2 })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2, mortoDa: 'strega' })
 })
 
 test('avvisa se la pozione vitale non ha effetto perché il bersaglio è già protetto', async () => {
@@ -132,4 +132,26 @@ test('Strega e Mimo-Strega hanno pozioni separate: la pozione usata dall\'una no
   expect(screen.queryByText('Pozione vitale già utilizzata in questa partita.')).not.toBeInTheDocument()
   await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { poteriUsati: ['strega-pozione-vitale'] })
+})
+
+test('la pozione mortale sul Nano non ha effetto: avviso "non può morire di notte"', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const lista = [giocatori[0], { id: '3', nome: 'Nino', ruoloSlug: 'nano', vivo: true, condizioni: [], note: '' }]
+  render(<AzioneStrega giocatori={lista} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Nino' }))
+
+  expect(screen.getByText(/il nano non può morire di notte/i)).toBeInTheDocument()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('3', expect.objectContaining({ vivo: false }))
+})
+
+test('la pozione mortale registra mortoDa strega', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+
+  await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Anna' }))
+
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false, mortoDa: 'strega' }))
 })
