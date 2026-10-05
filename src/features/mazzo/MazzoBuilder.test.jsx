@@ -147,6 +147,13 @@ test('con il Ladro nel mazzo mostra la nota sulle due carte extra (si scelgono l
 test('con Borgomastro o Fantasma nel mazzo spiega perché non contano come giocatori (coerente con l\'avviso giocatori)', () => {
   setup({ quantita: { villico: 2, borgomastro: 1 } })
   expect(screen.getByText(/non sono ruoli in più per i giocatori/i)).toBeInTheDocument()
+  // senza Ladro non cita le sue carte extra
+  expect(screen.queryByText(/carte extra del Ladro/i)).not.toBeInTheDocument()
+})
+
+test('con Borgomastro e Ladro nel mazzo la nota cita le carte extra del Ladro', () => {
+  setup({ quantita: { villico: 2, borgomastro: 1, ladro: 1 } })
+  expect(screen.getByText(/carte extra del Ladro/i)).toBeInTheDocument()
 })
 
 test('con lo stato vero, ogni ruolo (Cortigiana inclusa) esce dai disponibili finita la dissolvenza', () => {

@@ -10,6 +10,7 @@ import { conseguenzeMorte } from '../../data/eventiSpeciali'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
+import { ConcludiPartita } from '../../components/ConcludiPartita'
 import { condizioniVittoria } from '../../data/vittoria'
 
 function BadgeCondizioni({ condizioni = [] }) {
@@ -42,9 +43,11 @@ function BadgeRuolo({ giocatore, variante }) {
   )
 }
 
-function nomeRuoloTraParentesi(ruoloSlug) {
-  const ruolo = ROLES.find((r) => r.slug === ruoloPerDisplay(ruoloSlug))
-  return ruolo ? ` (${ruolo.nome})` : ''
+function nomeRuoloTraParentesi(giocatore) {
+  const ruolo = ROLES.find((r) => r.slug === ruoloPerDisplay(giocatore.ruoloSlug))
+  // l'ex-Antico (ora Villico) conserva il segno della prima vita persa
+  const exAntico = giocatore.ruoloSlug === 'villico' && (giocatore.storiaRuoli ?? []).includes('lantico')
+  return ruolo ? ` (${ruolo.nome}${exAntico ? ', ex Antico' : ''})` : ''
 }
 
 // elenco di tutti i morti della partita (non solo di questo giorno/notte),
@@ -67,7 +70,7 @@ function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo 
             )}
             <span>
               {g.nome}
-              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
+              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g)}
             </span>
             {g.eFantasmaOnnisciente && (
               <RuoloIcona
@@ -135,6 +138,8 @@ export function Votazione({
   // spareggio: la chip resta selezionabile/cambiabile finché non si preme
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
+  // id estratto col sorteggio (messaggio "Sorteggiato: X" finché resta la scelta corrente)
+  const [sorteggiatoId, setSorteggiatoId] = useState(null)
   const [confermaRicomincia, setConfermaRicomincia] = useState(false)
   // "Si rivela: è lo Spilungone/L'Antico" non si applica al primo click: prima
   // una conferma esplicita (come per le scelte degli Eventi speciali)
@@ -163,16 +168,12 @@ export function Votazione({
             <li key={testo}>🏆 {testo}</li>
           ))}
         </ul>
-        <button type="button" onClick={onConcludiPartita}>
-          Concludi partita
-        </button>
+        <ConcludiPartita onConcludi={onConcludiPartita} />
       </>
     ) : vivi.length === 0 ? (
       <>
         <p>Non è rimasto nessuno in vita.</p>
-        <button type="button" onClick={onConcludiPartita}>
-          Concludi partita
-        </button>
+        <ConcludiPartita onConcludi={onConcludiPartita} />
       </>
     ) : null
 
@@ -274,6 +275,8 @@ export function Votazione({
     // onAlchimistaEsplode registra da solo sia la rivelazione/morte
     // dell'Alchimista sia quella della vittima (vedi GiornoPanel).
     function confermaVittimaAlchimista(alchimistaId, vittimaId) {
+      // riepilogo salvato prima: dopo il Conferma l'anteprima sparirebbe
+      setRiepilogoMorte((r) => ({ ...r, [vittimaId]: conseguenzeMorte(giocatori, vittimaId, true) }))
       onAlchimistaEsplode(alchimistaId, vittimaId)
       setAlchimistaEsploso({ alchimistaId, vittimaId })
       setAlchimistaInAttesaVittimaId(null)
@@ -310,10 +313,13 @@ export function Votazione({
         const nome = giocatori.find((g) => g.id === id)?.nome
         const nomeVittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)?.nome
         return (
-          <p>
-            {nome} rivela la propria carta: è l'Alchimista e trascina con sé {nomeVittima} nell'aldilà con
-            una grande esplosione pirotecnica.
-          </p>
+          <>
+            <p>
+              {nome} rivela la propria carta: è l'Alchimista e trascina con sé {nomeVittima} nell'aldilà con
+              una grande esplosione pirotecnica.
+            </p>
+            {riepilogoMorte[alchimistaEsploso.vittimaId]?.length > 0 && riepilogoDi(alchimistaEsploso.vittimaId)}
+          </>
         )
       }
       if (alchimistaInAttesaVittimaId === id) {
@@ -441,7 +447,10 @@ export function Votazione({
                       type="button"
                       className="chip"
                       aria-pressed={designatoSpareggioValido === id}
-                      onClick={() => setDesignatoSpareggio(id)}
+                      onClick={() => {
+                        setSorteggiatoId(null)
+                        setDesignatoSpareggio(id)
+                      }}
                     >
                       {giocatori.find((g) => g.id === id)?.nome}
                     </button>
@@ -451,10 +460,17 @@ export function Votazione({
                     tra i candidati (resta comunque cambiabile prima di confermare) */}
                 <button
                   type="button"
-                  onClick={() => setDesignatoSpareggio(designati[Math.floor(Math.random() * designati.length)])}
+                  onClick={() => {
+                    const id = designati[Math.floor(Math.random() * designati.length)]
+                    setSorteggiatoId(id)
+                    setDesignatoSpareggio(id)
+                  }}
                 >
                   Sorteggia tra i candidati
                 </button>
+                {sorteggiatoId !== null && sorteggiatoId === designatoSpareggioValido && (
+                  <p>Sorteggiato: {giocatori.find((g) => g.id === sorteggiatoId)?.nome}</p>
+                )}
                 {designatoSpareggioValido && renderEsitoDesignato(designatoSpareggioValido)}
               </div>
             ) : null}
@@ -467,6 +483,13 @@ export function Votazione({
             Torna al voto
           </button>
         )}
+        {morteConfermata &&
+          ruoliSelezionati?.includes('fantasma-onnisciente') &&
+          !giocatori.some((g) => g.eFantasmaOnnisciente) && (
+            <p className="avviso">
+              ⚠️ Assegna la carta del Fantasma Onnisciente al primo morto (menu "Eventi speciali").
+            </p>
+          )}
         {bannerVittoria}
         {morteConfermata && (
           <button type="button" onClick={onProsegui}>
@@ -516,7 +539,7 @@ export function Votazione({
             )}
             <span className="votazione__nome">
               {g.nome}
-              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g.ruoloSlug)}
+              {mostraRuoli && mostraNomeRuolo && nomeRuoloTraParentesi(g)}
             </span>
             <BadgeCondizioni condizioni={g.condizioni} />
             {g.eBorgomastro && (

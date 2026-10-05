@@ -174,11 +174,14 @@ export function EventiSpeciali({
     morti.length > 0
   // resta "?" per tutta la partita finché non muore (pag. 21), di notte o
   // al rogo: disponibile in ogni contesto (alba/voto/esito), non solo di giorno
-  const mostraSuocera =
-    ruoliSelezionati.includes('suocera') &&
-    // il Mimo che copia la Suocera non conta: il titolare resta da rivelare
-    !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g)) &&
-    mortiSenzaRuoloNoto.length > 0
+  const suoceraTitolareRivelata = giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
+  // il Mimo che copia la Suocera, già morto, può rivelarsi come lei (potere
+  // indipendente dal titolare: segnato in poteriUsati)
+  const mimoSuoceraMorti = morti.filter(
+    (g) => g.ruoloSlug === 'suocera' && eMimoCopiante(g) && !(g.poteriUsati ?? []).includes('suocera-rivelata'),
+  )
+  const candidatiSuocera = [...(suoceraTitolareRivelata ? [] : mortiSenzaRuoloNoto), ...mimoSuoceraMorti]
+  const mostraSuocera = ruoliSelezionati.includes('suocera') && candidatiSuocera.length > 0
 
   const menuEventi = [
     candidatiAntico.length > 0 && { key: 'antico', etichetta: "L'Antico si rivela" },
@@ -343,10 +346,7 @@ export function EventiSpeciali({
           {evento === 'bardo' && (
             <EventoConferma
               messaggio="Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà."
-              onConferma={() => {
-                onBardoSaltaNotte()
-                chiudi()
-              }}
+              onConferma={() => applica('Il Bardo ha dato il segnale: la notte successiva sarà saltata.', onBardoSaltaNotte)}
               onAnnulla={chiudi}
             />
           )}
@@ -354,10 +354,7 @@ export function EventiSpeciali({
           {evento === 'gallo' && (
             <EventoConferma
               messaggio="Il Gallo Mannaro non canta: si salta l'intero giorno, si passa direttamente alla notte."
-              onConferma={() => {
-                onGalloSaltaGiorno()
-                chiudi()
-              }}
+              onConferma={() => applica('Il Gallo Mannaro non ha cantato: il giorno è saltato.', onGalloSaltaGiorno)}
               onAnnulla={chiudi}
             />
           )}
@@ -387,7 +384,7 @@ export function EventiSpeciali({
 
           {evento === 'suocera' && (
             <EventoUnGiocatore
-              candidati={mortiSenzaRuoloNoto}
+              candidati={candidatiSuocera}
               etichetta="Chi era la Suocera"
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
               onConferma={(id) =>

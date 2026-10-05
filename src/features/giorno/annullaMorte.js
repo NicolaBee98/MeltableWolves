@@ -1,4 +1,4 @@
-import { eMimoCopiante } from '../../data/assegnazione'
+import { eMimoCopiante, conRuolo } from '../../data/assegnazione'
 
 // patch che riporta in vita un giocatore la cui morte era stata dichiarata
 // per errore (un tap sbagliato durante il rogo o un evento speciale).
@@ -9,7 +9,7 @@ import { eMimoCopiante } from '../../data/assegnazione'
 // Le conseguenze su altri giocatori (crepacuore del partner, eredità
 // dell'Apprendista...) le disfa annullaMorte di usePartita, se disponibile.
 export function patchAnnullaMorte(giocatore) {
-  const patch = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoGiorno: undefined, mortoDa: undefined }
+  const patch = { vivo: true, causaMorte: undefined, mortoNotte: undefined, mortoGiorno: undefined, mortoDa: undefined, giustiziatoDa: undefined }
   if (!giocatore) return patch
   if (giocatore.eFantasmaOnnisciente) patch.eFantasmaOnnisciente = false
   const poteri = giocatore.poteriUsati ?? []
@@ -73,8 +73,8 @@ export function dichiaraBoiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGioc
   const boia = giocatori.find((g) => g.id === boiaId)
   aggiornaGiocatore(boiaId, {
     ruoloSlug: 'boia',
-    storiaRuoli: [...(boia?.storiaRuoli ?? []), 'boia'],
+    storiaRuoli: conRuolo(boia?.storiaRuoli, 'boia'),
     poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
   })
-  dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'boia' })
+  dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'boia', giustiziatoDa: boiaId })
 }
