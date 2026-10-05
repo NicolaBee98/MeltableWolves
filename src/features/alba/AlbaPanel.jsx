@@ -12,6 +12,11 @@ import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } f
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
 const CAUSE_MORTE_NOTTURNE = ['notte', 'crepacuore', 'sacrificio']
 
+function etichettaMorto(g) {
+  if (g.mortoDa === 'boia' && g.causaMorte === 'colpo') return `${g.nome} (giustiziato/a dal Boia)`
+  return g.causaMorte === 'crepacuore' && g.mortoNotte === undefined ? `${g.nome} (crepacuore)` : g.nome
+}
+
 export function AlbaPanel({
   giocatori,
   round,
@@ -33,7 +38,9 @@ export function AlbaPanel({
       !g.vivo &&
       ((g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte) && g.resuscitaAllAlba !== round) ||
         // giustiziato dal Boia già all'alba: morto nel giorno che segue
-        (g.causaMorte === 'colpo' && g.mortoDa === 'boia' && g.mortoGiorno === round + 1)),
+        (g.causaMorte === 'colpo' && g.mortoDa === 'boia' && g.mortoGiorno === round + 1) ||
+        // il partner di chi è stato giustiziato all'alba muore di crepacuore nello stesso istante
+        (g.causaMorte === 'crepacuore' && g.mortoGiorno === round + 1 && g.mortoNotte === undefined)),
   )
   const annunci = annunciAlba(giocatori, round)
   const vittoria = condizioniVittoria(giocatori, quantita)
@@ -112,7 +119,7 @@ export function AlbaPanel({
       ) : (
         <ul className="alba-panel__morti">
           {morti.map((g) => (
-            <li key={g.id}>{g.mortoDa === 'boia' && g.causaMorte === 'colpo' ? `${g.nome} (giustiziato/a dal Boia)` : g.nome}</li>
+            <li key={g.id}>{etichettaMorto(g)}</li>
           ))}
         </ul>
       )}

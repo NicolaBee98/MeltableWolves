@@ -106,7 +106,19 @@ test('Mimo che copia il Ladro: "imita" il Ladro (non il ruolo finale) e poi la s
   }
   const messaggi = rilevaEventi([mimo, ladro], [dopoMimo, ladro], 1, 'notte').map((e) => e.messaggio)
   expect(messaggi).toContain('Il Mimo Sara imita Ladro (Marco)')
-  expect(messaggi).toContain('Sara (Mimo del Ladro) sceglie Veggente: scarta Boia')
+  // il Mimo sceglie tra le carte rimaste: non scarta nulla
+  expect(messaggi).toContain('Sara (Mimo del Ladro) sceglie Veggente')
+})
+
+test('Mimo del Ladro prima del Ladro nell\'elenco dei giocatori: la voce del Ladro viene comunque per prima', () => {
+  const ladro = { ...base, id: '2', nome: 'Marco', ruoloSlug: 'ladro', storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'boia'] }
+  const mimo = { ...base, id: '1', nome: 'Sara', ruoloSlug: 'ladro', storiaRuoli: ['mimo', 'ladro'], legame: { tipo: 'mimo', targetId: '2' } }
+  const dopoLadro = { ...ladro, ruoloSlug: 'veggente', storiaRuoli: ['ladro', 'veggente'], poteriUsati: ['ladro-scelta'] }
+  const dopoMimo = { ...mimo, ruoloSlug: 'boia', storiaRuoli: ['mimo', 'ladro', 'boia'], poteriUsati: ['ladro-scelta'], scartoLadro: ['veggente', 'boia'] }
+  expect(rilevaEventi([mimo, ladro], [dopoMimo, dopoLadro], 1, 'notte').map((e) => e.messaggio)).toEqual([
+    'Il Ladro Marco sceglie Veggente: scarta Boia',
+    'Sara (Mimo del Ladro) sceglie Boia',
+  ])
 })
 
 test('Ladro: voce con la carta scelta e quelle scartate, senza "ha assunto il ruolo"', () => {

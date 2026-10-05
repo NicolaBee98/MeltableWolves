@@ -49,6 +49,8 @@ const RUOLI_RIVELAZIONE_DIURNA = ['boia', 'alchimista', 'scemo-del-villaggio', '
 // sempre "rogo" a prescindere da dove/quando viene registrata.
 export function rilevaEventi(precedenti, correnti, round, fase) {
   const eventi = []
+  // la scelta del Mimo del Ladro viene dopo quella del Ladro, qualunque sia l'ordine dei giocatori
+  const eventiMimoLadro = []
   const mappaPrecedenti = new Map(precedenti.map((g) => [g.id, g]))
 
   for (const giocatore of correnti) {
@@ -161,10 +163,12 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       const l0 = prima[campo]
       const l1 = giocatore[campo]
       const nomeTarget = (id) => correnti.find((g) => g.id === id)?.nome ?? '?'
-      if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId) {
+      // (un legame ereditato di altro tipo, es. l'Apprendista che prende il Cavaliere
+      // col suo protetto, non è una scelta nuova)
+      if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId && (!l0 || l0.tipo === l1.tipo)) {
         eventi.push({ round, fase, messaggio: LEGAME_SCELTO[l1.tipo](nome, nomeTarget(l1.targetId)) })
       }
-      if (!l1 && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
+      if ((!l1 || l1.tipo !== l0?.tipo) && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
         if (l0.tipo === 'apprendista') {
           ereditato = true
           if (!coperto('ereditaNotte')) eventi.push({
@@ -187,10 +191,12 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     if (haScelto && storiaDopo.includes('ladro')) {
       ladroSceglie = true
       const scelta = ruoloPerDisplay(giocatore.ruoloSlug)
-      const scarto = (giocatore.scartoLadro ?? []).filter((r) => r !== giocatore.ruoloSlug)
+      // il Mimo del Ladro sceglie tra le carte rimaste: non scarta nulla
+      const eMimoDelLadro = eMimoCopiante(giocatore)
+      const scarto = eMimoDelLadro ? [] : (giocatore.scartoLadro ?? []).filter((r) => r !== giocatore.ruoloSlug)
       const scartate = scarto.length ? `: scarta ${scarto.map((r) => nomeRuolo(ruoloPerDisplay(r))).join(' e ')}` : ''
-      const titolo = eMimoCopiante(giocatore) ? `${giocatore.nome} (Mimo del Ladro)` : `Il Ladro ${giocatore.nome}`
-      eventi.push({
+      const titolo = eMimoDelLadro ? `${giocatore.nome} (Mimo del Ladro)` : `Il Ladro ${giocatore.nome}`
+      ;(eMimoDelLadro ? eventiMimoLadro : eventi).push({
         round,
         fase,
         messaggio:
@@ -222,5 +228,5 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     }
   }
 
-  return eventi
+  return [...eventi, ...eventiMimoLadro]
 }

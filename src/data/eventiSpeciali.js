@@ -89,14 +89,34 @@ export function borgomastroDisponibile(ruoliSelezionati, giocatori) {
   return !giocatori.some((g) => g.eBorgomastro && g.vivo)
 }
 
+// Cavalieri vivi (anche il Mimo-Cavaliere) legati a `id`: se `id` muore (rogo,
+// colpo, crepacuore...) si immolano al suo posto e lui sopravvive
+export function cavalieriDi(giocatori, id) {
+  return giocatori.filter(
+    (g) => g.vivo && g.id !== id && ['legame', 'legameMimo'].some((c) => g[c]?.tipo === 'cavaliere' && g[c].targetId === id),
+  )
+}
+
+// L'Antico alla prima vita non muore: sopravvive (da Villico) e, di giorno, maledice il villaggio
+export const primaVitaAntico = (g) => g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined
+const TESTO_ANTICO = "L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si sveglieranno."
+
 // Promemoria per il narratore: conseguenze note della morte sul colpo / al
 // rogo di `id` (stringhe già pronte). Se è ancora vivo sono previsioni; se è
 // già morto resta solo il crepacuore dei partner, il resto è già applicato.
-// `fatto`: stesse righe al passato, per il riepilogo dopo la conferma
+// `fatto`: stesse righe al passato, per il riepilogo dopo la conferma.
+// Le conseguenze di seconda generazione (la morte del Cavaliere che si
+// immola, il crepacuore del partner...) si ottengono ricorsivamente; `visti`
+// evita i giri tra coppie e Cavalieri.
 export function conseguenzeMorte(giocatori, id, fatto = false) {
+  return [...new Set(conseguenze(giocatori, id, fatto, new Set()))]
+}
+
+function conseguenze(giocatori, id, fatto, visti) {
   const t = giocatori.find((g) => g.id === id)
   if (!t) return []
-  const nome = (x) => giocatori.find((g) => g.id === x)?.nome
+  const primo = visti.size === 0
+  visti.add(id)
   const partner = (t.condizioni ?? []).includes('innamorato')
     ? t.innamoratiCon?.length
       ? t.innamoratiCon.map((x) => giocatori.find((g) => g.id === x)).filter(Boolean)
@@ -105,10 +125,37 @@ export function conseguenzeMorte(giocatori, id, fatto = false) {
   if (!t.vivo) {
     return partner.filter((g) => g.causaMorte === 'crepacuore').map((g) => `È morto anche ${g.nome} (crepacuore).`)
   }
-  const out = partner.filter((g) => g.vivo).map((g) => (fatto ? `È morto anche ${g.nome} (crepacuore).` : `Morirà anche ${g.nome} (crepacuore).`))
+  // non muoiono (prima vita dell'Antico, primo rogo dello Spilungone): nessuna conseguenza a catena
+  if (primaVitaAntico(t)) return [TESTO_ANTICO]
+  if (primo && t.ruoloSlug === 'spilungone') return ['Lo Spilungone si rivela e non muore al primo rogo.']
+
+  // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
+  // avviene, ma la morte del Cavaliere ha le sue
+  const cavalieri = cavalieriDi(giocatori, id)
+  if (cavalieri.length > 0) {
+    const out = cavalieri.map((g) =>
+      fatto ? `Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive.` : `Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`,
+    )
+    cavalieri.forEach((g) => out.push(...conseguenze(giocatori, g.id, fatto, visti)))
+    return out
+  }
+
+  const out = []
+  for (const p of partner.filter((g) => g.vivo && !visti.has(g.id))) {
+    const protettoDa = cavalieriDi(giocatori, p.id)
+    if (primaVitaAntico(p)) {
+      out.push(`L'Antico ${p.nome} sopravvive al crepacuore (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si sveglieranno.`)
+    } else if (protettoDa.length > 0) {
+      visti.add(p.id)
+      out.push(`Il Cavaliere ${protettoDa.map((g) => g.nome).join(', ')} si immola al posto di ${p.nome} (crepacuore).`)
+      protettoDa.forEach((g) => out.push(...conseguenze(giocatori, g.id, fatto, visti)))
+    } else {
+      out.push(fatto ? `È morto anche ${p.nome} (crepacuore).` : `Morirà anche ${p.nome} (crepacuore).`)
+      out.push(...conseguenze(giocatori, p.id, fatto, visti))
+    }
+  }
   const legati = (tipo) =>
     giocatori.filter((g) => g.vivo && ['legame', 'legameMimo'].some((c) => g[c]?.tipo === tipo && g[c].targetId === id))
-  legati('cavaliere').forEach((g) => out.push(`Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`))
   legati('apprendista').forEach((g) =>
     out.push(fatto ? `L'Apprendista ${g.nome} ha ereditato il suo ruolo.` : `L'Apprendista ${g.nome} erediterà il suo ruolo.`),
   )
@@ -119,9 +166,7 @@ export function conseguenzeMorte(giocatori, id, fatto = false) {
     out.push('Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.')
   else if (eLupo(t.ruoloSlug) && giocatori.some((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'))
     out.push(fatto ? 'Morto un lupo: il Cucciolo è diventato Lupo Mannaro adulto.' : 'Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
-  if (t.ruoloSlug === 'lantico' && t.anticoSbranatoNotte === undefined)
-    out.push("L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si svegliano.")
-  if (t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
-  if (t.ruoloSlug === 'spilungone') out.push('Lo Spilungone si rivela e non muore al primo rogo.')
+  // l'esplosione si dichiara solo al rogo (la scelta della vittima la riepiloga l'evento)
+  if (primo && !fatto && t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
   return out
 }

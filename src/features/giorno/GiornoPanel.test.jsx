@@ -163,3 +163,36 @@ test('titolo di schermata: "Giorno N" al voto e "Rogo N" all\'esito, con N = rou
   setup({ round: 3 })
   expect(screen.getByRole('heading', { name: 'Rogo 2' })).toBeInTheDocument()
 })
+
+test("morte per unzione dell'Antico (prima vita): sopravvive da Villico, maledice il villaggio e l'unzione non si trasmette", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lantico', storiaRuoli: ['lantico'], condizioni: ['unto'] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  const { aggiornaGiocatore } = setup({ giocatori })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'villico', villaggioMaledettoFinoA: 3 }))
+  expect(aggiornaGiocatore).toHaveBeenCalledTimes(1)
+})
+
+test("l'Alchimista che esplode è vittima del rogo (mortoNotte), la persona trascinata muore sul colpo", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const { aggiornaGiocatore } = setup({ giocatori, ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 }, candidatiEsito: ['1'] })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Alchimista esplode" }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false, causaMorte: 'rogo', mortoNotte: 3 }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false, causaMorte: 'colpo', mortoDa: 'alchimista' }))
+})

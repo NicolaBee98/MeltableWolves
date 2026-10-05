@@ -2,6 +2,7 @@ import { StrictMode, useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AlbaPanel } from './AlbaPanel'
+import { usePartita } from '../../state/usePartita'
 
 test('mostra i giocatori morti nella notte appena conclusa, non quelli di notti precedenti', () => {
   const giocatori = [
@@ -295,4 +296,41 @@ test("la vittima del Boia all'alba compare tra i morti della pagina Alba, con la
   render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} />)
   expect(screen.getByText('Anna (giustiziato/a dal Boia)')).toBeInTheDocument()
   expect(screen.queryByText(/nessuno è morto/i)).not.toBeInTheDocument()
+})
+
+test("Boia all'alba su un innamorato: il partner morto di crepacuore compare tra i morti dell'Alba e nel riepilogo", async () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: '1', nome: 'Ivo', vivo: true },
+      { id: '2', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['3'] },
+      { id: '3', nome: 'Bea', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    ]),
+  )
+  function Alba() {
+    const p = usePartita()
+    return (
+      <AlbaPanel
+        giocatori={p.giocatori}
+        round={2}
+        aggiornaGiocatore={p.aggiornaGiocatore}
+        annullaMorte={p.annullaMorte}
+        ruoliSelezionati={['boia']}
+        quantita={{ boia: 1 }}
+        onVaiAlVoto={() => {}}
+      />
+    )
+  }
+  const user = userEvent.setup()
+  render(<Alba />)
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText('Anna (giustiziato/a dal Boia)')).toBeInTheDocument()
+  expect(screen.getByText('Bea (crepacuore)')).toBeInTheDocument()
+  expect(screen.getByText('È morto anche Bea (crepacuore).')).toBeInTheDocument()
+  localStorage.clear()
 })

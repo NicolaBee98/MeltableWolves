@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
-import { PromemoriaMorte } from './PromemoriaMorte'
+import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
 import { useDialogA11y } from '../../components/useDialogA11y'
 import { ruoliAssegnabili, eMimoCopiante } from '../../data/assegnazione'
+import { viciniVivi } from '../../data/vicinanza'
 import {
   candidatiRivelazione,
   rivelazioneContestualeDisponibile,
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
+  conseguenzeMorte,
+  cavalieriDi,
+  primaVitaAntico,
 } from '../../data/eventiSpeciali'
 
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
@@ -131,11 +135,26 @@ export function EventiSpeciali({
   // messaggio di riepilogo mostrato dopo ogni conferma (stesso feedback per
   // tutte le identificazioni: il popup non si chiude "muto")
   const [esito, setEsito] = useState('')
+  // conseguenze (al passato) delle morti appena dichiarate, calcolate prima
+  // di applicarle: seconda generazione compresa (crepacuore, eredità, Cavaliere...)
+  const [righeEsito, setRigheEsito] = useState([])
   const nome = (id) => giocatori.find((g) => g.id === id)?.nome
-  function applica(messaggio, azione) {
+  // `morti`: id di chi sta per morire sul colpo, per il riepilogo delle conseguenze
+  function applica(messaggio, azione, morti = []) {
+    setRigheEsito([...new Set(morti.flatMap((id) => conseguenzeMorte(giocatori, id, true)))])
     azione()
     setEsito(messaggio)
     setEvento('esito')
+  }
+  // il colpo non uccide davvero: l'Antico alla prima vita o chi ha un Cavaliere
+  // che si immola (il motivo lo dice la riga di riepilogo)
+  const nomiVicini = (id) => {
+    const { sinistra, destra } = viciniVivi(giocatori, id)
+    return [sinistra, destra].filter(Boolean).map((g) => g.nome).join(' e ') || 'nessuno'
+  }
+  const sopravvive = (id) => {
+    const g = giocatori.find((x) => x.id === id)
+    return Boolean(g) && (primaVitaAntico(g) || cavalieriDi(giocatori, id).length > 0)
   }
   const vivi = giocatori.filter((g) => g.vivo)
   const nonAssegnati = giocatori.filter((g) => g.vivo && !g.ruoloSlug)
@@ -154,7 +173,7 @@ export function EventiSpeciali({
   const candidatiAntico = morti.filter(
     (g) =>
       ((['notte', 'crepacuore'].includes(g.causaMorte) && g.mortoNotte === round) ||
-        (g.causaMorte === 'colpo' && g.mortoGiorno === round + 1)) &&
+        (['colpo', 'crepacuore'].includes(g.causaMorte) && g.mortoGiorno === round + 1)) &&
       ((!g.ruoloSlug && anticoAssegnabile) || (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined)),
   )
   // Alchimista (come lo Spilungone, che si rivela solo dal chip del designato
@@ -162,7 +181,10 @@ export function EventiSpeciali({
   // Attori: i vivi senza ruolo (titolare) più il Mimo che ha copiato quel ruolo
   // e non l'ha ancora usato (potere indipendente, vedi candidatiRivelazione)
   const attori = (slug) => candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita)
-  const candidatiAlchimista = attori('alchimista').filter((g) => !candidatiRogo || candidatiRogo.includes(g.id))
+  // con un Cavaliere che lo salva non muore al rogo, quindi non può esplodere
+  const candidatiAlchimista = attori('alchimista').filter(
+    (g) => (!candidatiRogo || candidatiRogo.includes(g.id)) && cavalieriDi(giocatori, g.id).length === 0,
+  )
 
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
@@ -265,8 +287,10 @@ export function EventiSpeciali({
               etichetta="Chi è lo Scemo del Villaggio"
               messaggio="La rima sbagliata rivela e uccide lo Scemo del Villaggio nello stesso istante."
               onConferma={(id) =>
-                applica(`${nome(id)} si è rivelato/a: è lo Scemo del Villaggio, ha sbagliato la rima ed è morto/a.`, () =>
-                  onScemoSbaglia(id),
+                applica(
+                  `${nome(id)} si è rivelato/a: è lo Scemo del Villaggio, ha sbagliato la rima ${sopravvive(id) ? 'ma sopravvive.' : 'ed è morto/a.'}`,
+                  () => onScemoSbaglia(id),
+                  [id],
                 )
               }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
@@ -292,7 +316,13 @@ export function EventiSpeciali({
               etichetta="Chi è morto per l'unzione"
               messaggio={'Chi è morto/a per l\'unzione (ha detto "sì" o "no"): l\'unzione si trasmette ai due vicini vivi.'}
               onConferma={(id) =>
-                applica(`${nome(id)} è morto/a per l'unzione: l'unzione passa ai due vicini vivi.`, () => onMorteUnzione(id))
+                applica(
+                  sopravvive(id)
+                    ? `${nome(id)} doveva morire per l'unzione ma sopravvive: l'unzione non si trasmette.`
+                    : `${nome(id)} è morto/a per l'unzione: l'unzione passa ai due vicini vivi, ${nomiVicini(id)}.`,
+                  () => onMorteUnzione(id),
+                  [id],
+                )
               }
               onAnnulla={chiudi}
             />
@@ -319,7 +349,11 @@ export function EventiSpeciali({
               etichettaBersaglio="Chi giustizia il Boia"
               escludiAttoreDaBersagli
               onConferma={(boiaId, id) =>
-                applica(`${nome(boiaId)} si è rivelato/a: è il Boia e giustizia ${nome(id)}.`, () => onBoiaGiustizia(boiaId, id))
+                applica(
+                  `${nome(boiaId)} si è rivelato/a: è il Boia e giustizia ${nome(id)}${sopravvive(id) ? ', che però sopravvive.' : '.'}`,
+                  () => onBoiaGiustizia(boiaId, id),
+                  [id],
+                )
               }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
               onAnnulla={chiudi}
@@ -334,8 +368,12 @@ export function EventiSpeciali({
               etichettaBersaglio="Chi trascina con sé l'Alchimista"
               escludiAttoreDaBersagli
               onConferma={(alchimistaId, id) =>
-                applica(`${nome(alchimistaId)} si è rivelato/a: è l'Alchimista ed esplode trascinando con sé ${nome(id)}.`, () =>
-                  onAlchimistaEsplode(alchimistaId, id),
+                applica(
+                  sopravvive(id)
+                    ? `${nome(alchimistaId)} si è rivelato/a: è l'Alchimista ed esplode, ma ${nome(id)} sopravvive.`
+                    : `${nome(alchimistaId)} si è rivelato/a: è l'Alchimista ed esplode trascinando con sé ${nome(id)}.`,
+                  () => onAlchimistaEsplode(alchimistaId, id),
+                  [alchimistaId, id],
                 )
               }
               dettaglio={(id) => <PromemoriaMorte giocatori={giocatori} id={id} />}
@@ -407,6 +445,7 @@ export function EventiSpeciali({
           {evento === 'esito' && (
             <div className="eventi-speciali__conferma">
               <p role="status">{esito}</p>
+              <RigheConseguenze righe={righeEsito} />
               <button type="button" onClick={chiudi}>
                 Ok
               </button>

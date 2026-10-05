@@ -498,3 +498,92 @@ test('Mimo-Suocera morto può rivelarsi come Suocera, anche dopo che il titolare
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(onSuoceraRivelazione).toHaveBeenCalledWith('2')
 })
+
+test('Scemo salvato dal Cavaliere: il riepilogo non dice "è morto/a" e mostra la riga del sacrificio', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dino', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['scemo-del-villaggio'], quantita: { 'scemo-del-villaggio': 1 }, contesto: 'voto' })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByRole('status')).toHaveTextContent(/ha sbagliato la rima ma sopravvive/)
+  expect(screen.queryByText(/è morto\/a/)).not.toBeInTheDocument()
+  expect(screen.getByText('Il Cavaliere Dino si è immolato al posto di Anna: Anna sopravvive.')).toBeInTheDocument()
+})
+
+test('Alchimista: non può esplodere chi è protetto da un Cavaliere (al rogo non muore), né compare tra gli attori', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dino', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 }, candidatiRogo: ['1'] })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Alchimista esplode" }))
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+})
+
+test("Alchimista che trascina la vittima del Cavaliere: la vittima sopravvive, il Cavaliere muore e il riepilogo lo dice", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Ugo', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dino', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 }, candidatiRogo: ['1'] })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Alchimista esplode" }))
+  await user.click(screen.getByRole('button', { name: 'Ugo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByRole('status')).toHaveTextContent('ma Anna sopravvive')
+  expect(screen.getByText(/Il Cavaliere Dino si è immolato al posto di Anna/)).toBeInTheDocument()
+})
+
+test('Unzione: il riepilogo nomina i due vicini vivi a cui passa', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, condizioni: [] },
+  ]
+  setup({ giocatori })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByRole('status')).toHaveTextContent("l'unzione passa ai due vicini vivi, Luca e Marco.")
+})
+
+test('Boia su un innamorato: il riepilogo include il crepacuore e la vendetta del Cucciolo (seconda generazione)', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', vivo: true },
+    { id: '2', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['3'] },
+    { id: '3', nome: 'Cuc', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'], ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'Il Boia giustizia' }))
+  await user.click(screen.getByRole('button', { name: 'Ivo' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText('È morto anche Cuc (crepacuore).')).toBeInTheDocument()
+  expect(screen.getByText(/Vendetta del Cucciolo/)).toBeInTheDocument()
+})
+
+test("L'Antico morto di crepacuore di giorno (Boia/unzione...) è tra i candidati a rivelarsi", async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Gigi', vivo: false, causaMorte: 'crepacuore', mortoGiorno: 3, condizioni: [] },
+  ]
+  setup({ giocatori, ruoliSelezionati: ['lantico'], quantita: { lantico: 1 }, contesto: 'alba', round: 2 })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: "L'Antico si rivela" })).toBeInTheDocument()
+})
