@@ -12,6 +12,9 @@ export function AzioneCondizioneDoppia({
   etichetta,
   ruoloSlugAttore,
   escludiAttore = false,
+  // chi ha già la condizione da notti precedenti non è più un candidato (il
+  // Pifferaio non ri-ipnotizza chi lo è già)
+  escludiGiaCondizionati = false,
   attoreId,
   vivoAIngresso = (g) => g.vivo,
   giocatoriIngresso,
@@ -21,7 +24,9 @@ export function AzioneCondizioneDoppia({
   // notte) la scelta è unica e condivisa tra tutti i titolari.
   const attore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const altriAttori = !attoreId ? [] : giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore && g.id !== attore?.id)
-  const vivi = giocatori.filter((g) => vivoAIngresso(g) && (!escludiAttore || g.id !== attore?.id))
+  // con una scelta condivisa (Pifferaio + Mimo-Pifferaio) nessuno dei titolari è candidato
+  const titolari = attoreId ? [attore] : giocatori.filter((g) => g.ruoloSlug === ruoloSlugAttore)
+  const viviTutti = giocatori.filter((g) => vivoAIngresso(g) && (!escludiAttore || !titolari.some((t) => t?.id === g.id)))
   // chi aveva già la condizione PRIMA di questo passo (es. il Pifferaio:
   // ipnotizzato è cumulativo tra notti, mai ripulito) non va mai toccato da
   // un ripensamento di QUESTA notte: solo la coppia scelta ora resta
@@ -30,8 +35,9 @@ export function AzioneCondizioneDoppia({
   // guarda lo snapshot d'ingresso, e la coppia di questa sessione si ricostruisce)
   const base = giocatoriIngresso ?? giocatori
   const [condizionatiAllIngresso] = useState(
-    () => new Set(vivi.filter((g) => base.find((x) => x.id === g.id)?.condizioni.includes(condizione)).map((g) => g.id)),
+    () => new Set(viviTutti.filter((g) => base.find((x) => x.id === g.id)?.condizioni.includes(condizione)).map((g) => g.id)),
   )
+  const vivi = escludiGiaCondizionati ? viviTutti.filter((g) => !condizionatiAllIngresso.has(g.id)) : viviTutti
   // coppia già scelta in questo passo: dalla scelta salvata sull'attore (Sacerdote) o,
   // senza, da chi ha la condizione ora e non all'ingresso (Pifferaio)
   const [coppiaIniziale] = useState(() => {
@@ -129,6 +135,9 @@ export function AzioneCondizioneDoppia({
       onSalta={() => {}}
       etichetta={etichetta}
       selezionatiIniziali={coppiaIniziale ?? []}
+      avvisoIncompleta={
+        condizione === 'innamorato' ? 'Non hai scelto la coppia completa: gli innamorati non verranno legati.' : undefined
+      }
     />
   )
 }

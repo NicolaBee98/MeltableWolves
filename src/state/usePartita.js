@@ -134,8 +134,13 @@ export function usePartita() {
       // anticoSbranatoNotte: la prima vita persa dell'Antico è annullabile
       // come una morte (vedi uccidiPatch)
       const eMorte = patch.vivo === false
-      if (eMorte) {
-        const giaMorti = prev.filter((g) => !g.vivo && g.id !== id).map((g) => g.id)
+      // ruolo di un morto che da ignoto diventa noto (es. Suocera rivelata):
+      // un Apprendista rimasto in attesa del maestro può ereditare adesso. Non è
+      // una nuova morte: le reazioni a catena dei morti non si rilanciano
+      const prima = prev.find((g) => g.id === id)
+      const rivelaMorto = Boolean(patch.ruoloSlug) && prima && !prima.vivo && !prima.ruoloSlug
+      if (eMorte || rivelaMorto) {
+        const giaMorti = prev.filter((g) => !g.vivo && (rivelaMorto || g.id !== id)).map((g) => g.id)
         aggiornati = propagaMorti(aggiornati, giaMorti)
       }
       if (eMorte || patch.anticoSbranatoNotte !== undefined) {

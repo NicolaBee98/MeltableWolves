@@ -117,3 +117,24 @@ test('ruolo ereditato (marcatore legame-ereditato, nessun legame): non si chiede
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
   expect(screen.getByText(/ereditato/i)).toBeInTheDocument()
 })
+
+test('senza scelta mostra un avviso non bloccante che il legame andrà perso, che sparisce scegliendo', async () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  const { rerender } = render(
+    <AzioneLegame giocatori={giocatori} aggiornaGiocatore={() => {}} ruoloSlugAttore="apprendista" tipoLegame="apprendista" etichetta="Chi seguire come maestro" />,
+  )
+  expect(screen.getByText(/Non hai scelto il maestro: il legame andrà perso/)).toBeInTheDocument()
+  rerender(
+    <AzioneLegame
+      giocatori={[{ ...giocatori[0], legame: { tipo: 'apprendista', targetId: '2' } }, giocatori[1]]}
+      aggiornaGiocatore={() => {}}
+      ruoloSlugAttore="apprendista"
+      tipoLegame="apprendista"
+      etichetta="Chi seguire come maestro"
+    />,
+  )
+  expect(screen.queryByText(/il legame andrà perso/)).not.toBeInTheDocument()
+})

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 
+// avvisoIncompleta (opzionale): messaggio non bloccante finché i giocatori scelti sono meno di 2
 // onAnnulla (opzionale): chiamato quando si toglie un giocatore da una coppia
 // già confermata, così chi la usa può disfare ciò che onConferma aveva applicato
-export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalta, etichetta, selezionatiIniziali = [] }) {
+export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalta, etichetta, selezionatiIniziali = [], avvisoIncompleta }) {
   const [selezionati, setSelezionati] = useState(selezionatiIniziali)
   const [avviso, setAvviso] = useState(null)
 
@@ -50,6 +51,8 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalt
         ))}
       </div>
       {avviso && <p className="avviso">⚠️ {avviso}</p>}
+      {/* non bloccante: il narratore può voler procedere con la coppia incompleta */}
+      {avvisoIncompleta && selezionati.length < 2 && <p className="avviso">⚠️ {avvisoIncompleta}</p>}
     </div>
   )
 }

@@ -9,8 +9,10 @@ import { annullaColpo } from './annullaColpo'
 // stato "già usata" solo una volta, al montaggio del passo (mai più durante
 // i click successivi), così un click su questa stessa notte non nasconde
 // subito le chip.
-export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo }) {
-  const strega = giocatori.find((g) => g.ruoloSlug === 'strega')
+// `attoreId`: Strega e Mimo-Strega condividono la schermata ma hanno due set di
+// pozioni separati (poteriUsati di ciascuno): una istanza per attore
+export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo, attoreId }) {
+  const strega = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === 'strega')
   const poteriUsati = strega?.poteriUsati ?? []
   const vivi = giocatori.filter(vivoAIngresso)
   const [avvisoVitale, setAvvisoVitale] = useState(null)

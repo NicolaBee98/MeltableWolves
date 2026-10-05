@@ -109,7 +109,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
     iconaSlug: 'lupo-mannaro',
   },
   { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
-  { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato' },
+  { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato', iconaSlug: 'pifferaio' },
 ]
 
 // Ruoli che si rivelano pubblicamente DI GIORNO, a un momento scelto dal

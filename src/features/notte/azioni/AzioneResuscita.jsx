@@ -18,7 +18,11 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
   // sia il Guaritore sia lo Sciacallo Mannaro possono resuscitare se stessi.
   // Chi è già marcato per la resurrezione (dall'altro potere)
   // non è più un bersaglio, a meno che non sia la scelta corrente.
-  const morti = giocatori.filter((g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba) || g.id === target)
+  // I morti di QUESTA notte (non da rogo: quello è del giorno prima) non sono
+  // candidati: la resurrezione si annuncia all'alba e chi resuscita non può
+  // sapere che sono morti stanotte
+  const mortoStanotte = (g) => g.mortoNotte !== undefined && g.mortoNotte === round && g.causaMorte !== 'rogo' && !g.vivo
+  const morti = giocatori.filter((g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba && !mortoStanotte(g)) || g.id === target)
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>

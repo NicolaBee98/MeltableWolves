@@ -1527,7 +1527,7 @@ test('refresh a metà passo: la selezione pendente si ripristina e Indietro la s
   await user.click(screen.getByRole('button', { name: 'Indietro' }))
   expect(anna()).toHaveAttribute('aria-pressed', 'false')
   expect(screen.getByRole('button', { name: 'Indietro' })).toBeDisabled()
-  expect(screen.getByRole('button', { name: 'Indietro' })).toHaveAttribute('title', expect.stringMatching(/nulla da annullare/i))
+  expect(screen.getByText(/nulla da annullare/i)).toBeInTheDocument()
 })
 
 test('refresh a metà passo senza modifiche: "Indietro" è disabilitato fin dall\'inizio (lo stato ricaricato è una copia, non una modifica)', () => {
@@ -1881,4 +1881,168 @@ test('branco: il lupo appena trasformato dal Progenitore non compare nel sottoti
   await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' }))
   expect(sottotitolo()).toBe('Vivi: Dario, Elia')
+})
+
+// voce 2 del 2026-10-05: con "Lupo Mannaro" come ultimo passo, il Branco entra
+// in lista solo dopo l'assegnazione dei lupi: non va saltato né il tasto "È giorno" mostrato
+test('mazzo Lupo+Villici: dopo aver assegnato i lupi nel loro passo, Avanti porta al Branco (non a "È giorno") e il totale è 2', async () => {
+  const user = userEvent.setup()
+  const nomi = ['Anna', 'Bruno', 'Carla', 'Dino', 'Elisa', 'Fabio']
+  creaHarness(
+    nomi.map((nome, i) => ({ id: String(i + 1), nome, vivo: true, condizioni: [] })),
+    ['lupo-mannaro', 'villico'],
+    { 'lupo-mannaro': 2, villico: 4 },
+  )
+  expect(screen.getByText('Passo 1 di 2')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /È giorno nel villaggio/ })).not.toBeInTheDocument()
+
+  const chi = () => within(screen.getByRole('group', { name: /chi ha questa carta/i }))
+  await user.click(chi().getByRole('button', { name: 'Anna' }))
+  await user.click(chi().getByRole('button', { name: 'Bruno' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(screen.getByRole('heading', { name: /branco dei lupi/i })).toBeInTheDocument()
+  expect(screen.getByText('Passo 2 di 2')).toBeInTheDocument()
+})
+
+test('mazzo Lupo+Chupacabra: dopo i lupi si passa al Branco e poi al Chupacabra, in ordine', async () => {
+  const user = userEvent.setup()
+  const nomi = ['Anna', 'Bruno', 'Carla', 'Dino']
+  creaHarness(
+    nomi.map((nome, i) => ({ id: String(i + 1), nome, vivo: true, condizioni: [], ...(i === 3 ? { ruoloSlug: 'chupacabra', storiaRuoli: ['chupacabra'] } : {}) })),
+    ['lupo-mannaro', 'chupacabra', 'villico'],
+    { 'lupo-mannaro': 1, chupacabra: 1, villico: 2 },
+  )
+  await user.click(within(screen.getByRole('group', { name: /chi ha questa carta/i })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.getByRole('heading', { name: /branco dei lupi/i })).toBeInTheDocument()
+  expect(screen.getByText('Passo 2 di 3')).toBeInTheDocument()
+})
+
+test('Apprendista con maestro morto a ruolo ignoto: promemoria visibile "in attesa"', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  creaHarness(
+    [
+      { id: 'S', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: 'M' } },
+      { id: 'M', nome: 'Marta', vivo: false, condizioni: [] },
+      { id: 'V', nome: 'Vera', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+    ],
+    ['apprendista', 'veggente'],
+  )
+  expect(screen.getByText(/Sara \(Apprendista\) è in attesa/)).toBeInTheDocument()
+})
+
+test('Berserker sbranato con due lupi alla stessa distanza: la scelta è vincolante (Avanti disabilitato), sopravvive al ricaricamento, muoiono Berserker E lupo scelto', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const iniziali = [
+    { id: 'a', nome: 'Anna', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: 'b', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: 'c', nome: 'Carla', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: 'd', nome: 'Dino', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const h = creaHarness(iniziali, ['berserker', 'lupo-mannaro', 'villico'], { 'lupo-mannaro': 2, berserker: 1, villico: 1 })
+  await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Bruno' }))
+
+  expect(screen.getByRole('group', { name: 'Quale lupo uccide il Berserker' })).toBeInTheDocument()
+  expect(screen.getByText(/Scegli quale lupo muore/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /È giorno nel villaggio/ })).toBeDisabled()
+
+  // dopo un ricaricamento (stato dei giocatori persistito) il prompt resta
+  const salvati = JSON.parse(JSON.stringify(h.stato.giocatori))
+  document.body.innerHTML = ''
+  const h2 = creaHarness(salvati, ['berserker', 'lupo-mannaro', 'villico'], { 'lupo-mannaro': 2, berserker: 1, villico: 1 })
+  const prompt = screen.getByRole('group', { name: 'Quale lupo uccide il Berserker' })
+
+  await user.click(within(prompt).getByRole('button', { name: 'Carla' }))
+  const vivo = (id) => h2.stato.giocatori.find((g) => g.id === id).vivo
+  expect([vivo('b'), vivo('c'), vivo('a')]).toEqual([false, false, true])
+  expect(h2.stato.giocatori.some((g) => g.attesaLupoBerserker)).toBe(false)
+  expect(screen.getByRole('button', { name: /È giorno nel villaggio/ })).toBeEnabled()
+})
+
+test('Mimo assegnato con la chip ma senza "Chi imitare": con Avanti dal suo passo diventa subito Villico, senza ripassare dal Mimo; contatore e log coerenti', async () => {
+  const user = userEvent.setup()
+  const eventi = []
+  const h = creaHarness(
+    ['Anna', 'Bruno', 'Carla', 'Dino'].map((nome, i) => ({ id: String(i + 1), nome, vivo: true, condizioni: [] })),
+    ['mimo', 'lupo-mannaro', 'veggente', 'villico'],
+    { mimo: 1, 'lupo-mannaro': 1, veggente: 1, villico: 1 },
+    { registraEvento: (m) => eventi.push(m) },
+  )
+  const passoIniziale = screen.getByText(/^Passo 1 di (\d+)$/).textContent.match(/di (\d+)/)[1]
+  await user.click(within(screen.getByRole('group', { name: /chi ha questa carta/i })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('villico')
+  expect(screen.queryByRole('heading', { name: /^mimo$/i })).not.toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /lupo mannaro/i })).toBeInTheDocument()
+  expect(screen.getByText(`Passo 2 di ${passoIniziale}`)).toBeInTheDocument()
+  expect(eventi.filter((m) => /Villico/.test(m))).toHaveLength(1)
+})
+
+test('Addolorata + Mimo-Addolorata: non scambiano con la stessa vittima; il morto del Mimo diventa Villico (nessun potere)', async () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: 'a', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['addolorata'] },
+      { id: 'm', nome: 'Gino', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['mimo', 'addolorata'], legame: { tipo: 'mimo', targetId: 'a' } },
+      { id: 'v', nome: 'Marco', ruoloSlug: 'veggente', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2, storiaRuoli: ['veggente'] },
+      { id: 'x', nome: 'Elio', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    ],
+    ['mimo', 'addolorata', 'veggente', 'villico'],
+  )
+  // scambia il Mimo: Marco diventa Villico e la titolare non può più scambiare
+  await user.click(screen.getAllByRole('button', { name: 'Scambia' })[1])
+  const marco = () => h.stato.giocatori.find((g) => g.id === 'v')
+  expect(marco().ruoloSlug).toBe('villico')
+  expect(screen.queryByRole('button', { name: 'Scambia' })).not.toBeInTheDocument()
+  expect(screen.getByText(/già stato scambiato da un'altra Addolorata/)).toBeInTheDocument()
+})
+
+test('Indietro disabilitato: il motivo è scritto a schermo sotto ai pulsanti (non solo in un tooltip)', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  creaHarness(
+    [
+      { id: '1', nome: 'Vera', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+      { id: '2', nome: 'Anna', vivo: true, condizioni: [] },
+    ],
+    ['veggente'],
+  )
+  expect(screen.getByRole('button', { name: 'Indietro' })).toBeDisabled()
+  expect(screen.getByText(/Indietro non disponibile: Primo passo della notte/)).toBeInTheDocument()
+})
+
+test('Ladro+Mimo: se il Ladro non prende la carta Mimo, dopo il suo passo non si torna al passo Mimo', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Luca', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'mimo'] },
+      { id: '2', nome: 'Anna', ruoloSlug: 'medium', vivo: true, condizioni: [], storiaRuoli: ['medium'] },
+      { id: '3', nome: 'Bea', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+    ],
+    ['mimo', 'ladro', 'veggente', 'medium', 'villico'],
+    { mimo: 0, ladro: 1, veggente: 0, medium: 1, villico: 1 },
+  )
+  // il passo Mimo (carta tra le due del Ladro, nessun giocatore)
+  while (!screen.queryByRole('heading', { name: /^ladro$/i })) await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  await user.click(within(screen.getByRole('group', { name: 'Cosa sceglie il Ladro' })).getByRole('button', { name: 'Veggente' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(screen.queryByRole('heading', { name: /^mimo$/i })).not.toBeInTheDocument()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('veggente')
+})
+
+test('se il Pifferaio non ipnotizza nessuno il totale dei passi non resta sovrastimato sull\'ultimo passo', () => {
+  creaHarness(
+    [
+      { id: '1', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [], storiaRuoli: ['pifferaio'] },
+      { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+      { id: '3', nome: 'Bea', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+    ],
+    ['pifferaio', 'villico'],
+    { pifferaio: 1, villico: 2 },
+  )
+  // il passo ipnotizzati è atteso ma non compare: l'ultimo passo reale è "Passo 1 di 1"
+  expect(screen.getByText('Passo 1 di 1')).toBeInTheDocument()
 })

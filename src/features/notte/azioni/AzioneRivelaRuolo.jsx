@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ROLES, ruoloPerDisplay } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
-import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia } from '../../../data/assegnazione'
+import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo } from '../../../data/assegnazione'
 import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 
 // `reale`: la Cartomante vede la carta vera, quindi per lei la Guardia Mannara
@@ -92,7 +92,7 @@ export function AzioneRivelaRuolo({
     const target = originali.find((g) => g.id === targetInAttesaDiRuolo)
     const patch = guardiaTarget
       ? distinguiGuardia(originali, target.id, ruoloSlug)
-      : { [target.id]: { ruoloSlug, storiaRuoli: [...(target.storiaRuoli ?? []), ruoloSlug] } }
+      : { [target.id]: { ruoloSlug, storiaRuoli: conRuolo(target.storiaRuoli, ruoloSlug) } }
     for (const id of Object.keys(patch)) {
       const g = originali.find((x) => x.id === id)
       prima[id] ??= { ruoloSlug: g.ruoloSlug, storiaRuoli: g.storiaRuoli ?? [], guardiaDistinta: g.guardiaDistinta }

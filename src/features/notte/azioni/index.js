@@ -49,6 +49,7 @@ export const AZIONI_NOTTURNE = {
       etichetta: 'Chi ipnotizzare (due giocatori)',
       ruoloSlugAttore: 'pifferaio',
       escludiAttore: true,
+      escludiGiaCondizionati: true,
     },
   },
   sacerdote: {
@@ -59,7 +60,7 @@ export const AZIONI_NOTTURNE = {
   chupacabra: { Componente: AzioneChupacabra, props: {} },
   guaritore: { Componente: AzioneResuscita, perAttore: true, props: { potereSlug: 'guaritore-resuscita', ruoloSlugAttore: 'guaritore' } },
   'sciacallo-mannaro': { Componente: AzioneResuscita, perAttore: true, props: { potereSlug: 'sciacallo-mannaro-resuscita', ruoloSlugAttore: 'sciacallo-mannaro' } },
-  strega: { Componente: AzioneStrega, props: {} },
+  strega: { Componente: AzioneStrega, perAttore: true, props: { ruoloSlugAttore: 'strega' } },
   apprendista: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'apprendista', tipoLegame: 'apprendista', etichetta: 'Chi seguire come maestro' } },
   cavaliere: { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'cavaliere', tipoLegame: 'cavaliere', etichetta: 'Per chi sacrificarsi' } },
   'figlia-dei-lupi': { Componente: AzioneLegame, perAttore: true, props: { ruoloSlugAttore: 'figlia-dei-lupi', tipoLegame: 'figlia-dei-lupi', etichetta: 'Chi scegliere come genitore' } },

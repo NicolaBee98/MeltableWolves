@@ -115,3 +115,21 @@ test('cambiare o togliere il bersaglio della pozione mortale annulla la morte co
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: true }))
   expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
 })
+
+test('Strega e Mimo-Strega hanno pozioni separate: la pozione usata dall\'una non blocca l\'altra', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const due = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'strega', vivo: true, condizioni: [], poteriUsati: ['strega-pozione-vitale'] },
+    { id: '3', nome: 'Mia', ruoloSlug: 'strega', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'mimo', targetId: '1' } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const { unmount } = render(<AzioneStrega giocatori={due} aggiornaGiocatore={aggiornaGiocatore} attoreId="1" />)
+  expect(screen.getByText('Pozione vitale già utilizzata in questa partita.')).toBeInTheDocument()
+  unmount()
+
+  render(<AzioneStrega giocatori={due} aggiornaGiocatore={aggiornaGiocatore} attoreId="3" />)
+  expect(screen.queryByText('Pozione vitale già utilizzata in questa partita.')).not.toBeInTheDocument()
+  await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { poteriUsati: ['strega-pozione-vitale'] })
+})

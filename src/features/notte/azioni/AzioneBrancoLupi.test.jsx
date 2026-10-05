@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneBrancoLupi } from './AzioneBrancoLupi'
@@ -88,6 +88,22 @@ test('il branco stordito dall\'Ubriaco non può cacciare quella notte', () => {
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
 })
 
+// la parità del Berserker è scritta sui giocatori: serve uno stato reale
+function BrancoConStato({ iniziali, onAggiorna }) {
+  const [giocatori, setGiocatori] = useState(iniziali)
+  return (
+    <AzioneBrancoLupi
+      giocatori={giocatori}
+      aggiornaGiocatore={(id, patch) => {
+        onAggiorna?.(id, patch)
+        setGiocatori((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)))
+      }}
+      round={2}
+      ruoli={['lupo-mannaro']}
+    />
+  )
+}
+
 test('Berserker sbranato con due lupi alla stessa distanza: il narratore sceglie quale muore', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
@@ -96,10 +112,10 @@ test('Berserker sbranato con due lupi alla stessa distanza: il narratore sceglie
     { id: '2', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
     { id: '3', nome: 'Ezio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro']} />)
+  render(<BrancoConStato iniziali={giocatori} onAggiorna={aggiornaGiocatore} />)
 
   await user.click(screen.getByRole('button', { name: 'Bruno' }))
-  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false }))
   expect(screen.getByText(/due lupi alla stessa distanza/i)).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Ezio' }))
@@ -142,6 +158,10 @@ test('con il Progenitore vivo e il potere non ancora usato: le chip restano tutt
   // la chip di Anna cambia stile (chip--trasformato), il pulsante diventa "Sbrana normalmente"
   expect(screen.getByRole('button', { name: 'Anna' })).toHaveClass('chip--trasformato')
   expect(screen.getByRole('button', { name: 'Sbrana normalmente' })).toBeInTheDocument()
+  // l'uscita non è evidenziata e un messaggio dice chi verrà trasformato
+  expect(screen.getByRole('button', { name: 'Sbrana normalmente' })).not.toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: 'Sbrana normalmente' })).not.toHaveClass('chip--trasformato')
+  expect(screen.getByText(/Anna verrà trasformato in Lupo Mannaro/)).toBeInTheDocument()
 })
 
 test('scegliere un bersaglio diverso mentre la trasformazione è attiva annulla la trasformazione (torna Lupo Mannaro) e sbrana normalmente il nuovo', async () => {
@@ -182,12 +202,12 @@ test('la schermata di parità del Berserker ha un\'uscita: "Annulla" torna alla 
     { id: '2', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
     { id: '3', nome: 'Ezio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro']} />)
+  render(<BrancoConStato iniziali={giocatori} onAggiorna={aggiornaGiocatore} />)
 
   await user.click(screen.getByRole('button', { name: 'Bruno' }))
   await user.click(screen.getByRole('button', { name: /annulla/i }))
 
-  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ vivo: false }))
   expect(screen.getByRole('button', { name: 'Bruno' })).toBeInTheDocument()
 })
 

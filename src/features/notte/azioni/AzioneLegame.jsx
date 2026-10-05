@@ -1,5 +1,11 @@
 import { MARCATORE_LEGAME_EREDITATO } from '../../../data/risoluzioneNotte'
 
+const AVVISO_LEGAME = {
+  apprendista: 'Non hai scelto il maestro',
+  cavaliere: 'Non hai scelto chi proteggere',
+  'figlia-dei-lupi': 'Non hai scelto il genitore',
+}
+
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
 // (principio generale): il legame è permanente per tutta la partita una
 // volta stabilito (pag. 9-10), ma finché siamo nel passo di questa notte il
@@ -60,6 +66,8 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
           </button>
         ))}
       </div>
+      {/* non bloccante: il narratore può voler lasciare Avanti senza scelta */}
+      {!bersaglioAttuale && <p className="avviso">⚠️ {AVVISO_LEGAME[tipoLegame]}: il legame andrà perso.</p>}
     </div>
   )
 }

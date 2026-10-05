@@ -33,7 +33,7 @@ function senzaUltimiUsi(usi, n) {
 // potere). Gli effetti collaterali (Berserker, crepacuore...) si attribuiscono al
 // colpo del Berserker, o al primo. Come annullaMorte senza snapshot, disfare un
 // colpo ricostruito ripristina i campi toccati senza la catena in memoria.
-const CAMPI_NON_DEL_COLPO = ['usiNotte', 'vendettaCucciolo']
+const CAMPI_NON_DEL_COLPO = ['usiNotte', 'vendettaCucciolo', 'attesaLupoBerserker']
 function colpiDaStato(ingresso, giocatori, ruoli) {
   if (!ingresso || usiStanotte(giocatori, ruoli) === 0) return []
   const modifiche = giocatori.flatMap((g) => {
@@ -79,8 +79,16 @@ function colpiDaStato(ingresso, giocatori, ruoli) {
 }
 
 export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
-  // { targetId, sostituisce }: parità del Berserker in attesa della scelta del narratore
-  const [attesaLupo, setAttesaLupo] = useState(null)
+  // parità del Berserker in attesa della scelta del narratore: scritta sul
+  // Berserker (attesaLupoBerserker: {indice}) invece che in uno stato locale, così
+  // sopravvive a un ricaricamento e NightSequencer può bloccare Avanti finché
+  // non si sceglie
+  const inParita = giocatori.find((g) => g.attesaLupoBerserker)
+  const attesaLupo = inParita ? { targetId: inParita.id, indice: inParita.attesaLupoBerserker.indice ?? undefined } : null
+  const setAttesaLupo = (valore) => {
+    if (inParita) aggiornaGiocatore(inParita.id, { attesaLupoBerserker: undefined })
+    if (valore) aggiornaGiocatore(valore.targetId, { attesaLupoBerserker: { indice: valore.indice ?? null } })
+  }
   const bersaglioInAttesaDiLupo = attesaLupo?.targetId
   // i colpi di questa notte (uno solo, o due con la vendetta del Cucciolo),
   // in ordine: restano TUTTI modificabili finché non si preme "Avanti".
@@ -226,6 +234,8 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   function applica(tipo, targetId, berserkerLupoSceltoId, sostituisce = colpi.length >= limite) {
     const indice = sostituisce === false ? colpi.length : sostituisce === true ? colpi.length - 1 : sostituisce
     const base = sostituisce === false ? giocatori : baseDi(indice)
+    // prima di scrivere la morte: lo snapshot per annullaMorte non deve contenere la scelta in sospeso
+    setAttesaLupo(null)
     if (sostituisce !== false) disfaEffetti(colpi[indice])
     const consumaVendetta = vendettaAttiva && indice >= 1
     const patches = calcolaPatch(tipo, targetId, berserkerLupoSceltoId, base)
@@ -247,7 +257,6 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     else if (consumaVendetta) {
       giocatori.filter((g) => ruoli.includes(g.ruoloSlug)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
     }
-    setAttesaLupo(null)
   }
 
   // Berserker: se i lupi vivi più vicini sono due (parità di distanza a
@@ -287,10 +296,11 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   }
 
   if (attesaLupo) {
+    // nell'ordine dei giocatori al tavolo, non in quello di distanza
     const candidatiLupo = berserkerLupiCandidati(
       attesaLupo.indice === undefined ? giocatori : baseDi(attesaLupo.indice),
       bersaglioInAttesaDiLupo,
-    )
+    ).sort((a, b) => giocatori.findIndex((g) => g.id === a.id) - giocatori.findIndex((g) => g.id === b.id))
     return (
       <div className="scelta-giocatore__chips" role="group" aria-label="Quale lupo uccide il Berserker">
         <p>Il Berserker ha due lupi alla stessa distanza: quale muore lottando con lui?</p>
@@ -343,13 +353,17 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
       {avvisiMorsi.map((a) => (
         <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
       ))}
+      {colpi.filter((c) => c.tipo === 'trasforma').map((c) => (
+        <p key={c.targetId} className="avviso">
+          🐺 {giocatori.find((g) => g.id === c.targetId)?.nome} verrà trasformato in Lupo Mannaro.
+        </p>
+      ))}
       {progenitorePuoTrasformare &&
         trasformabili.map(({ c, i }) => (
           <button
             key={c.targetId}
             type="button"
-            className={c.tipo === 'trasforma' ? 'chip--trasformato' : ''}
-            aria-pressed={c.tipo === 'trasforma'}
+            // "Sbrana normalmente" è un'uscita, non lo stato attivo: non va evidenziato
             onClick={() => toggleTrasformazione(i)}
           >
             {c.tipo === 'trasforma'

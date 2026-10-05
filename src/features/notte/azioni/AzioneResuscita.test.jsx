@@ -97,7 +97,7 @@ test('cambiare bersaglio sposta il marcatore senza toccare vivo (nessuna catena 
   const aggiornaGiocatore = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: [] },
-    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 2 },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 1 },
     { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: false, condizioni: [] },
   ]
   render(
@@ -123,7 +123,7 @@ test('cliccare di nuovo il bersaglio lo deseleziona: il marcatore si toglie e il
   const aggiornaGiocatore = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: [] },
-    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 2 },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 1 },
   ]
   render(
     <AzioneResuscita
@@ -142,4 +142,17 @@ test('cliccare di nuovo il bersaglio lo deseleziona: il marcatore si toglie e il
   expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { resuscitaAllAlba: undefined })
   expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+})
+
+test('i morti di questa notte non sono candidati (solo morti dei giorni/notti precedenti, rogo del giorno prima incluso)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Anna', vivo: false, causaMorte: 'notte', mortoNotte: 3, condizioni: [] },
+    { id: '3', nome: 'Bruno', vivo: false, causaMorte: 'notte', mortoNotte: 2, condizioni: [] },
+    { id: '4', nome: 'Carla', vivo: false, causaMorte: 'rogo', mortoNotte: 3, condizioni: [] },
+  ]
+  render(<AzioneResuscita giocatori={giocatori} aggiornaGiocatore={() => {}} potereSlug="guaritore-resuscita" ruoloSlugAttore="guaritore" round={3} />)
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Bruno' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Carla' })).toBeInTheDocument()
 })

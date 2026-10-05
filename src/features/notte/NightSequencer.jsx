@@ -464,7 +464,6 @@ export function NightSequencer({
   }
 
   const step = steps[indiceValido]
-  const ultimoPasso = indiceValido === steps.length - 1
 
   // vista "come se" le selezioni di ruolo pendenti (non ancora confermate)
   // fossero già assegnate: così, quando un passo richiede sia "chi ha
@@ -472,6 +471,15 @@ export function NightSequencer({
   // e modificabili insieme invece che il primo sparire per far posto al
   // secondo (vedi conSelezioniRuoloApplicate più sotto e aggiornaGiocatoreConCommit)
   const giocatoriConPendenti = conSelezioniRuoloApplicate(giocatori)
+  const ciSonoSelezioniDaConfermare = Object.values(selezioniRuolo).some((ids) => ids.length > 0)
+  // i passi DOPO il commit delle selezioni pendenti: assegnare i lupi nel passo
+  // "Lupo Mannaro" fa entrare in lista il Branco, che altrimenti (se quel passo
+  // è l'ultimo) verrebbe saltato con "È giorno"
+  const stepsDopoCommit = ciSonoSelezioniDaConfermare
+    ? conPassoCorrente(passiNotte(ruoliSelezionati, round, giocatoriConPendenti, quantita, { promemoriaRuoliMorti }), idPasso)
+    : steps
+  const indiceDopoCommit = Math.max(0, stepsDopoCommit.findIndex((s) => s.id === step.id))
+  const ultimoPasso = indiceDopoCommit === stepsDopoCommit.length - 1
 
   // di norma i coinvolti sono solo i ruoli di questo passo (step.ruoli); un
   // passo può allargare la vista con ruoliMostraCoinvolti (es. "Lupo
@@ -673,6 +681,9 @@ export function NightSequencer({
   // l'assegnazione: meglio lasciare un ruolo scoperto che bloccare la partita
   // col Ladro la carta Mimo può essere tra le due carte in più: il passo si
   // può lasciare senza assegnarla (sarà il Ladro a sceglierla, o nessuno)
+  // scelta obbligatoria in sospeso (parità del Berserker, scritta sul giocatore:
+  // sopravvive al ricaricamento): niente Avanti finché non si decide
+  const sceltaObbligatoria = giocatori.some((g) => g.attesaLupoBerserker)
   const assegnazioneIncompleta =
     ruoliPendenti.length > 0 &&
     selezionatiPendenti < capacitaPendente &&
@@ -708,8 +719,6 @@ export function NightSequencer({
     // senza mai chiederlo al narratore
     assegnaGuardiaMannaraCasuale(giocatoriConRuoli, aggiorna, quantita)
   }
-
-  const ciSonoSelezioniDaConfermare = Object.values(selezioniRuolo).some((ids) => ids.length > 0)
 
   // annulla per davvero un'assegnazione già confermata di questo stesso
   // passo (il narratore ha sbagliato/ripensato chi ha la carta, prima di
@@ -860,34 +869,40 @@ export function NightSequencer({
   }
 
   function vaiAvanti() {
-    if (assegnazioneIncompleta) return
+    if (assegnazioneIncompleta || sceltaObbligatoria) return
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
-    commitMimoSeSelezionato()
     if (ciSonoSelezioniDaConfermare) {
       confermaSelezioniRestandoSulPasso()
+      // il Mimo appena assegnato con la chip, senza carta da imitare, diventa
+      // Villico adesso (dopo la conferma: altrimenti la conferma lo rimette Mimo)
+      commitMimoSeSelezionato(giocatoriConPendenti)
       // resta sul passo solo se ha un'azione da poter usare subito (es.
       // Veggente appena assegnato): un passo "informativo" (solo
       // riconoscimento, es. il branco) non ha nulla da fare qui, quindi
       // andrebbe avanti da solo invece di mostrare "Nessuna azione
       // richiesta" e richiedere un secondo click su Avanti
       if (step.tipo === 'azione' && !mostraAzione) return
+    } else {
+      commitMimoSeSelezionato()
     }
     registraEventiAvanti()
-    vaiAlPasso(steps[indiceValido + 1].id)
+    vaiAlPasso(stepsDopoCommit[indiceDopoCommit + 1].id)
   }
 
   function passaAllaNotteSuccessiva() {
-    if (assegnazioneIncompleta) return
+    if (assegnazioneIncompleta || sceltaObbligatoria) return
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     const [aggiorna, listaAggiornata] = creaTracciatore()
-    commitMimoSeSelezionato(giocatori, aggiorna)
     if (ciSonoSelezioniDaConfermare) {
       commitSelezioniRuolo(conSelezioniRuoloApplicate(listaAggiornata()), aggiorna)
       setSelezioniRuolo({})
+      commitMimoSeSelezionato(listaAggiornata(), aggiorna)
       // un passo con un'azione resta sul passo: l'azione si può usare subito
       if (step.tipo === 'azione' && !mostraAzione) return
+    } else {
+      commitMimoSeSelezionato(giocatori, aggiorna)
     }
     registraEventiAvanti()
     autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
@@ -929,6 +944,29 @@ export function NightSequencer({
   const puoTornareAiGiocatori =
     onTornaAiGiocatori && round === 1 && indiceValido === 0 && storico.length === 0 && !modificato
 
+  // Apprendista vivo il cui maestro è morto con ruolo ancora ignoto (es. Suocera):
+  // eredita solo quando il ruolo del maestro viene rivelato
+  const maestriInAttesa = giocatori
+    .filter((g) => g.vivo)
+    .flatMap((g) => [g.legame, g.legameMimo].filter((l) => l?.tipo === 'apprendista').map((l) => ({ g, l })))
+    .map(({ g, l }) => ({ apprendista: g, maestro: giocatori.find((x) => x.id === l.targetId) }))
+    .filter(({ maestro }) => maestro && !maestro.vivo && !maestro.ruoloSlug)
+
+  // il totale stimato all'ingresso può essere in eccesso (es. il Pifferaio non ha ipnotizzato
+  // nessuno: niente passo "ipnotizzati"): sull'ultimo passo reale coincide con quello corrente
+  const totalePassi =
+    ultimoPasso && !assegnazioneIncompleta
+      ? fatti.length + 1
+      : Math.max(ingresso?.totale ?? 0, fatti.length + stepsDopoCommit.length - indiceDopoCommit)
+  const indietroDisabilitato = storico.length === 0 && !modificato && !ciSonoSelezioniDaConfermare && !mimoRuoloScelto
+  // il motivo si mostra a schermo (un tooltip non si vede sul touch)
+  const motivoIndietro =
+    fatti.length > 0 || indiceValido > 0
+      ? 'Dopo un ricaricamento non si può tornare ai passi già conclusi.'
+      : round > 1
+        ? 'Primo passo della notte: non si torna alla notte precedente.'
+        : 'Nulla da annullare in questo passo.'
+
   return (
     <section className="night-sequencer">
       {puoTornareAiGiocatori && (
@@ -938,8 +976,14 @@ export function NightSequencer({
       )}
       <p className="night-sequencer__notte">Notte {round}</p>
       <p className="night-sequencer__passo">
-        Passo {fatti.length + 1} di {Math.max(ingresso?.totale ?? 0, fatti.length + steps.length - indiceValido)}
+        Passo {fatti.length + 1} di {totalePassi}
       </p>
+      {maestriInAttesa.map(({ apprendista, maestro }) => (
+        <p key={apprendista.id + maestro.id} className="avviso">
+          ⏳ {apprendista.nome} (Apprendista) è in attesa: il maestro {maestro.nome} è morto con ruolo ignoto, erediterà
+          quando ne verrà rivelato il ruolo.
+        </p>
+      ))}
       {maledetto && (
         <p className="night-sequencer__maledizione">
           🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.
@@ -1069,33 +1113,28 @@ export function NightSequencer({
           {capacitaPendente - selezionatiPendenti === 1 ? 'giocatore' : 'giocatori'} prima di continuare.
         </p>
       )}
+      {sceltaObbligatoria && (
+        <p className="avviso">⚠️ Scegli quale lupo muore lottando con il Berserker prima di continuare.</p>
+      )}
       </div>
 
       <div className="night-sequencer__nav">
-        <button
-          type="button"
-          onClick={vaiIndietro}
-          disabled={storico.length === 0 && !modificato && !ciSonoSelezioniDaConfermare && !mimoRuoloScelto}
-          title={
-            storico.length === 0 && !modificato && !ciSonoSelezioniDaConfermare && !mimoRuoloScelto
-              ? indiceValido > 0
-                ? 'Dopo un ricaricamento non si può tornare ai passi già conclusi'
-                : 'Nulla da annullare in questo passo'
-              : undefined
-          }
-        >
+        <button type="button" onClick={vaiIndietro} disabled={indietroDisabilitato}>
           Indietro
         </button>
-        {ultimoPasso ? (
-          <PulsanteTieni onConferma={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta}>
+        {/* con l'assegnazione ancora incompleta non si sa se i ruoli che si
+            stanno assegnando faranno comparire altri passi (il Branco): niente "È giorno" */}
+        {ultimoPasso && !assegnazioneIncompleta ? (
+          <PulsanteTieni onConferma={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta || sceltaObbligatoria}>
             È giorno nel villaggio
           </PulsanteTieni>
         ) : (
-          <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta}>
+          <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta || sceltaObbligatoria}>
             Avanti
           </button>
         )}
       </div>
+      {indietroDisabilitato && <p className="night-sequencer__tipo">Indietro non disponibile: {motivoIndietro}</p>}
     </section>
   )
 }
