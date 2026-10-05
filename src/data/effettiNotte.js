@@ -16,11 +16,16 @@ export const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
 // sceglierli si traduce in "nessuno muore questa notte" con un avviso.
 export const RUOLI_NON_SELEZIONABILI_DAL_BRANCO = ['cortigiana']
 
-// Nano e Criceto Malvagio non possono morire di notte per il morso del
-// Chupacabra (libretto pag. 12, 18), a differenza della Cortigiana che ne è
-// immune solo per il branco: possono comunque morire per la pozione mortale
-// della Strega (uccidiPatch non li esclude) o al rogo.
-export const RUOLI_IMMUNI_AL_CHUPACABRA = ['nano', 'criceto-malvagio']
+// Nano e Criceto Malvagio non possono morire di NOTTE per nessuna causa
+// (branco, Chupacabra, pozione mortale della Strega, Berserker, crepacuore
+// notturno...; libretto pag. 12, 18): uccidiPatch li esclude, quindi basta
+// quella. Di GIORNO ogni morte è valida (rogo, Boia, Scemo, Alchimista...).
+export const RUOLI_IMMUNI_ALLA_NOTTE = ['nano', 'criceto-malvagio']
+
+// testo a schermo quando un colpo notturno non ha effetto per questa immunità
+export function avvisoImmuneNotte(giocatore) {
+  return `${giocatore.ruoloSlug === 'nano' ? 'Il Nano' : 'Il Criceto Malvagio'} non può morire di notte`
+}
 
 // il/i lupi vivi più vicini al Berserker: normalmente uno solo, ma a parità
 // di distanza (un lupo a sinistra e uno a destra) ne ritorna due, e tocca al
@@ -215,6 +220,7 @@ export function propagaUnzione(giocatori, idMorto) {
 // (es. la Cortigiana muore solo se il cliente è sbranato dal branco o dal
 // Chupacabra, non se la Strega lo avvelena, vedi risolviCortigiana).
 export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoDa } = {}) {
+  if (RUOLI_IMMUNI_ALLA_NOTTE.includes(giocatore.ruoloSlug)) return null
   if (!ignoraProtezione && giocatore.condizioni.includes('protetto')) return null
   // L'Antico ha due vite: se perde la prima di notte sopravvive "senza
   // conseguenze" (pag. 16), ma NON in silenzio: resta 'lantico' con il flag
@@ -227,8 +233,18 @@ export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoD
   return { vivo: false, causaMorte: 'notte', mortoNotte: round, mortoDa }
 }
 
+// aggiunge un potere a poteriUsati senza duplicati
+export function conPotereUsato(poteriUsati, potere) {
+  const p = poteriUsati ?? []
+  return p.includes(potere) ? p : [...p, potere]
+}
+
+// Il resuscitato torna libero da ogni innamoramento (sciolto alla morte) e
+// l'Alchimista, il cui potere è una passiva alla morte, si ricarica.
+// Il partner ancora vivo si libera con liberaPartnerDi (vedi usePartita).
 export function resuscitaPatch(giocatore, round) {
   if (giocatore.vivo) return null
+  const poteri = giocatore.poteriUsati ?? []
   return {
     vivo: true,
     causaMorte: undefined,
@@ -236,9 +252,25 @@ export function resuscitaPatch(giocatore, round) {
     mortoDa: undefined,
     // la Cortigiana non deve ritrovarsi con una visita di prima della morte
     visitaNotturna: null,
-    condizioni: giocatore.condizioni.includes('resuscitato') ? giocatore.condizioni : [...giocatore.condizioni, 'resuscitato'],
+    condizioni: [...new Set([...giocatore.condizioni.filter((c) => c !== 'innamorato'), 'resuscitato'])],
+    innamoratiCon: [],
+    ...(poteri.includes('alchimista-esplosione') && { poteriUsati: poteri.filter((p) => p !== 'alchimista-esplosione') }),
     resuscitatoNotte: round,
   }
+}
+
+// Il resuscitato non è più innamorato: chi era suo partner ed è ancora vivo
+// perde l'innamoramento, a meno che non abbia altri partner. `partner` sono
+// gli innamoratiCon del resuscitato PRIMA della resurrezione (senza: tutti
+// gli innamorati vivi, stessa regola di applicaCrepacuore).
+export function liberaPartnerDi(giocatori, idResuscitato, partner = []) {
+  return giocatori.map((g) => {
+    if (g.id === idResuscitato || !g.vivo || !g.condizioni.includes('innamorato')) return g
+    if (partner.length && !partner.includes(g.id)) return g
+    const rimasti = (g.innamoratiCon ?? []).filter((p) => p !== idResuscitato)
+    if (rimasti.length) return { ...g, innamoratiCon: rimasti }
+    return { ...g, condizioni: g.condizioni.filter((c) => c !== 'innamorato'), innamoratiCon: [] }
+  })
 }
 
 export function usatoStanotte(giocatori, ruoli, potereSlug) {
@@ -320,6 +352,8 @@ export function applicaCrepacuore(giocatori, idAppenaMorto) {
   const giorno = roundMorteDiurna(morto)
   return giocatori.map((g) => {
     if (g.id === idAppenaMorto || !g.vivo || !eIlSuoPartner(g)) return g
+    // il crepacuore notturno non uccide Nano e Criceto Malvagio (di giorno sì)
+    if (giorno === undefined && RUOLI_IMMUNI_ALLA_NOTTE.includes(g.ruoloSlug)) return g
     if (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined) return anticoSopravvive(g, morto, giorno)
     // mortoGiorno: il lutto di una morte diurna resta "di giorno" (Boia all'alba, Antico)
     return { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte, mortoGiorno: giorno }

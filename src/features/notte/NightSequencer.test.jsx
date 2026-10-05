@@ -72,6 +72,22 @@ test('una volta avanzati oltre il primo passo, "Torna ai giocatori" non è più 
   expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
 })
 
+test('dopo un ricaricamento in notte 1 "Torna ai giocatori" non riappare se un passo è già stato concluso (anche se il suo passo è sparito dalla lista)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'veggente', condizioni: [] },
+    { id: '2', nome: 'Piero', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  // stato salvato dopo un passo concluso (es. Mimo che ha copiato la carta e non è più nella lista):
+  // il Veggente è all'indice 0 ma `fatti` ricorda il passo già lasciato
+  localStorage.setItem(
+    'meltable-wolves-notte',
+    JSON.stringify({ round: 1, stepIndex: 0, ingresso: { round: 1, id: 'veggente', giocatori, quantita: {}, titolari: ['1'], fatti: ['mimo'], totale: 2 } }),
+  )
+  render(<NightSequencerConNotte ruoliSelezionati={['veggente']} giocatori={giocatori} aggiornaGiocatore={() => {}} onTornaAiGiocatori={() => {}} />)
+  expect(screen.getByRole('heading', { name: /veggente/i })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /torna ai giocatori/i })).not.toBeInTheDocument()
+})
+
 test('un mazzo di solo Villico non mostra alcun passo: si va dritti all\'alba e Anna diventa Villico da sola', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [] }]
@@ -2162,4 +2178,23 @@ test('"Le Guardie si riconoscono": insieme Guardie, Guardia Mannara, Mimo-guardi
   )
   expect(screen.getByRole('heading', { name: 'Le Guardie si riconoscono' })).toBeInTheDocument()
   expect(sottotitolo()).toBe('Vivi: Anna, Bea, Cleo (Mimo), Dino')
+})
+
+test('notte 1: il Chupacabra non assegnato può andare al giocatore sbranato nella stessa notte (niente softlock)', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    ['Anna', 'Bruno', 'Carla', 'Dino'].map((nome, i) => ({ id: String(i + 1), nome, vivo: true, condizioni: [] })),
+    ['lupo-mannaro', 'chupacabra', 'villico'],
+    { 'lupo-mannaro': 1, chupacabra: 1, villico: 2 },
+  )
+  await user.click(within(screen.getByRole('group', { name: /chi ha questa carta/i })).getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Bruno' }))
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+
+  expect(screen.getByRole('heading', { name: /chupacabra/i })).toBeInTheDocument()
+  const chip = within(screen.getByRole('group', { name: /chi ha questa carta/i })).getByRole('button', { name: 'Bruno' })
+  await user.click(chip)
+  expect(screen.getByRole('button', { name: /Avanti|È giorno/ })).toBeEnabled()
+  expect(h.stato.giocatori.find((g) => g.id === '2').vivo).toBe(false)
 })

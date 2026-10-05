@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { aggiungiCondizionePatch, uccidiPatch } from '../../../data/effettiNotte'
+import { aggiungiCondizionePatch, uccidiPatch, avvisoImmuneNotte, RUOLI_IMMUNI_ALLA_NOTTE } from '../../../data/effettiNotte'
 import { annullaColpo } from './annullaColpo'
 
 // le pozioni sono uniche per l'intera partita (non per notte): una volta
@@ -83,12 +83,16 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
     setTargetMortale(targetId)
     const target = giocatori.find((g) => g.id === targetId)
     // la pozione mortale ignora la protezione: non è bloccata da "protetto"
-    const patch = target && uccidiPatch(target, round, { ignoraProtezione: true })
+    const patch = target && uccidiPatch(target, round, { ignoraProtezione: true, mortoDa: 'strega' })
     setColpoMortaleApplicato(Boolean(patch))
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     } else {
-      setAvvisoMortale(`La pozione non ha avuto alcun effetto su ${target.nome}.`)
+      setAvvisoMortale(
+        RUOLI_IMMUNI_ALLA_NOTTE.includes(target.ruoloSlug)
+          ? `${avvisoImmuneNotte(target)}: la pozione non ha alcun effetto su ${target.nome}.`
+          : `La pozione non ha avuto alcun effetto su ${target.nome}.`,
+      )
     }
     segnaPotereUsato('strega-pozione-mortale')
   }

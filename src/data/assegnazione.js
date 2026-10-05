@@ -12,6 +12,11 @@ export function conRuolo(storia, slug) {
   return slug && !s.includes(slug) ? [...s, slug] : s
 }
 
+// morto di notte nel round corrente (non al rogo: quello è del giorno prima)
+export function mortoStanotte(g, round) {
+  return !g.vivo && round !== undefined && g.mortoNotte === round && g.causaMorte !== 'rogo'
+}
+
 export function contaAssegnati(giocatori, slug) {
   // conta su "storiaRuoli" (mai sottratto), non su ruoloSlug corrente: un
   // ruolo già assegnato non torna mai "da assegnare", anche se chi lo teneva

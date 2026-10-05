@@ -2,6 +2,7 @@ import {
   aggiungiCondizionePatch,
   uccidiPatch,
   resuscitaPatch,
+  liberaPartnerDi,
   usatoStanotte,
   segnaUsoStanotte,
   applicaCrepacuore,
@@ -59,6 +60,7 @@ test('resuscitaPatch riporta in vita un giocatore morto e marca la notte della r
     mortoDa: undefined,
     visitaNotturna: null,
     condizioni: ['resuscitato'],
+    innamoratiCon: [],
     resuscitatoNotte: 3,
   })
 })
@@ -86,6 +88,28 @@ test('crepacuore per un rogo non eredita mortoNotte (niente riannuncio come mort
     { id: '2', vivo: true, condizioni: ['innamorato'] },
   ]
   expect(applicaCrepacuore(giocatori, '1')[1]).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoNotte: undefined })
+})
+
+test('resuscitaPatch: l\'Alchimista si ricarica (passiva alla morte), senza toccare altri poteri', () => {
+  const patch = resuscitaPatch({ vivo: false, condizioni: [], poteriUsati: ['alchimista-esplosione', 'alchimista-esplosione', 'altro'] }, 3)
+  expect(patch.poteriUsati).toEqual(['altro'])
+})
+
+test('resuscitaPatch: il resuscitato non è più innamorato', () => {
+  const patch = resuscitaPatch({ vivo: false, condizioni: ['innamorato', 'protetto'], innamoratiCon: ['b'] }, 3)
+  expect(patch.condizioni).toEqual(['protetto', 'resuscitato'])
+  expect(patch.innamoratiCon).toEqual([])
+})
+
+test('liberaPartnerDi: il partner vivo perde l\'innamoramento, salvo altri partner', () => {
+  const lista = [
+    { id: 'a', vivo: true, condizioni: [] },
+    { id: 'b', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['a'] },
+    { id: 'c', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['a', 'd'] },
+  ]
+  const r = liberaPartnerDi(lista, 'a', ['b', 'c'])
+  expect(r[1]).toMatchObject({ condizioni: [], innamoratiCon: [] })
+  expect(r[2]).toMatchObject({ condizioni: ['innamorato'], innamoratiCon: ['d'] })
 })
 
 test('resuscitaPatch ritorna null se il giocatore è già vivo', () => {
@@ -466,4 +490,23 @@ describe("applicaCrepacuore e L'Antico", () => {
     expect(g).toMatchObject({ vivo: false, causaMorte: 'crepacuore', mortoGiorno: 3 })
     expect(g.mortoNotte).toBeUndefined()
   })
+})
+
+test.each(['nano', 'criceto-malvagio'])('%s non muore di notte: uccidiPatch (Strega, Chupacabra, Berserker...) non ha effetto, nemmeno ignorando la protezione', (ruoloSlug) => {
+  const g = { id: '1', ruoloSlug, vivo: true, condizioni: [] }
+  expect(uccidiPatch(g, 2)).toBeNull()
+  expect(uccidiPatch(g, 2, { ignoraProtezione: true, mortoDa: 'strega' })).toBeNull()
+})
+
+test.each(['nano', 'criceto-malvagio'])('crepacuore: %s non muore per un lutto notturno, ma sì per uno diurno (Boia)', (ruoloSlug) => {
+  const lista = (morto) => [
+    { id: '1', vivo: false, condizioni: ['innamorato'], ...morto },
+    { id: '2', ruoloSlug, vivo: true, condizioni: ['innamorato'] },
+  ]
+  expect(applicaCrepacuore(lista({ causaMorte: 'notte', mortoNotte: 2, mortoDa: 'branco' }), '1')[1].vivo).toBe(true)
+  expect(applicaCrepacuore(lista({ causaMorte: 'colpo', mortoDa: 'boia', mortoGiorno: 3 }), '1')[1].vivo).toBe(false)
+})
+
+test('uccidiPatch: la pozione mortale della Strega registra mortoDa', () => {
+  expect(uccidiPatch({ ruoloSlug: 'villico', condizioni: [] }, 2, { ignoraProtezione: true, mortoDa: 'strega' })).toMatchObject({ mortoDa: 'strega' })
 })

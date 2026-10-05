@@ -706,3 +706,18 @@ describe('Mimo × Progenitore: poteri di trasformazione separati', () => {
     expect(screen.queryByRole('button', { name: /progenitore trasforma/i })).not.toBeInTheDocument()
   })
 })
+
+test('il Progenitore non può trasformare un lupo (né se stesso): nessun pulsante e il potere resta intatto', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Luca', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoli={['lupo-mannaro', 'lupo-mannaro-progenitore']} />)
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(screen.queryByRole('button', { name: /progenitore trasforma/i })).not.toBeInTheDocument()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', { poteriUsati: ['progenitore-trasforma'] })
+})

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ROLES } from '../../data/roles'
-import { eMimoCopiante } from '../../data/assegnazione'
+import { eMimoCopiante, mortoStanotte } from '../../data/assegnazione'
 import { RuoloIllustrazione } from '../../components/RuoloIcona'
 
 // Guardia e Guardia Mannara sono la stessa carta agli occhi del narratore
@@ -27,6 +27,7 @@ export function AssegnaRuolo({
   vivoAIngresso = (g) => g.vivo,
   domanda = 'Chi ha questa carta?',
   illustrazioneSeparata = true,
+  round,
 }) {
   const [avviso, setAvviso] = useState(null)
   const modalitaGuardie = ruoli.length > 1 && ruoli.every((s) => GRUPPO_GUARDIE.includes(s))
@@ -61,8 +62,10 @@ export function AssegnaRuolo({
   )
   const mimiCopianti = giocatori.filter((g) => eMimoCopiante(g) && gruppoRuoli.includes(g.ruoloSlug)).length
   const selezionatiVisivi = [...pendenti, ...titolari.map((g) => g.id)]
+  // chi è morto in questa stessa notte (sbranato prima di questo passo) resta
+  // assegnabile: il narratore non sa ancora che è morto (lo saprà all'alba)
   const candidati = giocatori.filter(
-    (g) => vivoAIngresso(g) && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),
+    (g) => (vivoAIngresso(g) || mortoStanotte(g, round)) && (titolari.some((t) => t.id === g.id) || (!g.ruoloSlug && (pendenti.includes(g.id) || !tuttiIPendenti.includes(g.id)))),
   )
 
   function cambiaVariante(slug) {

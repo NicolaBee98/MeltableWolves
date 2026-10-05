@@ -38,14 +38,18 @@ export function AzioneCondizioneDoppia({
     () => new Set(viviTutti.filter((g) => base.find((x) => x.id === g.id)?.condizioni.includes(condizione)).map((g) => g.id)),
   )
   const vivi = escludiGiaCondizionati ? viviTutti.filter((g) => !condizionatiAllIngresso.has(g.id)) : viviTutti
+  // con meno di 2 non ipnotizzati rimasti il Pifferaio ne sceglie uno solo (vince
+  // se all'alba tutti i vivi sono ipnotizzati); con 0 il passo è solo informativo.
+  // Il Sacerdote resta a 2: con un solo candidato non può unire.
+  const massimo = escludiGiaCondizionati ? Math.min(2, vivi.length) : 2
   // coppia già scelta in questo passo: dalla scelta salvata sull'attore (Sacerdote) o,
   // senza, da chi ha la condizione ora e non all'ingresso (Pifferaio)
   const [coppiaIniziale] = useState(() => {
     const salvata = attore?.sceltaNotte?.[condizione]
-    if (salvata?.length === 2) return salvata
+    if (salvata?.length === massimo) return salvata
     if (attoreId) return null
     const nuovi = giocatori.filter((g) => g.condizioni.includes(condizione) && !condizionatiAllIngresso.has(g.id)).map((g) => g.id)
-    return nuovi.length === 2 ? nuovi : null
+    return nuovi.length === massimo && massimo > 0 ? nuovi : null
   })
   const [coppiaSessione, setCoppiaSessione] = useState(coppiaIniziale)
 
@@ -105,7 +109,7 @@ export function AzioneCondizioneDoppia({
   }
 
   function confermaScelta(idA, idB) {
-    const coppia = [idA, idB]
+    const coppia = [idA, idB].filter(Boolean)
     // toglie la condizione a chi era stato scelto in una coppia precedente
     // di QUESTA sessione (non a chi la aveva già da prima) e non fa più
     // parte della nuova coppia
@@ -127,8 +131,11 @@ export function AzioneCondizioneDoppia({
     }
   }
 
+  if (massimo === 0) return <p>Nessun giocatore da ipnotizzare: premi Avanti.</p>
+
   return (
     <SceltaDoppiaGiocatore
+      massimo={massimo}
       candidati={vivi}
       onConferma={confermaScelta}
       onAnnulla={annullaScelta}

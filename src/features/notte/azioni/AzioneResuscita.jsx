@@ -22,7 +22,10 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
   // candidati: la resurrezione si annuncia all'alba e chi resuscita non può
   // sapere che sono morti stanotte
   const mortoStanotte = (g) => g.mortoNotte !== undefined && g.mortoNotte === round && g.causaMorte !== 'rogo' && !g.vivo
-  const morti = giocatori.filter((g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba && !mortoStanotte(g)) || g.id === target)
+  // il Fantasma Onnisciente non può essere resuscitato
+  const morti = giocatori.filter(
+    (g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba && !mortoStanotte(g) && !g.eFantasmaOnnisciente) || g.id === target,
+  )
 
   if (giaUsato) {
     return <p>Potere già utilizzato in questa partita.</p>
