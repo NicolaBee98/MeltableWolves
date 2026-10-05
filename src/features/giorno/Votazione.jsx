@@ -6,12 +6,10 @@ import { ruoliAssegnabili } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
 import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
-import { conseguenzeMorte } from '../../data/eventiSpeciali'
+import { conseguenzeMorte, cavalieriDi, primaVitaAntico } from '../../data/eventiSpeciali'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { condizionePath, variantePerGiocatore } from '../../data/assetRuoli'
-import { ConcludiPartita } from '../../components/ConcludiPartita'
-import { condizioniVittoria } from '../../data/vittoria'
 
 function BadgeCondizioni({ condizioni = [] }) {
   return condizioni.map((slug) => {
@@ -113,7 +111,6 @@ export function Votazione({
   ruoliSelezionati = [],
   quantita = {},
   onProsegui,
-  onConcludiPartita = () => {},
   round,
   variantiFaccia = true,
   mostraNomeRuolo = false,
@@ -156,26 +153,10 @@ export function Votazione({
     tornaAlVoto()
   }
 
-  const vittoria = condizioniVittoria(giocatori, quantita)
-  // partita già finita (es. Boia/Scemo hanno ucciso l'ultimo lupo durante il
-  // voto) o nessun vivo rimasto: il narratore deve poter concludere subito,
-  // senza dover prima completare un rogo che non serve più
-  const bannerVittoria =
-    vittoria.length > 0 ? (
-      <>
-        <ul className="alba-panel__vittoria">
-          {vittoria.map((testo) => (
-            <li key={testo}>🏆 {testo}</li>
-          ))}
-        </ul>
-        <ConcludiPartita onConcludi={onConcludiPartita} />
-      </>
-    ) : vivi.length === 0 ? (
-      <>
-        <p>Non è rimasto nessuno in vita.</p>
-        <ConcludiPartita onConcludi={onConcludiPartita} />
-      </>
-    ) : null
+  // la vittoria si verifica solo all'alba (AlbaPanel): durante il giorno si
+  // prosegue fino alla notte. Unica eccezione per non bloccare il narratore:
+  // nessuno in vita, quindi nessun voto possibile.
+  const nessunoInVita = vivi.length === 0
 
   if (fase === 'esito') {
     // l'esito si calcola sui candidati congelati al momento di "Vai all'esito",
@@ -196,7 +177,7 @@ export function Votazione({
     const cavaliereImmolato =
       round === undefined
         ? undefined
-        : giocatori.find((g) => !g.vivo && g.causaMorte === 'sacrificio' && g.sacrificioRogoRound === round)
+        : giocatori.find((g) => !g.vivo && g.causaMorte === 'sacrificio' && (g.sacrificioDa ?? 'rogo') === 'rogo' && g.sacrificioRogoRound === round)
     const protettoImmolatoId = cavaliereImmolato
       ? designati.find((id) => giocatori.find((g) => g.id === id)?.vivo)
       : undefined
@@ -231,7 +212,8 @@ export function Votazione({
         // prima vita: al rogo muore come chiunque altro, senza maledizione
         onAnticoRivelazione(id)
         setAnticoRivelatoId(id)
-      } else if (target?.ruoloSlug === 'alchimista') {
+      } else if (target?.ruoloSlug === 'alchimista' && cavalieriDi(giocatori, id).length === 0) {
+        // con un Cavaliere che lo salva non muore al rogo, quindi non esplode
         setAlchimistaInAttesaVittimaId(id)
       } else {
         setRiepilogoMorte((r) => ({ ...r, [id]: conseguenzeMorte(giocatori, id, true) }))
@@ -276,9 +258,16 @@ export function Votazione({
     // dell'Alchimista sia quella della vittima (vedi GiornoPanel).
     function confermaVittimaAlchimista(alchimistaId, vittimaId) {
       // riepilogo salvato prima: dopo il Conferma l'anteprima sparirebbe
-      setRiepilogoMorte((r) => ({ ...r, [vittimaId]: conseguenzeMorte(giocatori, vittimaId, true) }))
+      // (anche le conseguenze della morte dell'Alchimista stesso)
+      setRiepilogoMorte((r) => ({
+        ...r,
+        [vittimaId]: [...new Set([...conseguenzeMorte(giocatori, alchimistaId, true), ...conseguenzeMorte(giocatori, vittimaId, true)])],
+      }))
       onAlchimistaEsplode(alchimistaId, vittimaId)
-      setAlchimistaEsploso({ alchimistaId, vittimaId })
+      // la vittima non muore se un Cavaliere si immola o è l'Antico alla prima vita
+      const vittima = giocatori.find((g) => g.id === vittimaId)
+      const salvo = cavalieriDi(giocatori, vittimaId).length > 0 || primaVitaAntico(vittima)
+      setAlchimistaEsploso({ alchimistaId, vittimaId, salvo })
       setAlchimistaInAttesaVittimaId(null)
     }
 
@@ -286,9 +275,15 @@ export function Votazione({
       if (protettoImmolatoId === id) {
         const nome = giocatori.find((g) => g.id === id)?.nome
         return (
-          <p>
-            Il Cavaliere {cavaliereImmolato.nome} si sacrifica al posto di {nome}: {nome} sopravvive al rogo.
-          </p>
+          <>
+            <p>
+              Il Cavaliere {cavaliereImmolato.nome} si sacrifica al posto di {nome}: {nome} sopravvive al rogo.
+            </p>
+            {/* conseguenze della morte del Cavaliere (crepacuore, eredità...), non la riga già detta sopra */}
+            <RigheConseguenze
+              righe={(riepilogoMorte[id] ?? []).filter((r) => !r.startsWith(`Il Cavaliere ${cavaliereImmolato.nome} si è immolato`))}
+            />
+          </>
         )
       }
       if (spilungoneRivelatoId === id) {
@@ -311,12 +306,14 @@ export function Votazione({
       }
       if (alchimistaEsploso?.alchimistaId === id) {
         const nome = giocatori.find((g) => g.id === id)?.nome
-        const nomeVittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)?.nome
+        const vittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)
         return (
           <>
             <p>
-              {nome} rivela la propria carta: è l'Alchimista e trascina con sé {nomeVittima} nell'aldilà con
-              una grande esplosione pirotecnica.
+              {nome} rivela la propria carta: è l'Alchimista{' '}
+              {alchimistaEsploso.salvo
+                ? `ed esplode, ma ${vittima.nome} sopravvive (non muore).`
+                : `e trascina con sé ${vittima?.nome} nell'aldilà con una grande esplosione pirotecnica.`}
             </p>
             {riepilogoMorte[alchimistaEsploso.vittimaId]?.length > 0 && riepilogoDi(alchimistaEsploso.vittimaId)}
           </>
@@ -341,7 +338,10 @@ export function Votazione({
         const target = giocatori.find((g) => g.id === id)
         const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug
         const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug
-        const puoEssereAlchimista = rivelabileOra('alchimista') && !target?.ruoloSlug
+        const protettori = cavalieriDi(giocatori, id)
+        const alchimistaPossibile = rivelabileOra('alchimista') && !target?.ruoloSlug
+        // con un Cavaliere che lo salva l'Alchimista non muore al rogo: niente esplosione
+        const puoEssereAlchimista = alchimistaPossibile && protettori.length === 0
         if (rivelazioneInConferma?.id === id) {
           const nomeRuolo = rivelazioneInConferma.slug === 'spilungone' ? 'lo Spilungone' : "L'Antico"
           return (
@@ -384,6 +384,12 @@ export function Votazione({
               <button type="button" onClick={() => rivelaEDesigna(id, 'alchimista')}>
                 Si rivela: è l'Alchimista
               </button>
+            )}
+            {alchimistaPossibile && protettori.length > 0 && (
+              <p className="avviso">
+                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: se fosse l'Alchimista non
+                esploderebbe, perché al rogo non muore (si immola il Cavaliere).
+              </p>
             )}
           </div>
         )
@@ -490,7 +496,6 @@ export function Votazione({
               ⚠️ Assegna la carta del Fantasma Onnisciente al primo morto (menu "Eventi speciali").
             </p>
           )}
-        {bannerVittoria}
         {morteConfermata && (
           <button type="button" onClick={onProsegui}>
             È notte nel villaggio
@@ -582,7 +587,14 @@ export function Votazione({
           Ricomincia votazione
         </button>
       )}
-      {bannerVittoria}
+      {nessunoInVita && (
+        <>
+          <p>Non è rimasto nessuno in vita: nessun voto possibile.</p>
+          <button type="button" onClick={onProsegui}>
+            È notte nel villaggio
+          </button>
+        </>
+      )}
       {maxVoti > 0 && (
         <button type="button" onClick={() => vaiAEsito(vivi.map((g) => g.id))}>
           Vai all'esito

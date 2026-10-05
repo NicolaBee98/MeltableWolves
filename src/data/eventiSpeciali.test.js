@@ -125,25 +125,66 @@ test('conseguenzeMorte ricorda crepacuore (più coppie), legami, Antico, Alchimi
     { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2', '3'] },
     { id: '2', nome: 'Bea', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
     { id: '3', nome: 'Carlo', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
-    { id: '4', nome: 'Dino', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
     { id: '5', nome: 'Elio', vivo: true, condizioni: [], ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '1' } },
     { id: '6', nome: 'Fio', vivo: true, condizioni: [], ruoloSlug: 'cucciolo-di-lupo-mannaro' },
-    { id: '7', nome: 'Gigi', vivo: true, condizioni: [], ruoloSlug: 'lantico' },
+    { id: '7', nome: 'Gigi', vivo: true, condizioni: [], ruoloSlug: 'lantico', legame: null },
     { id: '8', nome: 'Ugo', vivo: true, condizioni: [], ruoloSlug: 'alchimista' },
   ]
   expect(conseguenzeMorte(gs, '1')).toEqual([
     'Morirà anche Bea (crepacuore).',
     'Morirà anche Carlo (crepacuore).',
-    'Il Cavaliere Dino lo protegge: si immola al suo posto.',
     "L'Apprendista Elio erediterà il suo ruolo.",
   ])
   expect(conseguenzeMorte(gs, '6')[0]).toMatch(/Vendetta del Cucciolo/)
   expect(conseguenzeMorte(gs, '7')[0]).toMatch(/Antico sopravvive/)
   expect(conseguenzeMorte(gs, '8')[0]).toMatch(/Alchimista esplode/)
-  expect(conseguenzeMorte(gs, '2')).toEqual(['Morirà anche Anna (crepacuore).'])
+  // al passato l'esplosione la riepiloga l'evento: nessuna riga
+  expect(conseguenzeMorte(gs, '8', true)).toEqual([])
+  // catena tra coppie: Bea -> Anna -> Carlo, e l'Apprendista di Anna eredita
+  expect(conseguenzeMorte(gs, '2')).toEqual([
+    'Morirà anche Anna (crepacuore).',
+    'Morirà anche Carlo (crepacuore).',
+    "L'Apprendista Elio erediterà il suo ruolo.",
+  ])
   // a morte avvenuta resta solo chi è già morto di crepacuore
   const dopo = gs.map((g) => (g.id === '1' ? { ...g, vivo: false } : g.id === '2' ? { ...g, vivo: false, causaMorte: 'crepacuore' } : g))
   expect(conseguenzeMorte(dopo, '1')).toEqual(['È morto anche Bea (crepacuore).'])
+})
+
+test('conseguenzeMorte: se il Cavaliere salva il bersaglio non elenca crepacuore/eredità/Figlia/vendetta, ma quelle della morte del Cavaliere', () => {
+  const gs = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'], ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+    { id: '2', nome: 'Bea', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    { id: '3', nome: 'Dino', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['4'], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+    { id: '4', nome: 'Edo', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['3'] },
+    { id: '5', nome: 'Elio', vivo: true, condizioni: [], ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '3' } },
+    { id: '6', nome: 'Fia', vivo: true, condizioni: [], ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '1' } },
+  ]
+  expect(conseguenzeMorte(gs, '1')).toEqual([
+    'Il Cavaliere Dino lo protegge: si immola al suo posto.',
+    'Morirà anche Edo (crepacuore).',
+    "L'Apprendista Elio erediterà il suo ruolo.",
+  ])
+  expect(conseguenzeMorte(gs, '1', true)[0]).toBe('Il Cavaliere Dino si è immolato al posto di Anna: Anna sopravvive.')
+})
+
+test('conseguenzeMorte: seconda generazione (vendetta del Cucciolo morto di crepacuore) e Antico che sopravvive al crepacuore o alla sua prima vita', () => {
+  const gs = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    { id: '2', nome: 'Cuc', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'], ruoloSlug: 'cucciolo-di-lupo-mannaro' },
+  ]
+  expect(conseguenzeMorte(gs, '1', true)).toEqual([
+    'È morto anche Cuc (crepacuore).',
+    'Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.',
+  ])
+  const antico = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    { id: '2', nome: 'Gigi', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'], ruoloSlug: 'lantico' },
+    { id: '3', nome: 'Elio', vivo: true, condizioni: [], ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } },
+  ]
+  expect(conseguenzeMorte(antico, '1')).toEqual([expect.stringMatching(/Gigi sopravvive al crepacuore/)])
+  // l'Antico alla prima vita: nessuna eredità dell'Apprendista (si svela solo alla seconda morte)
+  expect(conseguenzeMorte(antico, '2')).toEqual([expect.stringMatching(/Antico sopravvive/)])
 })
 
 test('candidatiRivelazione include chi ha già il ruolo (Ladro, Apprendista) finché non ha usato il potere', () => {

@@ -258,19 +258,18 @@ test('in fase esito, dopo la conferma del rogo, compare "È notte nel villaggio"
   expect(onProsegui).toHaveBeenCalled()
 })
 
-test('in fase esito, se il rogo determina una condizione di vittoria, mostra il messaggio e "Concludi partita"', async () => {
+test('in fase esito, anche se il rogo ha deciso la partita, non c\'è banner di vittoria: si prosegue alla notte (la vittoria si verifica all\'alba)', async () => {
   const user = userEvent.setup()
   const giocatoriDopoRogo = [
     { id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'lupo-mannaro', condizioni: [] },
     { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
   ]
-  const onConcludiPartita = vi.fn()
-  setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito', onConcludiPartita })
+  const { onProsegui } = setup({ giocatori: giocatoriDopoRogo, voti: { 1: 2 }, fase: 'esito' })
 
-  expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
-  await user.click(screen.getByRole('button', { name: 'Sì, concludi' }))
-  expect(onConcludiPartita).toHaveBeenCalled()
+  expect(screen.queryByText(/vince il villaggio/i)).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Concludi partita' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'È notte nel villaggio' }))
+  expect(onProsegui).toHaveBeenCalled()
 })
 
 test('in fase esito con più massimi mostra lo spareggio con le chip dei candidati', () => {
@@ -379,20 +378,22 @@ test('con mostraRuoli attivo ma ruoloSlug non assegnato mostra il punto interrog
   expect(screen.getByRole('img', { name: 'Ruolo non ancora rivelato' })).toBeInTheDocument()
 })
 
-test('in fase voto, se la partita è già finita mostra il banner di vittoria e "Concludi partita"', async () => {
-  const user = userEvent.setup()
-  const onConcludiPartita = vi.fn()
+test('in fase voto, se la partita è già finita non mostra il banner di vittoria (si verifica solo all\'alba)', () => {
   setup({
     giocatori: [
       { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' },
       { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico' },
     ],
-    onConcludiPartita,
   })
-  expect(screen.getByText(/vince il Villaggio/)).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
-  await user.click(screen.getByRole('button', { name: 'Sì, concludi' }))
-  expect(onConcludiPartita).toHaveBeenCalled()
+  expect(screen.queryByText(/vince il Villaggio/)).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Concludi partita' })).not.toBeInTheDocument()
+})
+
+test('in fase voto senza nessuno in vita nessun voto è possibile: "È notte nel villaggio" evita il blocco', async () => {
+  const user = userEvent.setup()
+  const { onProsegui } = setup({ giocatori: [{ id: '1', nome: 'Anna', vivo: false }] })
+  await user.click(screen.getByRole('button', { name: 'È notte nel villaggio' }))
+  expect(onProsegui).toHaveBeenCalled()
 })
 
 test('"Ricomincia votazione" chiede conferma prima di azzerare i voti', async () => {
@@ -649,4 +650,78 @@ test('l\'ex-Antico è mostrato "(Villico, ex Antico)" con i nomi dei ruoli attiv
     mostraNomeRuolo: true,
   })
   expect(screen.getByText(/Anna \(Villico, ex Antico\)/)).toBeInTheDocument()
+})
+
+// Votazione + stato reale: i designati sono i candidati, `giocatoriIniziali` finisce in localStorage
+function giornoReale(giocatoriIniziali, props = {}) {
+  localStorage.setItem('meltable-wolves-partita', JSON.stringify(giocatoriIniziali))
+  function Giorno() {
+    const p = usePartita()
+    return (
+      <GiornoPanel
+        giocatori={p.giocatori}
+        voti={{ 1: 3 }}
+        fase="esito"
+        candidatiEsito={['1', '2']}
+        aggiornaGiocatore={p.aggiornaGiocatore}
+        annullaMorte={p.annullaMorte}
+        ruoliSelezionati={['alchimista', 'cavaliere']}
+        quantita={{ alchimista: 1 }}
+        round={2}
+        onProsegui={() => {}}
+        {...props}
+      />
+    )
+  }
+  render(<Giorno />)
+}
+const salvati = () => Object.fromEntries(JSON.parse(localStorage.getItem('meltable-wolves-partita')).map((g) => [g.id, g]))
+
+test('Cavaliere + Alchimista al rogo (ruolo ignoto): niente "Si rivela: è l\'Alchimista", il Cavaliere si immola e nessuno esplode', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'cavaliere', condizioni: [], legame: { tipo: 'cavaliere', targetId: '1' } },
+  ])
+  const user = userEvent.setup()
+  expect(screen.queryByRole('button', { name: "Si rivela: è l'Alchimista" })).not.toBeInTheDocument()
+  expect(screen.getByText(/Il Cavaliere Luca protegge Anna: se fosse l'Alchimista non esploderebbe/)).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.getByText(/Il Cavaliere Luca si sacrifica al posto di Anna: Anna sopravvive al rogo/)).toBeInTheDocument()
+  const s = salvati()
+  expect([s['1'].vivo, s['2'].vivo, s['3'].vivo]).toEqual([true, true, false])
+  localStorage.clear()
+})
+
+test('Cavaliere + Alchimista già noto (Ladro/Mimo) al rogo: nessun passo "chi trascina con sé", si immola il Cavaliere', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'alchimista', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'cavaliere', condizioni: [], legame: { tipo: 'cavaliere', targetId: '1' } },
+  ])
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.queryByText(/Chi trascina con sé/)).not.toBeInTheDocument()
+  const s = salvati()
+  expect([s['1'].vivo, s['2'].vivo, s['3'].vivo]).toEqual([true, true, false])
+  localStorage.clear()
+})
+
+test("Alchimista bruciato: è la vittima del rogo (Addolorata) e chi trascina con sé no; vale anche per l'Antico trascinato (maledizione)", async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'lantico', storiaRuoli: ['lantico'], condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ])
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  const s = salvati()
+  // criterio di AzioneAddolorata: causaMorte 'rogo' e mortoNotte === round
+  const vittimeRogo = Object.values(s).filter((g) => g.causaMorte === 'rogo' && g.mortoNotte === 2)
+  expect(vittimeRogo.map((g) => g.id)).toEqual(['1'])
+  // l'Antico trascinato consuma la prima vita di giorno: sopravvive e maledice
+  expect(s['2']).toMatchObject({ vivo: true, ruoloSlug: 'villico', villaggioMaledettoFinoA: 2 })
+  localStorage.clear()
 })

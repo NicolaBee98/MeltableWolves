@@ -1,7 +1,7 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
 import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile } from '../../data/eventiSpeciali'
+import { conPotereDisponibile, cavalieriDi } from '../../data/eventiSpeciali'
 import {
   annullaMorteCompleta,
   dichiaraAnticoSbranato,
@@ -25,7 +25,6 @@ export function GiornoPanel({
   quantita,
   round,
   onProsegui,
-  onConcludiPartita,
   mostraRuoli,
   variantiFaccia,
   mostraNomeRuolo,
@@ -53,9 +52,10 @@ export function GiornoPanel({
   }
 
   // l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
-  // vivi ai suoi due fianchi (pag. 22)
+  // vivi ai suoi due fianchi (pag. 22). Se un Cavaliere lo salva non muore:
+  // l'unzione non si trasmette
   function dichiaraMorteUnzione(id) {
-    if (!dichiaraColpo(id, { mortoDa: 'unzione' })) return
+    if (!dichiaraColpo(id, { mortoDa: 'unzione' }) || cavalieriDi(giocatori, id).length > 0) return
     for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
       aggiornaGiocatore(vicinoId, patch)
     }
@@ -113,7 +113,9 @@ export function GiornoPanel({
 
   // l'Alchimista si rivela ed esplode nel momento stesso in cui viene messo
   // al rogo (pag. 5): questo evento dichiara la sua morte per rogo, non un
-  // "Dichiara morte sul rogo" separato in Votazione
+  // "Dichiara morte sul rogo" separato in Votazione. mortoNotte come per
+  // dichiaraRogo: l'Alchimista bruciato è la vittima del rogo (Addolorata); chi
+  // trascina con sé muore sul colpo, non al rogo.
   function dichiaraAlchimistaEsplode(alchimistaId, vittimaId) {
     const alchimista = giocatori.find((g) => g.id === alchimistaId)
     aggiornaGiocatore(alchimistaId, {
@@ -121,6 +123,7 @@ export function GiornoPanel({
       storiaRuoli: conRuolo(alchimista?.storiaRuoli, 'alchimista'),
       vivo: false,
       causaMorte: 'rogo',
+      mortoNotte: round,
       poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],
     })
     dichiaraColpo(vittimaId, { mortoDa: 'alchimista' })
@@ -188,7 +191,6 @@ export function GiornoPanel({
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}
-        onConcludiPartita={onConcludiPartita}
         round={round}
         mostraRuoli={mostraRuoli}
         variantiFaccia={variantiFaccia}
