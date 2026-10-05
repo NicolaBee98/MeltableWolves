@@ -29,6 +29,12 @@ test('con una condizione di vittoria mostra il messaggio e il tasto "Concludi pa
 
   expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  // serve la conferma esplicita: Annulla non conclude
+  expect(onConcludiPartita).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Annulla' }))
+  expect(onConcludiPartita).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, concludi' }))
   expect(onConcludiPartita).toHaveBeenCalled()
 })
 
@@ -212,7 +218,7 @@ test("resurrezione: all'apertura dell'Alba il marcatore resuscitaAllAlba porta i
   expect(aggiornaGiocatore).toHaveBeenCalledTimes(1)
   expect(aggiornaGiocatore).toHaveBeenCalledWith(
     '1',
-    expect.objectContaining({ vivo: true, resuscitatoNotte: 2, condizioni: ['resuscitato'], resuscitaAllAlba: undefined }),
+    expect.objectContaining({ vivo: true, resuscitatoNotte: 2, condizioni: ['resuscitato'], resuscitaAllAlba: undefined, mortoGiorno: undefined }),
   )
 })
 
@@ -279,4 +285,14 @@ test("L'Antico sbranato con ruolo ignoto: 'L'Antico si rivela' tra i morti della
     anticoSbranatoNotte: 2,
   })
   expect(JSON.parse(screen.getByTestId('stato').textContent).causaMorte).toBeUndefined()
+})
+
+test("la vittima del Boia all'alba compare tra i morti della pagina Alba, con la causa", () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, mortoGiorno: 3, causaMorte: 'colpo', mortoDa: 'boia', ruoloSlug: 'villico', condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} />)
+  expect(screen.getByText('Anna (giustiziato/a dal Boia)')).toBeInTheDocument()
+  expect(screen.queryByText(/nessuno è morto/i)).not.toBeInTheDocument()
 })

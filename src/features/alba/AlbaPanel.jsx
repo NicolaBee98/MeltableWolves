@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { annunciAlba } from '../../data/alba'
+import { ConcludiPartita } from '../../components/ConcludiPartita'
 import { condizioniVittoria } from '../../data/vittoria'
 import { resuscitaPatch } from '../../data/effettiNotte'
+import { conRuolo } from '../../data/assegnazione'
 import { conPotereDisponibile } from '../../data/eventiSpeciali'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
 import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } from '../giorno/annullaMorte'
@@ -29,9 +31,9 @@ export function AlbaPanel({
   const morti = giocatori.filter(
     (g) =>
       !g.vivo &&
-      g.mortoNotte === round &&
-      CAUSE_MORTE_NOTTURNE.includes(g.causaMorte) &&
-      g.resuscitaAllAlba !== round,
+      ((g.mortoNotte === round && CAUSE_MORTE_NOTTURNE.includes(g.causaMorte) && g.resuscitaAllAlba !== round) ||
+        // giustiziato dal Boia già all'alba: morto nel giorno che segue
+        (g.causaMorte === 'colpo' && g.mortoDa === 'boia' && g.mortoGiorno === round + 1)),
   )
   const annunci = annunciAlba(giocatori, round)
   const vittoria = condizioniVittoria(giocatori, quantita)
@@ -50,9 +52,14 @@ export function AlbaPanel({
       dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
       return
     }
+    // il Mimo-Suocera ha già lo slug: si segna solo che si è rivelato
+    if (ruoloSlug === 'suocera' && target?.ruoloSlug === 'suocera') {
+      aggiornaGiocatore(id, { poteriUsati: [...(target.poteriUsati ?? []), 'suocera-rivelata'] })
+      return
+    }
     aggiornaGiocatore(id, {
       ruoloSlug,
-      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
+      storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
       // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
       ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
     })
@@ -86,7 +93,7 @@ export function AlbaPanel({
   useEffect(() => {
     for (const g of daResuscitare) {
       const patch = resuscitaPatch(g, round)
-      if (patch) aggiornaGiocatore(g.id, { ...patch, resuscitaAllAlba: undefined })
+      if (patch) aggiornaGiocatore(g.id, { ...patch, resuscitaAllAlba: undefined, mortoGiorno: undefined })
     }
   }, [daResuscitare, round, aggiornaGiocatore])
 
@@ -105,7 +112,7 @@ export function AlbaPanel({
       ) : (
         <ul className="alba-panel__morti">
           {morti.map((g) => (
-            <li key={g.id}>{g.nome}</li>
+            <li key={g.id}>{g.mortoDa === 'boia' && g.causaMorte === 'colpo' ? `${g.nome} (giustiziato/a dal Boia)` : g.nome}</li>
           ))}
         </ul>
       )}
@@ -134,9 +141,7 @@ export function AlbaPanel({
               <li key={testo}>🏆 {testo}</li>
             ))}
           </ul>
-          <button type="button" onClick={onConcludiPartita}>
-            Concludi partita
-          </button>
+          <ConcludiPartita onConcludi={onConcludiPartita} />
         </>
       )}
       {borgomastroDaEleggere && (

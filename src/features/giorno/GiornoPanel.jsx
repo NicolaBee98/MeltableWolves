@@ -1,5 +1,6 @@
 import { Votazione } from './Votazione'
 import { propagaUnzione } from '../../data/effettiNotte'
+import { conRuolo } from '../../data/assegnazione'
 import { conPotereDisponibile } from '../../data/eventiSpeciali'
 import {
   annullaMorteCompleta,
@@ -47,7 +48,7 @@ export function GiornoPanel({
     dichiaraColpo(id, {
       ruoloSlug: 'scemo-del-villaggio',
       mortoDa: 'scemo',
-      storiaRuoli: [...(target?.storiaRuoli ?? []), 'scemo-del-villaggio'],
+      storiaRuoli: conRuolo(target?.storiaRuoli, 'scemo-del-villaggio'),
     })
   }
 
@@ -93,9 +94,14 @@ export function GiornoPanel({
       dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
       return
     }
+    // il Mimo-Suocera ha già lo slug: si segna solo che si è rivelato
+    if (ruoloSlug === 'suocera' && target?.ruoloSlug === 'suocera') {
+      aggiornaGiocatore(id, { poteriUsati: [...(target.poteriUsati ?? []), 'suocera-rivelata'] })
+      return
+    }
     aggiornaGiocatore(id, {
       ruoloSlug,
-      storiaRuoli: [...(target?.storiaRuoli ?? []), ruoloSlug],
+      storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
       // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
       ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
     })
@@ -112,7 +118,7 @@ export function GiornoPanel({
     const alchimista = giocatori.find((g) => g.id === alchimistaId)
     aggiornaGiocatore(alchimistaId, {
       ruoloSlug: 'alchimista',
-      storiaRuoli: [...(alchimista?.storiaRuoli ?? []), 'alchimista'],
+      storiaRuoli: conRuolo(alchimista?.storiaRuoli, 'alchimista'),
       vivo: false,
       causaMorte: 'rogo',
       poteriUsati: [...(alchimista?.poteriUsati ?? []), 'alchimista-esplosione'],

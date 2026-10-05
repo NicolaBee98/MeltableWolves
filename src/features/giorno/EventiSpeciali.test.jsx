@@ -264,6 +264,8 @@ test('Il Bardo salta la notte è proposto solo in esito (dopo un rogo) e richied
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
   expect(onBardoSaltaNotte).toHaveBeenCalled()
+  // feedback "Ok" come le altre rivelazioni
+  expect(screen.getByRole('button', { name: 'Ok' })).toBeInTheDocument()
 })
 
 test('Il Bardo salta la notte NON è proposto durante il voto, prima di un rogo (nessuna via d\'uscita verso la notte)', async () => {
@@ -480,4 +482,19 @@ test('Boia: scelto il bersaglio innamorato, prima di confermare compare il prome
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
   expect(screen.getByText('Morirà anche Bea (crepacuore).')).toBeInTheDocument()
+})
+
+test('Mimo-Suocera morto può rivelarsi come Suocera, anche dopo che il titolare si è rivelato', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' },
+    { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'suocera', storiaRuoli: ['mimo', 'suocera'] },
+  ]
+  const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
+  expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(onSuoceraRivelazione).toHaveBeenCalledWith('2')
 })

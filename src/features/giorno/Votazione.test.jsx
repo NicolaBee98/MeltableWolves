@@ -269,6 +269,7 @@ test('in fase esito, se il rogo determina una condizione di vittoria, mostra il 
 
   expect(screen.getByText(/vince il villaggio/i)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, concludi' }))
   expect(onConcludiPartita).toHaveBeenCalled()
 })
 
@@ -390,6 +391,7 @@ test('in fase voto, se la partita è già finita mostra il banner di vittoria e 
   })
   expect(screen.getByText(/vince il Villaggio/)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Concludi partita' }))
+  await user.click(screen.getByRole('button', { name: 'Sì, concludi' }))
   expect(onConcludiPartita).toHaveBeenCalled()
 })
 
@@ -593,4 +595,58 @@ test('plurale corretto dei voti: "1 voto", "0 voti", "2 voti"', () => {
   expect(screen.getByText('1 voto')).toBeInTheDocument()
   expect(screen.getByText('2 voti')).toBeInTheDocument()
   expect(screen.getByText('0 voti')).toBeInTheDocument()
+})
+
+test("Alchimista che trascina chi ha una Figlia dei Lupi legata: dopo il Conferma resta il riepilogo della conseguenza", async () => {
+  const user = userEvent.setup()
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true },
+      { id: '2', nome: 'Marco', vivo: true },
+      { id: '3', nome: 'Bea', vivo: true, ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '2' } },
+    ],
+    voti: { 1: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1'],
+    ruoliSelezionati: ['alchimista'],
+    quantita: { alchimista: 1 },
+  })
+  await user.click(screen.getByRole('button', { name: "Si rivela: è l'Alchimista" }))
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(screen.getByText(/Bea è diventata Lupo Mannaro/)).toBeInTheDocument()
+})
+
+test('dopo il primo rogo ricorda di assegnare il Fantasma Onnisciente, finché nessuno lo ha', () => {
+  const g = [
+    { id: '1', nome: 'Anna', vivo: false, causaMorte: 'rogo' },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  const props = { giocatori: g, voti: { 1: 2 }, fase: 'esito', candidatiEsito: ['1'], ruoliSelezionati: ['fantasma-onnisciente'] }
+  setup(props)
+  expect(screen.getByText(/Assegna la carta del Fantasma Onnisciente al primo morto/)).toBeInTheDocument()
+})
+
+test('sorteggio dello spareggio: mostra "Sorteggiato: X"', async () => {
+  const user = userEvent.setup()
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', vivo: true },
+      { id: '2', nome: 'Marco', vivo: true },
+    ],
+    voti: { 1: 2, 2: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1', '2'],
+  })
+  await user.click(screen.getByRole('button', { name: 'Sorteggia tra i candidati' }))
+  expect(screen.getByText(/^Sorteggiato: (Anna|Marco)$/)).toBeInTheDocument()
+})
+
+test('l\'ex-Antico è mostrato "(Villico, ex Antico)" con i nomi dei ruoli attivi', () => {
+  setup({
+    giocatori: [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'] }],
+    mostraRuoli: true,
+    mostraNomeRuolo: true,
+  })
+  expect(screen.getByText(/Anna \(Villico, ex Antico\)/)).toBeInTheDocument()
 })

@@ -49,3 +49,20 @@ test('annullare la morte del Mimo-Scemo non gli cancella il ruolo copiato', () =
   expect(patch.ruoloSlug).toBeUndefined()
   expect('ruoloSlug' in patch).toBe(false)
 })
+
+test('patchAnnullaMorte pulisce mortoGiorno e giustiziatoDa (Boia); il Boia non duplica "boia" in storiaRuoli', async () => {
+  const { patchAnnullaMorte, dichiaraBoiaGiustizia } = await import('./annullaMorte')
+  expect(patchAnnullaMorte({ vivo: false, mortoGiorno: 2, giustiziatoDa: '1' })).toMatchObject({
+    vivo: true,
+    mortoGiorno: undefined,
+    giustiziatoDa: undefined,
+  })
+  const agg = vi.fn()
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'boia', storiaRuoli: ['mimo', 'boia'] },
+    { id: '2', vivo: true, ruoloSlug: 'villico' },
+  ]
+  dichiaraBoiaGiustizia('1', '2', giocatori, agg, 2)
+  expect(agg).toHaveBeenCalledWith('1', expect.objectContaining({ storiaRuoli: ['mimo', 'boia'] }))
+  expect(agg).toHaveBeenCalledWith('2', expect.objectContaining({ mortoDa: 'boia', giustiziatoDa: '1', mortoGiorno: 2 }))
+})
