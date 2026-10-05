@@ -73,6 +73,10 @@ export function conPotereDisponibile(giocatori, slug, potere) {
   return titolari.find((g) => g.vivo && nonUsato(g)) ?? titolari.find(nonUsato)
 }
 
+// aggiunge un potere a poteriUsati senza duplicati (es. Alchimista che si ricarica
+// alla resurrezione e poi riesplode: una sola voce per potere)
+export const conPotere = (poteri, potere) => ((poteri ?? []).includes(potere) ? poteri : [...(poteri ?? []), potere])
+
 export function bardoDisponibile(giocatori) {
   return Boolean(conPotereDisponibile(giocatori, 'bardo', 'bardo-salta-notte'))
 }
@@ -99,6 +103,7 @@ export function cavalieriDi(giocatori, id) {
 
 // L'Antico alla prima vita non muore: sopravvive (da Villico) e, di giorno, maledice il villaggio
 export const primaVitaAntico = (g) => g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined
+const TESTO_VENDETTA = 'Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.'
 const TESTO_ANTICO = "L'Antico sopravvive (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si sveglieranno."
 
 // Promemoria per il narratore: conseguenze note della morte sul colpo / al
@@ -123,11 +128,16 @@ function conseguenze(giocatori, id, fatto, visti) {
       : giocatori.filter((g) => g.id !== id && (g.condizioni ?? []).includes('innamorato'))
     : []
   if (!t.vivo) {
-    return partner.filter((g) => g.causaMorte === 'crepacuore').map((g) => `È morto anche ${g.nome} (crepacuore).`)
+    // a morte già applicata restano il crepacuore dei partner e la vendetta del
+    // Cucciolo (marcatore vendettaInnescata): così si ricostruiscono dopo un reload
+    return [
+      ...partner.filter((g) => g.causaMorte === 'crepacuore').map((g) => `È morto anche ${g.nome} (crepacuore).`),
+      ...(t.vendettaInnescata && t.ruoloSlug === 'cucciolo-di-lupo-mannaro' ? [TESTO_VENDETTA] : []),
+    ]
   }
   // non muoiono (prima vita dell'Antico, primo rogo dello Spilungone): nessuna conseguenza a catena
   if (primaVitaAntico(t)) return [TESTO_ANTICO]
-  if (primo && t.ruoloSlug === 'spilungone') return ['Lo Spilungone si rivela e non muore al primo rogo.']
+  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined) return ['Lo Spilungone si rivela e non muore al primo rogo.']
 
   // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
   // avviene, ma la morte del Cavaliere ha le sue
@@ -162,11 +172,11 @@ function conseguenze(giocatori, id, fatto, visti) {
   legati('figlia-dei-lupi').forEach((g) =>
     out.push(fatto ? `La Figlia dei Lupi ${g.nome} è diventata Lupo Mannaro.` : `La Figlia dei Lupi ${g.nome} diventa Lupo Mannaro.`),
   )
-  if (t.ruoloSlug === 'cucciolo-di-lupo-mannaro' && !giocatori.some((g) => g.vendettaInnescata))
-    out.push('Vendetta del Cucciolo: i lupi sbraneranno due persone la prossima notte.')
+  if (t.ruoloSlug === 'cucciolo-di-lupo-mannaro' && !giocatori.some((g) => g.vendettaInnescata)) out.push(TESTO_VENDETTA)
   else if (eLupo(t.ruoloSlug) && giocatori.some((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro'))
     out.push(fatto ? 'Morto un lupo: il Cucciolo è diventato Lupo Mannaro adulto.' : 'Morte di un lupo: il Cucciolo diventa Lupo Mannaro adulto.')
   // l'esplosione si dichiara solo al rogo (la scelta della vittima la riepiloga l'evento)
-  if (primo && !fatto && t.ruoloSlug === 'alchimista') out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
+  // (solo se il potere è disponibile: l'Alchimista resuscitato lo riottiene, vedi resuscitaPatch)
+  if (primo && !fatto && t.ruoloSlug === 'alchimista' && !(t.poteriUsati ?? []).includes('alchimista-esplosione')) out.push("L'Alchimista esplode e trascina con sé un altro giocatore.")
   return out
 }

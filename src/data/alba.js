@@ -28,11 +28,12 @@ export function annunciAlba(giocatori, round) {
   }
   // "unto"/"trasformato" durano fino al calar della notte successiva a
   // quella in cui sono inflitti: se sono ancora presenti in questa Alba,
-  // vengono per forza dalla notte appena conclusa (vedi daRipulireCambioNotte)
-  for (const g of giocatori.filter((g) => (g.condizioni ?? []).includes('unto'))) {
+  // vengono per forza dalla notte appena conclusa (vedi daRipulireCambioNotte);
+  // un morto non si annuncia (es. il Nano, che di notte non muore ma altrimenti sì)
+  for (const g of giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('unto'))) {
     annunci.push(`${g.nome} è stato unto dall'Untore.`)
   }
-  for (const g of giocatori.filter((g) => (g.condizioni ?? []).includes('trasformato'))) {
+  for (const g of giocatori.filter((g) => g.vivo && (g.condizioni ?? []).includes('trasformato'))) {
     annunci.push(`${g.nome} è stato trasformato in maiale dalla Maga.`)
   }
 

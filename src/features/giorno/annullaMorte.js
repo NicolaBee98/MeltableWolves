@@ -1,5 +1,6 @@
 import { eMimoCopiante, conRuolo } from '../../data/assegnazione'
 import { roundMorteDiurna } from '../../data/effettiNotte'
+import { conPotere } from '../../data/eventiSpeciali'
 
 // patch che riporta in vita un giocatore la cui morte era stata dichiarata
 // per errore (un tap sbagliato durante il rogo o un evento speciale).
@@ -90,7 +91,7 @@ export function dichiaraBoiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGioc
   aggiornaGiocatore(boiaId, {
     ruoloSlug: 'boia',
     storiaRuoli: conRuolo(boia?.storiaRuoli, 'boia'),
-    poteriUsati: [...(boia?.poteriUsati ?? []), 'boia-giustizia'],
+    poteriUsati: conPotere(boia?.poteriUsati, 'boia-giustizia'),
   })
   dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'boia', giustiziatoDa: boiaId })
 }

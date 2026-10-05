@@ -67,11 +67,14 @@ export default function App() {
     (quantita.ladro > 0 ? 2 : 0) -
     (quantita.borgomastro > 0 ? 1 : 0) -
     (quantita['fantasma-onnisciente'] > 0 ? 1 : 0)
-  // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo
+  // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo:
+  // "escluse" le carte (femminile), "esclusi" i ruoli, ognuno con la sua "e" finale
+  const elenco = (voci) => (voci.length > 1 ? `${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}` : voci[0])
+  const escluseCarte = quantita.ladro > 0 ? ['le 2 carte extra del Ladro'] : []
+  const escluseRuoli = [quantita.borgomastro > 0 && 'il Borgomastro', quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente'].filter(Boolean)
   const esclusi = [
-    quantita.ladro > 0 && 'le 2 carte extra del Ladro',
-    quantita.borgomastro > 0 && 'il Borgomastro',
-    quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente',
+    escluseCarte.length > 0 && `escluse ${elenco(escluseCarte)}`,
+    escluseRuoli.length > 0 && `esclusi ${elenco(escluseRuoli)}`,
   ].filter(Boolean)
   const ruoliSelezionati = ruoliAttivi(
     ruoliInMazzo.map((r) => r.slug),
@@ -197,7 +200,7 @@ export default function App() {
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="avviso">
               ⚠️ {totaleRuoliMazzo === 1 ? 'Serve 1 giocatore' : `Servono ${totaleRuoliMazzo} giocatori`}, ce ne sono {giocatori.length}
-              {esclusi.length > 0 && ` (esclusi ${esclusi.join(', ')}, che non sono giocatori in più)`}.
+              {esclusi.length > 0 && ` (${esclusi.join('; ')}, che non sono giocatori in più)`}.
             </p>
           )}
           <button

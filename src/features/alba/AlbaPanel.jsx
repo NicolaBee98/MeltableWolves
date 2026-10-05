@@ -4,7 +4,7 @@ import { ConcludiPartita } from '../../components/ConcludiPartita'
 import { condizioniVittoria } from '../../data/vittoria'
 import { resuscitaPatch } from '../../data/effettiNotte'
 import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile } from '../../data/eventiSpeciali'
+import { conPotereDisponibile, conPotere } from '../../data/eventiSpeciali'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
 import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } from '../giorno/annullaMorte'
 
@@ -61,14 +61,14 @@ export function AlbaPanel({
     }
     // il Mimo-Suocera ha già lo slug: si segna solo che si è rivelato
     if (ruoloSlug === 'suocera' && target?.ruoloSlug === 'suocera') {
-      aggiornaGiocatore(id, { poteriUsati: [...(target.poteriUsati ?? []), 'suocera-rivelata'] })
+      aggiornaGiocatore(id, { poteriUsati: conPotere(target.poteriUsati, 'suocera-rivelata') })
       return
     }
     aggiornaGiocatore(id, {
       ruoloSlug,
       storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
       // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
-      ...(ruoloSlug === 'innocente' && { poteriUsati: [...(target?.poteriUsati ?? []), 'innocente-rivelato'] }),
+      ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
     })
   }
 
@@ -79,7 +79,7 @@ export function AlbaPanel({
 
   function dichiaraGalloSaltaGiorno() {
     const gallo = conPotereDisponibile(giocatori, 'gallo-mannaro', 'gallo-salta-giorno')
-    if (gallo) aggiornaGiocatore(gallo.id, { poteriUsati: [...(gallo.poteriUsati ?? []), 'gallo-salta-giorno'] })
+    if (gallo) aggiornaGiocatore(gallo.id, { poteriUsati: conPotere(gallo.poteriUsati, 'gallo-salta-giorno') })
     onGalloSaltaGiorno()
   }
 

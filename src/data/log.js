@@ -107,6 +107,10 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     if (anticoRivelato) {
       eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)` })
     }
+    // l'Antico che perde la prima vita di giorno maledice il villaggio
+    if (giocatore.villaggioMaledettoFinoA !== undefined && giocatore.villaggioMaledettoFinoA !== prima.villaggioMaledettoFinoA) {
+      eventi.push({ round, fase, messaggio: 'Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno' })
+    }
     if (fase !== 'notte') {
       for (const slug of nuoviInStoria.filter((r) => RUOLI_RIVELAZIONE_DIURNA.includes(r))) {
         eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è ${nomeRuolo(slug)}` })
