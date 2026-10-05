@@ -1,9 +1,10 @@
 import { ROLES, eLupo } from './roles'
+import { eMimoCopiante } from './assegnazione'
 
 // La Suocera non è considerata in vita per le condizioni di vittoria (lo
 // dichiara esplicitamente il suo testoRegole in roles.js)
 function contaComeVivo(giocatore) {
-  return giocatore.vivo && giocatore.ruoloSlug !== 'suocera'
+  return giocatore.vivo && (giocatore.ruoloSlug !== 'suocera' || eMimoCopiante(giocatore))
 }
 
 export function condizioniVittoria(giocatori, quantita = {}) {
@@ -26,7 +27,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   // gli abitanti, e va tolta dal conteggio degli abitanti per il pareggio
   // lupi/villaggio. Una volta rivelata (sempre alla morte) conta come
   // qualsiasi altro morto: non serve più questo aggiustamento.
-  const suoceraNascosta = (quantita.suocera ?? 0) > 0 && !giocatori.some((g) => g.ruoloSlug === 'suocera')
+  const suoceraNascosta = (quantita.suocera ?? 0) > 0 && !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
 
   // per le condizioni di vittoria contano solo i membri che cacciano con il
   // branco (Lupo, Capobranco, Cucciolo, Nonna, Progenitore): gli altri
@@ -63,7 +64,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   if (viviVeri.length === 2 && viviVeri[0].ruoloSlug === viviVeri[1].ruoloSlug && viviVeri[0].ruoloSlug !== 'pifferaio') {
     const squadra = ROLES.find((r) => r.slug === viviVeri[0].ruoloSlug)
     if (squadra?.vinceUltimoSopravvissuto || squadra?.slug === 'criceto-malvagio') {
-      speciali.push(`Il ${squadra.nome} e il Mimo che lo imita sono gli ultimi due sopravvissuti: vincono insieme.`)
+      speciali.push(`${squadra.nome} e Mimo-${squadra.nome} sono gli ultimi due sopravvissuti: vincono insieme.`)
     }
   }
 
@@ -99,6 +100,12 @@ export function condizioniVittoria(giocatori, quantita = {}) {
           ? 'I Criceti Malvagi (con il Mimo) rubano la vittoria ai Lupi Mannari: vincono solo loro.'
           : 'Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.',
       )
+    } else if (abitanti <= 0 && lupiVivi.length > 1 && lupiVivi.every((g) => g.ruoloSlug === 'lupo-mannaro-capobranco')) {
+      // Capobranco + Mimo-Capobranco ultimi rimasti: vincono i capibranco (cioè i lupi)
+      messaggi.push('Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: vincono i Lupi Mannari.')
+    } else if (vivi.some((g) => g.ruoloSlug === 'mucca-mannara')) {
+      // la Mucca non caccia e conta tra gli abitanti, ma "vince assieme ai lupi" (roles.js)
+      messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi e la Mucca Mannara.')
     } else {
       messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
     }

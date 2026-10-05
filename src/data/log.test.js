@@ -160,3 +160,42 @@ test('morti sul colpo con causa: Boia, esplosione, rima sbagliata', () => {
   expect(muore('alchimista')).toMatch(/esplosione/)
   expect(muore('scemo')).toMatch(/rima/)
 })
+
+test('registro: Boia con chi ha giustiziato, Borgomastro morto, Antico che sopravvive, resurrezione unica', () => {
+  const base = [
+    { id: '1', nome: 'G07', vivo: true, ruoloSlug: 'boia', condizioni: [] },
+    { id: '2', nome: 'G12', vivo: true, ruoloSlug: 'villico', condizioni: [], eBorgomastro: true },
+    { id: '3', nome: 'Ugo', vivo: false, causaMorte: 'notte', condizioni: [] },
+    { id: '4', nome: 'Rita', vivo: false, causaMorte: 'notte', condizioni: [] },
+  ]
+  const dopo = base.map((g) =>
+    g.id === '2' ? { ...g, vivo: false, causaMorte: 'colpo', mortoDa: 'boia', giustiziatoDa: '1' }
+    : g.id === '3' ? { ...g, vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'] }
+    : g.id === '4' ? { ...g, vivo: true, condizioni: ['resuscitato'] } : g)
+  const m = rilevaEventi(base, dopo, 1, 'giorno').map((e) => e.messaggio)
+  expect(m).toContain('Il Boia G07 giustizia G12')
+  expect(m.some((x) => /G12 era il Borgomastro/.test(x))).toBe(true)
+  expect(m.join('|')).not.toMatch(/Ugo è tornato/)
+  expect(m.some((x) => /Ugo.*perde la prima vita e sopravvive/.test(x))).toBe(true)
+  expect(m).toContain('Rita è stato/a resuscitato/a')
+  expect(m.join('|')).not.toMatch(/condizione "resuscitato"|Rita è tornato/)
+})
+
+test('registro: crepacuore e Mezzosangue notturni non sono doppi (ci sono gli annunci dell\'alba), il Gallo è del giorno, scelta di resurrezione', () => {
+  const base = [
+    { id: '1', nome: 'Ada', vivo: true, ruoloSlug: 'mezzosangue', condizioni: [] },
+    { id: '2', nome: 'Bo', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Gio', vivo: false, ruoloSlug: 'villico', condizioni: [] },
+    { id: '4', nome: 'Gua', vivo: true, ruoloSlug: 'guaritore', condizioni: [], poteriUsati: [] },
+  ]
+  const notte = base.map((g) =>
+    g.id === '1' ? { ...g, ruoloSlug: 'lupo-mannaro', trasformatoNotte: 1 }
+    : g.id === '2' ? { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: 1 }
+    : g.id === '3' ? { ...g, resuscitaAllAlba: 1 }
+    : { ...g, poteriUsati: ['guaritore-resuscita'] })
+  const m = rilevaEventi(base, notte, 1, 'notte').map((e) => e.messaggio)
+  expect(m.join('|')).not.toMatch(/crepacuore|assunto il ruolo/)
+  expect(m).toContain('Il Guaritore Gua sceglie di resuscitare Gio')
+  const gallo = rilevaEventi(base, [{ ...base[0], poteriUsati: ['gallo-salta-giorno'] }, ...base.slice(1)], 1, 'alba')
+  expect(gallo[0].fase).toBe('giorno')
+})
