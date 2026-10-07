@@ -24,19 +24,19 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo il quarto batch di partite (2026-10-05: verifica correzioni, coppie rischiose, partite casuali). Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
+_Aggiornato dopo il quinto batch di partite (2026-10-07: ruoli meno valutati e combinazioni del Mimo). Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
 
 | | |
 |---|---|
 | Ruoli | 51 |
 | Coppie (incluse 51 diagonali) | 1326 |
-| Valutate (si + parziale) | 436 (32.9%) |
-| di cui si | 309 (23.3%) |
-| di cui parziale | 127 |
-| Non valutate | 890 (67.1%) |
-| "si" senza problemi (verde) | 110 |
-| "si" con problemi tutti risolti (arancio) | 111 |
-| Celle con problemi aperti o dubbi (rosso) | 88 |
+| Valutate (si + parziale) | 452 (34.1%) |
+| di cui si | 331 (25.0%) |
+| di cui parziale | 121 |
+| Non valutate | 874 (65.9%) |
+| "si" senza problemi (verde) | 130 |
+| "si" con problemi tutti risolti (arancio) | 110 |
+| Celle con problemi aperti o dubbi (rosso) | 91 |
 | Diagonali valutate | 51 / 51 |
 | Coppie con il Mimo valutate | 50 / 51 |
 
