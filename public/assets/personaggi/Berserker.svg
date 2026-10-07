@@ -10,67 +10,7 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview16"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.9990175"
-     inkscape:cx="72.035389"
-     inkscape:cy="136.06685"
-     inkscape:window-width="1440"
-     inkscape:window-height="830"
-     inkscape:window-x="-6"
-     inkscape:window-y="1073"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg16" />
-  <defs
-     id="defs2">
-    <filter
-       id="a"
-       width="1.1035923"
-       height="1.0776713"
-       x="-0.065716112"
-       y="-0.030011807"
-       style="color-interpolation-filters:sRGB">
-      <feFlood
-         flood-color="#191f27"
-         flood-opacity=".502"
-         result="flood"
-         id="feFlood1" />
-      <feGaussianBlur
-         in="SourceGraphic"
-         result="blur"
-         stdDeviation=".5"
-         id="feGaussianBlur1" />
-      <feOffset
-         dx="-1"
-         dy=".8"
-         in="blur"
-         result="offset"
-         id="feOffset1" />
-      <feComposite
-         in="flood"
-         in2="offset"
-         operator="in"
-         result="comp1"
-         id="feComposite1" />
-      <feComposite
-         in="SourceGraphic"
-         in2="comp1"
-         result="comp2"
-         id="feComposite2" />
-    </filter>
-  </defs>
-  <g
-     style="stroke-width:.321;stroke-dasharray:none;filter:url(#a)"
-     transform="translate(-196.864 6.86)scale(1.58766)"
-     id="g16">
+   xmlns:svg="http://www.w3.org/2000/svg"><defs><g id="c0" style="stroke-width:.321;stroke-dasharray:none">
     <path
        d="m135.979 18.183-5.13-3.572-1.076-5.48M147.326 18.464l5.83-.299 3.275-5.153"
        style="fill:none;fill-opacity:1;stroke:#191f27;stroke-width:.321;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
@@ -148,5 +88,62 @@
          transform="translate(121.399 -184.249)"
          id="path15" />
     </g>
-  </g>
+  </g></defs>
+  <sodipodi:namedview
+     id="namedview16"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.9990175"
+     inkscape:cx="72.035389"
+     inkscape:cy="136.06685"
+     inkscape:window-width="1440"
+     inkscape:window-height="830"
+     inkscape:window-x="-6"
+     inkscape:window-y="1073"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg16" />
+  <defs
+     id="defs2">
+    <filter
+       id="a"
+       width="1.1035923"
+       height="1.0776713"
+       x="-0.065716112"
+       y="-0.030011807"
+       style="color-interpolation-filters:sRGB">
+      <feFlood
+         flood-color="#191f27"
+         flood-opacity=".502"
+         result="flood"
+         id="feFlood1" />
+      <feGaussianBlur
+         in="SourceGraphic"
+         result="blur"
+         stdDeviation=".5"
+         id="feGaussianBlur1" />
+      <feOffset
+         dx="-1"
+         dy=".8"
+         in="blur"
+         result="offset"
+         id="feOffset1" />
+      <feComposite
+         in="flood"
+         in2="offset"
+         operator="in"
+         result="comp1"
+         id="feComposite1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="comp1"
+         result="comp2"
+         id="feComposite2" />
+    </filter>
+  </defs>
+  <g transform="translate(-196.864 6.86)scale(1.58766)" style="filter:url(#a)"><use href="#c0"/></g><g transform="translate(-196.864 6.86)scale(1.58766)"><use href="#c0"/></g>
 </svg>

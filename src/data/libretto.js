@@ -34,7 +34,6 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
     sottosezioni: [
       {
         titolo: 'I giocatori morti',
-        icona: 'icona_morte_teschio',
         lista: [
       `Non possono più **parlare** o fare gesti espliciti per accusare altri personaggi`,
       `Non possono più **utilizzare i loro poteri** (a meno che non sia specificato nelle loro abilità)`,
