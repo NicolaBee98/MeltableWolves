@@ -1,0 +1,422 @@
+{
+ "Addolorata": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 50.51,
+  "altezza": 56.98
+ },
+ "Alchimista": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 39.12,
+  "altezza": 60.52
+ },
+ "Ambasciatore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 59.96,
+  "altezza": 61.8
+ },
+ "Apprendista": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 46.97,
+  "altezza": 60.13
+ },
+ "Bardo": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 36.83,
+  "altezza": 76.29
+ },
+ "Berserker": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 62.94,
+  "altezza": 77.56
+ },
+ "Boia": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 51.6,
+  "altezza": 62.15
+ },
+ "Borgomastro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 44.17,
+  "altezza": 67.81
+ },
+ "Cartomante": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 33.61,
+  "altezza": 63.62
+ },
+ "Cavaliere": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 51.53,
+  "altezza": 84.25
+ },
+ "Chupacabra": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 44.9,
+  "altezza": 73.89
+ },
+ "Cortigiana": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.48,
+  "altezza": 62.78
+ },
+ "Criceto_Malvagio": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 26.68,
+  "altezza": 37.19
+ },
+ "Cucciolo_di_Lupo_Mannaro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 39.2,
+  "altezza": 49.75
+ },
+ "Eremita": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 37.91,
+  "altezza": 58.77
+ },
+ "Fantasma_Onnisciente": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 39.73,
+  "altezza": 53.6
+ },
+ "Fattucchiera": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 51.17,
+  "altezza": 68.98
+ },
+ "Figlia_dei_Lupi": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 43.83,
+  "altezza": 52.42
+ },
+ "Gallo_Mannaro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 40.52,
+  "altezza": 71.96
+ },
+ "Guardia_1": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 34.39,
+  "altezza": 60.04
+ },
+ "Guardia_2": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 28.33,
+  "altezza": 55.59
+ },
+ "Guardia_Mannara": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 36.31,
+  "altezza": 57.48
+ },
+ "Guaritore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.64,
+  "altezza": 67.98
+ },
+ "Innocente": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.58,
+  "altezza": 58.09
+ },
+ "Inquisitore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 47.48,
+  "altezza": 68.52
+ },
+ "LAntico": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 50.95,
+  "altezza": 65.46
+ },
+ "Ladro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 32.84,
+  "altezza": 60.81
+ },
+ "Lupo_Mannaro_1": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 46.32,
+  "altezza": 59.06
+ },
+ "Lupo_Mannaro_2": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 39.06,
+  "altezza": 49.68
+ },
+ "Lupo_Mannaro_3": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 43.69,
+  "altezza": 66.39
+ },
+ "Lupo_Mannaro_4": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 54.43,
+  "altezza": 67.27
+ },
+ "Lupo_Mannaro_5": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 54.39,
+  "altezza": 61.9
+ },
+ "Lupo_Mannaro_Capobranco": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 61.42,
+  "altezza": 66.87
+ },
+ "Lupo_Mannaro_Progenitore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 50.62,
+  "altezza": 67.54
+ },
+ "Maga": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 43.1,
+  "altezza": 75.28
+ },
+ "Medium": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.6,
+  "altezza": 64.93
+ },
+ "Mezzosangue": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 63.82,
+  "altezza": 54.92
+ },
+ "Mimo": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 45.19,
+  "altezza": 60.83
+ },
+ "Mucca_Mannara": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 44.98,
+  "altezza": 65.07
+ },
+ "Nano": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 32.01,
+  "altezza": 65.25
+ },
+ "Nonna": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 44.48,
+  "altezza": 66.94
+ },
+ "Paladino": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 47.5,
+  "altezza": 56.04
+ },
+ "Pastore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 62.01,
+  "altezza": 59.95
+ },
+ "Pifferaio": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 49.52,
+  "altezza": 70.94
+ },
+ "Polpo_Mannaro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 57.34,
+  "altezza": 66.02
+ },
+ "Sacerdote": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 47.05,
+  "altezza": 73.45
+ },
+ "Scemo_del_Villaggio": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 46.2,
+  "altezza": 70.25
+ },
+ "Sciacallo_Mannaro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 59.57,
+  "altezza": 63.86
+ },
+ "Spilungone": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 22.22,
+  "altezza": 88.33
+ },
+ "Strega": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 62.87,
+  "altezza": 77.95
+ },
+ "Suocera": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 37.73,
+  "altezza": 64.11
+ },
+ "Ubriaco": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 57.31,
+  "altezza": 76.47
+ },
+ "Untore": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 44.04,
+  "altezza": 67.73
+ },
+ "Veggente": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.73,
+  "altezza": 60.91
+ },
+ "Veggente_Mannaro": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 33.2,
+  "altezza": 60.56
+ },
+ "Villico_1": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 35.37,
+  "altezza": 52.74
+ },
+ "Villico_10": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 30.03,
+  "altezza": 49.69
+ },
+ "Villico_11": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 41.47,
+  "altezza": 62.13
+ },
+ "Villico_12": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 29.34,
+  "altezza": 48.86
+ },
+ "Villico_13": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 35.14,
+  "altezza": 52.85
+ },
+ "Villico_14": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 38.57,
+  "altezza": 53.7
+ },
+ "Villico_15": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 31.16,
+  "altezza": 58.97
+ },
+ "Villico_2": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 48.69,
+  "altezza": 48.76
+ },
+ "Villico_3": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 40.92,
+  "altezza": 56.22
+ },
+ "Villico_4": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 42.6,
+  "altezza": 57.94
+ },
+ "Villico_5": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 31.86,
+  "altezza": 60.76
+ },
+ "Villico_6": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 37.83,
+  "altezza": 58.33
+ },
+ "Villico_7": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 32.03,
+  "altezza": 51.95
+ },
+ "Villico_8": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 34,
+  "altezza": 62.48
+ },
+ "Villico_9": {
+  "spessore": 0.5096,
+  "fattore": 1,
+  "larghezza": 36.17,
+  "altezza": 52.34
+ }
+}

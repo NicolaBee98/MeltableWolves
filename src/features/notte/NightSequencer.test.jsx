@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { NightSequencer } from './NightSequencer'
 import { useNotte } from '../../state/useNotte'
 import { useLog } from '../../state/useLog'
+import scale from '../../data/scalePersonaggi.json'
 
 function NightSequencerConNotte(props) {
   const notte = useNotte()
@@ -1101,7 +1102,7 @@ test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coi
   expect(src.some((s) => s.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
 })
 
-test('con un branco numeroso tutte le illustrazioni hanno la STESSA altezza, qualunque sia il ruolo', async () => {
+test('con un branco numeroso le illustrazioni hanno altezze proporzionate al personaggio (stesso fattore di scala), non una altezza uniforme', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Gino', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
@@ -1126,8 +1127,12 @@ test('con un branco numeroso tutte le illustrazioni hanno la STESSA altezza, qua
 
   const immagini = [...container.querySelectorAll('img.night-sequencer__illustrazione')]
   expect(immagini).toHaveLength(6)
-  // stessa altezza per tutti, qualunque sia il ruolo (viewBox diversi)
-  for (const img of immagini) expect(img.style.height).toBe(immagini[0].style.height)
+  // altezza = altezza del personaggio * un fattore unico: il rapporto fra due
+  // figure uguale al rapporto delle loro altezze nominali
+  const h = (img) => parseFloat(img.style.height)
+  const nomi = immagini.map((img) => img.src.split('/').pop().replace('.svg', ''))
+  const k = h(immagini[0]) / scale[nomi[0]].altezza
+  immagini.forEach((img, i) => expect(h(img) / scale[nomi[i]].altezza).toBeCloseTo(k, 4))
 })
 
 test('quando il Mimo imita un ruolo che agisce, compare la sua illustrazione accanto a quella del vero titolare (mai una seconda copia del ruolo imitato per il Mimo stesso)', () => {

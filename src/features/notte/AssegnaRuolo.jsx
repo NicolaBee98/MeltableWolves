@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ROLES } from '../../data/roles'
 import { eMimoCopiante, mortoStanotte } from '../../data/assegnazione'
 import { RuoloIllustrazione } from '../../components/RuoloIcona'
+import { dimensioniPersonaggio, PX_PER_UNITA_MAX } from '../../data/assetRuoli'
 
 // Guardia e Guardia Mannara sono la stessa carta agli occhi del narratore
 // (pag. 8): "non è noto chi tra le Guardie patteggi per il branco", quindi
@@ -133,7 +134,11 @@ export function AssegnaRuolo({
 
   return (
     <div className="assegna-ruolo">
-      {mostraIllustrazione && <RuoloIllustrazione slug={ruoloScelto} className="assegna-ruolo__illustrazione" />}
+      {mostraIllustrazione && <RuoloIllustrazione
+          slug={ruoloScelto}
+          className="assegna-ruolo__illustrazione"
+          style={{ height: dimensioniPersonaggio(ruoloScelto).altezza * PX_PER_UNITA_MAX }}
+        />}
       {!modalitaGuardie && opzioni.length > 1 && (
         <label>
           Che ruolo mostra la carta?
