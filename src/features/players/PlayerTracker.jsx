@@ -49,8 +49,7 @@ export function PlayerTracker({
     <section className="player-tracker">
       <h3>Giocatori ({giocatori.length})</h3>
       <p className="player-tracker__istruzioni">
-        Aggiungili nell'ordine in cui sono seduti al tavolo: alcuni ruoli (Untore, Pastore, Berserker...) dipendono da
-        chi siede a fianco a chi. Puoi correggere l'ordine in seguito trascinando una card (su touch, tenendola premuta un istante).
+        Aggiungi i giocatori nell'ordine in cui siedono al tavolo. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.
       </p>
       <AddPlayerForm onAdd={richiediAggiunta} nomiEsistenti={giocatori.map((g) => g.nome)} />
       {daConfermare && (

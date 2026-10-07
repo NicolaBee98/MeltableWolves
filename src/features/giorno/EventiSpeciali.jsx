@@ -255,7 +255,8 @@ export function EventiSpeciali({
   return (
     <div className="eventi-speciali">
       <button type="button" ref={triggerRef} className="eventi-speciali__icona" onClick={() => setEvento('menu')}>
-        🎭 Eventi speciali
+        <img src="/assets/icone/ui/punto_esclamativo.svg" alt="" aria-hidden="true" className="eventi-speciali__img" />
+        Eventi speciali
       </button>
       {evento && (
         <div

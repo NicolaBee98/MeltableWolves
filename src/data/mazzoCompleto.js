@@ -25,9 +25,5 @@ export const MAZZO_COMPLETO = [
   { etichetta: 'Cala la notte', path: '/assets/carte/Riferimento_Cala_la_notte.svg' },
   { etichetta: 'È giorno', path: '/assets/carte/Riferimento_E_giorno.svg' },
   { etichetta: 'La prima partita', path: '/assets/carte/Riferimento_Prima_partita.svg' },
-  { etichetta: 'Carta personalizzabile (1)', path: '/assets/carte/Riferimento_carta_vuota_1.svg' },
-  { etichetta: 'Carta personalizzabile (2)', path: '/assets/carte/Riferimento_carta_vuota_2.svg' },
-  { etichetta: 'Carta personalizzabile (3)', path: '/assets/carte/Riferimento_carta_vuota_3.svg' },
-  { etichetta: 'Carta personalizzabile (4)', path: '/assets/carte/Riferimento_carta_vuota_4.svg' },
   { etichetta: 'Retro carta', path: '/assets/carte/Retro_carta.svg' },
 ]

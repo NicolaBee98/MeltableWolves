@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Home } from './features/home/Home'
+import { ScaricaOffline } from './features/home/ScaricaOffline'
 import { MazzoBuilder } from './features/mazzo/MazzoBuilder'
 import { MazzoGalleria } from './features/mazzo/MazzoGalleria'
 import { Libretto } from './features/libretto/Libretto'
@@ -138,7 +139,7 @@ export default function App() {
           )}
         </h1>
 
-        {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && (
+        {faseApp !== 'mazzo-galleria' && faseApp !== 'libretto' && faseApp !== 'offline' && (
           <LogImpostazioniPopup
             eventi={eventi}
             onNuovaPartita={nuovaPartita}
@@ -165,8 +166,11 @@ export default function App() {
           onNuovaPartita={iniziaNuovaPartitaDaHome}
           onApriLibretto={() => setFaseApp('libretto')}
           onApriMazzo={() => setFaseApp('mazzo-galleria')}
+          onApriOffline={() => setFaseApp('offline')}
         />
       )}
+
+      {faseApp === 'offline' && <ScaricaOffline onTornaAllaHome={() => setFaseApp('home')} />}
 
       {faseApp === 'mazzo-galleria' && <MazzoGalleria onTornaAllaHome={() => setFaseApp('home')} />}
 
