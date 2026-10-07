@@ -28,7 +28,8 @@ export function MazzoGalleria({ onTornaAllaHome }) {
           ← Torna alla Home
         </button>
         <button type="button" onClick={() => setSfogliaAperto(true)}>
-          🎴 Sfoglia il mazzo
+          <img src="/assets/icone/ui/mazzo.svg" alt="" aria-hidden="true" className="mazzo-galleria__sfoglia-icona" />
+          Sfoglia il mazzo
         </button>
       </div>
       <h2>Il mazzo</h2>

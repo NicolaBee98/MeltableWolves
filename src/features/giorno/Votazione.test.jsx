@@ -378,6 +378,24 @@ test('con mostraRuoli attivo ma ruoloSlug non assegnato mostra il punto interrog
   expect(screen.getByRole('img', { name: 'Ruolo non ancora rivelato' })).toBeInTheDocument()
 })
 
+test('se restano in mazzo solo Villici, i ruoli ignoti sono mostrati come Villico', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({ giocatori, mostraRuoli: true, quantita: { 'lupo-mannaro': 1, villico: 1 } })
+  expect(screen.getByRole('img', { name: 'Villico' })).toBeInTheDocument()
+})
+
+test('con una carta non-Villico ancora da uscire il ruolo ignoto resta ignoto', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  setup({ giocatori, mostraRuoli: true, quantita: { 'lupo-mannaro': 1, villico: 1, spilungone: 1 } })
+  expect(screen.getByRole('img', { name: 'Ruolo non ancora rivelato' })).toBeInTheDocument()
+})
+
 test('in fase voto, se la partita è già finita non mostra il banner di vittoria (si verifica solo all\'alba)', () => {
   setup({
     giocatori: [
@@ -403,13 +421,6 @@ test('"Ricomincia votazione" chiede conferma prima di azzerare i voti', async ()
   expect(ricominciaVotazione).not.toHaveBeenCalled()
   await user.click(screen.getByRole('button', { name: 'Sì, ricomincia' }))
   expect(ricominciaVotazione).toHaveBeenCalled()
-})
-
-test('nello spareggio il narratore può sorteggiare tra i candidati (uscita dallo stallo)', async () => {
-  const user = userEvent.setup()
-  setup({ fase: 'esito', voti: { 1: 2, 2: 2 }, candidatiEsito: ['1', '2'] })
-  await user.click(screen.getByRole('button', { name: 'Sorteggia tra i candidati' }))
-  expect(screen.getByRole('button', { name: 'Dichiara morte sul rogo' })).toBeInTheDocument()
 })
 
 test('Cavaliere immolato al rogo: esito confermato con messaggio chiaro e "È notte", il designato sopravvive', () => {
@@ -626,21 +637,6 @@ test('dopo il primo rogo ricorda di assegnare il Fantasma Onnisciente, finché n
   const props = { giocatori: g, voti: { 1: 2 }, fase: 'esito', candidatiEsito: ['1'], ruoliSelezionati: ['fantasma-onnisciente'] }
   setup(props)
   expect(screen.getByText(/Assegna la carta del Fantasma Onnisciente al primo morto/)).toBeInTheDocument()
-})
-
-test('sorteggio dello spareggio: mostra "Sorteggiato: X"', async () => {
-  const user = userEvent.setup()
-  setup({
-    giocatori: [
-      { id: '1', nome: 'Anna', vivo: true },
-      { id: '2', nome: 'Marco', vivo: true },
-    ],
-    voti: { 1: 2, 2: 2 },
-    fase: 'esito',
-    candidatiEsito: ['1', '2'],
-  })
-  await user.click(screen.getByRole('button', { name: 'Sorteggia tra i candidati' }))
-  expect(screen.getByText(/^Sorteggiato: (Anna|Marco)$/)).toBeInTheDocument()
 })
 
 test('l\'ex-Antico è mostrato "(Villico, ex Antico)" con i nomi dei ruoli attivi', () => {

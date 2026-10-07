@@ -36,6 +36,16 @@ export function ruoliAssegnabili(ruoli, giocatori, quantita) {
   return ruoli.filter((slug) => contaAssegnati(giocatori, slug) < (quantita[slug] ?? 1))
 }
 
+// true se le carte ancora in mazzo e non assegnate sono tutte e sole Villici:
+// allora ogni giocatore con ruolo ignoto ("?") è sicuramente un Villico e la
+// UI può mostrarlo come tale (solo visualizzazione, ruoloSlug non cambia)
+export function ignotiSonoVillici(giocatori, quantita) {
+  const residui = Object.entries(quantita)
+    .map(([slug, n]) => [slug, n - contaAssegnati(giocatori, slug)])
+    .filter(([, resto]) => resto > 0)
+  return residui.length > 0 && residui.every(([slug]) => slug === 'villico')
+}
+
 // Guardia e Guardia Mannara sono la stessa carta agli occhi del narratore
 // (pag. 8: "non è noto chi tra le Guardie patteggi per il branco"): si
 // scelgono insieme come un unico gruppo ("le tre guardie"), mai indicando

@@ -58,6 +58,8 @@
   --radius: 16px;
   --border: 2px solid var(--text);
   --shadow-card: 3px 3px 0 var(--text);
+  /* alone bianco per le icone colorate su pulsanti rossi/verdi (contrasto) */
+  --alone-icona: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
 }
 
 /* Notte: la fase più cupa, colori freddi come il cielo notturno del mazzo */
@@ -336,6 +338,30 @@ legend {
   padding: 0.9rem;
 }
 
+.home__riga {
+  display: flex;
+  gap: 0.9rem;
+  width: 100%;
+}
+
+.home__riga button {
+  flex: 1;
+}
+
+.home__offline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.home__offline-icona {
+  height: 1.4rem;
+  width: auto;
+  filter: var(--alone-icona);
+}
+
 .home button:disabled {
   background: transparent;
   border-color: var(--pal-blu-notte);
@@ -367,6 +393,19 @@ legend {
   margin-bottom: 0.5rem;
 }
 
+
+.mazzo-galleria__header button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  padding-inline: 0.8rem;
+}
+
+.mazzo-galleria__sfoglia-icona {
+  height: 1.1rem;
+  width: auto;
+}
 
 .mazzo-galleria__fazione h3 {
   margin-top: 1.25rem;
@@ -446,6 +485,8 @@ legend {
 
 .sfoglia-mazzo__scorrimento {
   width: 100%;
+  /* un po' sollevata dal fondo (barre di sistema, gesto "home" dei telefoni) */
+  margin-bottom: 2.5rem;
 }
 
 /* Libretto: regolamento completo, una pagina continua */
@@ -759,6 +800,16 @@ legend {
   position: relative;
 }
 
+/* Avanti / Inizia la notte e icona del Registro: rosso (bianco su rosso ~9:1)
+   invece del verde di preparazione, solo in queste due schermate */
+.giocatori-fase__prosegui,
+.mazzo-fase__avanti,
+[data-fase='mazzo'] .log-impostazioni__icona,
+[data-fase='giocatori'] .log-impostazioni__icona {
+  background: var(--pal-rosso);
+  color: var(--pal-bianco);
+}
+
 .giocatori-fase__prosegui {
   display: block;
   margin: 1.5rem auto 0;
@@ -991,6 +1042,11 @@ button.chip--fazione-sconosciuto {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 0;
+}
+
+/* l'h2 di Alba/Giorno/Rogo ha la stessa dimensione della didascalia della Notte (un <p>) */
+.titolo-fase {
+  font-size: 1rem;
 }
 
 .night-sequencer__passo {
@@ -1306,6 +1362,17 @@ button.chip--fazione-sconosciuto {
   border-color: var(--text);
 }
 
+.eventi-speciali__icona {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eventi-speciali__img {
+  height: 1.3rem;
+  width: auto;
+}
+
 .eventi-speciali__popup {
   position: relative;
   background: var(--pal-bianco);
@@ -1397,6 +1464,12 @@ button.chip--fazione-sconosciuto {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+.log-impostazioni__img {
+  width: 1.7rem;
+  height: 1.7rem;
+  filter: var(--alone-icona);
 }
 
 .log-impostazioni__icona {
@@ -1621,4 +1694,34 @@ textarea:focus-visible {
 .pulsante-tieni__testo small {
   font-weight: 600;
   font-size: 0.75em;
+}
+
+/* Scarica offline: istruzioni di installazione */
+
+.scarica-offline__sezione {
+  background: var(--surface);
+  color: var(--pal-inchiostro);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.scarica-offline__sezione--tuo {
+  box-shadow: var(--shadow-card);
+  border-color: var(--pal-rosso);
+}
+
+.scarica-offline__sezione h3 {
+  margin-bottom: 0.4rem;
+}
+
+.scarica-offline__tuo {
+  font-size: 0.8rem;
+  color: var(--pal-rosso);
+}
+
+.scarica-offline__sezione ol {
+  margin: 0 0 0.5rem;
+  padding-left: 1.3rem;
 }

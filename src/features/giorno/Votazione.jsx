@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
 import { CONDIZIONI } from '../../data/conditions'
 import { ROLES, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
-import { ruoliAssegnabili } from '../../data/assegnazione'
+import { ruoliAssegnabili, ignotiSonoVillici } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
 import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
@@ -27,8 +27,9 @@ function BadgeCondizioni({ condizioni = [] }) {
 // diurna non ancora rivelati (RUOLI_RIVELAZIONE_GIORNO): mostra comunque il
 // punto interrogativo invece di sparire, per segnalare "identità non nota
 // ancora" e non "nessuna informazione qui"
-function BadgeRuolo({ giocatore, variante }) {
-  const slugVisibile = ruoloIconaGiocatore(giocatore)
+// ignotiVillici: tutte le altre carte sono già uscite, il "?" può essere solo Villico
+function BadgeRuolo({ giocatore, variante, ignotiVillici }) {
+  const slugVisibile = ruoloIconaGiocatore(giocatore) ?? (ignotiVillici ? 'villico' : undefined)
   const ruolo = ROLES.find((r) => r.slug === slugVisibile)
   return (
     <RuoloIcona
@@ -50,7 +51,7 @@ function nomeRuoloTraParentesi(giocatore) {
 
 // elenco di tutti i morti della partita (non solo di questo giorno/notte),
 // per tenerne traccia durante le votazioni successive
-function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo }) {
+function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo, ignotiVillici }) {
   const morti = giocatori.filter((g) => !g.vivo)
   if (morti.length === 0) return null
 
@@ -62,6 +63,7 @@ function SezioneMorti({ giocatori, mostraRuoli, variantiFaccia, mostraNomeRuolo 
           <li key={g.id}>
             {mostraRuoli && (
               <BadgeRuolo
+                ignotiVillici={ignotiVillici}
                 giocatore={g}
                 variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
               />
@@ -117,6 +119,7 @@ export function Votazione({
   durataTimer = 60,
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
+  const ignotiVillici = ignotiSonoVillici(giocatori, quantita)
   // Spilungone e L'Antico non muoiono mai al primo rogo: si rivelano e
   // basta (pag. 16, 21). Tracciati a parte perché non passano mai da onRogo.
   // ponytail: questo stato locale non si resetta tra un giorno e l'altro
@@ -135,8 +138,6 @@ export function Votazione({
   // spareggio: la chip resta selezionabile/cambiabile finché non si preme
   // "Dichiara morte sul rogo", invece di decidere già al click della chip
   const [designatoSpareggio, setDesignatoSpareggio] = useState(null)
-  // id estratto col sorteggio (messaggio "Sorteggiato: X" finché resta la scelta corrente)
-  const [sorteggiatoId, setSorteggiatoId] = useState(null)
   const [confermaRicomincia, setConfermaRicomincia] = useState(false)
   // "Si rivela: è lo Spilungone/L'Antico" non si applica al primo click: prima
   // una conferma esplicita (come per le scelte degli Eventi speciali)
@@ -488,7 +489,6 @@ export function Votazione({
                       className="chip"
                       aria-pressed={designatoSpareggioValido === id}
                       onClick={() => {
-                        setSorteggiatoId(null)
                         setDesignatoSpareggio(id)
                       }}
                     >
@@ -496,21 +496,6 @@ export function Votazione({
                     </button>
                   ))}
                 </div>
-                {/* via d'uscita se il tavolo non decide: il narratore sorteggia
-                    tra i candidati (resta comunque cambiabile prima di confermare) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const id = designati[Math.floor(Math.random() * designati.length)]
-                    setSorteggiatoId(id)
-                    setDesignatoSpareggio(id)
-                  }}
-                >
-                  Sorteggia tra i candidati
-                </button>
-                {sorteggiatoId !== null && sorteggiatoId === designatoSpareggioValido && (
-                  <p>Sorteggiato: {giocatori.find((g) => g.id === sorteggiatoId)?.nome}</p>
-                )}
                 {designatoSpareggioValido && renderEsitoDesignato(designatoSpareggioValido)}
               </div>
             ) : null}
@@ -554,6 +539,7 @@ export function Votazione({
           onAnnullaMorte={onAnnullaMorte}
         />
         <SezioneMorti
+          ignotiVillici={ignotiVillici}
           giocatori={giocatori}
           mostraRuoli={mostraRuoli}
           variantiFaccia={variantiFaccia}
@@ -572,6 +558,7 @@ export function Votazione({
           <li key={g.id}>
             {mostraRuoli && (
               <BadgeRuolo
+                ignotiVillici={ignotiVillici}
                 giocatore={g}
                 variante={variantiFaccia ? variantePerGiocatore(giocatori, g.id) : undefined}
               />

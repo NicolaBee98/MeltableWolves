@@ -46,7 +46,7 @@ export function LogImpostazioniPopup({
         aria-label="Registro e impostazioni"
         onClick={() => setAperto((a) => !a)}
       >
-        <span aria-hidden="true">⚙️</span>
+        <img src="/assets/icone/ui/ingranaggio.svg" alt="" aria-hidden="true" className="log-impostazioni__img" />
       </button>
       {aperto && (
         <div
