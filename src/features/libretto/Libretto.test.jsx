@@ -25,3 +25,9 @@ test('cliccare "Home" chiama onTornaAllaHome', async () => {
   await user.click(screen.getByRole('button', { name: /Home/ }))
   expect(onTornaAllaHome).toHaveBeenCalled()
 })
+
+test('"I giocatori morti" non ha icona (niente teschio)', () => {
+  render(<Libretto onTornaAllaHome={() => {}} />)
+  const titolo = screen.getByRole('heading', { name: 'I giocatori morti' })
+  expect(titolo.querySelector('img[src*="teschio"]')).toBeNull()
+})

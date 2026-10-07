@@ -10,67 +10,7 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview15"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.456251"
-     inkscape:cx="-59.742446"
-     inkscape:cy="173.73378"
-     inkscape:window-width="1440"
-     inkscape:window-height="830"
-     inkscape:window-x="-6"
-     inkscape:window-y="1073"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg15" />
-  <defs
-     id="defs2">
-    <filter
-       id="a"
-       width="1.1588528"
-       height="1.0802142"
-       x="-0.10077268"
-       y="-0.030997645"
-       style="color-interpolation-filters:sRGB">
-      <feFlood
-         flood-color="#191f27"
-         flood-opacity=".502"
-         result="flood"
-         id="feFlood1" />
-      <feGaussianBlur
-         in="SourceGraphic"
-         result="blur"
-         stdDeviation=".5"
-         id="feGaussianBlur1" />
-      <feOffset
-         dx="-1"
-         dy=".8"
-         in="blur"
-         result="offset"
-         id="feOffset1" />
-      <feComposite
-         in="flood"
-         in2="offset"
-         operator="in"
-         result="comp1"
-         id="feComposite1" />
-      <feComposite
-         in="SourceGraphic"
-         in2="comp1"
-         result="comp2"
-         id="feComposite2" />
-    </filter>
-  </defs>
-  <g
-     style="filter:url(#a)"
-     transform="translate(462.108 -1228.412)scale(1.58766)"
-     id="g15">
+   xmlns:svg="http://www.w3.org/2000/svg"><defs><g id="c0">
     <path
        d="M-271.732 785.375c-2.787.648-5.402.414-8.252-.047-.443.221-1.068.057-1.613.38-.275.161-.568 1.464-1.37 2.299-.316.329.27 1.064.373 1.298.294.668 1.327 1.11 1.873 2.25l10.13-.388q-.583-.275 1.376 0c.442-1.226 1.388-2.368 1.31-2.625-.117-.379-.783-1.284-.847-2.048-.142-.203-.508-.79-1.175-.977z"
        style="fill:#678a36;stroke:#192027;stroke-width:.321;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
@@ -127,5 +67,62 @@
        d="m-285.065 801.772.872.403-.6 1.376c.253.935.04 1.736-.738 2.08l-.626 1.67-2.235 6.644q-.214.16-.31-.106l1.972-6.838.357-1.606c-.37-1.107-.083-1.882.8-2.184z"
        style="fill:#cb965b;fill-opacity:1;stroke:#192027;stroke-width:.321;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="path15" />
-  </g>
+  </g></defs>
+  <sodipodi:namedview
+     id="namedview15"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.456251"
+     inkscape:cx="-59.742446"
+     inkscape:cy="173.73378"
+     inkscape:window-width="1440"
+     inkscape:window-height="830"
+     inkscape:window-x="-6"
+     inkscape:window-y="1073"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg15" />
+  <defs
+     id="defs2">
+    <filter
+       id="a"
+       width="1.1588528"
+       height="1.0802142"
+       x="-0.10077268"
+       y="-0.030997645"
+       style="color-interpolation-filters:sRGB">
+      <feFlood
+         flood-color="#191f27"
+         flood-opacity=".502"
+         result="flood"
+         id="feFlood1" />
+      <feGaussianBlur
+         in="SourceGraphic"
+         result="blur"
+         stdDeviation=".5"
+         id="feGaussianBlur1" />
+      <feOffset
+         dx="-1"
+         dy=".8"
+         in="blur"
+         result="offset"
+         id="feOffset1" />
+      <feComposite
+         in="flood"
+         in2="offset"
+         operator="in"
+         result="comp1"
+         id="feComposite1" />
+      <feComposite
+         in="SourceGraphic"
+         in2="comp1"
+         result="comp2"
+         id="feComposite2" />
+    </filter>
+  </defs>
+  <g transform="translate(462.108 -1228.412)scale(1.58766)" style="filter:url(#a)"><use href="#c0"/></g><g transform="translate(462.108 -1228.412)scale(1.58766)"><use href="#c0"/></g>
 </svg>
