@@ -445,9 +445,9 @@ test('la vendetta del Cucciolo parte una sola volta: i due Cuccioli (Mimo inclus
   expect(result.current.giocatori.find((g) => g.id === 'B').ruoloSlug).toBe('lupo-mannaro')
 })
 
-// voce 3 del 2026-10-05: maestro morto con ruolo ignoto (es. Suocera): l'Apprendista
-// aspetta, e quando il ruolo diventa noto eredita
-test('Apprendista con maestro morto senza ruolo noto resta in attesa, poi eredita quando il ruolo del maestro viene rivelato', () => {
+// maestro morto con ruolo ignoto (es. Scemo, Boia): l'Apprendista si rivela e prende la
+// carta, che resta ignota per tutti (anche per l'app) fino alla rivelazione
+test('Apprendista con maestro morto a ruolo ignoto: si rivela e il suo ruolo resta ignoto', () => {
   localStorage.setItem(
     'meltable-wolves-partita',
     JSON.stringify([
@@ -459,10 +459,12 @@ test('Apprendista con maestro morto senza ruolo noto resta in attesa, poi eredit
   const sara = () => result.current.giocatori.find((g) => g.id === 'S')
 
   act(() => result.current.aggiornaGiocatore('M', { vivo: false, causaMorte: 'notte', mortoNotte: 1 }))
-  expect(sara()).toMatchObject({ ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: 'M' } })
+  expect(sara()).toMatchObject({ ruoloSlug: undefined, legame: null, apprendistaRivelatoDa: 'M' })
+  expect(sara().storiaRuoli).toContain('apprendista')
 
-  act(() => result.current.aggiornaGiocatore('M', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] }))
-  expect(sara()).toMatchObject({ ruoloSlug: 'suocera', legame: null })
+  // quando il nuovo titolare rivela la carta (es. era lo Scemo), il ruolo diventa noto
+  act(() => result.current.aggiornaGiocatore('S', { ruoloSlug: 'scemo-del-villaggio' }))
+  expect(sara()).toMatchObject({ ruoloSlug: 'scemo-del-villaggio' })
 })
 
 test('resuscitare un innamorato lo libera e libera il partner vivo; annullare una morte no', () => {

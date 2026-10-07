@@ -162,6 +162,11 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     // (annunciAlba, registrati da NightSequencer): niente doppione dal diff
     const coperto = (campo) => fase === 'notte' && giocatore[campo] !== undefined && giocatore[campo] !== prima[campo]
     const trasformatoMezzosangue = coperto('trasformatoNotte')
+    // Apprendista con maestro a ruolo ignoto: si rivela e prende la carta ignota
+    if (giocatore.apprendistaRivelatoDa && giocatore.apprendistaRivelatoDa !== prima.apprendistaRivelatoDa && !coperto('ereditaNotte')) {
+      const maestro = correnti.find((g) => g.id === giocatore.apprendistaRivelatoDa)?.nome ?? '?'
+      eventi.push({ round, fase, messaggio: `${nome} (Apprendista) si rivela e prende la carta del maestro ${maestro} (ruolo ancora ignoto)` })
+    }
     let ereditato = false
     for (const campo of ['legame', 'legameMimo']) {
       const l0 = prima[campo]

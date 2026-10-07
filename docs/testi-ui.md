@@ -11,7 +11,7 @@ Regole:
 - Alcune voci sono annidate in altre (una frase intera e le sue varianti): se cambi la frase intera, controlla anche le varianti.
 - Per eliminare un testo scrivi `[[vuoto]]`; per lasciarlo com'è non toccarlo.
 
-Totale voci: 903.
+Totale voci: 900.
 
 ## Schermate generali (Home, Mazzo, Giocatori, Regolamento, Registro, impostazioni, avvisi)
 
@@ -587,15 +587,6 @@ Totale voci: 903.
 
 - **T0191** · indicatore passo, parte 2/3 (" di " + totale) · `src/features/notte/NightSequencer.jsx:987`
   TESTO:  di 
-
-- **T0192** · avviso Apprendista in attesa, parte 1/3 (emoji + nome) · `src/features/notte/NightSequencer.jsx:990`
-  TESTO:  ⏳ 
-
-- **T0193** · avviso Apprendista in attesa, parte 2/3 (dopo il nome) · `src/features/notte/NightSequencer.jsx:991`
-  TESTO:  (Apprendista) è in attesa: il maestro 
-
-- **T0194** · avviso Apprendista in attesa, parte 3/3 (dopo il nome del maestro) · `src/features/notte/NightSequencer.jsx:991`
-  TESTO:  è morto con ruolo ignoto, erediterà quando ne verrà rivelato il ruolo. 
 
 - **T0195** · avviso maledizione de L'Antico · `src/features/notte/NightSequencer.jsx:996`
   TESTO:  🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi. 

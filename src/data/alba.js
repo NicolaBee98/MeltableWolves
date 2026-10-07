@@ -57,6 +57,12 @@ export function annunciAlba(giocatori, round) {
   }
   for (const g of giocatori.filter((g) => g.ereditaNotte === round)) {
     const maestro = giocatori.find((x) => x.id === g.ereditaDa)?.nome
+    if (g.ereditaIgnota) {
+      annunci.push(
+        `${g.nome} si rivela: è l'Apprendista${maestro ? ` di ${maestro}` : ''} e prende la sua carta (ruolo ancora ignoto: resta ignoto finché non viene rivelato).`,
+      )
+      continue
+    }
     annunci.push(
       `${g.nome} si rivela: è l'Apprendista${maestro ? ` di ${maestro}` : ''} ed eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(g.ruoloSlug))}.`,
     )

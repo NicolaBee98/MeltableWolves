@@ -175,12 +175,19 @@ test('Cavaliere e Apprendista sullo stesso bersaglio: l\'Apprendista non eredita
   expect(risolviLegami(giocatori)['2']).toBeUndefined()
 })
 
-test('Apprendista con maestro senza ruolo noto resta legato', () => {
+test('Apprendista con maestro a ruolo ignoto: si rivela e prende la carta, che resta ignota (ruoloSlug vuoto)', () => {
   const giocatori = [
     { ...base, id: '1', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } },
-    { ...base, id: '2', vivo: false },
+    { ...base, id: '2', vivo: false, causaMorte: 'notte', mortoNotte: 1 },
   ]
-  expect(risolviLegami(giocatori)['1']).toBeUndefined()
+  expect(risolviLegami(giocatori)['1']).toMatchObject({
+    legame: null,
+    ruoloSlug: undefined,
+    apprendistaRivelatoDa: '2',
+    ereditaNotte: 1,
+    ereditaDa: '2',
+    ereditaIgnota: true,
+  })
 })
 
 test('Cortigiana con cliente lupo protetto sopravvive; non protetto muore', () => {
