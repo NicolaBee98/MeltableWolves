@@ -30,11 +30,14 @@ export default defineConfig({
         description: 'Assistente per il Narratore di Meltable Wolves',
         start_url: '/',
         display: 'standalone',
-        background_color: '#1b2036',
+        background_color: '#8ca6c6',
         theme_color: '#1b2036',
         icons: [
-          { src: '/assets/icone/app/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/assets/icone/app/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/assets/icone/app/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/assets/icone/app/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          // faccia più piccola (zona sicura ~80%) per le maschere adattive di Android
+          { src: '/assets/icone/app/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/assets/icone/app/icon-1024.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' },
         ],
       },
     }),
