@@ -59,7 +59,7 @@
   --border: 2px solid var(--text);
   --shadow-card: 3px 3px 0 var(--text);
   /* alone bianco per le icone colorate su pulsanti rossi/verdi (contrasto) */
-  --alone-icona: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
+  --alone-icona: drop-shadow(1px 0 0 var(--pal-inchiostro)) drop-shadow(-1px 0 0 var(--pal-inchiostro)) drop-shadow(0 1px 0 var(--pal-inchiostro)) drop-shadow(0 -1px 0 var(--pal-inchiostro));
 }
 
 /* Notte: la fase più cupa, colori freddi come il cielo notturno del mazzo */
@@ -1009,7 +1009,8 @@ button.chip--fazione-sconosciuto {
 }
 
 .assegna-ruolo__illustrazione {
-  max-height: 160px;
+  /* altezza proporzionata al personaggio, inline (vedi AssegnaRuolo.jsx) */
+  max-width: none;
   width: auto;
   margin: 0 auto 0.75rem;
 }
@@ -1079,33 +1080,25 @@ button.chip--fazione-sconosciuto {
 
 .night-sequencer__illustrazioni {
   display: flex;
-  flex-wrap: nowrap;
-  /* "safe center": centrata quando ci sta, ma se il gruppo è più largo del
-     contenitore si allinea a sinistra invece di aprirsi già scrollata a
-     metà (con "center" puro, il primo personaggio finirebbe tagliato fuori
-     dallo scroll iniziale) */
-  justify-content: safe center;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
   margin: 0.5rem 0 1rem;
-  /* mai "overflow: hidden": con un branco molto numeroso, su schermi
-     stretti, taglierebbe via in silenzio gli ultimi personaggi invece di
-     segnalarlo — meglio uno scorrimento orizzontale, sempre visibile */
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
-.night-sequencer__illustrazione-slot {
+/* una riga di figure allineate in basso: altezza (proporzionata al
+   personaggio) e numero di righe sono calcolati in JS, vedi
+   IllustrazioniCoinvolti/disponiFigure; niente scorrimento orizzontale */
+.night-sequencer__illustrazioni-riga {
   display: flex;
+  justify-content: center;
   align-items: flex-end;
-  flex-shrink: 0;
 }
 
-/* l'altezza e la sovrapposizione (margin-left) sono calcolate in JS in
-   base a quante immagini ci sono, vedi IllustrazioniCoinvolti in
-   NightSequencer.jsx: qui solo le proprietà che non cambiano */
 .night-sequencer__illustrazione {
   width: auto;
+  max-width: none;
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* fissi in basso, sempre alla stessa altezza: senza questo, quanto testo
@@ -1354,6 +1347,8 @@ button.chip--fazione-sconosciuto {
 
 .eventi-speciali {
   margin: 1rem 0;
+  display: flex;
+  justify-content: center;
 }
 
 .eventi-speciali__icona {
@@ -1365,6 +1360,7 @@ button.chip--fazione-sconosciuto {
 .eventi-speciali__icona {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 
