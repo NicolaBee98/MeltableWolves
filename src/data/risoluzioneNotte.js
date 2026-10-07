@@ -85,7 +85,6 @@ export function risolviLegami(giocatori) {
       const target = giocatori.find((g) => g.id === legame.targetId)
       if (!target || target.vivo || salvati.has(target.id)) continue
 
-      // maestro con ruolo ancora sconosciuto: l'apprendista resta legato e aspetta.
       // L'Antico morto con la prima vita ancora intera (es. crepacuore) non lascia
       // nulla: l'Apprendista si svela solo alla morte vera, sempre come Villico
       const primaVitaAntico = target.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined
@@ -102,6 +101,22 @@ export function risolviLegami(giocatori) {
           // per una morte notturna, il rogo non ha un "round dell'alba"
           ...(target.causaMorte !== 'rogo' && target.mortoNotte !== undefined
             ? { ereditaNotte: target.mortoNotte, ereditaDa: target.id }
+            : {}),
+        }
+      }
+
+      // maestro morto con ruolo ancora ignoto (es. Scemo, Boia, Suocera): l'Apprendista
+      // si rivela e prende la carta del maestro, che resta ignota per tutti (anche per
+      // l'app) finché non viene rivelata (evento speciale sul suo nuovo titolare)
+      if (legame.tipo === 'apprendista' && !target.ruoloSlug) {
+        patch[attore.id] = {
+          ...patch[attore.id],
+          [campo]: null,
+          // ha la carta ignota del maestro: per l'app il suo ruolo resta ignoto
+          ruoloSlug: undefined,
+          apprendistaRivelatoDa: target.id,
+          ...(target.causaMorte !== 'rogo' && target.mortoNotte !== undefined
+            ? { ereditaNotte: target.mortoNotte, ereditaDa: target.id, ereditaIgnota: true }
             : {}),
         }
       }

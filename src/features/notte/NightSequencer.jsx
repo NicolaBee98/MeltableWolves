@@ -820,7 +820,8 @@ export function NightSequencer({
   // quindi non ha senso lasciarli misteriosi solo perché il narratore non è
   // ancora passato dal passo dedicato a quel ruolo.
   function autoAssegnaRuoliRimasti(lista, aggiorna) {
-    const senzaRuolo = lista.filter((g) => !g.ruoloSlug)
+    // l'Apprendista che ha preso la carta ignota del maestro non è un Villico "in più"
+    const senzaRuolo = lista.filter((g) => !g.ruoloSlug && !g.apprendistaRivelatoDa)
     if (senzaRuolo.length === 0) return
 
     const ruoliNonVillicoPendenti = ruoliSelezionati.filter(
@@ -936,14 +937,6 @@ export function NightSequencer({
   const puoTornareAiGiocatori =
     onTornaAiGiocatori && round === 1 && indiceValido === 0 && fatti.length === 0 && !modificato
 
-  // Apprendista vivo il cui maestro è morto con ruolo ancora ignoto (es. Suocera):
-  // eredita solo quando il ruolo del maestro viene rivelato
-  const maestriInAttesa = giocatori
-    .filter((g) => g.vivo)
-    .flatMap((g) => [g.legame, g.legameMimo].filter((l) => l?.tipo === 'apprendista').map((l) => ({ g, l })))
-    .map(({ g, l }) => ({ apprendista: g, maestro: giocatori.find((x) => x.id === l.targetId) }))
-    .filter(({ maestro }) => maestro && !maestro.vivo && !maestro.ruoloSlug)
-
   // il totale stimato all'ingresso può essere in eccesso (es. il Pifferaio non ha ipnotizzato
   // nessuno: niente passo "ipnotizzati"): sull'ultimo passo reale coincide con quello corrente
   const totalePassi =
@@ -970,12 +963,6 @@ export function NightSequencer({
       <p className="night-sequencer__passo">
         Passo {fatti.length + 1} di {totalePassi}
       </p>
-      {maestriInAttesa.map(({ apprendista, maestro }) => (
-        <p key={apprendista.id + maestro.id} className="avviso">
-          ⏳ {apprendista.nome} (Apprendista) è in attesa: il maestro {maestro.nome} è morto con ruolo ignoto, erediterà
-          quando ne verrà rivelato il ruolo.
-        </p>
-      ))}
       {maledetto && (
         <p className="night-sequencer__maledizione">
           🌑 Il villaggio è maledetto da L'Antico: questa notte agiscono solo i poteri malvagi.

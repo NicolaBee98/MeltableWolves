@@ -1941,19 +1941,6 @@ test('mazzo Lupo+Chupacabra: dopo i lupi si passa al Branco e poi al Chupacabra,
   expect(screen.getByText('Passo 2 di 3')).toBeInTheDocument()
 })
 
-test('Apprendista con maestro morto a ruolo ignoto: promemoria visibile "in attesa"', () => {
-  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
-  creaHarness(
-    [
-      { id: 'S', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: 'M' } },
-      { id: 'M', nome: 'Marta', vivo: false, condizioni: [] },
-      { id: 'V', nome: 'Vera', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
-    ],
-    ['apprendista', 'veggente'],
-  )
-  expect(screen.getByText(/Sara \(Apprendista\) è in attesa/)).toBeInTheDocument()
-})
-
 test('Berserker sbranato con due lupi alla stessa distanza: la scelta è vincolante (Avanti disabilitato), sopravvive al ricaricamento, muoiono Berserker E lupo scelto', async () => {
   localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
   const user = userEvent.setup()
