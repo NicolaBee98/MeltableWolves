@@ -1,3 +1,5 @@
+import scale from './scalePersonaggi.json'
+
 // Nome file (senza estensione) per ciascun ruolo, dentro public/assets/facce
 // e public/assets/personaggi. Tabella esplicita invece di una trasformazione
 // automatica dello slug: alcuni file usano preposizioni minuscole
@@ -108,6 +110,50 @@ export function personaggioPath(slug, variante) {
   const totale = VARIANTI_PERSONAGGIO[slug]
   const suffisso = totale ? `_${variante ? ((variante - 1) % totale) + 1 : 1}` : ''
   return `/assets/personaggi/${file}${suffisso}.svg`
+}
+
+// Dimensioni (unità viewBox) di un personaggio con il contorno già portato
+// allo stesso spessore di tutti gli altri: generate da
+// scripts/misura-personaggi.mjs. Mostrando ogni figura con altezza = altezza *
+// k (k unico per l'intera riga) le figure sono proporzionate fra loro: Spilungone
+// più alto, Nano più basso, ecc.
+export function dimensioniPersonaggio(slug, variante) {
+  const src = personaggioPath(slug, variante)
+  // ruolo senza personaggio: ritorna comunque misure plausibili
+  return scale[src?.split('/').pop().replace('.svg', '')] ?? scale.Villico_1
+}
+
+// altezza a schermo (px) della figura più alta in assoluto, e conseguente
+// px per unità viewBox massimi: valgono anche per una figura sola
+const ALTEZZA_MASSIMA_PX = 200
+const ALTEZZA_PIU_ALTA = Math.max(...Object.values(scale).map((d) => d.altezza))
+export const PX_PER_UNITA_MAX = ALTEZZA_MASSIMA_PX / ALTEZZA_PIU_ALTA
+
+// Dispone le figure (in ordine) su una o più righe, con un unico fattore k
+// (px per unità viewBox) uguale per tutte, in modo che nessuna riga superi la
+// larghezza `larghezza` (niente scroll orizzontale). Si usa il minor numero di
+// righe per cui la figura più alta resta almeno `altezzaMinima` px: figure più
+// grandi possibile, ma sempre tutte visibili e leggibili.
+// `dim`: [{ larghezza, altezza }]. Ritorna { k, righe: [[indice, ...], ...] }.
+export function disponiFigure(dim, larghezza, { altezzaMinima = 90 } = {}) {
+  const altMax = Math.max(...dim.map((d) => d.altezza))
+  const tot = dim.reduce((a, d) => a + d.larghezza, 0)
+  let esito
+  for (let r = 1; r <= dim.length; r++) {
+    // riempie le righe in ordine, chiudendo ognuna quando passa la sua quota
+    const righe = [[]]
+    let cum = 0
+    dim.forEach((d, i) => {
+      if (righe.length < r && cum + d.larghezza / 2 > (tot / r) * righe.length) righe.push([])
+      righe.at(-1).push(i)
+      cum += d.larghezza
+    })
+    const larghMax = Math.max(...righe.map((riga) => riga.reduce((a, i) => a + dim[i].larghezza, 0)))
+    const k = Math.min(larghezza / larghMax, PX_PER_UNITA_MAX)
+    esito = { k, righe }
+    if (k * altMax >= altezzaMinima) break
+  }
+  return esito
 }
 
 // carte/: la carta stampata così com'è (bordo, nome, illustrazione, testo

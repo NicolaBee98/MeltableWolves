@@ -8,7 +8,7 @@ import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
 import { PulsanteTieni } from '../../components/PulsanteTieni'
 import { RuoloIcona, RuoloIllustrazione } from '../../components/RuoloIcona'
-import { variantePerGiocatore } from '../../data/assetRuoli'
+import { dimensioniPersonaggio, disponiFigure, variantePerGiocatore } from '../../data/assetRuoli'
 
 // sottotitolo "Legato con..." per i ruoli con legame permanente stabilito
 // la prima notte (pag. 9-10): una volta scelto il bersaglio non si può più
@@ -54,22 +54,15 @@ function quantitaUguali(a, b) {
 }
 
 // figura intera di ogni giocatore coinvolto in questo passo, fianco a
-// fianco: ogni notte, non solo quando il ruolo viene assegnato. TUTTE alla
-// stessa altezza (gli artwork in public/assets/personaggi hanno viewBox con
-// altezze e margini diversi: scalarli per altezza naturale faceva risultare
-// alcuni, es. nella sveglia del Pifferaio, più grandi di altri). L'altezza è
-// calcolata sulla larghezza reale disponibile (il box della fase, misurata
-// con ResizeObserver) così l'intero gruppo ci sta sempre su una riga sola,
-// senza dover scorrere, ridimensionandosi in modo uniforme.
+// fianco: ogni notte, non solo quando il ruolo viene assegnato. Le figure
+// hanno altezze diverse e proporzionate (stesso spessore di contorno, vedi
+// dimensioniPersonaggio), allineate in basso, con un unico fattore di scala
+// calcolato sulla larghezza reale disponibile (il box della fase, misurata
+// con ResizeObserver): se in una riga non stanno abbastanza grandi si va a
+// capo (disponiFigure), mai scorrimento orizzontale.
 // Chi sta imitando (il Mimo) mostra SOLO la propria illustrazione, mai anche
 // quella del ruolo copiato: visivamente resta se stesso/a, il ruolo reale è
 // rappresentato dal vero titolare.
-const ALTEZZA_MASSIMA_ILLUSTRAZIONE = 160
-const ALTEZZA_MINIMA_ILLUSTRAZIONE = 50
-// rapporto medio larghezza/altezza degli artwork di personaggi/ (misurato su
-// un campione: Progenitore 0.75, Nonna 0.66, Capobranco 0.92, Lupo Mannaro
-// 0.78): si stima la larghezza totale della riga con questa media
-const RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO = 0.78
 
 // una voce per giocatore: lo slug mostrato e la variante numerata (Villico_N,
 // Guardia_N, Lupo_Mannaro_N: la posizione tra i giocatori con lo stesso ruolo,
@@ -147,31 +140,22 @@ function IllustrazioniCoinvolti({ giocatori, giocatoriCoinvolti, voci: vociFisse
   }, [])
 
   if (voci.length === 0) return null
-  const numeroImmagini = voci.length
-  // una lieve sovrapposizione, solo se il gruppo è numeroso, come frazione
-  // dell'altezza (non un valore assoluto): resta coerente qualunque sia
-  // l'altezza finale calcolata
-  const frazioneSovrapposizione = numeroImmagini > 4 ? 0.2 : 0
-  // altezza che fa stare l'intera riga (N immagini, con l'eventuale
-  // sovrapposizione) esattamente nella larghezza disponibile, invertendo la
-  // formula della larghezza totale: altezza * rapporto * [1 + (N-1)*(1-frazioneSovrapposizione)]
-  const divisore = RAPPORTO_LARGHEZZA_ALTEZZA_MEDIO * (1 + (numeroImmagini - 1) * (1 - frazioneSovrapposizione))
-  const altezza = Math.min(
-    ALTEZZA_MASSIMA_ILLUSTRAZIONE,
-    Math.max(ALTEZZA_MINIMA_ILLUSTRAZIONE, larghezzaDisponibile / divisore),
-  )
-  const sovrapposizione = altezza * frazioneSovrapposizione
+  const dim = voci.map((v) => dimensioniPersonaggio(v.slug, v.variante))
+  const { k, righe } = disponiFigure(dim, larghezzaDisponibile)
   return (
     <div className="night-sequencer__illustrazioni" ref={contenitoreRef}>
-      {voci.map((v, indice) => (
-        <span key={v.id} className="night-sequencer__illustrazione-slot">
-          <RuoloIllustrazione
-            slug={v.slug}
-            variante={v.variante}
-            className="night-sequencer__illustrazione"
-            style={{ height: altezza, marginLeft: indice > 0 ? `-${sovrapposizione}px` : 0 }}
-          />
-        </span>
+      {righe.map((riga) => (
+        <div key={riga[0]} className="night-sequencer__illustrazioni-riga">
+          {riga.map((i) => (
+            <RuoloIllustrazione
+              key={voci[i].id}
+              slug={voci[i].slug}
+              variante={voci[i].variante}
+              className="night-sequencer__illustrazione"
+              style={{ height: dim[i].altezza * k }}
+            />
+          ))}
+        </div>
       ))}
     </div>
   )
