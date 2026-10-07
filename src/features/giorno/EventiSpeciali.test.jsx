@@ -342,6 +342,22 @@ test('La Suocera si rivela propone solo i morti di identità ancora ignota, in q
   expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
 })
 
+test('La Suocera si rivela propone anche l\'Apprendista vivo che ha preso la carta ignota del maestro', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
+    { id: '2', nome: 'Sara', vivo: true, condizioni: [], apprendistaRivelatoDa: '1' },
+  ]
+  const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'alba' })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
+  await user.click(screen.getByRole('button', { name: 'Sara' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+
+  expect(onSuoceraRivelazione).toHaveBeenCalledWith('2')
+})
+
 test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', async () => {
   const user = userEvent.setup()
   const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' }]

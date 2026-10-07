@@ -203,7 +203,13 @@ export function EventiSpeciali({
   const mimoSuoceraMorti = morti.filter(
     (g) => g.ruoloSlug === 'suocera' && eMimoCopiante(g) && !(g.poteriUsati ?? []).includes('suocera-rivelata'),
   )
-  const candidatiSuocera = [...(suoceraTitolareRivelata ? [] : mortiSenzaRuoloNoto), ...mimoSuoceraMorti]
+  // l'Apprendista che ha preso la carta ignota del maestro morto (vivo, ruolo ancora ignoto)
+  // può essere la Suocera: la sua carta è quella che era del maestro
+  const apprendistiConCartaIgnota = giocatori.filter((g) => g.vivo && !g.ruoloSlug && g.apprendistaRivelatoDa)
+  const candidatiSuocera = [
+    ...(suoceraTitolareRivelata ? [] : [...mortiSenzaRuoloNoto, ...apprendistiConCartaIgnota]),
+    ...mimoSuoceraMorti,
+  ]
   const mostraSuocera = ruoliSelezionati.includes('suocera') && candidatiSuocera.length > 0
 
   const menuEventi = [

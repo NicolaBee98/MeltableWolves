@@ -390,7 +390,8 @@
         }
       ],
       "fonti": [
-        "batch3D t10 2026-10-05"
+        "batch3D t10 2026-10-05",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -414,7 +415,8 @@
       "problemi": [],
       "fonti": [
         "commit:e629237",
-        "batch3E (L17*.png)"
+        "batch3E (L17*.png)",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -430,6 +432,15 @@
       "fonti": [
         "audit-ruoli-2026-09-22 §Addolorata",
         "batch3D t15/t15b 2026-10-05"
+      ]
+    },
+    {
+      "a": "addolorata",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -603,7 +614,8 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -736,7 +748,8 @@
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 B5",
         "commit:b1dcad5",
-        "batch4I seed26 (Mimo-Alchimista designato in spareggio: parte subito la scelta di chi trascinare)"
+        "batch4I seed26 (Mimo-Alchimista designato in spareggio: parte subito la scelta di chi trascinare)",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -840,7 +853,8 @@
         }
       ],
       "fonti": [
-        "audit-ruoli-2026-09-22 §Ambasciatore"
+        "audit-ruoli-2026-09-22 §Ambasciatore",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -855,7 +869,8 @@
       ],
       "fonti": [
         "test:data/alba.test.js:27",
-        "audit-mimo-2026-10-02 §2.3"
+        "audit-mimo-2026-10-02 §2.3",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -891,7 +906,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sb7, sr2"
+        "batch3F sb7, sr2",
+        "docs/bug-partite-2026-10-07.md#scenario-1"
       ]
     },
     {
@@ -990,11 +1006,16 @@
         {
           "testo": "erede di un ex Antico riceve Villico (domanda D4)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "Registro con voci stantie (\"G03 e' morto/a di notte\", \"G04 si rivela\") dopo la rivelazione dell'Antico; riepilogo alba corretto",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "batch3F sg4, sg5",
-        "batch4G k1-k3"
+        "batch4G k1-k3",
+        "docs/bug-partite-2026-10-07.md#bug-certi-3"
       ]
     },
     {
@@ -1073,7 +1094,8 @@
         }
       ],
       "fonti": [
-        "batch3F se6, se7"
+        "batch3F se6, se7",
+        "docs/bug-partite-2026-10-07.md#scenario-1"
       ]
     },
     {
@@ -1103,7 +1125,8 @@
       ],
       "fonti": [
         "audit-ruoli-2026-09-22 appendice E",
-        "commit:362b3c6"
+        "commit:362b3c6",
+        "docs/bug-partite-2026-10-07.md#scenario-1"
       ]
     },
     {
@@ -1114,12 +1137,17 @@
         {
           "testo": "Maestro Suocera sbranata e poi rivelata: l'Apprendista non ereditava",
           "stato": "risolto"
+        },
+        {
+          "testo": "L'Apprendista erede di una Suocera sbranata non puo' essere rivelato come Suocera (candidatiSuocera solo morti), resta ignoto e conta come Villico",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "fixture:state/usePartita.test.js",
         "bug-partite-2026-10-05 #3",
-        "commit:46ca7c2"
+        "commit:46ca7c2",
+        "docs/bug-partite-2026-10-07.md#bug-certi-1"
       ]
     },
     {
@@ -1160,6 +1188,15 @@
       "problemi": [],
       "fonti": [
         "fixture:features/giorno/EventiSpeciali.test.jsx"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "cortigiana",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -1210,7 +1247,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "test:data/nightSteps.test.js:55"
+        "test:data/nightSteps.test.js:55",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -1225,6 +1263,10 @@
         {
           "testo": "Bardo ricaricato dal Mimo dopo la morte di chi l'aveva usato",
           "stato": "risolto"
+        },
+        {
+          "testo": "Potere del Bardo riproposto dopo l'uso del Mimo se il Bardo vero e' morto non usato",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
@@ -1234,7 +1276,17 @@
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 B4",
         "bug-partite-2026-10-05 #5",
-        "commit:4d639e9"
+        "commit:4d639e9",
+        "docs/bug-partite-2026-10-07.md#dubbi-1"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -1442,12 +1494,13 @@
     {
       "a": "boia",
       "b": "borgomastro",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:data/log.test.js:164",
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -1783,11 +1836,12 @@
     {
       "a": "borgomastro",
       "b": "lantico",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:data/log.test.js:84",
-        "test:data/log.test.js:164"
+        "test:data/log.test.js:164",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -1821,11 +1875,12 @@
     {
       "a": "borgomastro",
       "b": "scemo-del-villaggio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -2004,6 +2059,15 @@
     },
     {
       "a": "cartomante",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "cartomante",
       "b": "pifferaio",
       "valutata": "si",
       "problemi": [],
@@ -2146,6 +2210,15 @@
     },
     {
       "a": "cavaliere",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-3"
+      ]
+    },
+    {
+      "a": "cavaliere",
       "b": "mezzosangue",
       "valutata": "si",
       "problemi": [],
@@ -2167,7 +2240,8 @@
         "test:features/notte/azioni/AzioneLegame.test.jsx:88",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "commit:5013ce4"
+        "commit:5013ce4",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -2447,6 +2521,15 @@
     },
     {
       "a": "chupacabra",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "chupacabra",
       "b": "paladino",
       "valutata": "si",
       "problemi": [
@@ -2463,10 +2546,11 @@
     {
       "a": "chupacabra",
       "b": "pifferaio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "fixture:data/vittoria.test.js"
+        "fixture:data/vittoria.test.js",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -2580,10 +2664,11 @@
     {
       "a": "cortigiana",
       "b": "fattucchiera",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -2607,7 +2692,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:data/risoluzioneNotte.test.js:87"
+        "test:data/risoluzioneNotte.test.js:87",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -2648,7 +2734,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -2697,16 +2784,18 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp4"
+        "batch3F sp4",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
       "a": "cortigiana",
       "b": "paladino",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "commit:6a063db"
+        "commit:6a063db",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -2721,10 +2810,11 @@
     {
       "a": "cortigiana",
       "b": "pifferaio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H a2"
+        "batch4H a2",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -2745,10 +2835,11 @@
     {
       "a": "cortigiana",
       "b": "untore",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -3149,7 +3240,8 @@
         "test:data/log.test.js:84",
         "test:features/notte/azioni/AzioneMimo.test.jsx:195",
         "bug-partite-2026-10-02 #19",
-        "commit:a6f8099"
+        "commit:a6f8099",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -3261,7 +3353,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -3287,11 +3380,21 @@
     },
     {
       "a": "fattucchiera",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "fattucchiera",
       "b": "paladino",
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp3"
+        "batch3F sp3",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -3320,13 +3423,23 @@
     },
     {
       "a": "fattucchiera",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "fattucchiera",
       "b": "veggente",
       "valutata": "si",
       "problemi": [],
       "fonti": [
         "fixture:data/nightSteps.test.js",
         "batch3F sp1",
-        "batch4G r1"
+        "batch4G r1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -3525,7 +3638,8 @@
         }
       ],
       "fonti": [
-        "batch4H m1 (m1-reload.png)"
+        "batch4H m1 (m1-reload.png)",
+        "docs/bug-partite-2026-10-07.md#scenario-4"
       ]
     },
     {
@@ -3576,7 +3690,8 @@
         "test:features/notte/azioni/AzioneMimo.test.jsx:119",
         "bug-report-2026-09-17 #10",
         "commit:2cc8833",
-        "batch4G s1"
+        "batch4G s1",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -3754,6 +3869,15 @@
       ],
       "fonti": [
         "batch3F sx1"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -3953,10 +4077,15 @@
         {
           "testo": "risponde benevola e fa perdere il potere (D9)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "L'Inquisitore perde il potere sulla Nonna (aura benevola, noto)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
-        "batch3F sp4"
+        "batch3F sp4",
+        "docs/bug-partite-2026-10-07.md#dubbi-7"
       ]
     },
     {
@@ -4002,7 +4131,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "test:data/nightSteps.test.js:150"
+        "test:data/nightSteps.test.js:150",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -4077,7 +4207,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3E (L11*.png)"
+        "batch3E (L11*.png)",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -4302,7 +4433,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "spec-mimo-2026-10-02 Q13",
-        "bug-partite-2026-10-02 Non coperto"
+        "bug-partite-2026-10-02 Non coperto",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -4346,12 +4478,18 @@
     {
       "a": "lantico",
       "b": "spilungone",
-      "valutata": "parziale",
-      "problemi": [],
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il Branco e' chiamato comunque dopo \"notte senza vittime\" (noto)",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
         "test:features/giorno/EventiSpeciali.test.jsx:151",
         "test:features/giorno/Votazione.test.jsx:115",
-        "test:features/giorno/Votazione.test.jsx:144"
+        "test:features/giorno/Votazione.test.jsx:144",
+        "docs/bug-partite-2026-10-07.md#dubbi-8"
       ]
     },
     {
@@ -4566,7 +4704,8 @@
         "test:data/alba.test.js:11",
         "test:data/alba.test.js:19",
         "test:data/alba.test.js:82",
-        "commit:68cf67c"
+        "commit:68cf67c",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -4623,7 +4762,8 @@
         "audit-regolamento-2026-09-21 #8",
         "bug-partite-2026-10-02 #24",
         "commit:5013ce4",
-        "batch4I seed3"
+        "batch4I seed3",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -4720,6 +4860,20 @@
       ]
     },
     {
+      "a": "lupo-mannaro-capobranco",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "Il branco senza Capobranco puo' sbranare anche i lupi (anche la Nonna): chip dei lupi presenti",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#dubbi-4"
+      ]
+    },
+    {
       "a": "lupo-mannaro-progenitore",
       "b": "lupo-mannaro-progenitore",
       "valutata": "si",
@@ -4762,7 +4916,17 @@
       ],
       "fonti": [
         "batch3E (M2c.png, M2d.png)",
-        "batch4G g1-g8"
+        "batch4G g1-g8",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -4797,21 +4961,36 @@
         {
           "testo": "Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli",
           "stato": "dubbio"
+        },
+        {
+          "testo": "Mimo inibito con Maga vera libera: azione unica condivisa ancora disponibile (dubbio Q12 confermato)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 P7"
+        "audit-mimo-2026-10-02 P7",
+        "docs/bug-partite-2026-10-07.md#scenario-5"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
       "a": "maga",
       "b": "paladino",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5096,6 +5275,10 @@
         {
           "testo": "Escludere \"il titolare\" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "Gruppo unico di 2 ipnotizzati per notte per Pifferaio e Mimo-Pifferaio, conforme alla spec; il passo non dice chi agisce",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
@@ -5104,7 +5287,8 @@
         "spec-mimo-2026-10-02",
         "bug-partite-2026-10-05 #16",
         "commit:46ca7c2",
-        "audit-mimo-2026-10-02 P7"
+        "audit-mimo-2026-10-02 P7",
+        "docs/bug-partite-2026-10-07.md#dubbi-6"
       ]
     },
     {
@@ -5233,7 +5417,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "bug-partite-2026-10-05 dubbi",
-        "commit:a997fe0"
+        "commit:a997fe0",
+        "docs/bug-partite-2026-10-07.md#scenario-5"
       ]
     },
     {
@@ -5254,12 +5439,17 @@
         {
           "testo": "Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli",
           "stato": "dubbio"
+        },
+        {
+          "testo": "Condizione \"unto\" rimane sul morto per unzione fino a fine giorno (dati)",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 P7"
+        "audit-mimo-2026-10-02 P7",
+        "docs/bug-partite-2026-10-07.md#bug-certi-5"
       ]
     },
     {
@@ -5454,12 +5644,31 @@
     },
     {
       "a": "nonna",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "nonna",
       "b": "veggente",
       "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:data/aura.test.js:9",
-        "audit-ruoli-2026-09-22 §Meccanismi condivisi"
+        "audit-ruoli-2026-09-22 §Meccanismi condivisi",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5477,7 +5686,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "batch4H a2"
+        "batch4H a2",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5494,6 +5704,15 @@
         "bug-report-2026-09-17 #1",
         "commit:c6d0658",
         "bug-report-2026-09-17 partita dal vivo"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5596,7 +5815,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H a2"
+        "batch4H a2",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5659,7 +5879,8 @@
         "test:features/notte/azioni/AzioneIndagine.test.jsx:69",
         "test:features/notte/azioni/AzioneIndagine.test.jsx:91",
         "test:features/notte/azioni/AzioneIndagine.test.jsx:106",
-        "audit-regolamento-2026-09-21 #4"
+        "audit-regolamento-2026-09-21 #4",
+        "docs/bug-partite-2026-10-07.md#scenario-3"
       ]
     },
     {
@@ -5780,6 +6001,15 @@
       ]
     },
     {
+      "a": "sciacallo-mannaro",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-07.md#scenario-3"
+      ]
+    },
+    {
       "a": "spilungone",
       "b": "spilungone",
       "valutata": "si",
@@ -5862,7 +6092,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "batch3F sp13"
+        "batch3F sp13",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
@@ -5938,10 +6169,11 @@
     {
       "a": "untore",
       "b": "veggente",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp4"
+        "batch3F sp4",
+        "docs/bug-partite-2026-10-07.md#scenario-2"
       ]
     },
     {
