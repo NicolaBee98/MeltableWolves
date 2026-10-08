@@ -341,3 +341,34 @@ test('Medium: anche lui guarda la carta fisica, quindi su una Guardia defunta co
   await user.click(screen.getByRole('button', { name: 'Gaia' }))
   expect(within(screen.getByRole('group', { name: 'Che ruolo era' })).getByRole('button', { name: 'Guardia Mannara' })).toBeInTheDocument()
 })
+
+test('Cartomante: scegliendo la carta di un bersaglio ignoto le chip non si riordinano e appare "Mostra carta"', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [], storiaRuoli: [] },
+  ]
+  const props = { ruoloSlugAttore: 'cartomante', etichettaAttore: 'Cartomante', bersaglio: 'vivo', ruoliSelezionati: ['cartomante', 'veggente', 'medium'], quantita: { cartomante: 1, veggente: 1, medium: 1 } }
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  }
+  const { rerender } = render(<AzioneRivelaRuolo {...props} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} />)
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  const nomi = () => screen.getAllByRole('button').map((b) => b.textContent).filter((t) => ['Veggente', 'Medium', 'Villico'].includes(t))
+  const prima = nomi()
+  await user.click(screen.getByRole('button', { name: 'Veggente' }))
+  rerender(<AzioneRivelaRuolo {...props} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} />)
+  expect(nomi()).toEqual(prima)
+  expect(screen.getByRole('button', { name: 'Mostra carta' })).toBeInTheDocument()
+})
+
+test('Cartomante: mostra la carta iniziale del bersaglio (Cucciolo cresciuto, Mimo), non quella attuale', () => {
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', storiaRuoli: ['cucciolo-di-lupo-mannaro', 'lupo-mannaro'], vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(<AzioneRivelaRuolo giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} ruoloSlugAttore="cartomante" etichettaAttore="Cartomante" bersaglio="vivo" />)
+  screen.getByRole('button', { name: 'Marco' }).click()
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', ruoloRivelato: 'cucciolo-di-lupo-mannaro', notte: 1 } })
+})

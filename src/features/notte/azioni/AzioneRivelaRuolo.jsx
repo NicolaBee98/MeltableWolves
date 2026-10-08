@@ -12,6 +12,10 @@ function nomeRuolo(ruoloSlug, reale = false) {
   return ROLES.find((r) => r.slug === (reale ? ruoloSlug : ruoloPerDisplay(ruoloSlug)))?.nome ?? 'ruolo sconosciuto'
 }
 
+// la carta fisica in mano al giocatore è quella con cui è partito: il Cucciolo
+// cresciuto o il Mimo che ha copiato un ruolo la tengono (storiaRuoli[0])
+const cartaIniziale = (g) => g.storiaRuoli?.[0] ?? g.ruoloSlug
+
 // Usato da Cartomante (bersaglio vivo, "alternativa al Veggente" ma rivela
 // il ruolo intero) e Medium (bersaglio morto, il "vecchio ruolo").
 export function AzioneRivelaRuolo({
@@ -86,7 +90,7 @@ export function AzioneRivelaRuolo({
       setTargetInAttesaDiRuolo(targetId)
       return
     }
-    registraIndagine(targetId, target?.ruoloSlug)
+    registraIndagine(targetId, target && cartaIniziale(target))
   }
 
   // la carta si può cambiare (altra chip) o deselezionare (stessa chip)
@@ -117,8 +121,33 @@ export function AzioneRivelaRuolo({
     ? cartaFisicaPath(reale ? ruoloCarta : ruoloPerDisplay(ruoloCarta), bersaglioIndagato?.ruoloSlug === ruoloCarta ? variantePerGiocatore(giocatori, bersaglioIndagato.id) : undefined)
     : null
 
+  // etichetta + pulsante carta: visibili appena c'è una carta, anche mentre si sceglie
+  const esito = indagineStanotte && (
+    <>
+      <p className="azione-indagine__etichetta-esito">
+        Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato, reale)}
+      </p>
+      {cartaMostrata && (
+        <button type="button" onClick={() => setCartaAperta(true)}>
+          Mostra carta
+        </button>
+      )}
+      {cartaAperta && cartaMostrata && (
+        <CartaSchermoIntero
+          src={cartaMostrata}
+          etichetta={`Carta: ${nomeRuolo(indagineStanotte.ruoloRivelato, reale)}`}
+          onChiudi={() => setCartaAperta(false)}
+        />
+      )}
+    </>
+  )
+
   if (targetInAttesaDiRuolo) {
     const target = giocatori.find((g) => g.id === targetInAttesaDiRuolo)
+    // le chip si calcolano sullo stato di prima della scelta, altrimenti la carta
+    // scelta uscirebbe dalla lista e le chip si riordinerebbero
+    const prima = assegnato?.prima ?? {}
+    const giocatoriPrima = giocatori.map((g) => (prima[g.id] ? { ...g, ...prima[g.id] } : g))
     // qui, a differenza dell'assegnazione automatica di inizio notte, anche
     // il Villico va offerto: il narratore vede la carta fisica in mano, può
     // benissimo essere quella
@@ -126,11 +155,9 @@ export function AzioneRivelaRuolo({
       ? ['guardia', 'guardia-mannara']
       : ruoliAssegnabili(
           ruoliSelezionati.filter((slug) => !RUOLI_NON_CARTA_SEGRETA.includes(slug)),
-          giocatori,
+          giocatoriPrima,
           quantita,
         )
-    // la carta già scelta conta come assegnata: resta comunque in lista, per poterla togliere
-    if (assegnato && !opzioni.includes(assegnato.ruoloSlug)) opzioni.push(assegnato.ruoloSlug)
     return (
       <div className="azione-indagine">
         <p>
@@ -151,6 +178,7 @@ export function AzioneRivelaRuolo({
             </button>
           ))}
         </div>
+        {esito}
         <button
           type="button"
           onClick={() => {
@@ -187,25 +215,7 @@ export function AzioneRivelaRuolo({
           </button>
         ))}
       </div>
-      {indagineStanotte && (
-        <>
-          <p className="azione-indagine__etichetta-esito">
-            Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato, reale)}
-          </p>
-          {cartaMostrata && (
-            <button type="button" onClick={() => setCartaAperta(true)}>
-              Mostra carta
-            </button>
-          )}
-          {cartaAperta && cartaMostrata && (
-            <CartaSchermoIntero
-              src={cartaMostrata}
-              etichetta={`Carta: ${nomeRuolo(indagineStanotte.ruoloRivelato, reale)}`}
-              onChiudi={() => setCartaAperta(false)}
-            />
-          )}
-        </>
-      )}
+      {esito}
     </div>
   )
 }
