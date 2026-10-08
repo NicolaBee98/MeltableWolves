@@ -137,7 +137,7 @@ function conseguenze(giocatori, id, fatto, visti) {
   }
   // non muoiono (prima vita dell'Antico, primo rogo dello Spilungone): nessuna conseguenza a catena
   if (primaVitaAntico(t)) return [TESTO_ANTICO]
-  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined) return ['Lo Spilungone si rivela e non muore al primo rogo.']
+  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined) return ['Lo Spilungone si rivela e non muore durante il rogo.']
 
   // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
   // avviene, ma la morte del Cavaliere ha le sue

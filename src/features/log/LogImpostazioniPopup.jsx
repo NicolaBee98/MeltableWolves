@@ -43,7 +43,7 @@ export function LogImpostazioniPopup({
         ref={triggerRef}
         className="log-impostazioni__icona"
         aria-pressed={aperto}
-        aria-label="Registro e impostazioni"
+        aria-label="Diario e impostazioni"
         onClick={() => setAperto((a) => !a)}
       >
         <img src="/assets/icone/ui/ingranaggio.svg" alt="" aria-hidden="true" className="log-impostazioni__img" />
@@ -53,7 +53,7 @@ export function LogImpostazioniPopup({
           className="log-impostazioni__popup"
           role="dialog"
           aria-modal="true"
-          aria-label="Registro e impostazioni"
+          aria-label="Diario e impostazioni"
           ref={dialogRef}
           tabIndex={-1}
         >
@@ -62,7 +62,7 @@ export function LogImpostazioniPopup({
           </button>
           {confermaNuovaPartita ? (
             <div className="log-impostazioni__conferma">
-              <p>Iniziare una nuova partita? I giocatori restano; ruoli, mazzo e registro della partita attuale vengono azzerati.</p>
+              <p>Iniziare una nuova partita? Ruoli, mazzo e diario della partita attuale saranno azzerati.</p>
               <button type="button" className="log-impostazioni__cta" onClick={confermaNuova}>
                 Sì, ricomincia
               </button>
@@ -77,7 +77,7 @@ export function LogImpostazioniPopup({
                   Impostazioni partita
                 </button>
                 <button type="button" aria-pressed={tab === 'log'} onClick={() => setTab('log')}>
-                  Log partita
+                  Diario
                 </button>
               </div>
               {tab === 'log' ? (
@@ -90,7 +90,7 @@ export function LogImpostazioniPopup({
                       checked={mostraRuoliInVotazione}
                       onChange={(e) => onCambiaMostraRuoliInVotazione(e.target.checked)}
                     />
-                    Mostra i ruoli durante la votazione (narratore)
+                    Mostra le icone dei ruoli durante la votazione
                   </label>
                   <label className="impostazioni__toggle">
                     <input
@@ -98,7 +98,7 @@ export function LogImpostazioniPopup({
                       checked={variantiFaccia}
                       onChange={(e) => onCambiaVariantiFaccia(e.target.checked)}
                     />
-                    Varianti di icona per Lupi Mannari e Villici
+                    Utilizza le varianti di icona per Lupi Mannari e Villici
                   </label>
                   <label className="impostazioni__toggle">
                     <input
@@ -106,7 +106,7 @@ export function LogImpostazioniPopup({
                       checked={mostraNomeRuolo}
                       onChange={(e) => onCambiaMostraNomeRuolo(e.target.checked)}
                     />
-                    Mostra il nome del ruolo tra parentesi accanto al nome
+                    Mostra il ruolo di un giocatore tra parentesi durante la votazione
                   </label>
                   <label className="impostazioni__toggle">
                     <input
@@ -114,7 +114,7 @@ export function LogImpostazioniPopup({
                       checked={promemoriaRuoliMorti}
                       onChange={(e) => onCambiaPromemoriaRuoliMorti(e.target.checked)}
                     />
-                    Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)
+                    Promemoria durante la notte per i ruoli morti che agirebbero
                   </label>
                   <label className="impostazioni__toggle">
                     <input
@@ -133,7 +133,7 @@ export function LogImpostazioniPopup({
                     L'Addolorata eredita le scelte dei legami (maestro, protetto, genitore)
                   </label>
                   <label className="impostazioni__campo">
-                    Durata timer arringa/spareggio (secondi)
+                    Durata timer spareggio (secondi)
                     <input
                       type="number"
                       min="1"

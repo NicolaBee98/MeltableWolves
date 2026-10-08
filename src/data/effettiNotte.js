@@ -119,7 +119,7 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
     const lupi = Object.entries(patches).filter(([id, p]) => id !== targetId && p.vivo === false).map(([id]) => giocatori.find((g) => g.id === id)?.nome)
     avvisi.push({
       testo: lupi.length
-        ? `Il Berserker sbranato: ${lupi.join(', ')} (il lupo più vicino) morirà con lui.`
+        ? `Se il Berserker sarà sbranato, ${lupi.join(', ')} (il lupo più vicino) morirà con lui.`
         : 'Il Berserker sbranato: nessun lupo vivo da portare con sé.',
       log: lupi.length
         ? `Il Berserker ${target.nome} è stato sbranato e uccide lottando ${lupi.join(', ')}.`
@@ -146,7 +146,7 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
   if (muore && cavalieri.length === 0) {
     for (const c of giocatori.filter((g) => g.ruoloSlug === 'cortigiana' && g.vivo && g.visitaNotturna === targetId)) {
       avvisi.push({
-        testo: `${target.nome} era il cliente della Cortigiana ${c.nome}: sbranato, anche lei morirà.`,
+        testo: `A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno.`,
         log: `La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato sbranato.`,
       })
     }
@@ -156,13 +156,13 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
   if (muore && cavalieri.length === 0) {
     if (target.ruoloSlug === 'cucciolo-di-lupo-mannaro') {
       avvisi.push({
-        testo: `Il Cucciolo ${target.nome} è ucciso: il branco sbranerà due persone per vendetta.`,
-        log: `Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco (due vittime).`,
+        testo: `Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.`,
+        log: `Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco.`,
       })
     } else if (eLupo(target.ruoloSlug)) {
       for (const c of giocatori.filter((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro')) {
         avvisi.push({
-          testo: `Morto un lupo, il Cucciolo ${c.nome} diventa adulto: perde la vendetta.`,
+          testo: `Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più.`,
           log: `Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}.`,
         })
       }

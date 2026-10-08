@@ -23,7 +23,7 @@ export const MAZZO_COMPLETO = [
   ),
   { etichetta: 'Narratore', path: '/assets/carte/Riferimento_Narratore.svg' },
   { etichetta: 'Cala la notte', path: '/assets/carte/Riferimento_Cala_la_notte.svg' },
-  { etichetta: 'È giorno', path: '/assets/carte/Riferimento_E_giorno.svg' },
+  { etichetta: 'Si leva il giorno', path: '/assets/carte/Riferimento_E_giorno.svg' },
   { etichetta: 'La prima partita', path: '/assets/carte/Riferimento_Prima_partita.svg' },
   { etichetta: 'Retro carta', path: '/assets/carte/Retro_carta.svg' },
 ]

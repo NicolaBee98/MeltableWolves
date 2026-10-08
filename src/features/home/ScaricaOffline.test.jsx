@@ -7,7 +7,6 @@ test('mostra sempre le istruzioni per iPhone/iPad e Android e la nota sui dati',
   expect(screen.getByRole('heading', { name: /iPhone e iPad/ })).toBeInTheDocument()
   expect(screen.getByRole('heading', { name: /Android/ })).toBeInTheDocument()
   expect(screen.getByText(/Aggiungi alla schermata Home/, { selector: 'strong' })).toBeInTheDocument()
-  expect(screen.getByText(/restano solo su questo dispositivo/)).toBeInTheDocument()
 })
 
 test('evidenzia il sistema rilevato dallo userAgent', () => {

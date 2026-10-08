@@ -221,7 +221,7 @@ export default function App() {
             disabled={giocatori.length !== totaleRuoliMazzo}
             onClick={() => setFaseApp('notte')}
           >
-            Inizia la notte
+            È notte nel villaggio
           </button>
         </section>
       )}

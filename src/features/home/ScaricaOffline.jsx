@@ -42,11 +42,6 @@ export function ScaricaOffline({ onTornaAllaHome }) {
         </ol>
         <p>Per aggiornarla: chiudi del tutto l'app e riaprila con la rete.</p>
       </div>
-
-      <p className="avviso">
-        I dati della partita restano solo su questo dispositivo, senza sincronizzazione: usa sempre lo stesso telefono.
-        Cancellare i dati del sito dal browser azzera la partita.
-      </p>
     </section>
   )
 }

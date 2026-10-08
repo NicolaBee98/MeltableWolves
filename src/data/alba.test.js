@@ -101,7 +101,7 @@ test("l'alba annuncia crepacuore, Mezzosangue trasformato, Apprendista e Figlia 
   expect(testo).toMatch(/Anna è morto\/a di crepacuore/)
   expect(testo).toMatch(/Mezzosangue Bea .* diventa Lupo Mannaro/)
   expect(testo).toMatch(/Carlo si rivela: è l'Apprendista di Dino ed eredita il ruolo di Veggente/)
-  expect(testo).toMatch(/Eva si rivela: è la Figlia dei Lupi/)
+  expect(testo).toMatch(/Eva è la Figlia dei Lupi/)
   expect(annunciAlba(giocatori, 3)).toEqual([])
 })
 

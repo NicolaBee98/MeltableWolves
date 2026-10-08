@@ -131,15 +131,13 @@ export function MazzoBuilder({ quantita, setQuantita }) {
 
       {ladroPresente && (
         <p className="mazzo-builder__nota-ladro">
-          ℹ️ Il Ladro richiede due carte in più nel mazzo fisico (pag. 15): sceglierai quali durante il suo turno,
-          la prima notte.
+          ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.
         </p>
       )}
 
       {((quantita.borgomastro ?? 0) > 0 || (quantita['fantasma-onnisciente'] ?? 0) > 0) && (
         <p className="mazzo-builder__nota-ladro">
-          ℹ️ Borgomastro e Fantasma Onnisciente fanno parte del conteggio qui sopra ma non sono ruoli in più per i
-          giocatori: nella schermata giocatori non vengono contati{ladroPresente && ' (come le 2 carte extra del Ladro)'}.
+          ℹ️ Borgomastro e Fantasma Onnisciente sono "condizioni aggiuntive", non ruoli fissi che i giocatori possono avere.
         </p>
       )}
 

@@ -51,14 +51,14 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // Villico, con un titolo che non lo nomina nemmeno: come gli altri ruoli
   // passivi qui sopra merita un passo tutto suo, anche se non fa nulla
   { id: 'mezzosangue', titolo: 'Mezzosangue', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mezzosangue'] },
-  { id: 'bardo', titolo: 'Bardo (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
-  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro (gesto segreto)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
+  { id: 'bardo', titolo: 'Bardo ', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
+  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
   { id: 'cavaliere', titolo: 'Cavaliere', tipo: 'azione', primaNotteSolo: true, ruoli: ['cavaliere'] },
   { id: 'figlia-dei-lupi', titolo: 'Figlia dei Lupi', tipo: 'azione', primaNotteSolo: true, ruoli: ['figlia-dei-lupi'] },
   { id: 'sacerdote', titolo: 'Sacerdote', tipo: 'azione', primaNotteSolo: true, ruoli: ['sacerdote'] },
   // subito dopo chi li crea (il Sacerdote), non dopo le Guardie
-  { id: 'innamorati', titolo: 'Innamorati si riconoscono', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato', iconaSlug: 'sacerdote' },
+  { id: 'innamorati', titolo: 'Innamorati (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, condizione: 'innamorato', iconaSlug: 'sacerdote' },
   // se nel mazzo c'è anche la Guardia Mannara, la sua carta è indistinguibile
   // dalle altre (pag. 8): il passo qui sotto le riconosce già tutte insieme,
   // quindi questo va saltato per non avere due schede separate per lo stesso
@@ -67,7 +67,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // la Guardia Mannara si sveglia insieme a TUTTE le Guardie (pag. 8): la sua
   // carta è indistinguibile dalla loro, quindi il narratore deve chiamarle
   // tutte insieme, senza sapere quale in realtà "tradisce" il branco
-  { id: 'guardia-mannara', titolo: 'Le Guardie si riconoscono', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia' },
+  { id: 'guardia-mannara', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia' },
   { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
 
   // --- Ogni notte, poteri non mortali (pag. 28) ---
@@ -109,7 +109,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
     iconaSlug: 'lupo-mannaro',
   },
   { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
-  { id: 'ipnotizzati', titolo: 'Sveglia gli ipnotizzati dal Pifferaio', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato', iconaSlug: 'pifferaio' },
+  { id: 'ipnotizzati', titolo: 'Ipnotizzati (dal Pifferaio)', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato', iconaSlug: 'pifferaio' },
 ]
 
 // Ruoli che si rivelano pubblicamente DI GIORNO, a un momento scelto dal

@@ -32,7 +32,7 @@ export function AddPlayerForm({ onAdd, nomiEsistenti = [] }) {
       <button type="submit">Aggiungi</button>
       {duplicato && (
         <p className="avviso" role="alert">
-          ⚠️ C'è già un giocatore con questo nome: usane uno diverso (es. aggiungi l'iniziale del cognome).
+          ⚠️ C'è già un giocatore con questo nome: usane uno diverso.
         </p>
       )}
     </form>

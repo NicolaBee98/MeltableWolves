@@ -39,7 +39,7 @@ export function annunciAlba(giocatori, round) {
 
   // L'Antico sbranato di notte (flag `anticoSbranatoNotte`, vedi uccidiPatch)
   for (const g of giocatori.filter((g) => g.anticoSbranatoNotte === round)) {
-    annunci.push(`${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive (ora gioca da Villico).`)
+    annunci.push(`${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive.`)
   }
 
   for (const g of giocatori.filter((g) => g.causaMorte === 'sacrificio' && g.mortoNotte === round)) {
@@ -53,7 +53,7 @@ export function annunciAlba(giocatori, round) {
     annunci.push(`${g.nome} è morto/a di crepacuore per la morte del partner.`)
   }
   for (const g of giocatori.filter((g) => g.trasformatoNotte === round)) {
-    annunci.push(`Il Mezzosangue ${g.nome} è stato sbranato e diventa Lupo Mannaro.`)
+    annunci.push(`Il Mezzosangue ${g.nome} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.`)
   }
   for (const g of giocatori.filter((g) => g.ereditaNotte === round)) {
     const maestro = giocatori.find((x) => x.id === g.ereditaDa)?.nome
@@ -68,7 +68,7 @@ export function annunciAlba(giocatori, round) {
     )
   }
   for (const g of giocatori.filter((g) => g.figliaLupoNotte === round)) {
-    annunci.push(`${g.nome} si rivela: è la Figlia dei Lupi e diventa Lupo Mannaro.`)
+    annunci.push(`${g.nome} è la Figlia dei Lupi e rimasta orfana diventa Lupo Mannaro.`)
   }
 
   return annunci

@@ -947,9 +947,9 @@ export function NightSequencer({
   // il motivo si mostra a schermo (un tooltip non si vede sul touch)
   const motivoIndietro =
     fatti.length > 0 || indiceValido > 0
-      ? 'Dopo un ricaricamento non si può tornare ai passi già conclusi.'
+      ? ''
       : round > 1
-        ? 'Primo passo della notte: non si torna alla notte precedente.'
+        ? ''
         : 'Nulla da annullare in questo passo.'
 
   return (
@@ -1116,7 +1116,7 @@ export function NightSequencer({
           </button>
         )}
       </div>
-      {indietroDisabilitato && <p className="night-sequencer__tipo">Indietro non disponibile: {motivoIndietro}</p>}
+      {indietroDisabilitato && motivoIndietro && <p className="night-sequencer__tipo">Indietro non disponibile: {motivoIndietro}</p>}
     </section>
   )
 }

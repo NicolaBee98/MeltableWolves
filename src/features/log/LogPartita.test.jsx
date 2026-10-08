@@ -8,7 +8,7 @@ test('mostra un messaggio se non ci sono eventi', () => {
 
 test('mostra gli eventi raggruppati sotto il numero di giorno', () => {
   render(<LogPartita eventi={[{ round: 2, fase: 'notte', messaggio: 'Anna è morto/a' }]} />)
-  expect(screen.getByText('Notte e giorno 2')).toBeInTheDocument()
+  expect(screen.getByText('Round 2')).toBeInTheDocument()
   expect(screen.getByText('Anna è morto/a')).toBeInTheDocument()
 })
 
@@ -22,9 +22,9 @@ test('eventi con round diverso vanno in gruppi separati, consecutivi con lo stes
       ]}
     />,
   )
-  expect(screen.getAllByText(/^Notte e giorno \d$/)).toHaveLength(2)
-  expect(screen.getByText('Notte e giorno 1')).toBeInTheDocument()
-  expect(screen.getByText('Notte e giorno 2')).toBeInTheDocument()
+  expect(screen.getAllByText(/^Round \d$/)).toHaveLength(2)
+  expect(screen.getByText('Round 1')).toBeInTheDocument()
+  expect(screen.getByText('Round 2')).toBeInTheDocument()
 })
 
 test('mostra l\'icona corrispondente alla fase di ogni evento (notte/alba/giorno/rogo)', () => {

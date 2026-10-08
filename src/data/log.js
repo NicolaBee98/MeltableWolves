@@ -31,15 +31,15 @@ const ETICHETTA_NOTTE_DA = {
 // poteri "una tantum" dichiarati a voce dal narratore (nessun altro campo
 // dice chi li ha usati): voce di registro alla prima comparsa in poteriUsati
 const POTERI_DICHIARATI = {
-  'bardo-salta-notte': (nome) => `${nome} fa il gesto del Bardo: la notte successiva salta`,
-  'gallo-salta-giorno': (nome) => `${nome} fa cantare il Gallo Mannaro: il giorno salta`,
+  'bardo-salta-notte': (nome) => `${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta`,
+  'gallo-salta-giorno': (nome) => `${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta`,
 }
 
 // legami scelti di notte (Cavaliere, Apprendista, Figlia dei Lupi)
 const LEGAME_SCELTO = {
   cavaliere: (nome, t) => `Il Cavaliere ${nome} sceglie di proteggere ${t}`,
   apprendista: (nome, t) => `L'Apprendista ${nome} sceglie ${t} come maestro`,
-  'figlia-dei-lupi': (nome, t) => `La Figlia dei Lupi ${nome} sceglie ${t}`,
+  'figlia-dei-lupi': (nome, t) => `La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore`,
 }
 
 // ruoli che si rivelano solo di giorno/all'alba (vedi eventiSpeciali.js): il
@@ -113,11 +113,11 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       (fase !== 'notte' && nuoviInStoria.includes('lantico')) ||
       (prima.ruoloSlug === 'lantico' && giocatore.ruoloSlug === 'villico')
     if (anticoRivelato) {
-      eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)` })
+      eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive` })
     }
     // l'Antico che perde la prima vita di giorno maledice il villaggio
     if (giocatore.villaggioMaledettoFinoA !== undefined && giocatore.villaggioMaledettoFinoA !== prima.villaggioMaledettoFinoA) {
-      eventi.push({ round, fase, messaggio: 'Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno' })
+      eventi.push({ round, fase, messaggio: 'Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri' })
     }
     if (fase !== 'notte') {
       for (const slug of nuoviInStoria.filter((r) => RUOLI_RIVELAZIONE_DIURNA.includes(r))) {

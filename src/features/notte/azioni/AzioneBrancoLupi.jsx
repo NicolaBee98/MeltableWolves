@@ -350,8 +350,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     <div className="scelta-giocatore">
       <p>Il branco sbrana</p>
       {vendettaAttiva && (
-        <p className="avviso">
-          🐺 Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima{' '}
+        <p className="avviso"> Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima{' '}
           {Math.min(colpi.length + 1, 2)} di 2).
         </p>
       )}
@@ -374,8 +373,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
         <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
       ))}
       {colpi.filter((c) => c.tipo === 'trasforma').map((c) => (
-        <p key={c.targetId} className="avviso">
-          🐺 {giocatori.find((g) => g.id === c.targetId)?.nome} verrà trasformato in Lupo Mannaro.
+        <p key={c.targetId} className="avviso">{giocatori.find((g) => g.id === c.targetId)?.nome} verrà trasformato in Lupo Mannaro.
         </p>
       ))}
       {progenitorePuoTrasformare &&

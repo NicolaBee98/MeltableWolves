@@ -320,8 +320,7 @@ export function Votazione({
         const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <p>
-            {nome} rivela la propria carta: è lo Spilungone, troppo alto per il rogo. La notte cala senza
-            vittime.
+            {nome} rivela la propria carta: è lo Spilungone, troppo alto per qualsiasi patibolo. La notte cala senza vittime.
           </p>
         )
       }
@@ -329,8 +328,7 @@ export function Votazione({
         const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <p>
-            {nome} rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora
-            gioca da Villico. Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno.
+            {nome} rivela la propria carta: è L'Antico, ma sopravvive perdendo la sua prima vita. Il villaggio è maledetto: la notte successiva il villaggio non userà i suoi poteri.
           </p>
         )
       }
@@ -344,7 +342,7 @@ export function Votazione({
             <p>
               {nome} rivela la propria carta: è l'Alchimista{' '}
               {salvo
-                ? `ed esplode, ma ${vittima.nome} sopravvive (non muore).`
+                ? `ed esplode, ma ${vittima.nome} sopravvive.`
                 : `e trascina con sé ${vittima?.nome} nell'aldilà con una grande esplosione pirotecnica.`}
             </p>
             {riepilogoDi(alchimistaEsploso.vittimaId, [id])}
@@ -421,8 +419,7 @@ export function Votazione({
             )}
             {alchimistaPossibile && protettori.length > 0 && (
               <p className="avviso">
-                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: se fosse l'Alchimista non
-                esploderebbe, perché al rogo non muore (si immola il Cavaliere).
+                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto.
               </p>
             )}
           </div>

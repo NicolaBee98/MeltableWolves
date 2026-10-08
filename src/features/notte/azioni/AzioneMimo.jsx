@@ -84,7 +84,7 @@ export function AzioneMimo({
       <div className="azione-mimo">
         {sceltaBersaglio}
         <p>
-          Il Mimo imita {target.nome}: con Avanti assumerà il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
+          Il Mimo imita {target.nome}: e assumerà il ruolo di {nomeRuolo(ruoloPerDisplay(target.ruoloSlug))}.
         </p>
       </div>
     )
