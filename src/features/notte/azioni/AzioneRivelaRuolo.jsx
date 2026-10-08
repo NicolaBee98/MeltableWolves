@@ -3,6 +3,8 @@ import { ROLES, ruoloPerDisplay } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo } from '../../../data/assegnazione'
 import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
+import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
+import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
 
 // `reale`: la Cartomante vede la carta vera, quindi per lei la Guardia Mannara
 // non è mascherata da Guardia (come invece nel resto dell'app)
@@ -35,6 +37,8 @@ export function AzioneRivelaRuolo({
   const [assegnato, setAssegnato] = useState(null)
   // il bersaglio è una Guardia da distinguere dalla Mannara (non un ruolo ignoto)
   const [guardiaTarget, setGuardiaTarget] = useState(false)
+  // carta mostrata a schermo intero al giocatore interrogato (facoltativo)
+  const [cartaAperta, setCartaAperta] = useState(false)
   const reale = bersaglio === 'vivo'
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
@@ -102,6 +106,14 @@ export function AzioneRivelaRuolo({
     registraIndagine(target.id, ruoloSlug)
     setAssegnato({ id: target.id, prima, ruoloSlug })
   }
+
+  // la carta fisica da mostrare: la Cartomante vede quella vera (anche la Guardia
+  // Mannara), il Medium la stessa maschera del resto dell'app
+  const ruoloCarta = indagineStanotte?.ruoloRivelato
+  const bersaglioIndagato = giocatori.find((g) => g.id === indagineStanotte?.targetId)
+  const cartaMostrata = ruoloCarta
+    ? cartaFisicaPath(reale ? ruoloCarta : ruoloPerDisplay(ruoloCarta), bersaglioIndagato?.ruoloSlug === ruoloCarta ? variantePerGiocatore(giocatori, bersaglioIndagato.id) : undefined)
+    : null
 
   if (targetInAttesaDiRuolo) {
     const target = giocatori.find((g) => g.id === targetInAttesaDiRuolo)
@@ -174,9 +186,23 @@ export function AzioneRivelaRuolo({
         ))}
       </div>
       {indagineStanotte && (
-        <p className="azione-indagine__etichetta-esito">
-          Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato, reale)}
-        </p>
+        <>
+          <p className="azione-indagine__etichetta-esito">
+            Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato, reale)}
+          </p>
+          {cartaMostrata && (
+            <button type="button" onClick={() => setCartaAperta(true)}>
+              Mostra carta
+            </button>
+          )}
+          {cartaAperta && cartaMostrata && (
+            <CartaSchermoIntero
+              src={cartaMostrata}
+              etichetta={`Carta: ${nomeRuolo(indagineStanotte.ruoloRivelato, reale)}`}
+              onChiudi={() => setCartaAperta(false)}
+            />
+          )}
+        </>
       )}
     </div>
   )
