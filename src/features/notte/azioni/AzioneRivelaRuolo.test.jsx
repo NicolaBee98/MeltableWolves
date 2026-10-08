@@ -273,3 +273,48 @@ test('Cartomante: una Guardia con la Mannara nel mazzo chiede quale carta è e m
   expect(ruolo('2')).toBe('guardia')
   expect(ruolo('3')).toBe('guardia-mannara')
 })
+
+test('"Mostra carta": dopo la scelta si può mostrare la carta a schermo intero e chiuderla con la ✕', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [], ultimaIndagine: { targetId: '2', ruoloRivelato: 'lupo-mannaro', notte: 2 } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={vi.fn()}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+    />,
+  )
+
+  // non obbligatorio: la carta compare solo se si preme il pulsante
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Mostra carta' }))
+  const dialog = screen.getByRole('dialog')
+  expect(within(dialog).getByRole('img')).toHaveAttribute('src', '/assets/carte/Lupo_Mannaro_1.svg')
+
+  await user.click(within(dialog).getByRole('button', { name: 'Chiudi' }))
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+})
+
+test('"Mostra carta" non compare finché non è stato scelto il bersaglio', () => {
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'veggente', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={vi.fn()}
+      round={2}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+    />,
+  )
+  expect(screen.queryByRole('button', { name: 'Mostra carta' })).not.toBeInTheDocument()
+})

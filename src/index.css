@@ -1734,3 +1734,43 @@ textarea:focus-visible {
   margin: 0 0 0.5rem;
   padding-left: 1.3rem;
 }
+
+/* Carta mostrata a schermo intero (Cartomante/Medium) */
+.carta-schermo-intero {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--pal-inchiostro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
+}
+
+.carta-schermo-intero__immagine {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--pal-bianco);
+  user-select: none;
+}
+
+.carta-schermo-intero__chiudi {
+  position: absolute;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  right: 0.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--pal-bianco);
+  border-color: var(--pal-inchiostro);
+  color: var(--pal-inchiostro);
+  z-index: 1;
+}

@@ -165,6 +165,17 @@ export function cartaPath(slug) {
   return `/assets/carte/${file}.svg`
 }
 
+// La carta fisica di UN giocatore, per mostrarla a schermo intero (Cartomante/Medium):
+// per i ruoli con più copie (Villico, Lupo Mannaro, Guardia) la variante numerata,
+// come nel mazzo reale; altrimenti la carta del ruolo.
+export function cartaFisicaPath(slug, variante) {
+  const file = FILE_RUOLI[slug]
+  if (!file) return null
+  const totale = VARIANTI_PERSONAGGIO[slug]
+  if (!totale) return `/assets/carte/${file}.svg`
+  return `/assets/carte/${file}_${variante ? ((variante - 1) % totale) + 1 : 1}.svg`
+}
+
 // condizioni/: uno slug (src/data/conditions.js) -> un file
 export function condizionePath(slug) {
   return `/assets/condizioni/${slug}.svg`
