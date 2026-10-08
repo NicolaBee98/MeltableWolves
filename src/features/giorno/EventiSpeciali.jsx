@@ -260,7 +260,15 @@ export function EventiSpeciali({
 
   return (
     <div className="eventi-speciali">
-      <button type="button" ref={triggerRef} className="eventi-speciali__icona" onClick={() => setEvento('menu')}>
+      {/* con il pannello aperto il pulsante diventa il titolo del pannello: resta nel DOM
+          (nascosto) perché useDialogA11y gli restituisce il focus alla chiusura */}
+      <button
+        type="button"
+        ref={triggerRef}
+        className="eventi-speciali__icona"
+        hidden={Boolean(evento)}
+        onClick={() => setEvento('menu')}
+      >
         <img src="/assets/icone/ui/punto_esclamativo.svg" alt="" aria-hidden="true" className="eventi-speciali__img" />
         Eventi speciali
       </button>
@@ -273,6 +281,10 @@ export function EventiSpeciali({
           ref={dialogRef}
           tabIndex={-1}
         >
+          <p className="eventi-speciali__titolo" aria-hidden="true">
+            <img src="/assets/icone/ui/punto_esclamativo.svg" alt="" className="eventi-speciali__img" />
+            Eventi speciali
+          </p>
           <button type="button" className="eventi-speciali__chiudi" onClick={chiudi} aria-label="Chiudi">
             ✕
           </button>

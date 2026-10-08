@@ -285,7 +285,7 @@ test('Il Gallo Mannaro salta il giorno è proposto solo in contesto alba', async
   expect(screen.queryByRole('button', { name: 'Il Gallo Mannaro salta il giorno' })).not.toBeInTheDocument()
 
   const { onGalloSaltaGiorno } = setup({ giocatori, contesto: 'alba' })
-  await user.click(screen.getAllByRole('button', { name: /eventi speciali/i })[1])
+  await user.click(screen.getAllByRole('button', { name: /eventi speciali/i })[0])
   await user.click(screen.getByRole('button', { name: 'Il Gallo Mannaro salta il giorno' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
