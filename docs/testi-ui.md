@@ -87,7 +87,7 @@ Totale voci: 900.
   TESTO: ℹ️ Borgomastro e Fantasma Onnisciente sono "condizioni aggiuntive", non ruoli fissi che i giocatori possono avere
 
 - **T0091** · nota Borgomastro/Fantasma: parte 2 di 3 (solo con Ladro) · `src/features/mazzo/MazzoBuilder.jsx:142`
-  TESTO: [[vuoto]]
+  TESTO: 
 
 - **T0092** · nota Borgomastro/Fantasma: parte 3 di 3, punto finale · `src/features/mazzo/MazzoBuilder.jsx:142`
   TESTO: .
@@ -339,7 +339,7 @@ Totale voci: 900.
   TESTO: Per aggiornarla: chiudi del tutto l'app e riaprila con la rete.
 
 - **T0067** · avviso finale sui dati locali · `src/features/home/ScaricaOffline.jsx:47`
-  TESTO: [[vuoto]]
+  TESTO: 
 
 ### Avvisi
 
@@ -568,10 +568,10 @@ Totale voci: 900.
   TESTO: Morti: 
 
 - **T0185** · motivo Indietro non disponibile (dopo ricaricamento) · `src/features/notte/NightSequencer.jsx:973`
-  TESTO: [[vuoto]]
+  TESTO: 
 
 - **T0186** · motivo Indietro non disponibile (primo passo) · `src/features/notte/NightSequencer.jsx:975`
-  TESTO: [[vuoto]]
+  TESTO: 
 
 - **T0187** · motivo Indietro non disponibile (nulla da annullare) · `src/features/notte/NightSequencer.jsx:976`
   TESTO: Nulla da annullare in questo passo.
@@ -988,7 +988,7 @@ Totale voci: 900.
   TESTO: ⚠️ 
 
 - **T0300** · avviso trasformazione in Lupo Mannaro, parte 1/2 (emoji) · `src/features/notte/azioni/AzioneBrancoLupi.jsx:377`
-  TESTO:  [[vuoto]] 
+  TESTO: 
 
 - **T0301** · avviso trasformazione in Lupo Mannaro, parte 2/2 · `src/features/notte/azioni/AzioneBrancoLupi.jsx:378`
   TESTO:  verrà trasformato in Lupo Mannaro. 
@@ -1659,40 +1659,40 @@ Totale voci: 900.
 - **T0511** · Gallo Mannaro salta il giorno · `src/data/log.js:29`
   TESTO: ${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta
 
-- **T0512** · Cavaliere sceglie chi proteggere · `src/data/log.js:34`
+- **T0512** · Cavaliere sceglie chi proteggere · `src/data/log.js:40`
   TESTO: Il Cavaliere ${nome} sceglie di proteggere ${t}
 
-- **T0513** · Apprendista sceglie il maestro · `src/data/log.js:35`
+- **T0513** · Apprendista sceglie il maestro · `src/data/log.js:41`
   TESTO: L'Apprendista ${nome} sceglie ${t} come maestro
 
-- **T0514** · Figlia dei Lupi sceglie · `src/data/log.js:36`
+- **T0514** · Figlia dei Lupi sceglie · `src/data/log.js:42`
   TESTO: La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore
 
-- **T0515** · Boia giustizia · `src/data/log.js:74`
+- **T0515** · Boia giustizia · `src/data/log.js:82`
   TESTO: Il Boia ${nomeLog(boia)} giustizia ${giocatore.nome}
 
-- **T0516** · Morte generica (${causa} è una delle etichette sopra) · `src/data/log.js:74`
+- **T0516** · Morte generica (${causa} è una delle etichette sopra) · `src/data/log.js:82`
   TESTO: ${nome} è morto/a${causa}
 
-- **T0517** · Borgomastro morto · `src/data/log.js:78`
+- **T0517** · Borgomastro morto · `src/data/log.js:86`
   TESTO: ${nome} era il Borgomastro: il villaggio dovrà eleggerne uno nuovo
 
-- **T0518** · Resuscitato/a · `src/data/log.js:88`
+- **T0518** · Resuscitato/a · `src/data/log.js:96`
   TESTO: ${nome} è stato/a resuscitato/a
 
-- **T0519** · Tornato/a in vita · `src/data/log.js:88`
+- **T0519** · Tornato/a in vita · `src/data/log.js:96`
   TESTO: ${nome} è tornato/a in vita
 
-- **T0520** · Chi resuscita: Guaritore (parte di una frase) · `src/data/log.js:97`
+- **T0520** · Chi resuscita: Guaritore (parte di una frase) · `src/data/log.js:105`
   TESTO: Il Guaritore
 
-- **T0521** · Chi resuscita: Sciacallo Mannaro (parte di una frase) · `src/data/log.js:97`
+- **T0521** · Chi resuscita: Sciacallo Mannaro (parte di una frase) · `src/data/log.js:105`
   TESTO: Lo Sciacallo Mannaro
 
-- **T0522** · Chi resuscita: fallback · `src/data/log.js:97`
+- **T0522** · Chi resuscita: fallback · `src/data/log.js:105`
   TESTO: Il Guaritore/Sciacallo
 
-- **T0523** · Scelta di resuscitare (${chi} è una delle tre stringhe sopra) · `src/data/log.js:98`
+- **T0523** · Scelta di resuscitare (${chi} è una delle tre stringhe sopra) · `src/data/log.js:106`
   TESTO: ${chi} sceglie di resuscitare ${giocatore.nome}
 
 - **T0524** · Antico rivelato · `src/data/log.js:108`
@@ -1701,64 +1701,64 @@ Totale voci: 900.
 - **T0525** · Villaggio maledetto · `src/data/log.js:112`
   TESTO: Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri
 
-- **T0526** · Rivelazione diurna di un ruolo · `src/data/log.js:116`
+- **T0526** · Rivelazione diurna di un ruolo · `src/data/log.js:124`
   TESTO: ${nome} si è rivelato/a: è ${nomeRuolo(slug)}
 
-- **T0527** · Borgomastro eletto · `src/data/log.js:120`
+- **T0527** · Borgomastro eletto · `src/data/log.js:128`
   TESTO: ${nome} è stato/a eletto/a Borgomastro
 
-- **T0528** · Fantasma Onnisciente · `src/data/log.js:123`
+- **T0528** · Fantasma Onnisciente · `src/data/log.js:131`
   TESTO: ${nome} riceve la carta del Fantasma Onnisciente
 
-- **T0529** · Sacerdote unisce due giocatori · `src/data/log.js:134`
+- **T0529** · Sacerdote unisce due giocatori · `src/data/log.js:142`
   TESTO: Il Sacerdote unisce ${giocatore.nome} e ${partner.nome}: sono innamorati
 
-- **T0530** · Condizione ottenuta (il valore è lo slug) · `src/data/log.js:141`
+- **T0530** · Condizione ottenuta (il valore è lo slug) · `src/data/log.js:149`
   TESTO: ${nome} ha ottenuto la condizione "${condizione}"
 
-- **T0531** · Condizione persa (il valore è lo slug) · `src/data/log.js:146`
+- **T0531** · Condizione persa (il valore è lo slug) · `src/data/log.js:154`
   TESTO: ${nome} ha perso la condizione "${condizione}"
 
-- **T0532** · Gesto annullato (Gallo/Bardo): frase intera · `src/data/log.js:156`
+- **T0532** · Gesto annullato (Gallo/Bardo): frase intera · `src/data/log.js:164`
   TESTO: ${nome}: gesto annullato (${potere === 'gallo-salta-giorno' ? 'Gallo' : 'Bardo'})
 
-- **T0533** · Gesto annullato: Gallo (dentro la frase) · `src/data/log.js:156`
+- **T0533** · Gesto annullato: Gallo (dentro la frase) · `src/data/log.js:161`
   TESTO: Gallo
 
-- **T0534** · Gesto annullato: Bardo (dentro la frase) · `src/data/log.js:156`
+- **T0534** · Gesto annullato: Bardo (dentro la frase) · `src/data/log.js:164`
   TESTO: Bardo
 
-- **T0535** · Segnaposto per un bersaglio sconosciuto · `src/data/log.js:169`
+- **T0535** · Segnaposto per un bersaglio sconosciuto · `src/data/log.js:164`
   TESTO: ?
 
-- **T0536** · Apprendista eredita il ruolo · `src/data/log.js:181`
+- **T0536** · Apprendista eredita il ruolo · `src/data/log.js:194`
   TESTO: ${nome} (Apprendista) eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}
 
-- **T0537** · Figlia dei Lupi si rivela · `src/data/log.js:185`
+- **T0537** · Figlia dei Lupi si rivela · `src/data/log.js:198`
   TESTO: ${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro
 
-- **T0538** · Ladro: carte scartate (suffisso) · `src/data/log.js:201`
+- **T0538** · Ladro: carte scartate (suffisso) · `src/data/log.js:214`
   TESTO: : scarta ${scarto.map((r) => nomeRuolo(ruoloPerDisplay(r))).join(' e ')}
 
-- **T0539** · Ladro: separatore tra le carte scartate (dentro il suffisso sopra) · `src/data/log.js:201`
+- **T0539** · Ladro: separatore tra le carte scartate (dentro il suffisso sopra) · `src/data/log.js:198`
   TESTO:  e 
 
-- **T0540** · Mimo del Ladro come soggetto · `src/data/log.js:202`
+- **T0540** · Mimo del Ladro come soggetto · `src/data/log.js:215`
   TESTO: ${giocatore.nome} (Mimo del Ladro)
 
-- **T0541** · Ladro come soggetto · `src/data/log.js:202`
+- **T0541** · Ladro come soggetto · `src/data/log.js:215`
   TESTO: Il Ladro ${giocatore.nome}
 
-- **T0542** · Ladro resta Villico · `src/data/log.js:208`
+- **T0542** · Ladro resta Villico · `src/data/log.js:221`
   TESTO: ${titolo} sceglie di restare Villico${scartate}
 
-- **T0543** · Ladro sceglie un ruolo · `src/data/log.js:209`
+- **T0543** · Ladro sceglie un ruolo · `src/data/log.js:222`
   TESTO: ${titolo} sceglie ${nomeRuolo(scelta)}${scartate}
 
-- **T0544** · Mimo imita un ruolo · `src/data/log.js:227`
+- **T0544** · Mimo imita un ruolo · `src/data/log.js:240`
   TESTO: Il Mimo ${giocatore.nome} imita ${nomeRuolo(ruoloPerDisplay(imitato))}${bersaglio ? ` (${bersaglio.nome})` : ''}
 
-- **T0545** · Cambio di ruolo generico · `src/data/log.js:230`
+- **T0545** · Cambio di ruolo generico · `src/data/log.js:243`
   TESTO: ${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}
 
 ### Vittoria
