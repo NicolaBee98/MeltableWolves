@@ -59,10 +59,10 @@
   "contesto": "descrizione app nel manifest PWA",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Assistente per il Narratore di Meltable Wolves",
+  "originale": "Meltable Wolves - Assistente per il Narratore",
   "dinamico": [],
   "id": "T0005",
-  "mostrato": "Assistente per il Narratore di Meltable Wolves"
+  "mostrato": "Meltable Wolves - Assistente per il Narratore"
  },
  {
   "parte": "generale",
@@ -219,10 +219,10 @@
   "contesto": "pulsante per iniziare la notte",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Inizia la notte",
+  "originale": "È notte nel villaggio",
   "dinamico": [],
   "id": "T0017",
-  "mostrato": "Inizia la notte"
+  "mostrato": "È notte nel villaggio"
  },
  {
   "parte": "generale",
@@ -876,10 +876,10 @@
   "contesto": "avviso finale sui dati locali",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "I dati della partita restano solo su questo dispositivo, senza sincronizzazione: usa sempre lo stesso telefono.\n        Cancellare i dati del sito dal browser azzera la partita.",
+  "originale": "",
   "dinamico": [],
   "id": "T0067",
-  "mostrato": "I dati della partita restano solo su questo dispositivo, senza sincronizzazione: usa sempre lo stesso telefono. Cancellare i dati del sito dal browser azzera la partita."
+  "mostrato": ""
  },
  {
   "parte": "generale",
@@ -1170,10 +1170,10 @@
   "contesto": "nota Ladro (parte di una frase)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "ℹ️ Il Ladro richiede due carte in più nel mazzo fisico (pag. 15): sceglierai quali durante il suo turno,\n          la prima notte.",
+  "originale": "ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.",
   "dinamico": [],
   "id": "T0089",
-  "mostrato": "ℹ️ Il Ladro richiede due carte in più nel mazzo fisico (pag. 15): sceglierai quali durante il suo turno, la prima notte."
+  "mostrato": "ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori."
  },
  {
   "parte": "generale",
@@ -1183,10 +1183,10 @@
   "contesto": "nota Borgomastro/Fantasma: parte 1 di 3",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "ℹ️ Borgomastro e Fantasma Onnisciente fanno parte del conteggio qui sopra ma non sono ruoli in più per i\n          giocatori: nella schermata giocatori non vengono contati",
+  "originale": "ℹ️ Borgomastro e Fantasma Onnisciente sono \"condizioni aggiuntive\", non ruoli fissi che i giocatori possono avere",
   "dinamico": [],
   "id": "T0090",
-  "mostrato": "ℹ️ Borgomastro e Fantasma Onnisciente fanno parte del conteggio qui sopra ma non sono ruoli in più per i giocatori: nella schermata giocatori non vengono contati"
+  "mostrato": "ℹ️ Borgomastro e Fantasma Onnisciente sono \"condizioni aggiuntive\", non ruoli fissi che i giocatori possono avere"
  },
  {
   "parte": "generale",
@@ -1196,10 +1196,10 @@
   "contesto": "nota Borgomastro/Fantasma: parte 2 di 3 (solo con Ladro)",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": " (come le 2 carte extra del Ladro)",
+  "originale": "",
   "dinamico": [],
   "id": "T0091",
-  "mostrato": " (come le 2 carte extra del Ladro)"
+  "mostrato": ""
  },
  {
   "parte": "generale",
@@ -1328,10 +1328,10 @@
   "contesto": "istruzioni",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Aggiungi i giocatori nell'ordine in cui siedono al tavolo. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.",
+  "originale": "Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.",
   "dinamico": [],
   "id": "T0101",
-  "mostrato": "Aggiungi i giocatori nell'ordine in cui siedono al tavolo. Tieni premuta la ✕ per eliminare, trascina una card per riordinare."
+  "mostrato": "Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare."
  },
  {
   "parte": "generale",
@@ -1538,10 +1538,10 @@
   "contesto": "avviso nome duplicato",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "⚠️ C'è già un giocatore con questo nome: usane uno diverso (es. aggiungi l'iniziale del cognome).",
+  "originale": "⚠️ C'è già un giocatore con questo nome: usane uno diverso.",
   "dinamico": [],
   "id": "T0117",
-  "mostrato": "⚠️ C'è già un giocatore con questo nome: usane uno diverso (es. aggiungi l'iniziale del cognome)."
+  "mostrato": "⚠️ C'è già un giocatore con questo nome: usane uno diverso."
  },
  {
   "parte": "generale",
@@ -1722,10 +1722,10 @@
   "contesto": "titolo del registro",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Registro partita",
+  "originale": "Diario partita",
   "dinamico": [],
   "id": "T0131",
-  "mostrato": "Registro partita"
+  "mostrato": "Diario partita"
  },
  {
   "parte": "generale",
@@ -1735,10 +1735,10 @@
   "contesto": "titolo gruppo notte+giorno (parte 1)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Notte e giorno",
+  "originale": "Round",
   "dinamico": [],
   "id": "T0132",
-  "mostrato": "Notte e giorno"
+  "mostrato": "Round"
  },
  {
   "parte": "generale",
@@ -1761,10 +1761,10 @@
   "contesto": "etichetta accessibile del pulsante ingranaggio",
   "tipo": "aria",
   "delimitatore": "\"",
-  "originale": "Registro e impostazioni",
+  "originale": "Diario e impostazioni",
   "dinamico": [],
   "id": "T0134",
-  "mostrato": "Registro e impostazioni"
+  "mostrato": "Diario e impostazioni"
  },
  {
   "parte": "generale",
@@ -1774,10 +1774,10 @@
   "contesto": "etichetta accessibile della finestra",
   "tipo": "aria",
   "delimitatore": "\"",
-  "originale": "Registro e impostazioni",
+  "originale": "Diario e impostazioni",
   "dinamico": [],
   "id": "T0135",
-  "mostrato": "Registro e impostazioni"
+  "mostrato": "Diario e impostazioni"
  },
  {
   "parte": "generale",
@@ -1813,10 +1813,10 @@
   "contesto": "conferma nuova partita",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Iniziare una nuova partita? I giocatori restano; ruoli, mazzo e registro della partita attuale vengono azzerati.",
+  "originale": "Iniziare una nuova partita? Ruoli, mazzo e diario della partita attuale saranno azzerati.",
   "dinamico": [],
   "id": "T0138",
-  "mostrato": "Iniziare una nuova partita? I giocatori restano; ruoli, mazzo e registro della partita attuale vengono azzerati."
+  "mostrato": "Iniziare una nuova partita? Ruoli, mazzo e diario della partita attuale saranno azzerati."
  },
  {
   "parte": "generale",
@@ -1865,10 +1865,10 @@
   "contesto": "scheda Log partita",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Log partita",
+  "originale": "Diario",
   "dinamico": [],
   "id": "T0142",
-  "mostrato": "Log partita"
+  "mostrato": "Diario"
  },
  {
   "parte": "generale",
@@ -1878,10 +1878,10 @@
   "contesto": "opzione: ruoli in votazione",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Mostra i ruoli durante la votazione (narratore)",
+  "originale": "Mostra le icone dei ruoli durante la votazione",
   "dinamico": [],
   "id": "T0143",
-  "mostrato": "Mostra i ruoli durante la votazione (narratore)"
+  "mostrato": "Mostra le icone dei ruoli durante la votazione"
  },
  {
   "parte": "generale",
@@ -1891,10 +1891,10 @@
   "contesto": "opzione: varianti icona",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Varianti di icona per Lupi Mannari e Villici",
+  "originale": "Utilizza le varianti di icona per Lupi Mannari e Villici",
   "dinamico": [],
   "id": "T0144",
-  "mostrato": "Varianti di icona per Lupi Mannari e Villici"
+  "mostrato": "Utilizza le varianti di icona per Lupi Mannari e Villici"
  },
  {
   "parte": "generale",
@@ -1904,10 +1904,10 @@
   "contesto": "opzione: nome ruolo accanto al nome",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Mostra il nome del ruolo tra parentesi accanto al nome",
+  "originale": "Mostra il ruolo di un giocatore tra parentesi durante la votazione",
   "dinamico": [],
   "id": "T0145",
-  "mostrato": "Mostra il nome del ruolo tra parentesi accanto al nome"
+  "mostrato": "Mostra il ruolo di un giocatore tra parentesi durante la votazione"
  },
  {
   "parte": "generale",
@@ -1917,10 +1917,10 @@
   "contesto": "opzione: promemoria ruoli morti",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)",
+  "originale": "Promemoria durante la notte per i ruoli morti che agirebbero",
   "dinamico": [],
   "id": "T0146",
-  "mostrato": "Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)"
+  "mostrato": "Promemoria durante la notte per i ruoli morti che agirebbero"
  },
  {
   "parte": "generale",
@@ -1956,10 +1956,10 @@
   "contesto": "campo durata timer",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Durata timer arringa/spareggio (secondi)",
+  "originale": "Durata timer spareggio (secondi)",
   "dinamico": [],
   "id": "T0149",
-  "mostrato": "Durata timer arringa/spareggio (secondi)"
+  "mostrato": "Durata timer spareggio (secondi)"
  },
  {
   "parte": "generale",
@@ -2438,10 +2438,10 @@
   "contesto": "motivo Indietro non disponibile (dopo ricaricamento)",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Dopo un ricaricamento non si può tornare ai passi già conclusi.",
+  "originale": "",
   "dinamico": [],
   "id": "T0185",
-  "mostrato": "Dopo un ricaricamento non si può tornare ai passi già conclusi."
+  "mostrato": ""
  },
  {
   "parte": "notte",
@@ -2451,10 +2451,10 @@
   "contesto": "motivo Indietro non disponibile (primo passo)",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Primo passo della notte: non si torna alla notte precedente.",
+  "originale": "",
   "dinamico": [],
   "id": "T0186",
-  "mostrato": "Primo passo della notte: non si torna alla notte precedente."
+  "mostrato": ""
  },
  {
   "parte": "notte",
@@ -3465,10 +3465,10 @@
   "contesto": "risposta all'Inquisitore: aura malvagia",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "sì (aura malvagia) 🐺",
+  "originale": "sì (aura malvagia)",
   "dinamico": [],
   "id": "T0266",
-  "mostrato": "sì (aura malvagia) 🐺"
+  "mostrato": "sì (aura malvagia)"
  },
  {
   "parte": "notte",
@@ -3478,10 +3478,10 @@
   "contesto": "risposta all'Inquisitore: aura benevola",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "no (aura benevola) 🕊️",
+  "originale": "no (aura benevola)",
   "dinamico": [],
   "id": "T0267",
-  "mostrato": "no (aura benevola) 🕊️"
+  "mostrato": "no (aura benevola)"
  },
  {
   "parte": "notte",
@@ -3848,10 +3848,10 @@
   "contesto": "avviso Vendetta del Cucciolo, parte 1/2",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "\n          🐺 Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima",
+  "originale": " Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima",
   "dinamico": [],
   "id": "T0294",
-  "mostrato": " 🐺 Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima"
+  "mostrato": " Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima"
  },
  {
   "parte": "notte",
@@ -3926,10 +3926,10 @@
   "contesto": "avviso trasformazione in Lupo Mannaro, parte 1/2 (emoji)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "\n          🐺 ",
+  "originale": "",
   "dinamico": [],
   "id": "T0300",
-  "mostrato": " 🐺 "
+  "mostrato": ""
  },
  {
   "parte": "notte",
@@ -4205,10 +4205,10 @@
   "contesto": "Mimo imita, parte 2/3",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": ": con Avanti assumerà il ruolo di ",
+  "originale": ": e assumerà il ruolo di ",
   "dinamico": [],
   "id": "T0321",
-  "mostrato": ": con Avanti assumerà il ruolo di "
+  "mostrato": ": e assumerà il ruolo di "
  },
  {
   "parte": "notte",
@@ -5215,10 +5215,10 @@
   "contesto": "titolo del passo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Bardo (gesto segreto)",
+  "originale": "Bardo ",
   "dinamico": [],
   "id": "T0398",
-  "mostrato": "Bardo (gesto segreto)"
+  "mostrato": "Bardo "
  },
  {
   "parte": "notte",
@@ -5228,10 +5228,10 @@
   "contesto": "titolo del passo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Gallo Mannaro (gesto segreto)",
+  "originale": "Gallo Mannaro",
   "dinamico": [],
   "id": "T0399",
-  "mostrato": "Gallo Mannaro (gesto segreto)"
+  "mostrato": "Gallo Mannaro"
  },
  {
   "parte": "notte",
@@ -5293,10 +5293,10 @@
   "contesto": "titolo del passo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Innamorati si riconoscono",
+  "originale": "Innamorati (si riconoscono)",
   "dinamico": [],
   "id": "T0404",
-  "mostrato": "Innamorati si riconoscono"
+  "mostrato": "Innamorati (si riconoscono)"
  },
  {
   "parte": "notte",
@@ -5319,10 +5319,10 @@
   "contesto": "titolo del passo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Le Guardie si riconoscono",
+  "originale": "Guardie (si riconoscono)",
   "dinamico": [],
   "id": "T0406",
-  "mostrato": "Le Guardie si riconoscono"
+  "mostrato": "Guardie (si riconoscono)"
  },
  {
   "parte": "notte",
@@ -5566,10 +5566,10 @@
   "contesto": "titolo del passo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Sveglia gli ipnotizzati dal Pifferaio",
+  "originale": "Ipnotizzati (dal Pifferaio)",
   "dinamico": [],
   "id": "T0425",
-  "mostrato": "Sveglia gli ipnotizzati dal Pifferaio"
+  "mostrato": "Ipnotizzati (dal Pifferaio)"
  },
  {
   "parte": "notte",
@@ -5641,12 +5641,12 @@
   "contesto": "avviso Berserker sbranato con lupo (schermo)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Berserker sbranato: ${lupi.join(', ')} (il lupo più vicino) morirà con lui.",
+  "originale": "Se il Berserker sarà sbranato, ${lupi.join(', ')} (il lupo più vicino) morirà con lui.",
   "dinamico": [
    "${lupi.join(', ')}"
   ],
   "id": "T0430",
-  "mostrato": "Il Berserker sbranato: ${lupi.join(', ')} (il lupo più vicino) morirà con lui."
+  "mostrato": "Se il Berserker sarà sbranato, ${lupi.join(', ')} (il lupo più vicino) morirà con lui."
  },
  {
   "parte": "notte",
@@ -5760,13 +5760,13 @@
   "contesto": "avviso cliente della Cortigiana sbranato (schermo)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${target.nome} era il cliente della Cortigiana ${c.nome}: sbranato, anche lei morirà.",
+  "originale": "A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno.",
   "dinamico": [
    "${target.nome}",
    "${c.nome}"
   ],
   "id": "T0438",
-  "mostrato": "${target.nome} era il cliente della Cortigiana ${c.nome}: sbranato, anche lei morirà."
+  "mostrato": "A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno."
  },
  {
   "parte": "notte",
@@ -5792,12 +5792,12 @@
   "contesto": "avviso Cucciolo ucciso, vendetta (schermo)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Cucciolo ${target.nome} è ucciso: il branco sbranerà due persone per vendetta.",
+  "originale": "Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.",
   "dinamico": [
    "${target.nome}"
   ],
   "id": "T0440",
-  "mostrato": "Il Cucciolo ${target.nome} è ucciso: il branco sbranerà due persone per vendetta."
+  "mostrato": "Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta."
  },
  {
   "parte": "notte",
@@ -5807,12 +5807,12 @@
   "contesto": "registro Cucciolo ucciso, vendetta (log)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco (due vittime).",
+  "originale": "Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco.",
   "dinamico": [
    "${target.nome}"
   ],
   "id": "T0441",
-  "mostrato": "Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco (due vittime)."
+  "mostrato": "Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco."
  },
  {
   "parte": "notte",
@@ -5822,12 +5822,12 @@
   "contesto": "avviso Cucciolo diventa adulto (schermo)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Morto un lupo, il Cucciolo ${c.nome} diventa adulto: perde la vendetta.",
+  "originale": "Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più.",
   "dinamico": [
    "${c.nome}"
   ],
   "id": "T0442",
-  "mostrato": "Morto un lupo, il Cucciolo ${c.nome} diventa adulto: perde la vendetta."
+  "mostrato": "Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più."
  },
  {
   "parte": "notte",
@@ -6028,12 +6028,12 @@
   "contesto": "Antico sbranato di notte",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive (ora gioca da Villico).",
+  "originale": "${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive.",
   "dinamico": [
    "${g.nome}"
   ],
   "id": "T0457",
-  "mostrato": "${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive (ora gioca da Villico)."
+  "mostrato": "${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive."
  },
  {
   "parte": "giorno",
@@ -6073,12 +6073,12 @@
   "contesto": "Mezzosangue sbranato",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Mezzosangue ${g.nome} è stato sbranato e diventa Lupo Mannaro.",
+  "originale": "Il Mezzosangue ${g.nome} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.",
   "dinamico": [
    "${g.nome}"
   ],
   "id": "T0460",
-  "mostrato": "Il Mezzosangue ${g.nome} è stato sbranato e diventa Lupo Mannaro."
+  "mostrato": "Il Mezzosangue ${g.nome} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro."
  },
  {
   "parte": "giorno",
@@ -6105,12 +6105,12 @@
   "contesto": "Figlia dei Lupi diventa lupo",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${g.nome} si rivela: è la Figlia dei Lupi e diventa Lupo Mannaro.",
+  "originale": "${g.nome} è la Figlia dei Lupi e rimasta orfana diventa Lupo Mannaro.",
   "dinamico": [
    "${g.nome}"
   ],
   "id": "T0462",
-  "mostrato": "${g.nome} si rivela: è la Figlia dei Lupi e diventa Lupo Mannaro."
+  "mostrato": "${g.nome} è la Figlia dei Lupi e rimasta orfana diventa Lupo Mannaro."
  },
  {
   "parte": "giorno",
@@ -6421,10 +6421,10 @@
   "contesto": "Spilungone al primo rogo",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Lo Spilungone si rivela e non muore al primo rogo.",
+  "originale": "Lo Spilungone si rivela e non muore durante il rogo.",
   "dinamico": [],
   "id": "T0486",
-  "mostrato": "Lo Spilungone si rivela e non muore al primo rogo."
+  "mostrato": "Lo Spilungone si rivela e non muore durante il rogo."
  },
  {
   "parte": "giorno",
@@ -6758,12 +6758,12 @@
   "contesto": "Bardo salta la notte",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} fa il gesto del Bardo: la notte successiva salta",
+  "originale": "${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0510",
-  "mostrato": "${nome} fa il gesto del Bardo: la notte successiva salta"
+  "mostrato": "${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta"
  },
  {
   "parte": "giorno",
@@ -6773,17 +6773,17 @@
   "contesto": "Gallo Mannaro salta il giorno",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} fa cantare il Gallo Mannaro: il giorno salta",
+  "originale": "${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0511",
-  "mostrato": "${nome} fa cantare il Gallo Mannaro: il giorno salta"
+  "mostrato": "${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 34,
+  "riga": 40,
   "schermata": "Registro (messaggi)",
   "contesto": "Cavaliere sceglie chi proteggere",
   "tipo": "template",
@@ -6799,7 +6799,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 35,
+  "riga": 41,
   "schermata": "Registro (messaggi)",
   "contesto": "Apprendista sceglie il maestro",
   "tipo": "template",
@@ -6815,23 +6815,23 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 36,
+  "riga": 42,
   "schermata": "Registro (messaggi)",
   "contesto": "Figlia dei Lupi sceglie",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "La Figlia dei Lupi ${nome} sceglie ${t}",
+  "originale": "La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore",
   "dinamico": [
    "${nome}",
    "${t}"
   ],
   "id": "T0514",
-  "mostrato": "La Figlia dei Lupi ${nome} sceglie ${t}"
+  "mostrato": "La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 74,
+  "riga": 82,
   "schermata": "Registro (messaggi)",
   "contesto": "Boia giustizia",
   "tipo": "template",
@@ -6847,7 +6847,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 74,
+  "riga": 82,
   "schermata": "Registro (messaggi)",
   "contesto": "Morte generica (${causa} è una delle etichette sopra)",
   "tipo": "template",
@@ -6863,7 +6863,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 78,
+  "riga": 86,
   "schermata": "Registro (messaggi)",
   "contesto": "Borgomastro morto",
   "tipo": "template",
@@ -6878,7 +6878,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 88,
+  "riga": 96,
   "schermata": "Registro (messaggi)",
   "contesto": "Resuscitato/a",
   "tipo": "template",
@@ -6893,7 +6893,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 88,
+  "riga": 96,
   "schermata": "Registro (messaggi)",
   "contesto": "Tornato/a in vita",
   "tipo": "template",
@@ -6908,7 +6908,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 97,
+  "riga": 105,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: Guaritore (parte di una frase)",
   "tipo": "stringa",
@@ -6921,7 +6921,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 97,
+  "riga": 105,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: Sciacallo Mannaro (parte di una frase)",
   "tipo": "stringa",
@@ -6934,7 +6934,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 97,
+  "riga": 105,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: fallback",
   "tipo": "stringa",
@@ -6947,7 +6947,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 98,
+  "riga": 106,
   "schermata": "Registro (messaggi)",
   "contesto": "Scelta di resuscitare (${chi} è una delle tre stringhe sopra)",
   "tipo": "template",
@@ -6968,12 +6968,12 @@
   "contesto": "Antico rivelato",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)",
+  "originale": "${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0524",
-  "mostrato": "${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)"
+  "mostrato": "${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive"
  },
  {
   "parte": "giorno",
@@ -6983,15 +6983,15 @@
   "contesto": "Villaggio maledetto",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno",
+  "originale": "Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri",
   "dinamico": [],
   "id": "T0525",
-  "mostrato": "Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno"
+  "mostrato": "Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 116,
+  "riga": 124,
   "schermata": "Registro (messaggi)",
   "contesto": "Rivelazione diurna di un ruolo",
   "tipo": "template",
@@ -7007,7 +7007,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 120,
+  "riga": 128,
   "schermata": "Registro (messaggi)",
   "contesto": "Borgomastro eletto",
   "tipo": "template",
@@ -7022,7 +7022,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 123,
+  "riga": 131,
   "schermata": "Registro (messaggi)",
   "contesto": "Fantasma Onnisciente",
   "tipo": "template",
@@ -7037,7 +7037,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 134,
+  "riga": 142,
   "schermata": "Registro (messaggi)",
   "contesto": "Sacerdote unisce due giocatori",
   "tipo": "template",
@@ -7053,7 +7053,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 141,
+  "riga": 149,
   "schermata": "Registro (messaggi)",
   "contesto": "Condizione ottenuta (il valore è lo slug)",
   "tipo": "template",
@@ -7069,7 +7069,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 146,
+  "riga": 154,
   "schermata": "Registro (messaggi)",
   "contesto": "Condizione persa (il valore è lo slug)",
   "tipo": "template",
@@ -7085,7 +7085,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 156,
+  "riga": 164,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato (Gallo/Bardo): frase intera",
   "tipo": "template",
@@ -7101,7 +7101,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 156,
+  "riga": 161,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato: Gallo (dentro la frase)",
   "tipo": "stringa",
@@ -7114,7 +7114,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 156,
+  "riga": 164,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato: Bardo (dentro la frase)",
   "tipo": "stringa",
@@ -7127,7 +7127,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 169,
+  "riga": 164,
   "schermata": "Registro (messaggi)",
   "contesto": "Segnaposto per un bersaglio sconosciuto",
   "tipo": "stringa",
@@ -7140,7 +7140,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 181,
+  "riga": 194,
   "schermata": "Registro (messaggi)",
   "contesto": "Apprendista eredita il ruolo",
   "tipo": "template",
@@ -7157,7 +7157,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 185,
+  "riga": 198,
   "schermata": "Registro (messaggi)",
   "contesto": "Figlia dei Lupi si rivela",
   "tipo": "template",
@@ -7172,7 +7172,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 201,
+  "riga": 214,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro: carte scartate (suffisso)",
   "tipo": "template",
@@ -7187,7 +7187,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 201,
+  "riga": 198,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro: separatore tra le carte scartate (dentro il suffisso sopra)",
   "tipo": "stringa",
@@ -7200,7 +7200,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 202,
+  "riga": 215,
   "schermata": "Registro (messaggi)",
   "contesto": "Mimo del Ladro come soggetto",
   "tipo": "template",
@@ -7215,7 +7215,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 202,
+  "riga": 215,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro come soggetto",
   "tipo": "template",
@@ -7230,7 +7230,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 208,
+  "riga": 221,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro resta Villico",
   "tipo": "template",
@@ -7246,7 +7246,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 209,
+  "riga": 222,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro sceglie un ruolo",
   "tipo": "template",
@@ -7263,7 +7263,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 227,
+  "riga": 240,
   "schermata": "Registro (messaggi)",
   "contesto": "Mimo imita un ruolo",
   "tipo": "template",
@@ -7280,7 +7280,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 230,
+  "riga": 243,
   "schermata": "Registro (messaggi)",
   "contesto": "Cambio di ruolo generico",
   "tipo": "template",
@@ -7410,10 +7410,10 @@
   "contesto": "Capobranco e Mimo-Capobranco",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: vincono i Lupi Mannari.",
+  "originale": "Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: la vittoria va ai Capibranco.",
   "dinamico": [],
   "id": "T0554",
-  "mostrato": "Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: vincono i Lupi Mannari."
+  "mostrato": "Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: la vittoria va ai Capibranco."
  },
  {
   "parte": "giorno",
@@ -7423,10 +7423,10 @@
   "contesto": "Lupi e Mucca Mannara",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi e la Mucca Mannara.",
+  "originale": "I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.",
   "dinamico": [],
   "id": "T0555",
-  "mostrato": "I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi e la Mucca Mannara."
+  "mostrato": "I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro."
  },
  {
   "parte": "giorno",
@@ -7507,10 +7507,10 @@
   "contesto": "Avviso Antico (dopo {g.nome}; frase su due righe)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": " è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio e da ora gioca da\n            Villico (una sola vita, nessun potere).",
+  "originale": " è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio mostrando la sua carta.",
   "dinamico": [],
   "id": "T0561",
-  "mostrato": " è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio e da ora gioca da Villico (una sola vita, nessun potere)."
+  "mostrato": " è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio mostrando la sua carta."
  },
  {
   "parte": "giorno",
@@ -8006,10 +8006,10 @@
   "contesto": "Messaggio introduttivo (stringa dentro {...} con apici escapati)",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "Chi è morto/a per l\\'unzione (ha detto \"sì\" o \"no\"): l\\'unzione si trasmette ai due vicini vivi.",
+  "originale": "Chi è morto/a per l\\'unzione (dicendo \"sì\" o \"no\"): l\\'unzione si trasmette ai due vicini vivi.",
   "dinamico": [],
   "id": "T0599",
-  "mostrato": "Chi è morto/a per l'unzione (ha detto \"sì\" o \"no\"): l'unzione si trasmette ai due vicini vivi."
+  "mostrato": "Chi è morto/a per l'unzione (dicendo \"sì\" o \"no\"): l'unzione si trasmette ai due vicini vivi."
  },
  {
   "parte": "giorno",
@@ -8063,12 +8063,12 @@
   "contesto": "Esito, prima parte (concatenata con la parte seguente)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.",
+  "originale": "${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e i suoi poteri.",
   "dinamico": [
    "${nome(id)}"
   ],
   "id": "T0603",
-  "mostrato": "${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico."
+  "mostrato": "${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e i suoi poteri."
  },
  {
   "parte": "giorno",
@@ -8205,10 +8205,10 @@
   "contesto": "Messaggio di conferma",
   "tipo": "attributo",
   "delimitatore": "\"",
-  "originale": "Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà.",
+  "originale": "Il Bardo esegue il gesto: la notte successiva tutti rimarranno svegli.",
   "dinamico": [],
   "id": "T0613",
-  "mostrato": "Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà."
+  "mostrato": "Il Bardo esegue il gesto: la notte successiva tutti rimarranno svegli."
  },
  {
   "parte": "giorno",
@@ -8257,10 +8257,10 @@
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
   "delimitatore": "\"",
-  "originale": "Chi eleggete Borgomastro?",
+  "originale": "Chi sarà il nuovo Borgomastro?",
   "dinamico": [],
   "id": "T0617",
-  "mostrato": "Chi eleggete Borgomastro?"
+  "mostrato": "Chi sarà il nuovo Borgomastro?"
  },
  {
   "parte": "giorno",
@@ -8647,10 +8647,10 @@
   "contesto": "Spilungone rivelato (dopo {nome}; frase su due righe)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": " rivela la propria carta: è lo Spilungone, troppo alto per il rogo. La notte cala senza\n            vittime.",
+  "originale": " rivela la propria carta: è lo Spilungone, troppo alto per qualsiasi patibolo. La notte cala senza vittime.",
   "dinamico": [],
   "id": "T0646",
-  "mostrato": " rivela la propria carta: è lo Spilungone, troppo alto per il rogo. La notte cala senza vittime."
+  "mostrato": " rivela la propria carta: è lo Spilungone, troppo alto per qualsiasi patibolo. La notte cala senza vittime."
  },
  {
   "parte": "giorno",
@@ -8660,10 +8660,10 @@
   "contesto": "Antico rivelato (dopo {nome}; frase su due righe)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": " rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora\n            gioca da Villico. Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno.",
+  "originale": " rivela la propria carta: è L'Antico, ma sopravvive perdendo la sua prima vita. Il villaggio è maledetto: la notte successiva il villaggio non userà i suoi poteri.",
   "dinamico": [],
   "id": "T0647",
-  "mostrato": " rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora gioca da Villico. Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno."
+  "mostrato": " rivela la propria carta: è L'Antico, ma sopravvive perdendo la sua prima vita. Il villaggio è maledetto: la notte successiva il villaggio non userà i suoi poteri."
  },
  {
   "parte": "giorno",
@@ -8686,12 +8686,12 @@
   "contesto": "Alchimista: la vittima sopravvive (2/2)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "ed esplode, ma ${vittima.nome} sopravvive (non muore).",
+  "originale": "ed esplode, ma ${vittima.nome} sopravvive.",
   "dinamico": [
    "${vittima.nome}"
   ],
   "id": "T0649",
-  "mostrato": "ed esplode, ma ${vittima.nome} sopravvive (non muore)."
+  "mostrato": "ed esplode, ma ${vittima.nome} sopravvive."
  },
  {
   "parte": "giorno",
@@ -8898,10 +8898,10 @@
   "contesto": "Avviso Cavaliere protegge presunto Alchimista (3/3, finale)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": ": se fosse l'Alchimista non\n                esploderebbe, perché al rogo non muore (si immola il Cavaliere).",
+  "originale": ": se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto.",
   "dinamico": [],
   "id": "T0665",
-  "mostrato": ": se fosse l'Alchimista non esploderebbe, perché al rogo non muore (si immola il Cavaliere)."
+  "mostrato": ": se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto."
  },
  {
   "parte": "giorno",
@@ -11970,10 +11970,10 @@
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": "È giorno",
+  "originale": "Si leva il giorno",
   "dinamico": [],
   "id": "T0901",
-  "mostrato": "È giorno"
+  "mostrato": "Si leva il giorno"
  },
  {
   "parte": "contenuti",
