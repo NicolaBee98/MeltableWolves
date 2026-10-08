@@ -92,21 +92,29 @@ export default function App() {
   // condizioni, notte, votazione, log, mazzo) tenendo i nomi dei giocatori:
   // lo stesso gruppo gioca più partite di fila, per cambiarlo c'è "Elimina
   // tutti i giocatori". Usata sia dalla Home sia dalle Impostazioni.
-  function azzeraPartita() {
+  // `conservaMazzo`: chi rigioca con le stesse persone ritrova la stessa composizione del mazzo
+  function azzeraPartita({ conservaMazzo = false } = {}) {
     resetPartita()
-    resetMazzo()
+    if (!conservaMazzo) resetMazzo()
     notte.resetNotte()
     ricominciaVotazione()
     resetLog()
   }
 
+  // Nuova Partita dalle Impostazioni: azzera davvero tutto, mazzo compreso
   function nuovaPartita() {
     azzeraPartita()
     setFaseApp('home')
   }
 
+  // "Concludi partita": si può rigiocare con le stesse persone e lo stesso mazzo
+  function concludiPartita() {
+    azzeraPartita({ conservaMazzo: true })
+    setFaseApp('home')
+  }
+
   function iniziaNuovaPartitaDaHome() {
-    azzeraPartita()
+    azzeraPartita({ conservaMazzo: true })
     setFaseApp('mazzo')
   }
 
@@ -264,7 +272,7 @@ export default function App() {
             setFaseApp('giorno')
           }}
           onGalloSaltaGiorno={proseguiAllaNotte}
-          onConcludiPartita={nuovaPartita}
+          onConcludiPartita={concludiPartita}
         />
       )}
 

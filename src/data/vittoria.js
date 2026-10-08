@@ -105,7 +105,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
       messaggi.push('Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: vincono i Lupi Mannari.')
     } else if (vivi.some((g) => g.ruoloSlug === 'mucca-mannara')) {
       // la Mucca non caccia e conta tra gli abitanti, ma "vince assieme ai lupi" (roles.js)
-      messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi e la Mucca Mannara.')
+      messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi Mannari e i loro alleati.')
     } else {
       messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')
     }
