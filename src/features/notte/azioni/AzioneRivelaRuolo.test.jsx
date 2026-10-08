@@ -318,3 +318,26 @@ test('"Mostra carta" non compare finché non è stato scelto il bersaglio', () =
   )
   expect(screen.queryByRole('button', { name: 'Mostra carta' })).not.toBeInTheDocument()
 })
+
+test('Medium: anche lui guarda la carta fisica, quindi su una Guardia defunta con la Mannara nel mazzo chiede quale carta è', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Mara', ruoloSlug: 'medium', vivo: true, condizioni: [], usiNotte: [], storiaRuoli: ['medium'] },
+    { id: '2', nome: 'Gaia', ruoloSlug: 'guardia', vivo: false, condizioni: [], storiaRuoli: ['guardia'] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'guardia-mannara', vivo: true, condizioni: [], storiaRuoli: ['guardia-mannara'] },
+  ]
+  render(
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={vi.fn()}
+      round={2}
+      ruoloSlugAttore="medium"
+      etichettaAttore="Medium"
+      bersaglio="morto"
+      ruoliSelezionati={['medium', 'guardia', 'guardia-mannara']}
+      quantita={{ guardia: 2, 'guardia-mannara': 1 }}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Gaia' }))
+  expect(within(screen.getByRole('group', { name: 'Che ruolo era' })).getByRole('button', { name: 'Guardia Mannara' })).toBeInTheDocument()
+})
