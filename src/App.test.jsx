@@ -21,12 +21,12 @@ test('cambiando schermata lo scroll torna in cima', async () => {
   expect(scrollTo).toHaveBeenCalledWith(0, 0)
 })
 
-test("l'icona Registro e impostazioni è disponibile già dalla home, prima di iniziare una partita", async () => {
+test("l'icona Diario e impostazioni è disponibile già dalla home, prima di iniziare una partita", async () => {
   const user = userEvent.setup()
   render(<App />)
 
-  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
-  expect(screen.getByRole('dialog', { name: 'Registro e impostazioni' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Diario e impostazioni' }))
+  expect(screen.getByRole('dialog', { name: 'Diario e impostazioni' })).toBeInTheDocument()
 })
 
 test('"Torna al mazzo" dai giocatori, e "Torna ai giocatori" dalla prima notte (prima di ogni azione), tengono il mazzo e i giocatori intatti', async () => {
@@ -43,7 +43,7 @@ test('"Torna al mazzo" dai giocatori, e "Torna ai giocatori" dalla prima notte (
 
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
+  await user.click(screen.getByRole('button', { name: 'È notte nel villaggio' }))
 
   await user.click(screen.getByRole('button', { name: /torna ai giocatori/i }))
   expect(screen.getByText('Anna')).toBeInTheDocument()
@@ -69,11 +69,11 @@ test('Nuova Partita porta alla composizione del mazzo, poi ai giocatori, poi all
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   expect(screen.getByPlaceholderText('Nome giocatore')).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
+  await user.click(screen.getByRole('button', { name: 'È notte nel villaggio' }))
   expect(screen.getByText(/nessun ruolo con azione notturna/i)).toBeInTheDocument()
 })
 
-test('blocca "Inizia la notte" (con motivo visibile) se il numero di giocatori non combacia con i ruoli del mazzo', async () => {
+test('blocca "È notte nel villaggio" (con motivo visibile) se il numero di giocatori non combacia con i ruoli del mazzo', async () => {
   const user = userEvent.setup()
   render(<App />)
 
@@ -82,15 +82,15 @@ test('blocca "Inizia la notte" (con motivo visibile) se il numero di giocatori n
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
   expect(screen.getByText(/serve 1 giocatore, ce ne sono 0/i)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeDisabled()
 
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.queryByText(/serv\w+ \d giocatori?/i)).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeEnabled()
 
   // anche troppi giocatori bloccano
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Luca{Enter}')
-  expect(screen.getByRole('button', { name: 'Inizia la notte' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeDisabled()
 })
 
 test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due carte extra non sono per nessuno)', async () => {
@@ -133,7 +133,7 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   await user.click(screen.getByRole('button', { name: 'Villico' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
-  await user.click(screen.getByRole('button', { name: 'Inizia la notte' }))
+  await user.click(screen.getByRole('button', { name: 'È notte nel villaggio' }))
 
   tieni(screen.getByRole('button', { name: /Vai all'alba/ }))
   expect(screen.getByRole('heading', { name: /^Alba \d+$/ })).toBeInTheDocument()
@@ -142,16 +142,16 @@ test('completare la notte porta alla schermata Alba, poi al voto', async () => {
   expect(screen.getByRole('button', { name: 'Ricomincia votazione' })).toBeInTheDocument()
 })
 
-test("l'icona Registro e impostazioni apre il popup, di default sulle impostazioni", async () => {
+test("l'icona Diario e impostazioni apre il popup, di default sulle impostazioni", async () => {
   const user = userEvent.setup()
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
-  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  await user.click(screen.getByRole('button', { name: 'Diario e impostazioni' }))
 
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Log partita' }))
+  await user.click(screen.getByRole('button', { name: 'Diario' }))
   expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
 })
 
@@ -165,7 +165,7 @@ test('Nuova Partita dalle Impostazioni, confermata, riporta alla Home, azzera il
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.getByText('Anna')).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Registro e impostazioni' }))
+  await user.click(screen.getByRole('button', { name: 'Diario e impostazioni' }))
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Sì, ricomincia' }))
 

@@ -787,7 +787,7 @@ test('refresh con Spilungone al rogo: resta l\'esito confermato e "È notte nel 
   cleanup()
   giornoRimontato()
   expect(screen.queryByRole('button', { name: 'Dichiara morte sul rogo' })).not.toBeInTheDocument()
-  expect(screen.getByText(/è lo Spilungone, troppo alto per il rogo/)).toBeInTheDocument()
+  expect(screen.getByText(/è lo Spilungone, troppo alto per qualsiasi patibolo/)).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
   expect(salvati()['1'].vivo).toBe(true)
   cleanup()

@@ -98,7 +98,7 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
       </div>
       {giaUsato && indagineStanotte && (
         <p className="azione-indagine__etichetta-esito">
-          Rispondi all'Inquisitore: {indagineStanotte.esito === 'malvagia' ? 'sì (aura malvagia) 🐺' : 'no (aura benevola) 🕊️'}
+          Rispondi all'Inquisitore: {indagineStanotte.esito === 'malvagia' ? 'sì (aura malvagia)' : 'no (aura benevola)'}
         </p>
       )}
       <button type="button" onClick={salta}>

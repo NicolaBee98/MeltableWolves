@@ -1666,7 +1666,7 @@ Totale voci: 900.
   TESTO: L'Apprendista ${nome} sceglie ${t} come maestro
 
 - **T0514** · Figlia dei Lupi sceglie · `src/data/log.js:36`
-  TESTO: La Figlia dei Lupi ${nome} sceglie ${t}
+  TESTO: La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore
 
 - **T0515** · Boia giustizia · `src/data/log.js:74`
   TESTO: Il Boia ${nomeLog(boia)} giustizia ${giocatore.nome}
@@ -1696,10 +1696,10 @@ Totale voci: 900.
   TESTO: ${chi} sceglie di resuscitare ${giocatore.nome}
 
 - **T0524** · Antico rivelato · `src/data/log.js:108`
-  TESTO: ${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive (ora Villico)
+  TESTO: ${nome} si è rivelato/a: è L'Antico, perde la prima vita e sopravvive
 
 - **T0525** · Villaggio maledetto · `src/data/log.js:112`
-  TESTO: Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno
+  TESTO: Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri
 
 - **T0526** · Rivelazione diurna di un ruolo · `src/data/log.js:116`
   TESTO: ${nome} si è rivelato/a: è ${nomeRuolo(slug)}
@@ -1788,10 +1788,10 @@ Totale voci: 900.
   TESTO: Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.
 
 - **T0554** · Capobranco e Mimo-Capobranco · `src/data/vittoria.js:105`
-  TESTO: Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: vincono i Lupi Mannari.
+  TESTO: Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: la vittoria va ai Capibranco.
 
 - **T0555** · Lupi e Mucca Mannara · `src/data/vittoria.js:108`
-  TESTO: I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono i Lupi e la Mucca Mannara.
+  TESTO: I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.
 
 - **T0556** · Vittoria dei Lupi · `src/data/vittoria.js:110`
   TESTO: I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.
@@ -1818,7 +1818,7 @@ Totale voci: 900.
 ### Alba — Antico sbranato
 
 - **T0561** · Avviso Antico (dopo {g.nome}; frase su due righe) · `src/features/alba/AlbaPanel.jsx:136`
-  TESTO:  è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio e da ora gioca da Villico (una sola vita, nessun potere).
+  TESTO:  è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio mostrando la sua carta.
 
 - **T0562** · Pulsante di conferma (prima parte, segue il nome) · `src/features/alba/AlbaPanel.jsx:140`
   TESTO: Conferma la rivelazione di 
@@ -1913,7 +1913,7 @@ Totale voci: 900.
   TESTO: Chi è morto per l'unzione
 
 - **T0599** · Messaggio introduttivo (stringa dentro {...} con apici escapati) · `src/features/giorno/EventiSpeciali.jsx:319`
-  TESTO: Chi è morto/a per l'unzione (ha detto "sì" o "no"): l'unzione si trasmette ai due vicini vivi.
+  TESTO: Chi è morto/a per l'unzione (dicendo "sì" o "no"): l'unzione si trasmette ai due vicini vivi.
 
 - **T0600** · Esito: sopravvive · `src/features/giorno/EventiSpeciali.jsx:323`
   TESTO: ${nome(id)} doveva morire per l'unzione ma sopravvive: l'unzione non si trasmette.
@@ -1955,7 +1955,7 @@ Totale voci: 900.
   TESTO: Chi è L'Antico?
 
 - **T0603** · Esito, prima parte (concatenata con la parte seguente) · `src/features/giorno/EventiSpeciali.jsx:339`
-  TESTO: ${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.
+  TESTO: ${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e i suoi poteri.
 
 - **T0604** · Esito, parte aggiuntiva se il villaggio è maledetto · `src/features/giorno/EventiSpeciali.jsx:342`
   TESTO:  Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno.
@@ -1991,7 +1991,7 @@ Totale voci: 900.
 ### Eventi speciali — Bardo
 
 - **T0613** · Messaggio di conferma · `src/features/giorno/EventiSpeciali.jsx:393`
-  TESTO: Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà.
+  TESTO: Il Bardo esegue il gesto: la notte successiva tutti rimarranno svegli.
 
 - **T0614** · Esito · `src/features/giorno/EventiSpeciali.jsx:394`
   TESTO: Il Bardo ha dato il segnale: la notte successiva sarà saltata.
@@ -2007,7 +2007,7 @@ Totale voci: 900.
 ### Eventi speciali — Borgomastro
 
 - **T0617** · Etichetta scelta giocatore · `src/features/giorno/EventiSpeciali.jsx:410`
-  TESTO: Chi eleggete Borgomastro?
+  TESTO: Chi sarà il nuovo Borgomastro?
 
 - **T0618** · Esito · `src/features/giorno/EventiSpeciali.jsx:412`
   TESTO: ${nome(id)} è il nuovo Borgomastro: il suo voto vale doppio.
@@ -2114,16 +2114,16 @@ Totale voci: 900.
   TESTO:  sopravvive al rogo.
 
 - **T0646** · Spilungone rivelato (dopo {nome}; frase su due righe) · `src/features/giorno/Votazione.jsx:323`
-  TESTO:  rivela la propria carta: è lo Spilungone, troppo alto per il rogo. La notte cala senza vittime.
+  TESTO:  rivela la propria carta: è lo Spilungone, troppo alto per qualsiasi patibolo. La notte cala senza vittime.
 
 - **T0647** · Antico rivelato (dopo {nome}; frase su due righe) · `src/features/giorno/Votazione.jsx:332`
-  TESTO:  rivela la propria carta: è L'Antico, ma sopravvive grazie alla sua prima vita e da ora gioca da Villico. Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno.
+  TESTO:  rivela la propria carta: è L'Antico, ma sopravvive perdendo la sua prima vita. Il villaggio è maledetto: la notte successiva il villaggio non userà i suoi poteri.
 
 - **T0648** · Alchimista esplode (1/2, dopo {nome}; segue la variante) · `src/features/giorno/Votazione.jsx:345`
   TESTO:  rivela la propria carta: è l'Alchimista
 
 - **T0649** · Alchimista: la vittima sopravvive (2/2) · `src/features/giorno/Votazione.jsx:347`
-  TESTO: ed esplode, ma ${vittima.nome} sopravvive (non muore).
+  TESTO: ed esplode, ma ${vittima.nome} sopravvive.
 
 - **T0650** · Alchimista: la vittima muore (2/2) · `src/features/giorno/Votazione.jsx:348`
   TESTO: e trascina con sé ${vittima?.nome} nell'aldilà con una grande esplosione pirotecnica.
@@ -2168,7 +2168,7 @@ Totale voci: 900.
   TESTO:  protegge 
 
 - **T0665** · Avviso Cavaliere protegge presunto Alchimista (3/3, finale) · `src/features/giorno/Votazione.jsx:424`
-  TESTO: : se fosse l'Alchimista non esploderebbe, perché al rogo non muore (si immola il Cavaliere).
+  TESTO: : se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto.
 
 - **T0666** · Vittima designata (singola, prima del nome) · `src/features/giorno/Votazione.jsx:451`
   TESTO: Vittima designata:
@@ -3037,7 +3037,7 @@ Totale voci: 900.
   TESTO: Cala la notte
 
 - **T0901** · etichetta carta di riferimento · `src/data/mazzoCompleto.js:26`
-  TESTO: È giorno
+  TESTO: Si leva il giorno
 
 - **T0902** · etichetta carta di riferimento · `src/data/mazzoCompleto.js:27`
   TESTO: La prima partita

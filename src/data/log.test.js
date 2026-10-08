@@ -216,5 +216,5 @@ test("la maledizione del villaggio per l'Antico (villaggioMaledettoFinoA) è nel
   const prima = [{ id: '1', nome: 'Gigi', vivo: false, ruoloSlug: 'lantico', storiaRuoli: ['lantico'] }]
   const dopo = [{ id: '1', nome: 'Gigi', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], villaggioMaledettoFinoA: 3 }]
   const messaggi = rilevaEventi(prima, dopo, 2, 'giorno').map((e) => e.messaggio)
-  expect(messaggi).toContain('Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno')
+  expect(messaggi).toContain('Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri')
 })

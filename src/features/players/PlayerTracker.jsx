@@ -49,7 +49,7 @@ export function PlayerTracker({
     <section className="player-tracker">
       <h3>Giocatori ({giocatori.length})</h3>
       <p className="player-tracker__istruzioni">
-        Aggiungi i giocatori nell'ordine in cui siedono al tavolo. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.
+        Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.
       </p>
       <AddPlayerForm onAdd={richiediAggiunta} nomiEsistenti={giocatori.map((g) => g.nome)} />
       {daConfermare && (

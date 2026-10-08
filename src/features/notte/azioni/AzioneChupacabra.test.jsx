@@ -196,10 +196,10 @@ test('lupo mangiato: avviso sull\'effetto (Cortigiana col cliente-lupo, Cucciolo
   render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} impostaEventiAvanti={impostaEventiAvanti} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  expect(screen.getByText(/cliente della Cortigiana Pia/)).toBeInTheDocument()
+  expect(screen.getByText(/A casa di Marco c'è anche la Cortigiana Pia/)).toBeInTheDocument()
   expect(impostaEventiAvanti).toHaveBeenLastCalledWith('chupacabra', [expect.stringMatching(/Cortigiana Pia muore/)])
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
-  expect(screen.queryByText(/cliente della Cortigiana Pia/)).not.toBeInTheDocument()
+  expect(screen.queryByText(/A casa di Marco c'è anche la Cortigiana Pia/)).not.toBeInTheDocument()
   expect(impostaEventiAvanti).toHaveBeenLastCalledWith('chupacabra', [])
 })

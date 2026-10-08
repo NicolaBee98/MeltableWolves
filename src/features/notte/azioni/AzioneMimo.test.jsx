@@ -74,7 +74,7 @@ test('se il bersaglio ha già un ruolo noto, il Mimo lo assume senza dover chied
   ]
   render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} />)
 
-  expect(screen.getByText(/il mimo imita marco: con avanti assumerà il ruolo di veggente/i)).toBeInTheDocument()
+  expect(screen.getByText(/il mimo imita marco: e assumerà il ruolo di veggente/i)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /annulla/i })).not.toBeInTheDocument()
 })
 

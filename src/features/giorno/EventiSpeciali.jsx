@@ -334,7 +334,7 @@ export function EventiSpeciali({
             <EventoUnGiocatore
               candidati={unti}
               etichetta="Chi è morto per l'unzione"
-              messaggio={'Chi è morto/a per l\'unzione (ha detto "sì" o "no"): l\'unzione si trasmette ai due vicini vivi.'}
+              messaggio={'Chi è morto/a per l\'unzione (dicendo "sì" o "no"): l\'unzione si trasmette ai due vicini vivi.'}
               onConferma={(id) =>
                 applica(
                   sopravvive(id)
@@ -354,7 +354,7 @@ export function EventiSpeciali({
               etichetta="Chi è L'Antico?"
               onConferma={(id) =>
                 applica(
-                  `${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e da ora gioca da Villico.` +
+                  `${nome(id)} si è rivelato/a: è L'Antico, perde la prima vita e i suoi poteri.` +
                     // morto di giorno (rogo, Boia, esplosione...): come al rogo, maledice il villaggio
                     (roundMorteDiurna(giocatori.find((g) => g.id === id)) !== undefined
                       ? " Il villaggio è maledetto: la notte successiva i poteri del villaggio non si sveglieranno."
@@ -408,7 +408,7 @@ export function EventiSpeciali({
 
           {evento === 'bardo' && (
             <EventoConferma
-              messaggio="Il Bardo esegue il gesto: la notte successiva nessun potere si sveglierà."
+              messaggio="Il Bardo esegue il gesto: la notte successiva tutti rimarranno svegli."
               onConferma={() => applica('Il Bardo ha dato il segnale: la notte successiva sarà saltata.', onBardoSaltaNotte)}
               onAnnulla={chiudi}
             />
@@ -425,7 +425,7 @@ export function EventiSpeciali({
           {evento === 'borgomastro' && (
             <EventoUnGiocatore
               candidati={vivi}
-              etichetta="Chi eleggete Borgomastro?"
+              etichetta="Chi sarà il nuovo Borgomastro?"
               onConferma={(id) =>
                 applica(`${nome(id)} è il nuovo Borgomastro: il suo voto vale doppio.`, () => onElezioneBorgomastro(id))
               }

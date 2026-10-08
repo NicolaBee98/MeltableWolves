@@ -34,10 +34,10 @@ export function LogPartita({ eventi }) {
 
   return (
     <section className="log-partita">
-      <h2>Registro partita</h2>
+      <h2>Diario partita</h2>
       {raggruppaPerGiorno(eventi).map((gruppo) => (
         <div key={gruppo.round} className="log-partita__giorno">
-          <h3>Notte e giorno {gruppo.round}</h3>
+          <h3>Round {gruppo.round}</h3>
           <ul>
             {gruppo.eventi.map((evento, indice) => (
               <li key={indice}>

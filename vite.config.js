@@ -27,7 +27,7 @@ export default defineConfig({
       manifest: {
         name: 'Meltable Wolves — Narratore',
         short_name: 'Meltable Wolves',
-        description: 'Assistente per il Narratore di Meltable Wolves',
+        description: 'Meltable Wolves - Assistente per il Narratore',
         start_url: '/',
         display: 'standalone',
         background_color: '#8ca6c6',

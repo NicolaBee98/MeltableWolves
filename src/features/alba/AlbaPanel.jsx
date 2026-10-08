@@ -133,8 +133,7 @@ export function AlbaPanel({
       {anticiDaRivelare.map((g) => (
         <div key={g.id} className="alba-panel__antico">
           <p>
-            {g.nome} è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio e da ora gioca da
-            Villico (una sola vita, nessun potere).
+            {g.nome} è L'Antico: è stato sbranato e ha perso la prima vita. Si rivela al villaggio mostrando la sua carta.
           </p>
           <button type="button" onClick={() => dichiaraAnticoRivelato(g.id)}>
             Conferma la rivelazione di {g.nome}

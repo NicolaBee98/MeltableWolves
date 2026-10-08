@@ -1443,7 +1443,7 @@ test('Branco: il Berserker sbranato mostra l\'avviso con l\'effetto e lo registr
     { registraEvento, confermaLog },
   )
   await user.click(within(screen.getByRole('group', { name: 'Il branco sbrana' })).getByRole('button', { name: 'Bea' }))
-  expect(screen.getByText(/Il Berserker sbranato: Lia \(il lupo più vicino\) morirà con lui/)).toBeInTheDocument()
+  expect(screen.getByText(/Se il Berserker sarà sbranato, Lia \(il lupo più vicino\) morirà con lui/)).toBeInTheDocument()
   // niente registro al click della chip
   expect(registraEvento).not.toHaveBeenCalled()
 
@@ -2010,7 +2010,7 @@ test('Addolorata + Mimo-Addolorata: non scambiano con la stessa vittima; il mort
   expect(screen.getByText(/già stato scambiato da un'altra Addolorata/)).toBeInTheDocument()
 })
 
-test('Indietro disabilitato: il motivo è scritto a schermo sotto ai pulsanti (non solo in un tooltip)', () => {
+test('Indietro disabilitato al primo passo di una notte successiva: nessun messaggio di spiegazione', () => {
   localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
   creaHarness(
     [
@@ -2020,7 +2020,7 @@ test('Indietro disabilitato: il motivo è scritto a schermo sotto ai pulsanti (n
     ['veggente'],
   )
   expect(screen.getByRole('button', { name: 'Indietro' })).toBeDisabled()
-  expect(screen.getByText(/Indietro non disponibile: Primo passo della notte/)).toBeInTheDocument()
+  expect(screen.queryByText(/Indietro non disponibile/)).not.toBeInTheDocument()
 })
 
 test('Ladro+Mimo: se il Ladro non prende la carta Mimo, dopo il suo passo non si torna al passo Mimo', async () => {
@@ -2154,7 +2154,7 @@ test('Branco: il Mimo-Lupo compare con la sua illustrazione e non sposta la vari
   expect(src).toEqual(['/assets/personaggi/Mimo.svg', '/assets/personaggi/Lupo_Mannaro_1.svg'])
 })
 
-test('"Le Guardie si riconoscono": insieme Guardie, Guardia Mannara, Mimo-guardia e Ladro che ha preso la Guardia Mannara, senza etichette', () => {
+test('"Guardie (si riconoscono)": insieme Guardie, Guardia Mannara, Mimo-guardia e Ladro che ha preso la Guardia Mannara, senza etichette', () => {
   render(
     <NightSequencerConNotte
       ruoliSelezionati={['guardia', 'guardia-mannara']}
@@ -2168,7 +2168,7 @@ test('"Le Guardie si riconoscono": insieme Guardie, Guardia Mannara, Mimo-guardi
       aggiornaGiocatore={() => {}}
     />,
   )
-  expect(screen.getByRole('heading', { name: 'Le Guardie si riconoscono' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Guardie (si riconoscono)' })).toBeInTheDocument()
   expect(sottotitolo()).toBe('Vivi: Anna, Bea, Cleo (Mimo), Dino')
 })
 
