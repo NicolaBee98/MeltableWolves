@@ -6,8 +6,8 @@ import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
 import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
 
-// `reale`: la Cartomante vede la carta vera, quindi per lei la Guardia Mannara
-// non è mascherata da Guardia (come invece nel resto dell'app)
+// `reale`: chi guarda la carta fisica (Cartomante e Medium) vede la carta vera, quindi
+// per loro la Guardia Mannara non è mascherata da Guardia (come invece nel resto dell'app)
 function nomeRuolo(ruoloSlug, reale = false) {
   return ROLES.find((r) => r.slug === (reale ? ruoloSlug : ruoloPerDisplay(ruoloSlug)))?.nome ?? 'ruolo sconosciuto'
 }
@@ -39,7 +39,9 @@ export function AzioneRivelaRuolo({
   const [guardiaTarget, setGuardiaTarget] = useState(false)
   // carta mostrata a schermo intero al giocatore interrogato (facoltativo)
   const [cartaAperta, setCartaAperta] = useState(false)
-  const reale = bersaglio === 'vivo'
+  // sia la Cartomante sia il Medium guardano la carta FISICA: vedono (e fanno distinguere
+  // al narratore) la Guardia Mannara, che per il resto dell'app resta mascherata da Guardia
+  const reale = true
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
