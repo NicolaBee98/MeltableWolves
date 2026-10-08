@@ -1347,8 +1347,6 @@ button.chip--fazione-sconosciuto {
 
 .eventi-speciali {
   margin: 1rem 0;
-  display: flex;
-  justify-content: center;
 }
 
 .eventi-speciali__icona {
@@ -1364,6 +1362,10 @@ button.chip--fazione-sconosciuto {
   gap: 0.5rem;
 }
 
+.eventi-speciali__icona[hidden] {
+  display: none;
+}
+
 .eventi-speciali__img {
   height: 1.3rem;
   width: auto;
@@ -1377,12 +1379,23 @@ button.chip--fazione-sconosciuto {
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   padding: 1rem;
-  padding-top: 3rem;
-  margin-top: 0.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   animation: popup-enter 160ms ease-out;
+}
+
+/* il pulsante "Eventi speciali" aperto diventa il titolo del pannello */
+.eventi-speciali__titolo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  margin: 0;
+  padding-right: 3rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
 }
 
 @keyframes popup-enter {
