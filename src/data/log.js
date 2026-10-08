@@ -22,6 +22,12 @@ const ETICHETTA_MORTE_DA = {
   unzione: " per l'unzione",
 }
 
+// morti notturne della Cortigiana: il perché sta in mortoDa (vedi risolviCortigiana)
+const ETICHETTA_NOTTE_DA = {
+  'cliente-lupo': ': il cliente era un lupo ed è stata sbranata',
+  'cliente-sbranato': ': il suo cliente è stato sbranato',
+}
+
 // poteri "una tantum" dichiarati a voce dal narratore (nessun altro campo
 // dice chi li ha usati): voce di registro alla prima comparsa in poteriUsati
 const POTERI_DICHIARATI = {
@@ -63,7 +69,9 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       const causa =
         giocatore.causaMorte === 'colpo' && ETICHETTA_MORTE_DA[giocatore.mortoDa]
           ? ETICHETTA_MORTE_DA[giocatore.mortoDa]
-          : (ETICHETTA_CAUSA[giocatore.causaMorte] ?? '')
+          : giocatore.causaMorte === 'notte' && ETICHETTA_NOTTE_DA[giocatore.mortoDa]
+            ? ETICHETTA_NOTTE_DA[giocatore.mortoDa]
+            : (ETICHETTA_CAUSA[giocatore.causaMorte] ?? '')
       const boia = giocatore.mortoDa === 'boia' && correnti.find((g) => g.id === giocatore.giustiziatoDa)
       // il crepacuore notturno è già negli annunci dell'alba ("è morto/a di
       // crepacuore per la morte del partner"): niente doppione dalla notte

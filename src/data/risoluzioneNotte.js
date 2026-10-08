@@ -166,7 +166,14 @@ export function risolviCortigiana(giocatori, round) {
       // uccidiPatch): senza, l'Alba non la riconoscerebbe mai come morta
       // quella notte (CAUSE_MORTE_NOTTURNE in AlbaPanel.jsx filtra su
       // mortoNotte === round) e il narratore non la vedrebbe mai annunciata
-      patch[cortigiana.id] = { vivo: false, causaMorte: 'notte', mortoNotte: round, visitaNotturna: null }
+      patch[cortigiana.id] = {
+        vivo: false,
+        causaMorte: 'notte',
+        mortoNotte: round,
+        // il "perché" per il registro: il cliente era un lupo (o il Chupacabra) oppure è stato sbranato
+        mortoDa: clientePericoloso ? 'cliente-lupo' : 'cliente-sbranato',
+        visitaNotturna: null,
+      }
     } else {
       patch[cortigiana.id] = { visitaNotturna: null }
     }

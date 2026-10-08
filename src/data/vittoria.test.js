@@ -231,7 +231,7 @@ test('un solo banner: Pifferaio solo, Pifferaio con ipnotizzati, innamorati soli
 test('Mucca Mannara: conta tra gli abitanti, non tra i lupi, e vince con loro nel banner', () => {
   const v = (id, ruoloSlug) => ({ id, vivo: true, ruoloSlug, condizioni: [] })
   // 1 lupo vs Mucca: abitanti (1) <= lupi (1) -> vincono Lupi e Mucca
-  expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'mucca-mannara')]).join(' ')).toMatch(/vincono i Lupi e la Mucca Mannara/)
+  expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'mucca-mannara')]).join(' ')).toMatch(/vincono i Lupi Mannari e i loro alleati/)
   // 1 lupo vs Mucca + villico: la Mucca è un abitante, i lupi non vincono
   expect(condizioniVittoria([v('1', 'lupo-mannaro'), v('2', 'mucca-mannara'), v('3', 'villico')])).toEqual([])
   // Mucca morta: banner normale

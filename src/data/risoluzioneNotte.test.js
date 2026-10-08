@@ -82,7 +82,7 @@ test('la cortigiana muore se il cliente scelto è un lupo', () => {
     { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
   ]
   const patch = risolviCortigiana(giocatori, 4)
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, visitaNotturna: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, mortoDa: 'cliente-lupo', visitaNotturna: null })
 })
 
 test('la cortigiana sopravvive se il cliente è un Gallo Mannaro (non è un lupo)', () => {
@@ -99,7 +99,7 @@ test('la cortigiana muore se il cliente è stato sbranato dal branco', () => {
     { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoDa: 'branco' },
   ]
   const patch = risolviCortigiana(giocatori, 4)
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, visitaNotturna: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, mortoDa: 'cliente-sbranato', visitaNotturna: null })
 })
 
 test('la cortigiana muore se il cliente è stato ucciso dal Chupacabra', () => {
@@ -108,7 +108,7 @@ test('la cortigiana muore se il cliente è stato ucciso dal Chupacabra', () => {
     { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoDa: 'chupacabra' },
   ]
   const patch = risolviCortigiana(giocatori, 4)
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, visitaNotturna: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, mortoDa: 'cliente-sbranato', visitaNotturna: null })
 })
 
 test('la cortigiana muore se visita direttamente il Chupacabra', () => {
@@ -117,7 +117,7 @@ test('la cortigiana muore se visita direttamente il Chupacabra', () => {
     { id: '2', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [] },
   ]
   const patch = risolviCortigiana(giocatori, 4)
-  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, visitaNotturna: null })
+  expect(patch['1']).toEqual({ vivo: false, causaMorte: 'notte', mortoNotte: 4, mortoDa: 'cliente-lupo', visitaNotturna: null })
 })
 
 test('la cortigiana sopravvive se il cliente muore per la pozione mortale della Strega, non sbranato', () => {

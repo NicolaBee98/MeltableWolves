@@ -27,7 +27,7 @@ Totale voci: 900.
   TESTO: Meltable Wolves
 
 - **T0005** · descrizione app nel manifest PWA · `vite.config.js:30`
-  TESTO: Assistente per il Narratore di Meltable Wolves
+  TESTO: Meltable Wolves - Assistente per il Narratore
 
 ### Titolo scheda browser
 
@@ -81,13 +81,13 @@ Totale voci: 900.
   TESTO: ✕
 
 - **T0089** · nota Ladro (parte di una frase) · `src/features/mazzo/MazzoBuilder.jsx:134`
-  TESTO: ℹ️ Il Ladro richiede due carte in più nel mazzo fisico (pag. 15): sceglierai quali durante il suo turno, la prima notte.
+  TESTO: ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.
 
 - **T0090** · nota Borgomastro/Fantasma: parte 1 di 3 · `src/features/mazzo/MazzoBuilder.jsx:141`
-  TESTO: ℹ️ Borgomastro e Fantasma Onnisciente fanno parte del conteggio qui sopra ma non sono ruoli in più per i giocatori: nella schermata giocatori non vengono contati
+  TESTO: ℹ️ Borgomastro e Fantasma Onnisciente sono "condizioni aggiuntive", non ruoli fissi che i giocatori possono avere
 
 - **T0091** · nota Borgomastro/Fantasma: parte 2 di 3 (solo con Ladro) · `src/features/mazzo/MazzoBuilder.jsx:142`
-  TESTO:  (come le 2 carte extra del Ladro)
+  TESTO: [[vuoto]]
 
 - **T0092** · nota Borgomastro/Fantasma: parte 3 di 3, punto finale · `src/features/mazzo/MazzoBuilder.jsx:142`
   TESTO: .
@@ -125,7 +125,7 @@ Totale voci: 900.
   TESTO: .
 
 - **T0017** · pulsante per iniziare la notte · `src/App.jsx:216`
-  TESTO: Inizia la notte
+  TESTO: È notte nel villaggio
 
 - **T0018** · elenco esclusi: congiunzione tra le voci · `src/App.jsx:73`
   TESTO: ${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}
@@ -149,7 +149,7 @@ Totale voci: 900.
   TESTO: Giocatori (
 
 - **T0101** · istruzioni · `src/features/players/PlayerTracker.jsx:52`
-  TESTO: Aggiungi i giocatori nell'ordine in cui siedono al tavolo. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.
+  TESTO: Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.
 
 - **T0102** · conferma modifica a partita avviata: parte 1 di 5 · `src/features/players/PlayerTracker.jsx:57`
   TESTO: La partita è già avviata:
@@ -197,7 +197,7 @@ Totale voci: 900.
   TESTO: Aggiungi
 
 - **T0117** · avviso nome duplicato · `src/features/players/AddPlayerForm.jsx:35`
-  TESTO: ⚠️ C'è già un giocatore con questo nome: usane uno diverso (es. aggiungi l'iniziale del cognome).
+  TESTO: ⚠️ C'è già un giocatore con questo nome: usane uno diverso.
 
 - **T0118** · etichetta accessibile pulsante rimuovi giocatore · `src/features/players/PlayerCard.jsx:53`
   TESTO: Tieni premuto per rimuovere ${giocatore.nome}
@@ -339,7 +339,7 @@ Totale voci: 900.
   TESTO: Per aggiornarla: chiudi del tutto l'app e riaprila con la rete.
 
 - **T0067** · avviso finale sui dati locali · `src/features/home/ScaricaOffline.jsx:47`
-  TESTO: I dati della partita restano solo su questo dispositivo, senza sincronizzazione: usa sempre lo stesso telefono. Cancellare i dati del sito dal browser azzera la partita.
+  TESTO: [[vuoto]]
 
 ### Avvisi
 
@@ -430,10 +430,10 @@ Totale voci: 900.
   TESTO: Nessun evento registrato finora.
 
 - **T0131** · titolo del registro · `src/features/log/LogPartita.jsx:37`
-  TESTO: Registro partita
+  TESTO: Diario partita
 
 - **T0132** · titolo gruppo notte+giorno (parte 1) · `src/features/log/LogPartita.jsx:40`
-  TESTO: Notte e giorno
+  TESTO: Round
 
 - **T0133** · separatore dopo il nome fase (dentro il grassetto) · `src/features/log/LogPartita.jsx:48`
   TESTO: : 
@@ -441,10 +441,10 @@ Totale voci: 900.
 ### Impostazioni
 
 - **T0134** · etichetta accessibile del pulsante ingranaggio · `src/features/log/LogImpostazioniPopup.jsx:46`
-  TESTO: Registro e impostazioni
+  TESTO: Diario e impostazioni
 
 - **T0135** · etichetta accessibile della finestra · `src/features/log/LogImpostazioniPopup.jsx:56`
-  TESTO: Registro e impostazioni
+  TESTO: Diario e impostazioni
 
 - **T0136** · etichetta accessibile del pulsante chiudi · `src/features/log/LogImpostazioniPopup.jsx:60`
   TESTO: Chiudi
@@ -453,7 +453,7 @@ Totale voci: 900.
   TESTO: ✕
 
 - **T0138** · conferma nuova partita · `src/features/log/LogImpostazioniPopup.jsx:65`
-  TESTO: Iniziare una nuova partita? I giocatori restano; ruoli, mazzo e registro della partita attuale vengono azzerati.
+  TESTO: Iniziare una nuova partita? Ruoli, mazzo e diario della partita attuale saranno azzerati.
 
 - **T0139** · conferma nuova partita: pulsante di conferma · `src/features/log/LogImpostazioniPopup.jsx:67`
   TESTO: Sì, ricomincia
@@ -465,19 +465,19 @@ Totale voci: 900.
   TESTO: Impostazioni partita
 
 - **T0142** · scheda Log partita · `src/features/log/LogImpostazioniPopup.jsx:80`
-  TESTO: Log partita
+  TESTO: Diario
 
 - **T0143** · opzione: ruoli in votazione · `src/features/log/LogImpostazioniPopup.jsx:93`
-  TESTO: Mostra i ruoli durante la votazione (narratore)
+  TESTO: Mostra le icone dei ruoli durante la votazione
 
 - **T0144** · opzione: varianti icona · `src/features/log/LogImpostazioniPopup.jsx:101`
-  TESTO: Varianti di icona per Lupi Mannari e Villici
+  TESTO: Utilizza le varianti di icona per Lupi Mannari e Villici
 
 - **T0145** · opzione: nome ruolo accanto al nome · `src/features/log/LogImpostazioniPopup.jsx:109`
-  TESTO: Mostra il nome del ruolo tra parentesi accanto al nome
+  TESTO: Mostra il ruolo di un giocatore tra parentesi durante la votazione
 
 - **T0146** · opzione: promemoria ruoli morti · `src/features/log/LogImpostazioniPopup.jsx:117`
-  TESTO: Richiama di notte i ruoli morti con potere ricorrente (con l'icona ☠️)
+  TESTO: Promemoria durante la notte per i ruoli morti che agirebbero
 
 - **T0147** · opzione: variante Medium · `src/features/log/LogImpostazioniPopup.jsx:125`
   TESTO: Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto
@@ -486,7 +486,7 @@ Totale voci: 900.
   TESTO: L'Addolorata eredita le scelte dei legami (maestro, protetto, genitore)
 
 - **T0149** · campo durata timer · `src/features/log/LogImpostazioniPopup.jsx:136`
-  TESTO: Durata timer arringa/spareggio (secondi)
+  TESTO: Durata timer spareggio (secondi)
 
 - **T0150** · pulsante Nuova Partita · `src/features/log/LogImpostazioniPopup.jsx:145`
   TESTO: Nuova Partita
@@ -568,10 +568,10 @@ Totale voci: 900.
   TESTO: Morti: 
 
 - **T0185** · motivo Indietro non disponibile (dopo ricaricamento) · `src/features/notte/NightSequencer.jsx:973`
-  TESTO: Dopo un ricaricamento non si può tornare ai passi già conclusi.
+  TESTO: [[vuoto]]
 
 - **T0186** · motivo Indietro non disponibile (primo passo) · `src/features/notte/NightSequencer.jsx:975`
-  TESTO: Primo passo della notte: non si torna alla notte precedente.
+  TESTO: [[vuoto]]
 
 - **T0187** · motivo Indietro non disponibile (nulla da annullare) · `src/features/notte/NightSequencer.jsx:976`
   TESTO: Nulla da annullare in questo passo.
@@ -880,10 +880,10 @@ Totale voci: 900.
   TESTO:  Rispondi all'Inquisitore: 
 
 - **T0266** · risposta all'Inquisitore: aura malvagia · `src/features/notte/azioni/AzioneInquisitore.jsx:101`
-  TESTO: sì (aura malvagia) 🐺
+  TESTO: sì (aura malvagia)
 
 - **T0267** · risposta all'Inquisitore: aura benevola · `src/features/notte/azioni/AzioneInquisitore.jsx:101`
-  TESTO: no (aura benevola) 🕊️
+  TESTO: no (aura benevola)
 
 - **T0268** · pulsante Salta Inquisitore · `src/features/notte/azioni/AzioneInquisitore.jsx:104`
   TESTO:  Salta 
@@ -970,7 +970,7 @@ Totale voci: 900.
   TESTO: Il branco sbrana
 
 - **T0294** · avviso Vendetta del Cucciolo, parte 1/2 · `src/features/notte/azioni/AzioneBrancoLupi.jsx:353`
-  TESTO:  🐺 Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima
+  TESTO:  Vendetta del Cucciolo: il branco sbrana due vittime questa notte (vittima
 
 - **T0295** · avviso Vendetta del Cucciolo, parte 2/2 · `src/features/notte/azioni/AzioneBrancoLupi.jsx:355`
   TESTO:  di 2). 
@@ -988,7 +988,7 @@ Totale voci: 900.
   TESTO: ⚠️ 
 
 - **T0300** · avviso trasformazione in Lupo Mannaro, parte 1/2 (emoji) · `src/features/notte/azioni/AzioneBrancoLupi.jsx:377`
-  TESTO:  🐺 
+  TESTO:  [[vuoto]] 
 
 - **T0301** · avviso trasformazione in Lupo Mannaro, parte 2/2 · `src/features/notte/azioni/AzioneBrancoLupi.jsx:378`
   TESTO:  verrà trasformato in Lupo Mannaro. 
@@ -1057,7 +1057,7 @@ Totale voci: 900.
   TESTO:  Il Mimo imita 
 
 - **T0321** · Mimo imita, parte 2/3 · `src/features/notte/azioni/AzioneMimo.jsx:87`
-  TESTO: : con Avanti assumerà il ruolo di 
+  TESTO: : e assumerà il ruolo di 
 
 - **T0322** · Mimo imita, parte 3/3 · `src/features/notte/azioni/AzioneMimo.jsx:87`
   TESTO: . 
@@ -1298,10 +1298,10 @@ Totale voci: 900.
   TESTO: Mezzosangue
 
 - **T0398** · titolo del passo · `src/data/nightSteps.js:54`
-  TESTO: Bardo (gesto segreto)
+  TESTO: Bardo 
 
 - **T0399** · titolo del passo · `src/data/nightSteps.js:55`
-  TESTO: Gallo Mannaro (gesto segreto)
+  TESTO: Gallo Mannaro
 
 - **T0400** · titolo del passo · `src/data/nightSteps.js:56`
   TESTO: Apprendista
@@ -1316,13 +1316,13 @@ Totale voci: 900.
   TESTO: Sacerdote
 
 - **T0404** · titolo del passo · `src/data/nightSteps.js:61`
-  TESTO: Innamorati si riconoscono
+  TESTO: Innamorati (si riconoscono)
 
 - **T0405** · titolo del passo · `src/data/nightSteps.js:66`
   TESTO: Guardie (si riconoscono)
 
 - **T0406** · titolo del passo · `src/data/nightSteps.js:70`
-  TESTO: Le Guardie si riconoscono
+  TESTO: Guardie (si riconoscono)
 
 - **T0407** · titolo del passo · `src/data/nightSteps.js:71`
   TESTO: Mucca Mannara (riconosce il branco)
@@ -1379,7 +1379,7 @@ Totale voci: 900.
   TESTO: Chupacabra
 
 - **T0425** · titolo del passo · `src/data/nightSteps.js:112`
-  TESTO: Sveglia gli ipnotizzati dal Pifferaio
+  TESTO: Ipnotizzati (dal Pifferaio)
 
 - **T0426** · titolo del passo · `src/data/nightSteps.js:159`
   TESTO: Assegna i ruoli rimanenti
@@ -1396,7 +1396,7 @@ Totale voci: 900.
   TESTO: ${target.nome} è stato colpito ${mortoDa === 'chupacabra' ? 'dal Chupacabra' : 'dal branco'} ma il Cavaliere ${nomi} si immola al suo posto.
 
 - **T0430** · avviso Berserker sbranato con lupo (schermo) · `src/data/effettiNotte.js:122`
-  TESTO: Il Berserker sbranato: ${lupi.join(', ')} (il lupo più vicino) morirà con lui.
+  TESTO: Se il Berserker sarà sbranato, ${lupi.join(', ')} (il lupo più vicino) morirà con lui.
 
 - **T0431** · avviso Berserker sbranato senza lupi (schermo) · `src/data/effettiNotte.js:123`
   TESTO: Il Berserker sbranato: nessun lupo vivo da portare con sé.
@@ -1420,19 +1420,19 @@ Totale voci: 900.
   TESTO: Il Mezzosangue ${target.nome} è stato sbranato e diventa Lupo Mannaro.
 
 - **T0438** · avviso cliente della Cortigiana sbranato (schermo) · `src/data/effettiNotte.js:149`
-  TESTO: ${target.nome} era il cliente della Cortigiana ${c.nome}: sbranato, anche lei morirà.
+  TESTO: A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno.
 
 - **T0439** · registro Cortigiana muore col cliente (log) · `src/data/effettiNotte.js:150`
   TESTO: La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato sbranato.
 
 - **T0440** · avviso Cucciolo ucciso, vendetta (schermo) · `src/data/effettiNotte.js:159`
-  TESTO: Il Cucciolo ${target.nome} è ucciso: il branco sbranerà due persone per vendetta.
+  TESTO: Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.
 
 - **T0441** · registro Cucciolo ucciso, vendetta (log) · `src/data/effettiNotte.js:160`
-  TESTO: Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco (due vittime).
+  TESTO: Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco.
 
 - **T0442** · avviso Cucciolo diventa adulto (schermo) · `src/data/effettiNotte.js:165`
-  TESTO: Morto un lupo, il Cucciolo ${c.nome} diventa adulto: perde la vendetta.
+  TESTO: Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più.
 
 - **T0443** · registro Cucciolo diventa adulto (log) · `src/data/effettiNotte.js:166`
   TESTO: Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}.
@@ -1485,7 +1485,7 @@ Totale voci: 900.
   TESTO: ${g.nome} è stato trasformato in maiale dalla Maga.
 
 - **T0457** · Antico sbranato di notte · `src/data/alba.js:42`
-  TESTO: ${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive (ora gioca da Villico).
+  TESTO: ${g.nome} si è rivelato: è L'Antico, ha perso la prima vita ma sopravvive.
 
 - **T0458** · Cavaliere immolato · `src/data/alba.js:46`
   TESTO: ${g.nome} si è rivelato: è il Cavaliere, e si è immolato al posto della vittima.
@@ -1494,13 +1494,13 @@ Totale voci: 900.
   TESTO: ${g.nome} è morto/a di crepacuore per la morte del partner.
 
 - **T0460** · Mezzosangue sbranato · `src/data/alba.js:56`
-  TESTO: Il Mezzosangue ${g.nome} è stato sbranato e diventa Lupo Mannaro.
+  TESTO: Il Mezzosangue ${g.nome} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.
 
 - **T0461** · Apprendista eredita il ruolo (frase intera, con maestro opzionale) · `src/data/alba.js:61`
   TESTO: ${g.nome} si rivela: è l'Apprendista${maestro ? ` di ${maestro}` : ''} ed eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(g.ruoloSlug))}.
 
 - **T0462** · Figlia dei Lupi diventa lupo · `src/data/alba.js:65`
-  TESTO: ${g.nome} si rivela: è la Figlia dei Lupi e diventa Lupo Mannaro.
+  TESTO: ${g.nome} è la Figlia dei Lupi e rimasta orfana diventa Lupo Mannaro.
 
 ### Condizioni (nome, mostrato come alt/title in Votazione)
 
@@ -1580,7 +1580,7 @@ Totale voci: 900.
   TESTO: È morto anche ${g.nome} (crepacuore).
 
 - **T0486** · Spilungone al primo rogo · `src/data/eventiSpeciali.js:140`
-  TESTO: Lo Spilungone si rivela e non muore al primo rogo.
+  TESTO: Lo Spilungone si rivela e non muore durante il rogo.
 
 - **T0487** · Cavaliere immolato (versione al passato, fatto=true) · `src/data/eventiSpeciali.js:147`
   TESTO: Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive.
@@ -1654,10 +1654,10 @@ Totale voci: 900.
   TESTO:  per l'unzione
 
 - **T0510** · Bardo salta la notte · `src/data/log.js:28`
-  TESTO: ${nome} fa il gesto del Bardo: la notte successiva salta
+  TESTO: ${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta
 
 - **T0511** · Gallo Mannaro salta il giorno · `src/data/log.js:29`
-  TESTO: ${nome} fa cantare il Gallo Mannaro: il giorno salta
+  TESTO: ${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta
 
 - **T0512** · Cavaliere sceglie chi proteggere · `src/data/log.js:34`
   TESTO: Il Cavaliere ${nome} sceglie di proteggere ${t}
