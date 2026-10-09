@@ -11,7 +11,10 @@ function loadMazzo() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_MAZZO
     const parsed = JSON.parse(raw)
-    return { quantita: parsed.quantita ?? {} }
+    // il Borgomastro non è più una carta del mazzo (si elegge in gioco):
+    // i salvataggi vecchi che lo contenevano lo perdono senza conseguenze
+    const { borgomastro, ...quantita } = parsed.quantita ?? {}
+    return { quantita }
   } catch {
     return DEFAULT_MAZZO
   }

@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneStrega } from './AzioneStrega'
+import { ConStato } from './ConStato'
 
 const giocatori = [
   { id: '1', nome: 'Strega', ruoloSlug: 'strega', vivo: true, condizioni: [], note: '', poteriUsati: [] },
@@ -17,7 +18,10 @@ test('la pozione vitale protegge il bersaglio e marca il potere come usato', asy
   await user.click(chipAnnaVitale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: ['protetto'] })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-vitale'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    poteriUsati: ['strega-pozione-vitale'],
+    sceltaNotte: { 'strega-vitale': { targetId: '2', protezione: true } },
+  })
 })
 
 test('la pozione mortale uccide il bersaglio e marca il potere come usato', async () => {
@@ -30,7 +34,10 @@ test('la pozione mortale uccide il bersaglio e marca il potere come usato', asyn
   await user.click(chipAnnaMortale)
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vivo: false, causaMorte: 'notte', mortoNotte: 2, mortoDa: 'strega' })
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['strega-pozione-mortale'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    poteriUsati: ['strega-pozione-mortale'],
+    sceltaNotte: { 'strega-mortale': { targetId: '2', colpo: true } },
+  })
 })
 
 test('la pozione mortale uccide anche un bersaglio protetto (la protezione non blocca la pozione mortale)', async () => {
@@ -91,21 +98,21 @@ test('pozione vitale su un bersaglio già protetto (Paladino): cambiando bersagl
 test('la pozione vitale si può non usare: cliccare di nuovo lo stesso bersaglio toglie la protezione e restituisce la pozione', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
-  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />)
+  render(<ConStato Azione={AzioneStrega} iniziali={giocatori} onAggiorna={aggiornaGiocatore} />)
   const chip = () => within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' })
 
   await user.click(chip())
   await user.click(chip())
 
   expect(chip()).toHaveAttribute('aria-pressed', 'false')
-  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [], sceltaNotte: { 'strega-vitale': undefined } })
 })
 
 test('cambiare o togliere il bersaglio della pozione mortale annulla la morte con annullaMorte (catena inclusa)', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
   const annullaMorte = vi.fn()
-  render(<AzioneStrega giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+  render(<ConStato Azione={AzioneStrega} iniziali={giocatori} onAggiorna={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
   const chip = () => within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Anna' })
 
   await user.click(chip())
@@ -113,7 +120,7 @@ test('cambiare o togliere il bersaglio della pozione mortale annulla la morte co
 
   expect(annullaMorte).toHaveBeenCalledWith('2')
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: true }))
-  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [], sceltaNotte: { 'strega-mortale': undefined } })
 })
 
 test('Strega e Mimo-Strega hanno pozioni separate: la pozione usata dall\'una non blocca l\'altra', async () => {
@@ -131,7 +138,10 @@ test('Strega e Mimo-Strega hanno pozioni separate: la pozione usata dall\'una no
   render(<AzioneStrega giocatori={due} aggiornaGiocatore={aggiornaGiocatore} attoreId="3" />)
   expect(screen.queryByText('Pozione vitale già utilizzata in questa partita.')).not.toBeInTheDocument()
   await user.click(within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' }))
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { poteriUsati: ['strega-pozione-vitale'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', {
+    poteriUsati: ['strega-pozione-vitale'],
+    sceltaNotte: { 'strega-vitale': { targetId: '2', protezione: true } },
+  })
 })
 
 test('la pozione mortale sul Nano non ha effetto: avviso "non può morire di notte"', async () => {
@@ -154,4 +164,32 @@ test('la pozione mortale registra mortoDa strega', async () => {
   await user.click(within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Anna' }))
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false, mortoDa: 'strega' }))
+})
+
+test('dopo un refresh a metà passo le pozioni di stanotte restano visibili e modificabili (non "già utilizzata")', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  const g = [
+    {
+      ...giocatori[0],
+      poteriUsati: ['strega-pozione-vitale', 'strega-pozione-mortale'],
+      sceltaNotte: { 'strega-vitale': { targetId: '2', protezione: true }, 'strega-mortale': { targetId: '3', colpo: true } },
+    },
+    { ...giocatori[1], condizioni: ['protetto'] },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: false, condizioni: [], mortoNotte: 2, causaMorte: 'notte', mortoDa: 'strega' },
+  ]
+  render(<ConStato Azione={AzioneStrega} iniziali={g} onAggiorna={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+
+  expect(screen.queryByText(/già utilizzata/i)).not.toBeInTheDocument()
+  const vitale = () => within(screen.getByRole('group', { name: 'Chi proteggere' })).getByRole('button', { name: 'Anna' })
+  const mortale = () => within(screen.getByRole('group', { name: 'Chi uccidere' })).getByRole('button', { name: 'Luca' })
+  expect(vitale()).toHaveAttribute('aria-pressed', 'true')
+  expect(mortale()).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(mortale())
+  expect(annullaMorte).toHaveBeenCalledWith('3')
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ sceltaNotte: expect.objectContaining({ 'strega-mortale': undefined }) }))
+  await user.click(vitale())
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
 })

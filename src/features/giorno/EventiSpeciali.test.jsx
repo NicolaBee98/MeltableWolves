@@ -360,7 +360,7 @@ test('La Suocera si rivela propone anche l\'Apprendista vivo che ha preso la car
 
 test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', async () => {
   const user = userEvent.setup()
-  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' }]
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera', poteriUsati: ['suocera-rivelata'] }]
   setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   expect(screen.queryByRole('button', { name: 'La Suocera si rivela' })).not.toBeInTheDocument()
@@ -503,7 +503,7 @@ test('Boia: scelto il bersaglio innamorato, prima di confermare compare il prome
 test('Mimo-Suocera morto può rivelarsi come Suocera, anche dopo che il titolare si è rivelato', async () => {
   const user = userEvent.setup()
   const giocatori = [
-    { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera' },
+    { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera', poteriUsati: ['suocera-rivelata'] },
     { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'suocera', storiaRuoli: ['mimo', 'suocera'] },
   ]
   const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
@@ -627,4 +627,91 @@ test("L'Antico giustiziato dal Boia si rivela: il testo dice che il villaggio è
   await user.click(screen.getByRole('button', { name: 'Giustiziato' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(screen.getByText(/Giustiziato si è rivelato\/a: è L'Antico.*Il villaggio è maledetto/)).toBeInTheDocument()
+})
+
+// Carte assegnate da Cartomante/Medium/Mimo a chi aveva carta ignota: il giocatore ha già
+// il ruoloSlug, ma il suo evento dedicato deve restare disponibile (una sola volta) e
+// la carta non va riproposta ad altri sconosciuti
+describe('ruolo già assegnato (Cartomante/Mimo) con evento dedicato', () => {
+  const altri = [{ id: '9', nome: 'Zeno', vivo: true, condizioni: [] }]
+  const voce = async (user, nome) => {
+    await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+    await user.click(screen.getByRole('button', { name: nome }))
+  }
+
+  test('Alchimista noto: esplode al rogo e non compare un secondo candidato ignoto', async () => {
+    const user = userEvent.setup()
+    const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'alchimista', storiaRuoli: ['alchimista'] }, ...altri]
+    const { onAlchimistaEsplode } = setup({ giocatori, candidatiRogo: ['1', '9'], ruoliSelezionati: ['alchimista'], quantita: { alchimista: 1 } })
+    await voce(user, "L'Alchimista esplode")
+    expect(screen.queryByRole('button', { name: 'Zeno' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    await user.click(screen.getByRole('button', { name: 'Zeno' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onAlchimistaEsplode).toHaveBeenCalledWith('1', '9')
+  })
+
+  test('Boia noto: giustizia, poi non è più disponibile', async () => {
+    const user = userEvent.setup()
+    const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'boia', storiaRuoli: ['boia'] }, ...altri]
+    const { onBoiaGiustizia } = setup({ giocatori, ruoliSelezionati: ['boia'], quantita: { boia: 1 } })
+    await voce(user, 'Il Boia giustizia')
+    expect(screen.queryByRole('button', { name: 'Zeno' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    await user.click(screen.getByRole('button', { name: 'Zeno' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onBoiaGiustizia).toHaveBeenCalledWith('1', '9')
+  })
+
+  test('Scemo del Villaggio noto: sbaglia la rima', async () => {
+    const user = userEvent.setup()
+    const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'scemo-del-villaggio', storiaRuoli: ['scemo-del-villaggio'] }, ...altri]
+    const { onScemoSbaglia } = setup({ giocatori, contesto: 'voto', ruoliSelezionati: ['scemo-del-villaggio'], quantita: { 'scemo-del-villaggio': 1 } })
+    await voce(user, 'Lo Scemo del Villaggio sbaglia la rima')
+    expect(screen.queryByRole('button', { name: 'Zeno' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onScemoSbaglia).toHaveBeenCalledWith('1')
+  })
+
+  test('Innocente noto: si rivela, poi non più (innocente-rivelato)', async () => {
+    const user = userEvent.setup()
+    const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'innocente', storiaRuoli: ['innocente'] }, ...altri]
+    const { onRivelazione } = setup({ giocatori, ruoliSelezionati: ['innocente'], quantita: { innocente: 1 } })
+    await voce(user, "L'Innocente si rivela")
+    expect(screen.queryByRole('button', { name: 'Zeno' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onRivelazione).toHaveBeenCalledWith('innocente', '1')
+  })
+
+  test('Suocera nota e morta: si rivela, e nessun altro morto ignoto è candidato; già rivelata sparisce', async () => {
+    const user = userEvent.setup()
+    const giocatori = [
+      { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera', storiaRuoli: ['suocera'] },
+      { id: '2', nome: 'Marco', vivo: false, condizioni: [] },
+    ]
+    const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], quantita: { suocera: 1 } })
+    await voce(user, 'La Suocera si rivela')
+    expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
+  })
+
+  test('Fantasma Onnisciente noto e morto: è lui a ricevere la carta, non un altro morto', async () => {
+    const user = userEvent.setup()
+    const giocatori = [
+      { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'fantasma-onnisciente' },
+      { id: '2', nome: 'Marco', vivo: false, condizioni: [] },
+    ]
+    const { onFantasmaOnnisciente } = setup({ giocatori, ruoliSelezionati: ['fantasma-onnisciente'], quantita: { 'fantasma-onnisciente': 1 } })
+    await voce(user, 'Assegna il Fantasma Onnisciente')
+    expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Anna' }))
+    await user.click(screen.getByRole('button', { name: 'Conferma' }))
+    expect(onFantasmaOnnisciente).toHaveBeenCalledWith('1')
+  })
 })

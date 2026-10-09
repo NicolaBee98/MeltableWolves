@@ -141,7 +141,7 @@ test('la Suocera si rivela alla morte anche già all\'alba (morte notturna), non
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'], poteriUsati: ['suocera-rivelata'] })
 })
 
 test('Annulla morte giocatore riporta in vita chi era stato dichiarato morto per errore, già all\'alba', async () => {

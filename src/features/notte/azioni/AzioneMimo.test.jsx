@@ -152,7 +152,7 @@ test('cliccando di nuovo la chip del bersaglio scelto la deseleziona: toglie il 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { legame: undefined })
 })
 
-test('propone anche Boia, Alchimista, Scemo, Innocente, Suocera e Guardia Mannara, ma mai Mimo, Borgomastro e Fantasma Onnisciente', () => {
+test('propone anche Boia, Alchimista, Scemo, Innocente, Suocera e Guardia Mannara, Fantasma Onnisciente, ma mai Mimo e Borgomastro', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', vivo: true },
@@ -160,10 +160,10 @@ test('propone anche Boia, Alchimista, Scemo, Innocente, Suocera e Guardia Mannar
   const ruoli = ['mimo', 'boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'suocera', 'guardia-mannara', 'borgomastro', 'fantasma-onnisciente']
   render(<AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={ruoli} quantita={{}} />)
 
-  for (const nome of ['Boia', 'Alchimista', 'Scemo del Villaggio', 'Innocente', 'Suocera', 'Guardia Mannara']) {
+  for (const nome of ['Boia', 'Alchimista', 'Scemo del Villaggio', 'Innocente', 'Suocera', 'Guardia Mannara', 'Fantasma Onnisciente']) {
     expect(screen.getByRole('button', { name: nome })).toBeInTheDocument()
   }
-  for (const nome of ['Mimo', 'Borgomastro', 'Fantasma Onnisciente']) {
+  for (const nome of ['Mimo', 'Borgomastro']) {
     expect(screen.queryByRole('button', { name: nome })).not.toBeInTheDocument()
   }
 })
@@ -192,7 +192,7 @@ test('cambiare bersaglio azzera la carta già scelta (non si trascina al nuovo b
   expect(onScegliRuoloMimo).toHaveBeenCalledWith(null)
 })
 
-test('con il Ladro nel mazzo e nessuna carta ancora assegnata, il Mimo può scegliere anche le future carte extra del Ladro (tutte tranne sé stesso, Borgomastro e Fantasma)', () => {
+test('con il Ladro nel mazzo e nessuna carta ancora assegnata, il Mimo può scegliere anche le future carte extra del Ladro (tutte tranne sé stesso e Borgomastro)', () => {
   const giocatori = [
     { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
     { id: '2', nome: 'Marco', vivo: true },
@@ -209,7 +209,6 @@ test('con il Ladro nel mazzo e nessuna carta ancora assegnata, il Mimo può sceg
   expect(chips).toEqual(expect.arrayContaining(['Ladro', 'Veggente', 'Paladino', 'Villico']))
   expect(chips).not.toContain('Mimo')
   expect(chips).not.toContain('Borgomastro')
-  expect(chips).not.toContain('Fantasma Onnisciente')
 })
 
 test('avviso "diventerà Villico" finché il Mimo non ha una carta da imitare (senza bersaglio, o bersaglio senza carta scelta)', () => {

@@ -13,11 +13,11 @@ export function ConcludiPartita({ onConcludi }) {
   }
   return (
     <p className="votazione__conferma concludi-partita">
-      Concludere la partita e tornare alla Home?{' '}
-      <button type="button" onClick={onConcludi}>
+      Concludere la partita e tornare alla Home?
+      <button type="button" className="concludi-partita__conferma-cta" onClick={onConcludi}>
         Sì, concludi
-      </button>{' '}
-      <button type="button" onClick={() => setConferma(false)}>
+      </button>
+      <button type="button" className="concludi-partita__annulla" onClick={() => setConferma(false)}>
         Annulla
       </button>
     </p>

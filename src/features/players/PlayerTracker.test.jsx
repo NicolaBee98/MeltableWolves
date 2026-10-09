@@ -173,3 +173,8 @@ test('su touch il drag parte dopo una pressione breve; uno spostamento prima è 
   expect(onRiordina).toHaveBeenCalledWith([giocatori[1], giocatori[0]])
   vi.useRealTimers()
 })
+
+test("l'istruzione non mostra asterischi letterali", () => {
+  render(<PlayerTracker giocatori={[]} addGiocatore={() => {}} removeGiocatore={() => {}} onRiordina={() => {}} />)
+  expect(document.querySelector('.player-tracker__istruzioni').textContent).not.toMatch(/\*/)
+})

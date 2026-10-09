@@ -61,10 +61,8 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
   const eventiMimoLadro = []
   const mappaPrecedenti = new Map(precedenti.map((g) => [g.id, g]))
 
-  // la pozione vitale ha già la sua voce: niente "ha ottenuto la condizione protetto"
-  const vitaleOra = correnti.some(
-    (a) => (a.poteriUsati ?? []).includes('strega-pozione-vitale') && !(mappaPrecedenti.get(a.id)?.poteriUsati ?? []).includes('strega-pozione-vitale'),
-  )
+  // il narratore non segue protetto/unto (durano una notte, rumore): nessuna voce
+  const CONDIZIONI_MUTE = ['protetto', 'unto']
 
   for (const giocatore of correnti) {
     const prima = mappaPrecedenti.get(giocatore.id)
@@ -175,12 +173,13 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     for (const condizione of condizioniDopo) {
       if (condizione === 'innamorato' && partnerNuovi.length > 0) continue
       if (condizione === 'resuscitato' && resuscitato) continue
-      if (condizione === 'protetto' && vitaleOra) continue
+      if (CONDIZIONI_MUTE.includes(condizione)) continue
       if (!condizioniPrima.includes(condizione)) {
         eventi.push({ round, fase, messaggio: `${nome} ha ottenuto la condizione "${condizione}"` })
       }
     }
     for (const condizione of condizioniPrima) {
+      if (CONDIZIONI_MUTE.includes(condizione)) continue
       if (!condizioniDopo.includes(condizione)) {
         eventi.push({ round, fase, messaggio: `${nome} ha perso la condizione "${condizione}"` })
       }
@@ -207,6 +206,22 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       eventi.push({ round, fase, messaggio: `L'Apprendista ${nome} si rivela e prende la carta del maestro ${maestro} (ruolo ancora ignoto)`, tier: 3 })
     }
     let ereditato = false
+    // scambio dell'Addolorata (stanotte): ha una voce propria, i due "ruolo
+    // assunto" e l'"eredita" del morto che riceve la carta sarebbero falsi
+    const scambioAttore = giocatore.scambioAddolorata && !prima.scambioAddolorata ? giocatore.scambioAddolorata : null
+    const scambiataVittima = correnti.some(
+      (a) => a.scambioAddolorata?.vittimaId === giocatore.id && !mappaPrecedenti.get(a.id)?.scambioAddolorata,
+    )
+    if (scambioAttore) {
+      const v = correnti.find((g) => g.id === scambioAttore.vittimaId)
+      const morto = v ? ` (morto${ETICHETTA_CAUSA[v.causaMorte] ?? ''})` : ''
+      eventi.push({
+        round,
+        fase,
+        messaggio: `L'Addolorata ${nome} scambia la carta con ${v?.nome ?? '?'}${morto}: ora è ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} e ${v?.nome ?? '?'} ha la carta Addolorata`,
+        tier: 3,
+      })
+    }
     // le voci di legame vanno dopo "ha assunto il ruolo di …" (vedi in fondo)
     const voceLegame = []
     for (const campo of ['legame', 'legameMimo']) {
@@ -215,12 +230,13 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       const nomeTarget = (id) => correnti.find((g) => g.id === id)?.nome ?? '?'
       // (un legame ereditato di altro tipo, es. l'Apprendista che prende il Cavaliere
       // col suo protetto, non è una scelta nuova)
-      if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId && (!l0 || l0.tipo === l1.tipo)) {
+      if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId && (!l0 || l0.tipo === l1.tipo || l0.tipo === 'apprendista')) {
         // legame nuovo insieme a un cambio di carta: arriva con il ruolo, non è una scelta
-        const arrivatoConRuolo = !l0 && prima.ruoloSlug && prima.ruoloSlug !== giocatore.ruoloSlug
+        // (anche l'Apprendista che eredita: il suo legame di maestro è sostituito)
+        const arrivatoConRuolo = (!l0 || l0.tipo === 'apprendista') && prima.ruoloSlug && prima.ruoloSlug !== giocatore.ruoloSlug
         voceLegame.push({ round, fase, messaggio: (arrivatoConRuolo ? LEGAME_EREDITATO : LEGAME_SCELTO)[l1.tipo](nome, nomeTarget(l1.targetId)), ...(arrivatoConRuolo && { tier: 3 }) })
       }
-      if ((!l1 || l1.tipo !== l0?.tipo) && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
+      if (!scambiataVittima && (!l1 || l1.tipo !== l0?.tipo) && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
         if (l0.tipo === 'apprendista') {
           ereditato = true
           if (!coperto('ereditaNotte')) eventi.push({
@@ -270,13 +286,15 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
         // sceglie). Mai la Guardia Mannara: ruoloPerDisplay.
         const imitato = storiaDopo[storiaDopo.indexOf('mimo') + 1] ?? giocatore.ruoloSlug
         const bersaglio = giocatore.legame?.tipo === 'mimo' && correnti.find((g) => g.id === giocatore.legame.targetId)
-        eventi.push({
+        // Mimo senza carta scelta (nessun legame): ha già la voce "non ha scelto…"
+        if (giocatore.legame?.tipo === 'mimo' || giocatore.ruoloSlug !== 'villico') eventi.push({
           round,
           fase,
           messaggio: `Il Mimo ${giocatore.nome} imita ${nomeRuolo(ruoloPerDisplay(imitato))}${bersaglio ? ` (${bersaglio.nome})` : ''}`,
         })
-      } else if (!ereditato && !ladroSceglie && !trasformatoMezzosangue) {
-        eventi.push({ round, fase, messaggio: `${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}` })
+      } else if (!ereditato && !ladroSceglie && !trasformatoMezzosangue && !scambioAttore && !scambiataVittima) {
+        // tier 3: spesso è l'effetto di una morte (Cucciolo cresciuto) e va dopo di essa
+        eventi.push({ round, fase, messaggio: `${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}`, tier: 3 })
       }
     }
     eventi.push(...voceLegame)
@@ -306,6 +324,9 @@ function assorbe(a, b) {
       (a.includes(' (colpito ') && a.startsWith(`${b} (colpito `))
     )
   }
+  // il Progenitore ha già la sua voce (dal Branco): niente "ha assunto il ruolo di Lupo Mannaro"
+  const prog = a.match(/^.+ trasforma (.+) in Lupo Mannaro\.$/)
+  if (prog) return b === `${prog[1]} ha assunto il ruolo di Lupo Mannaro`
   return false
 }
 export function unisciVoci(prev, nuovi) {

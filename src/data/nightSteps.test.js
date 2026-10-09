@@ -282,3 +282,9 @@ test('con le sole Guardie (senza Guardia Mannara nel mazzo) c\'è un solo passo 
   const passi = passiNotte(ruoli, 1, giocatori, { guardia: 2, 'lupo-mannaro': 1, villico: 1 })
   expect(passi.filter((p) => p.titolo === 'Guardie (si riconoscono)')).toHaveLength(1)
 })
+
+test('il Chupacabra sbranato stanotte dal branco caccia comunque (i morti si scoprono all\'alba), non se è morto in una notte precedente', () => {
+  const chupa = { id: '1', ruoloSlug: 'chupacabra', vivo: false, causaMorte: 'notte', mortoNotte: 2, condizioni: [] }
+  expect(passiNotte(['chupacabra'], 2, [chupa]).map((p) => p.id)).toEqual(['chupacabra'])
+  expect(passiNotte(['chupacabra'], 3, [chupa]).map((p) => p.id)).toEqual([])
+})

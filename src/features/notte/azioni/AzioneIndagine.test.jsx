@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneIndagine } from './AzioneIndagine'
+import { ConStato } from './ConStato'
 
 test('indagare un bersaglio con aura malvagia registra esito malvagia', async () => {
   const user = userEvent.setup()
@@ -99,7 +100,7 @@ test('indagare il Polpo Mannaro acceca il Veggente (in aggiunta a registrare l\'
 
   await user.click(screen.getByRole('button', { name: 'Piero' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2, accecaQui: true } })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['accecato'] })
 })
 
@@ -118,7 +119,7 @@ test('indagare il Polpo Mannaro acceca ENTRAMBI i titolari (Veggente e Mimo-Vegg
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: ['inibito', 'accecato'] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { condizioni: ['accecato'] })
   // l'indagine la riceve solo chi non è inibito
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2, accecaQui: true } })
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ultimaIndagine: expect.anything() }))
 })
 
@@ -250,4 +251,42 @@ test('cliccando di nuovo il bersaglio già indagato si annulla: via ultimaIndagi
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: undefined })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
+})
+
+test('il Veggente Mannaro vede le stesse aure del Veggente (Nonna e Polpo benevoli) e il Polpo non lo acceca', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Nonna', ruoloSlug: 'nonna', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Polpo', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<AzioneIndagine giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} ruoloSlugAttore="veggente-mannaro" />)
+  await user.click(screen.getByRole('button', { name: 'Nonna' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } })
+  await user.click(screen.getByRole('button', { name: 'Polpo' }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ condizioni: expect.anything() }))
+})
+
+test('dopo un refresh a metà passo, cambiare bersaglio o deselezionare annulla ancora l\'accecamento causato da questa scelta', async () => {
+  const user = userEvent.setup()
+  const iniziali = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'veggente', vivo: true, condizioni: ['accecato'], usiNotte: ['veggente-indagine'], ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2, accecaQui: true } },
+    { id: '2', nome: 'Piero', ruoloSlug: 'polpo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  const { unmount } = render(<ConStato Azione={AzioneIndagine} iniziali={iniziali} onAggiorna={aggiornaGiocatore} round={2} puoEssereAccecato />)
+
+  // cambia bersaglio: il lupo risulta "malvagia", non "benevola" da accecamento
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: [] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '3', esito: 'malvagia', notte: 2 } })
+  unmount()
+
+  // deseleziona
+  render(<ConStato Azione={AzioneIndagine} iniziali={iniziali} onAggiorna={aggiornaGiocatore} round={2} puoEssereAccecato />)
+  aggiornaGiocatore.mockClear()
+  await user.click(screen.getByRole('button', { name: 'Piero' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { condizioni: [] })
 })

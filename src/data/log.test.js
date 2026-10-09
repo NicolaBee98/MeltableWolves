@@ -38,9 +38,9 @@ test('rileva una resurrezione', () => {
 
 test('rileva una condizione ottenuta e una persa', () => {
   const precedenti = [{ id: '1', nome: 'Anna', vivo: true, condizioni: ['inibito'], ruoloSlug: 'villico' }]
-  const correnti = [{ id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'], ruoloSlug: 'villico' }]
+  const correnti = [{ id: '1', nome: 'Anna', vivo: true, condizioni: ['silenziato'], ruoloSlug: 'villico' }]
   const eventi = rilevaEventi(precedenti, correnti, 1, 'notte')
-  expect(eventi).toContainEqual({ round: 1, fase: 'notte', messaggio: 'Anna ha ottenuto la condizione "unto"' })
+  expect(eventi).toContainEqual({ round: 1, fase: 'notte', messaggio: 'Anna ha ottenuto la condizione "silenziato"' })
   expect(eventi).toContainEqual({ round: 1, fase: 'notte', messaggio: 'Anna ha perso la condizione "inibito"' })
 })
 
@@ -312,4 +312,68 @@ test('unisciVoci: Cortigiana, Mezzosangue e Cavaliere che si immola restano una 
       ),
     ),
   ).toEqual(['Il Cavaliere G01 si immola al posto di G05 e muore (colpito dal branco).'])
+})
+
+const msgs = (prima, dopo, fase = 'giorno') => rilevaEventi(prima, dopo, 2, fase).map((e) => e.messaggio)
+
+test('protetto e unto non fanno rumore (ottenuti, persi, anche per i morti)', () => {
+  const a = { ...base, id: '1', nome: 'G01', ruoloSlug: 'villico' }
+  expect(msgs([a], [{ ...a, condizioni: ['protetto', 'unto'] }])).toEqual([])
+  expect(msgs([{ ...a, condizioni: ['protetto', 'unto'] }], [a])).toEqual([])
+  expect(msgs([{ ...a, condizioni: ['unto'] }], [{ ...a, vivo: false, causaMorte: 'rogo', condizioni: [] }])).toEqual(['G01 è morto/a al rogo'])
+})
+
+test('Apprendista che eredita il Cavaliere: "eredita il legame: protegge X"', () => {
+  const maestro = { ...base, id: '1', nome: 'G06', ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '3' } }
+  const app = { ...base, id: '2', nome: 'G08', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '1' } }
+  const t = { ...base, id: '3', nome: 'G07', ruoloSlug: 'villico' }
+  const dopo = [
+    { ...maestro, vivo: false, causaMorte: 'rogo' },
+    { ...app, ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '3' } },
+    t,
+  ]
+  expect(msgs([maestro, app, t], dopo)).toEqual([
+    'G06 è morto/a al rogo',
+    "L'Apprendista G08 eredita il ruolo di Cavaliere dal maestro G06",
+    'G08 eredita il legame: protegge G07',
+  ])
+})
+
+test("scambio dell'Addolorata con un'Apprendista bruciata: una sola voce propria, nessuna eredità falsa", () => {
+  const add = { ...base, id: '1', nome: 'G01', ruoloSlug: 'addolorata' }
+  const app = { ...base, id: '2', nome: 'G02', ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '3' }, vivo: false, causaMorte: 'rogo' }
+  const m = { ...base, id: '3', nome: 'G07', ruoloSlug: 'villico' }
+  const dopo = [
+    { ...add, ruoloSlug: 'villico', scambioAddolorata: { round: 2, vittimaId: '2' } },
+    { ...app, ruoloSlug: 'addolorata', legame: null },
+    m,
+  ]
+  expect(msgs([add, app, m], dopo)).toEqual([
+    "L'Addolorata G01 scambia la carta con G02 (morto al rogo): ora è Villico e G02 ha la carta Addolorata",
+  ])
+  // Figlia dei Lupi: niente "si rivela e diventa Lupo Mannaro"
+  const fig = { ...app, ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '3' } }
+  expect(msgs([add, fig, m], [dopo[0], { ...fig, ruoloSlug: 'addolorata', legame: null }, m]).join('|')).not.toMatch(/Lupo Mannaro|eredita/)
+})
+
+test('Cucciolo cresciuto: "ha assunto il ruolo di Lupo Mannaro" dopo la morte del lupo', () => {
+  const lupo = { ...base, id: '1', nome: 'G03', ruoloSlug: 'lupo-mannaro' }
+  const cucc = { ...base, id: '2', nome: 'G02', ruoloSlug: 'cucciolo-di-lupo-mannaro' }
+  expect(msgs([cucc, lupo], [{ ...cucc, ruoloSlug: 'lupo-mannaro' }, { ...lupo, vivo: false, causaMorte: 'rogo' }])).toEqual([
+    'G03 è morto/a al rogo',
+    'G02 ha assunto il ruolo di Lupo Mannaro',
+  ])
+})
+
+test('Mimo senza carta scelta: nessuna voce "imita Villico" (c\'è già "non ha scelto")', () => {
+  const mimo = { ...base, id: '1', nome: 'G01', ruoloSlug: 'mimo', storiaRuoli: ['mimo'] }
+  expect(msgs([mimo], [{ ...mimo, ruoloSlug: 'villico', storiaRuoli: ['mimo', 'villico'] }], 'notte')).toEqual([])
+})
+
+test('unisciVoci: la trasformazione del Progenitore resta una voce sola, in qualunque ordine', () => {
+  const v = (messaggio) => ({ round: 1, fase: 'notte', messaggio })
+  const t = 'Il Progenitore G01 trasforma G05 in Lupo Mannaro.'
+  const d = 'G05 ha assunto il ruolo di Lupo Mannaro'
+  expect(unisciVoci([v(d)], [v(t)]).map((e) => e.messaggio)).toEqual([t])
+  expect(unisciVoci([v(t)], [v(d)]).map((e) => e.messaggio)).toEqual([t])
 })

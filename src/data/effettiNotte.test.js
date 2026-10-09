@@ -1,3 +1,4 @@
+import { eLupo } from './roles'
 import {
   aggiungiCondizionePatch,
   uccidiPatch,
@@ -509,4 +510,32 @@ test.each(['nano', 'criceto-malvagio'])('crepacuore: %s non muore per un lutto n
 
 test('uccidiPatch: la pozione mortale della Strega registra mortoDa', () => {
   expect(uccidiPatch({ ruoloSlug: 'villico', condizioni: [] }, 2, { ignoraProtezione: true, mortoDa: 'strega' })).toMatchObject({ mortoDa: 'strega' })
+})
+
+// --- Cavaliere che si immola, lupi, Progenitore (partite 2026-10-09 e/f) ---
+const gp = (id, ruoloSlug, extra = {}) => ({ id, nome: `G${id}`, ruoloSlug, vivo: true, condizioni: [], storiaRuoli: [ruoloSlug], ...extra })
+
+test("l'Ubriaco salvato dal Cavaliere non stordisce il branco", () => {
+  const giocatori = [gp('1', 'cavaliere', { legame: { tipo: 'cavaliere', targetId: '2' } }), gp('2', 'ubriaco'), gp('3', 'lupo-mannaro')]
+  const patches = risolviAttaccoBranco(giocatori, '2', 2, RUOLI_BRANCO)
+  expect(patches['3']).toBeUndefined()
+  // senza Cavaliere sì
+  expect(risolviAttaccoBranco([giocatori[1], giocatori[2]], '2', 2, RUOLI_BRANCO)['3']).toEqual({ brancoStorditoFinoA: 3 })
+})
+
+test('il Berserker salvato dal Cavaliere non porta con sé il lupo più vicino (né l\'avviso lo promette)', () => {
+  const giocatori = [gp('1', 'cavaliere', { legame: { tipo: 'cavaliere', targetId: '2' } }), gp('2', 'berserker'), gp('3', 'lupo-mannaro')]
+  const patches = risolviAttaccoBranco(giocatori, '2', 2, RUOLI_BRANCO)
+  expect(patches['3']).toBeUndefined()
+  const avvisi = avvisiColpo(giocatori, '2', patches, 'branco').map((a) => a.testo).join(' ')
+  expect(avvisi).not.toMatch(/Berserker/)
+  expect(risolviAttaccoBranco([giocatori[1], giocatori[2]], '2', 2, RUOLI_BRANCO)['3'].vivo).toBe(false)
+})
+
+test('sono lupi (Cortigiana, Berserker, Pastore) solo Lupo, Capobranco, Progenitore, Cucciolo e Nonna', () => {
+  for (const s of ['lupo-mannaro', 'lupo-mannaro-capobranco', 'lupo-mannaro-progenitore', 'cucciolo-di-lupo-mannaro', 'nonna']) expect(eLupo(s)).toBe(true)
+  for (const s of ['polpo-mannaro', 'mucca-mannara', 'veggente-mannaro', 'gallo-mannaro', 'sciacallo-mannaro', 'guardia-mannara', 'chupacabra', 'villico']) expect(eLupo(s)).toBe(false)
+  // Berserker: il Polpo è più vicino ma il lupo vero è la Nonna
+  const giocatori = [gp('1', 'berserker'), gp('2', 'polpo-mannaro'), gp('3', 'villico'), gp('4', 'nonna')]
+  expect(berserkerLupiCandidati(giocatori, '1').map((g) => g.id)).toEqual(['4'])
 })

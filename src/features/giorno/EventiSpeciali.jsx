@@ -3,7 +3,7 @@ import { SceltaGiocatore } from '../../components/SceltaGiocatore'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
 import { useDialogA11y } from '../../components/useDialogA11y'
-import { ruoliAssegnabili, eMimoCopiante } from '../../data/assegnazione'
+import { ruoliAssegnabili } from '../../data/assegnazione'
 import { viciniVivi } from '../../data/vicinanza'
 import { roundMorteDiurna } from '../../data/effettiNotte'
 import {
@@ -190,6 +190,8 @@ export function EventiSpeciali({
   const inGiorno = contesto === 'voto' || contesto === 'esito'
   // carta unica, mai distribuita all'inizio: va consegnata al primo morto
   // sul rogo (pag. 13), quindi solo finché nessuno la tiene già
+  // chi ha già la carta (data da Cartomante/Mimo) e ora è morto la riceve: è lui
+  const fantasmaNoto = morti.filter((g) => g.ruoloSlug === 'fantasma-onnisciente')
   const mostraFantasma =
     inGiorno &&
     ruoliSelezionati.includes('fantasma-onnisciente') &&
@@ -197,18 +199,20 @@ export function EventiSpeciali({
     morti.length > 0
   // resta "?" per tutta la partita finché non muore (pag. 21), di notte o
   // al rogo: disponibile in ogni contesto (alba/voto/esito), non solo di giorno
-  const suoceraTitolareRivelata = giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
-  // il Mimo che copia la Suocera, già morto, può rivelarsi come lei (potere
-  // indipendente dal titolare: segnato in poteriUsati)
-  const mimoSuoceraMorti = morti.filter(
-    (g) => g.ruoloSlug === 'suocera' && eMimoCopiante(g) && !(g.poteriUsati ?? []).includes('suocera-rivelata'),
+  // carta già assegnata (rivelata, o data da Cartomante/Medium): nessun altro
+  // morto "?" può essere lei
+  const suoceraTitolareNota = ruoliAssegnabili(['suocera'], giocatori, quantita).length === 0
+  // la Suocera già nota (Mimo che la copia, o carta data da Cartomante/Medium),
+  // ora morta, si rivela con il proprio evento: segnato in poteriUsati
+  const suoceraNotaMorta = morti.filter(
+    (g) => g.ruoloSlug === 'suocera' && !(g.poteriUsati ?? []).includes('suocera-rivelata'),
   )
   // l'Apprendista che ha preso la carta ignota del maestro morto (vivo, ruolo ancora ignoto)
   // può essere la Suocera: la sua carta è quella che era del maestro
   const apprendistiConCartaIgnota = giocatori.filter((g) => g.vivo && !g.ruoloSlug && g.apprendistaRivelatoDa)
   const candidatiSuocera = [
-    ...(suoceraTitolareRivelata ? [] : [...mortiSenzaRuoloNoto, ...apprendistiConCartaIgnota]),
-    ...mimoSuoceraMorti,
+    ...(suoceraTitolareNota ? [] : [...mortiSenzaRuoloNoto, ...apprendistiConCartaIgnota]),
+    ...suoceraNotaMorta,
   ]
   const mostraSuocera = ruoliSelezionati.includes('suocera') && candidatiSuocera.length > 0
 
@@ -435,7 +439,7 @@ export function EventiSpeciali({
 
           {evento === 'fantasma' && (
             <EventoUnGiocatore
-              candidati={morti}
+              candidati={fantasmaNoto.length > 0 ? fantasmaNoto : morti}
               etichetta="Chi riceve la carta"
               messaggio="Il primo morto sul rogo riceve la carta del Fantasma Onnisciente."
               onConferma={(id) =>

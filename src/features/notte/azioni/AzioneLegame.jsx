@@ -47,7 +47,7 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
   }
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>Nessun giocatore da scegliere.</p>
   }
 
   return (

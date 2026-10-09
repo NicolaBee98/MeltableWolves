@@ -109,18 +109,25 @@ test('con il Ladro nel mazzo, il conteggio giocatori attesi è 2 in meno (le due
   expect(screen.getByText(/servono 0 giocatori, ce ne sono 1/i)).toBeInTheDocument()
 })
 
-test('Borgomastro e Fantasma Onnisciente non contano come giocatori in più nel conteggio atteso', async () => {
+test('il Borgomastro non è tra i ruoli aggiungibili del mazzo, ma l\'elezione resta disponibile in gioco', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+
+  await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
+  expect(screen.queryByRole('button', { name: 'Borgomastro' })).not.toBeInTheDocument()
+})
+
+test('Fantasma Onnisciente non conta come giocatore in più nel conteggio atteso', async () => {
   const user = userEvent.setup()
   render(<App />)
 
   await user.click(screen.getByRole('button', { name: 'Nuova Partita' }))
   await user.click(screen.getByRole('button', { name: 'Mimo' }))
-  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
   await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
 
-  // mazzo: Mimo + Borgomastro + Fantasma Onnisciente = 3 ruoli, ma i due
-  // titoli non aggiungono nessun giocatore: 1 atteso, non 3
+  // mazzo: Mimo + Fantasma Onnisciente = 2 ruoli, ma il Fantasma non
+  // aggiunge nessun giocatore: 1 atteso, non 2
   await user.type(screen.getByPlaceholderText('Nome giocatore'), 'Anna{Enter}')
   expect(screen.queryByText(/serv\w+ \d giocatori?/i)).not.toBeInTheDocument()
 })
@@ -151,7 +158,7 @@ test("l'icona Diario e impostazioni apre il popup, di default sulle impostazioni
 
   expect(screen.getByRole('button', { name: 'Nuova Partita' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Diario' }))
+  await user.click(screen.getByRole('tab', { name: 'Diario' }))
   expect(screen.getByText(/nessun evento registrato/i)).toBeInTheDocument()
 })
 
@@ -224,19 +231,19 @@ test("l'avviso del conteggio cita solo le esclusioni dei ruoli presenti nel mazz
   expect(screen.getByText(/serve 1 giocatore/i).textContent).not.toMatch(/esclusi/)
 
   await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
-  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
+  await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   const avviso = screen.getByText(/serve 1 giocatore/i).textContent
-  expect(avviso).toMatch(/esclusi il Borgomastro,/)
-  expect(avviso).not.toMatch(/Ladro|Fantasma/)
+  // un solo ruolo escluso: singolare
+  expect(avviso).toMatch(/\(escluso il Fantasma Onnisciente, che non è un giocatore in più\)/)
+  expect(avviso).not.toMatch(/Ladro/)
 
-  // più esclusioni: concordanza (escluse/esclusi) e "e" finale
+  // più esclusioni: concordanza e punto e virgola
   await user.click(screen.getByRole('button', { name: /torna al mazzo/i }))
   await user.click(screen.getByRole('button', { name: 'Ladro' }))
-  await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
   await user.click(screen.getByRole('button', { name: 'Veggente' }))
   await user.click(screen.getByRole('button', { name: 'Avanti' }))
   expect(screen.getByText(/serve 1 giocatore/i).textContent).toMatch(
-    /\(escluse le 2 carte extra del Ladro; esclusi il Borgomastro e il Fantasma Onnisciente, che non sono giocatori in più\)/,
+    /\(escluse le 2 carte extra del Ladro; escluso il Fantasma Onnisciente, che non sono giocatori in più\)/,
   )
 })

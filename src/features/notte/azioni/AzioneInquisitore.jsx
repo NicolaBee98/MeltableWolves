@@ -1,5 +1,4 @@
 import { auraDi } from '../../../data/aura'
-import { useState } from 'react'
 const POTERE_PERSO = 'inquisitore-potere-perso'
 const POTERE_NOTTE = 'inquisitore-indagine'
 
@@ -14,17 +13,14 @@ const POTERE_NOTTE = 'inquisitore-indagine'
 // volta per ciascuno.
 export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreId, vivoAIngresso = (g) => g.vivo }) {
   const inquisitore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === 'inquisitore')
-  const [potereEsauritoAllIngresso] = useState(() => (inquisitore?.poteriUsati ?? []).includes(POTERE_PERSO))
   const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== inquisitore?.id)
   const indagineStanotte = inquisitore?.ultimaIndagine?.notte === round ? inquisitore.ultimaIndagine : null
   const giaUsato = Boolean(indagineStanotte)
-
-  // (prima del return anticipato: gli hook non vanno dopo un return)
   // true se un click PRECEDENTE di questa stessa notte (non ancora "Avanti",
   // quindi ancora ripensabile) ha già segnato il potere perso: serve per
   // sapere se un ripensamento successivo deve esplicitamente toglierlo
-  // (altrimenti resterebbe scritto da un click precedente sullo stesso passo)
-  const [poterePersoInQuestoPasso, setPoterePersoInQuestoPasso] = useState(false)
+  const poterePersoInQuestoPasso = indagineStanotte?.esito === 'benevola'
+  const potereEsauritoAllIngresso = (inquisitore?.poteriUsati ?? []).includes(POTERE_PERSO) && !poterePersoInQuestoPasso
 
   if (potereEsauritoAllIngresso) {
     return <p>Ha perso il proprio potere dopo un'indagine inutile su un'aura benevola.</p>
@@ -51,7 +47,6 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
           : {}),
     })
     aggiornaGiocatore(inquisitore.id, { usiNotte: [...(inquisitore.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), POTERE_NOTTE] })
-    setPoterePersoInQuestoPasso(perso)
   }
 
   // toglie l'indagine di questa notte (e la perdita del potere che ne era
@@ -63,7 +58,6 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
       poteriUsati: (inquisitore.poteriUsati ?? []).filter((p) => p !== POTERE_PERSO),
       usiNotte: [...(inquisitore.usiNotte ?? []).filter((p) => p !== POTERE_NOTTE), ...(saltata ? [POTERE_NOTTE] : [])],
     })
-    setPoterePersoInQuestoPasso(false)
   }
 
   // click sulla chip già scelta: annulla l'indagine, il potere torna intatto
@@ -73,7 +67,7 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
   const salta = () => azzeraIndagine(true)
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>Nessun giocatore da scegliere.</p>
   }
 
   return (

@@ -84,7 +84,7 @@ export const ROLES = [
   { slug: 'scemo-del-villaggio', nome: 'Scemo del Villaggio', fazione: 'villaggio', notturno: false,
     testoRegole: "Un sortilegio questo ruolo opprime,\nPer esprimersi deve parlar per rime!\nMa se, ahimè, la sua rima fallisce\nLo sfortunato all'istante perisce!" },
   { slug: 'sciacallo-mannaro', nome: 'Sciacallo Mannaro', fazione: 'lupi', notturno: true,
-    testoRegole: "Ha il potere di far resuscitare, una volta per partita, un altro giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro." },
+    testoRegole: "Ha il potere di far resuscitare, una volta per partita, un giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro." },
   { slug: 'spilungone', nome: 'Spilungone', fazione: 'villaggio', notturno: false,
     testoRegole: "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime." },
   { slug: 'strega', nome: 'Strega', fazione: 'villaggio', notturno: true,

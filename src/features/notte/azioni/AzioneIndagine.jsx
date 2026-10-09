@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { auraDi } from '../../../data/aura'
 import { usatoStanotte, segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRuolo, RUOLO_CAUSA_ACCECAMENTO } from '../../../data/effettiNotte'
 
@@ -36,14 +35,16 @@ export function AzioneIndagine({
   // reversibile finché non si preme "Avanti": ripensare il bersaglio dopo
   // deve annullarlo di nuovo, non lasciarlo agire già da subito su chi non
   // ha ancora indagato nessuno.
-  const [accecatoAllIngresso] = useState(() => attori.some((g) => (g.condizioni ?? []).includes('accecato')))
-  const [accecatoDaQuestaScelta, setAccecatoDaQuestaScelta] = useState(false)
+  // "da questa scelta" si legge dall'indagine di stanotte (accecaQui, sul
+  // giocatore) e non da uno stato locale: dopo un refresh a metà passo
+  // ripensare il bersaglio deve annullare ancora l'accecamento
+  const accecatoDaQuestaScelta = Boolean(indagineStanotte?.accecaQui)
+  const accecatoAllIngresso = attori.some((g) => (g.condizioni ?? []).includes('accecato')) && !accecatoDaQuestaScelta
 
   // click sulla chip già scelta: toglie l'indagine, l'eventuale accecamento
   // provocato da questa scelta e il segno di potere usato
   function togliAccecamento() {
     attori.forEach((g) => aggiornaGiocatore(g.id, { condizioni: (g.condizioni ?? []).filter((c) => c !== 'accecato') }))
-    setAccecatoDaQuestaScelta(false)
   }
 
   function annullaScelta() {
@@ -65,11 +66,11 @@ export function AzioneIndagine({
         // sempre per-persona fisica: l'accecamento si applica solo
         // all'attore che ha effettivamente indagato, senza toccare le
         // condizioni altrui di un eventuale secondo attore con lo stesso ruolo.
-        attivi.forEach((g) => aggiornaGiocatore(g.id, { ultimaIndagine: { targetId, esito, notte: round } }))
         // il Polpo acceca TUTTI i titolari (Veggente e Mimo-Veggente) fino alla sua morte
-        if (puoEssereAccecato && !accecato && target.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO) {
+        const accecaQui = puoEssereAccecato && !accecato && target.ruoloSlug === RUOLO_CAUSA_ACCECAMENTO
+        attivi.forEach((g) => aggiornaGiocatore(g.id, { ultimaIndagine: { targetId, esito, notte: round, ...(accecaQui && { accecaQui: true }) } }))
+        if (accecaQui) {
           attori.forEach((g) => aggiornaGiocatore(g.id, { condizioni: [...(g.condizioni ?? []).filter((c) => c !== 'accecato'), 'accecato'] }))
-          setAccecatoDaQuestaScelta(true)
         }
       }
     }
@@ -77,7 +78,7 @@ export function AzioneIndagine({
   }
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>Nessun giocatore da scegliere.</p>
   }
 
   // la chip resta sempre cliccabile, anche dopo aver già indagato questa

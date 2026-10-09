@@ -874,3 +874,23 @@ test('Cavaliere + L\'Antico noto al rogo: il Cavaliere si immola prima, l\'Antic
   expect(s['1'].villaggioMaledettoFinoA).toBeUndefined()
   localStorage.clear()
 })
+
+test('lo spareggio ha il titolo "Condanna" sopra le chip dei candidati', () => {
+  setup({ voti: { 1: 2, 2: 2 }, fase: 'esito', candidatiEsito: ['1', '2'] })
+  expect(screen.getByText('Condanna')).toBeInTheDocument()
+  expect(screen.getByRole('group', { name: 'Condanna' })).toBeInTheDocument()
+})
+
+test("Cavaliere che protegge l'Antico noto: l'anteprima parla del sacrificio, non della maledizione", () => {
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', ruoloSlug: 'lantico', vivo: true },
+      { id: '2', nome: 'Dino', ruoloSlug: 'cavaliere', vivo: true, legame: { tipo: 'cavaliere', targetId: '1' } },
+    ],
+    voti: { 1: 2 },
+    fase: 'esito',
+    candidatiEsito: ['1', '2'],
+  })
+  expect(screen.getAllByText(/Cavaliere Dino/).length).toBeGreaterThan(0)
+  expect(screen.queryByText(/maledetto/)).not.toBeInTheDocument()
+})

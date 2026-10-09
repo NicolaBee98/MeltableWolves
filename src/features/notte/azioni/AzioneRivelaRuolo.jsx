@@ -2,9 +2,16 @@ import { useState } from 'react'
 import { ROLES, ruoloPerDisplay } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo, cartaInMano } from '../../../data/assegnazione'
-import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
 import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
+
+// Carte non proponibili per un bersaglio ignoto: il Borgomastro è un titolo
+// (non una carta fisica) e la Cartomante sta già guardando la carta di un
+// altro. Il Medium non serve: ruoliAssegnabili conta già le sue copie.
+// Tutte le altre carte ancora assegnabili vanno bene, anche Alchimista, Boia,
+// Scemo, Innocente, Suocera e Fantasma: i loro eventi dedicati funzionano
+// anche per chi ha già quel ruoloSlug (vedi candidatiRivelazione).
+const NON_CARTE_PROPONIBILI = ['borgomastro', 'cartomante']
 
 // `reale`: chi guarda la carta fisica (Cartomante e Medium) vede la carta vera, quindi
 // per loro la Guardia Mannara non è mascherata da Guardia (come invece nel resto dell'app)
@@ -151,7 +158,7 @@ export function AzioneRivelaRuolo({
     const opzioni = guardiaTarget
       ? ['guardia', 'guardia-mannara']
       : ruoliAssegnabili(
-          ruoliSelezionati.filter((slug) => !RUOLI_NON_CARTA_SEGRETA.includes(slug)),
+          ruoliSelezionati.filter((slug) => !NON_CARTE_PROPONIBILI.includes(slug)),
           giocatoriPrima,
           quantita,
         )
@@ -190,7 +197,7 @@ export function AzioneRivelaRuolo({
   }
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>{bersaglio === 'morto' ? 'Nessun defunto: chiamalo comunque.' : 'Nessun giocatore da scegliere.'}</p>
   }
 
   // come il Veggente: la chip resta modificabile finché non si preme

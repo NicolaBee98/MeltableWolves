@@ -18,7 +18,8 @@ function espandiRuoli(quantita) {
 
 export function validaMazzo(quantita) {
   const avvisi = []
-  const ruoli = espandiRuoli(quantita)
+  // il Borgomastro non è una carta fisica: non conta tra i giocatori
+  const ruoli = espandiRuoli(quantita).filter((r) => r.slug !== 'borgomastro')
 
   const numLupi = ruoli.filter((r) => eLupo(r.slug)).length
   if (numLupi === 0) {

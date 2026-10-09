@@ -40,7 +40,7 @@ export function AzioneCondizioneSingola({
   }
 
   if (vivi.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>Nessun giocatore da scegliere.</p>
   }
 
   return (

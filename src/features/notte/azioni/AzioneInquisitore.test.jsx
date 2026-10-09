@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneInquisitore } from './AzioneInquisitore'
+import { ConStato } from './ConStato'
 
 test('interrogare un lupo registra esito positivo, il potere resta disponibile in futuro', async () => {
   const user = userEvent.setup()
@@ -105,4 +106,30 @@ test('Inquisitore e Mimo-Inquisitore hanno indagini e potere separati: il fallim
 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ poteriUsati: ['inquisitore-potere-perso'] }))
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.anything())
+})
+
+test('dopo un refresh a metà passo l\'indagine benevola di stanotte resta modificabile (non "ha perso il potere") e ripensarla restituisce il potere', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'inquisitore', vivo: true, condizioni: [], poteriUsati: ['inquisitore-potere-perso'], usiNotte: ['inquisitore-indagine'], ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 2 } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<ConStato Azione={AzioneInquisitore} iniziali={giocatori} onAggiorna={aggiornaGiocatore} round={2} />)
+
+  expect(screen.queryByText(/ha perso il proprio potere/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Marco' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ poteriUsati: [] }))
+})
+
+test('un potere perso in una notte precedente resta perso dopo il refresh', () => {
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'inquisitore', vivo: true, condizioni: [], poteriUsati: ['inquisitore-potere-perso'], ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(<ConStato Azione={AzioneInquisitore} iniziali={giocatori} round={2} />)
+  expect(screen.getByText(/ha perso il proprio potere/i)).toBeInTheDocument()
 })

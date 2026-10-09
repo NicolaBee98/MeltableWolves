@@ -25,7 +25,7 @@ export function SceltaGiocatore({
   if (candidati.length === 0) {
     return (
       <div className="scelta-giocatore">
-        <p>Nessun bersaglio disponibile.</p>
+        <p>Nessun giocatore da scegliere.</p>
         <button type="button" onClick={onSalta}>
           Chiudi
         </button>

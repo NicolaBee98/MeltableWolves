@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneChupacabra } from './AzioneChupacabra'
+import { ConStato } from './ConStato'
 
 test('uccide un bersaglio di fazione lupi', async () => {
   const user = userEvent.setup()
@@ -21,24 +22,20 @@ test('uccide un bersaglio di fazione lupi', async () => {
 test('la scelta resta modificabile: cambiare bersaglio annulla la morte del precedente', async () => {
   const user = userEvent.setup()
   const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
     { id: '2', nome: 'Luca', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
     { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  render(<ConStato Azione={AzioneChupacabra} iniziali={giocatori} onAggiorna={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
 
   await user.click(screen.getByRole('button', { name: 'Luca' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
-    vivo: true,
-    causaMorte: undefined,
-    mortoNotte: undefined,
-    mortoDa: undefined,
-  })
+  expect(annullaMorte).toHaveBeenCalledWith('1')
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', {
     vivo: false,
     causaMorte: 'notte',
@@ -173,16 +170,17 @@ test('cliccare di nuovo la chip premuta deseleziona: annulla la morte e toglie l
   const annullaMorte = vi.fn()
   const giocatori = [
     { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
-    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: ['chupacabra-caccia'] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+  render(<ConStato Azione={AzioneChupacabra} iniziali={giocatori} onAggiorna={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   await user.click(screen.getByRole('button', { name: 'Marco' }))
 
   expect(annullaMorte).toHaveBeenCalledWith('1')
   expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'false')
-  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('3', { usiNotte: [] })
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('3', { sceltaNotte: { chupacabra: undefined } })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { usiNotte: [] })
 })
 
 test('lupo mangiato: avviso sull\'effetto (Cortigiana col cliente-lupo, Cucciolo) e testo per il registro passato a impostaEventiAvanti; deselezionando sparisce', async () => {
@@ -193,7 +191,7 @@ test('lupo mangiato: avviso sull\'effetto (Cortigiana col cliente-lupo, Cucciolo
     { id: '2', nome: 'Pia', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '1' },
     { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: [] },
   ]
-  render(<AzioneChupacabra giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} impostaEventiAvanti={impostaEventiAvanti} />)
+  render(<ConStato Azione={AzioneChupacabra} iniziali={giocatori} round={2} impostaEventiAvanti={impostaEventiAvanti} />)
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   expect(screen.getByText(/A casa di Marco c'è anche la Cortigiana Pia/)).toBeInTheDocument()
@@ -202,4 +200,27 @@ test('lupo mangiato: avviso sull\'effetto (Cortigiana col cliente-lupo, Cucciolo
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   expect(screen.queryByText(/A casa di Marco c'è anche la Cortigiana Pia/)).not.toBeInTheDocument()
   expect(impostaEventiAvanti).toHaveBeenLastCalledWith('chupacabra', [])
+})
+
+test('dopo un refresh a metà passo la caccia di stanotte resta visibile e cambiare bersaglio ripristina il precedente (mai due morti)', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const annullaMorte = vi.fn()
+  // stato dopo il click su Marco e il refresh: Marco morto, scelta scritta sul Chupacabra
+  const giocatori = [
+    { id: '1', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 2, mortoDa: 'chupacabra' },
+    { id: '2', nome: 'Luca', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Gino', ruoloSlug: 'chupacabra', vivo: true, condizioni: [], usiNotte: ['chupacabra-caccia'], sceltaNotte: { chupacabra: { targetId: '1', colpito: true } } },
+  ]
+  render(<ConStato Azione={AzioneChupacabra} iniziali={giocatori} onAggiorna={aggiornaGiocatore} annullaMorte={annullaMorte} round={2} />)
+
+  expect(screen.getByRole('button', { name: 'Marco' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+
+  expect(annullaMorte).toHaveBeenCalledWith('1')
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', expect.objectContaining({ vivo: false, mortoDa: 'chupacabra' }))
+  expect(screen.getByRole('button', { name: 'Luca' })).toHaveAttribute('aria-pressed', 'true')
+  // cambiare bersaglio non è un nuovo uso
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('3', { usiNotte: ['chupacabra-caccia', 'chupacabra-caccia'] })
 })

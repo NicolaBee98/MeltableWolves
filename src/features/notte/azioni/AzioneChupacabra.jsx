@@ -13,8 +13,15 @@ const POTERE = 'chupacabra-caccia'
 // click precedente per ripensare il bersaglio è sicuro.
 export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
   const chupacabra = giocatori.find((g) => g.ruoloSlug === 'chupacabra')
-  const [target, setTarget] = useState(null)
-  const [colpito, setColpito] = useState(false)
+  // la scelta di stanotte vive sul Chupacabra (sceltaNotte, ripulita all'alba),
+  // non in uno stato locale: dopo un refresh a metà passo resta visibile e
+  // modificabile, e cambiare bersaglio ripristina ancora il precedente
+  const scelta = chupacabra?.sceltaNotte?.chupacabra
+  const target = scelta?.targetId ?? null
+  const colpito = Boolean(scelta?.colpito)
+  const salvaScelta = (valore) => {
+    if (chupacabra) aggiornaGiocatore(chupacabra.id, { sceltaNotte: { ...chupacabra.sceltaNotte, chupacabra: valore } })
+  }
   const [avviso, setAvviso] = useState(null)
   // effetti speciali della morte del bersaglio (Cortigiana, Cucciolo, Cavaliere):
   // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
@@ -45,8 +52,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         if (idx >= 0) usi.splice(idx, 1)
         aggiornaGiocatore(g.id, { usiNotte: usi })
       })
-    setTarget(null)
-    setColpito(false)
+    salvaScelta(undefined)
     setAvviso(null)
     setAvvisiEffetti([])
   }
@@ -55,8 +61,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
     if (targetId === target) return deseleziona()
     if (target && colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
     const eraScelto = Boolean(target)
-    setTarget(targetId)
-    setColpito(false)
+    let colpitoOra = false
     setAvviso(null)
     setAvvisiEffetti([])
     const bersaglio = giocatori.find((g) => g.id === targetId)
@@ -67,7 +72,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         const patch = uccidiPatch(bersaglio, round, { mortoDa: 'chupacabra' })
         if (patch) {
           aggiornaGiocatore(targetId, patch)
-          setColpito(true)
+          colpitoOra = true
           setAvvisiEffetti(avvisiColpo(giocatori, targetId, { [targetId]: patch }, 'chupacabra'))
         } else if (RUOLI_IMMUNI_ALLA_NOTTE.includes(bersaglio.ruoloSlug)) {
           setAvviso(`${avvisoImmuneNotte(bersaglio)}: la caccia non ha alcun effetto su ${bersaglio.nome}.`)
@@ -76,12 +81,13 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         }
       }
     }
+    salvaScelta({ targetId, colpito: colpitoOra })
     // cambiare bersaglio non è un nuovo uso
     if (!eraScelto) segnaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
   }
 
   if (candidati.length === 0) {
-    return <p>Nessun bersaglio disponibile.</p>
+    return <p>Nessun giocatore da scegliere.</p>
   }
 
   return (

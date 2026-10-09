@@ -1,5 +1,4 @@
 import { ruoliAssegnabili, eMimoCopiante } from './assegnazione'
-import { RUOLI_RIVELAZIONE_ALLA_MORTE } from './nightSteps'
 import { eLupo } from './roles'
 
 // Ruoli con un evento tutto loro: Alchimista/Boia/Scemo del
@@ -11,21 +10,7 @@ import { eLupo } from './roles'
 // disponibile.
 export const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio', 'innocente']
 
-// Ruoli che non sono mai una carta segreta in mano a un giocatore vivo, in
-// nessun momento della partita: Fantasma Onnisciente/Suocera si ricevono
-// solo alla morte, il Borgomastro è un titolo elettivo sopra un ruolo già
-// posseduto, e i 4 di RIVELAZIONE_CONTESTUALE_AL_POTERE qui sopra si
-// rivelano solo tramite il loro evento dedicato. Nessuno dei sette può
-// quindi essere la risposta a "che ruolo/carta ha davvero questo
-// giocatore?" — usata sia dal Mimo (AzioneMimo.jsx, quando copia
-// un'identità ancora ignota) sia dalla Cartomante/Medium (AzioneRivelaRuolo.jsx):
-// se uno di questi finisse comunque assegnato per errore da lì, quel
-// giocatore diventerebbe per sempre irraggiungibile dal proprio evento
-// dedicato (es. un Alchimista "copiato" che non può più far esplodere se
-// stesso, pur restando bersaglio valido per l'esplosione di un altro).
-export const RUOLI_NON_CARTA_SEGRETA = [...RUOLI_RIVELAZIONE_ALLA_MORTE, 'borgomastro', ...RIVELAZIONE_CONTESTUALE_AL_POTERE]
-
-// Alchimista, Boia, Scemo del Villaggio e Innocente non hanno mai
+// Alchimista, Boia, Scemo del Villaggio e Innocente di norma non hanno
 // un'identità assegnata prima: si rivelano solo tramite il loro evento
 // dedicato (rogo/esplosione, giustizia, rima sbagliata, o la semplice
 // dichiarazione dell'Innocente — pag. 5, 8, 20). Il titolare è un vivo senza
@@ -47,8 +32,9 @@ export function candidatiRivelazione(slug, ruoliSelezionati, giocatori, quantita
     (g) =>
       g.vivo &&
       ((titolare && !g.ruoloSlug) ||
-        // ruolo già noto e potere non ancora speso: Mimo copiante, ma anche
-        // chi l'ha preso dal Ladro o ereditato dall'Apprendista
+        // ruolo già noto e potere non ancora speso: Mimo copiante, chi l'ha
+        // preso dal Ladro, ereditato dall'Apprendista o ricevuto come carta
+        // mostrata da Cartomante/Medium
         (g.ruoloSlug === slug && !(g.poteriUsati ?? []).includes(POTERE_RIVELAZIONE[slug]))),
   )
 }
@@ -136,12 +122,15 @@ function conseguenze(giocatori, id, fatto, visti) {
     ]
   }
   // non muoiono (prima vita dell'Antico, primo rogo dello Spilungone): nessuna conseguenza a catena
-  if (primaVitaAntico(t)) return [TESTO_ANTICO]
-  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined) return ['Lo Spilungone si rivela e non muore durante il rogo.']
+  // (a meno che un Cavaliere si immoli al suo posto: allora la rivelazione non
+  // avviene e vale il testo del sacrificio, qui sotto)
+  const protettori = cavalieriDi(giocatori, id)
+  if (primaVitaAntico(t) && protettori.length === 0) return [TESTO_ANTICO]
+  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined && protettori.length === 0) return ['Lo Spilungone si rivela e non muore durante il rogo.']
 
   // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
   // avviene, ma la morte del Cavaliere ha le sue
-  const cavalieri = cavalieriDi(giocatori, id)
+  const cavalieri = protettori
   if (cavalieri.length > 0) {
     const out = cavalieri.map((g) =>
       fatto ? `Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive.` : `Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`,
@@ -153,7 +142,7 @@ function conseguenze(giocatori, id, fatto, visti) {
   const out = []
   for (const p of partner.filter((g) => g.vivo && !visti.has(g.id))) {
     const protettoDa = cavalieriDi(giocatori, p.id)
-    if (primaVitaAntico(p)) {
+    if (primaVitaAntico(p) && protettoDa.length === 0) {
       out.push(`L'Antico ${p.nome} sopravvive al crepacuore (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si sveglieranno.`)
     } else if (protettoDa.length > 0) {
       visti.add(p.id)

@@ -72,11 +72,11 @@ export function LogImpostazioniPopup({
             </div>
           ) : (
             <>
-              <div className="log-impostazioni__tabs">
-                <button type="button" aria-pressed={tab === 'impostazioni'} onClick={() => setTab('impostazioni')}>
+              <div className="log-impostazioni__tabs" role="tablist">
+                <button type="button" role="tab" aria-selected={tab === 'impostazioni'} onClick={() => setTab('impostazioni')}>
                   Impostazioni partita
                 </button>
-                <button type="button" aria-pressed={tab === 'log'} onClick={() => setTab('log')}>
+                <button type="button" role="tab" aria-selected={tab === 'log'} onClick={() => setTab('log')}>
                   Diario
                 </button>
               </div>

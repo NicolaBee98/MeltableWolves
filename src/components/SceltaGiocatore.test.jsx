@@ -39,7 +39,7 @@ test('senza candidati mostra un messaggio con un pulsante Chiudi che chiama onSa
   const onSalta = vi.fn()
   render(<SceltaGiocatore candidati={[]} onConferma={() => {}} onSalta={onSalta} etichetta="Scegli" />)
 
-  expect(screen.getByText(/nessun bersaglio disponibile/i)).toBeInTheDocument()
+  expect(screen.getByText(/nessun giocatore da scegliere/i)).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Chiudi' }))
   expect(onSalta).toHaveBeenCalled()

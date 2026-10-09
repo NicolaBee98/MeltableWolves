@@ -345,6 +345,12 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     // un lupo vero (anche il Progenitore stesso) non si trasforma: il potere non si consuma
     // (si guarda il ruolo di PRIMA del colpo: un Mezzosangue sbranato è già Lupo Mannaro)
     .filter(({ c, i }) => c.tipo === 'trasforma' || !eLupo(baseDi(i).find((g) => g.id === c.targetId)?.ruoloSlug))
+    // il Mezzosangue protetto non viene morso: nessuna trasformazione (a differenza
+    // di ogni altra vittima, che il Progenitore trasforma anche se protetta o immune)
+    .filter(({ c, i }) => {
+      const t = baseDi(i).find((g) => g.id === c.targetId)
+      return c.tipo === 'trasforma' || !(t?.ruoloSlug === 'mezzosangue' && t.condizioni.includes('protetto'))
+    })
 
   return (
     <div className="scelta-giocatore">
@@ -373,7 +379,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
         <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
       ))}
       {colpi.filter((c) => c.tipo === 'trasforma').map((c) => (
-        <p key={c.targetId} className="avviso">{giocatori.find((g) => g.id === c.targetId)?.nome} verrà trasformato in Lupo Mannaro.
+        <p key={c.targetId} className="avviso">{giocatori.find((g) => g.id === c.targetId)?.nome} verrà trasformato in Lupo Mannaro, anche se protetto/a o immune. Svegliane segretamente il giocatore e fagli riconoscere gli altri lupi.
         </p>
       ))}
       {progenitorePuoTrasformare &&

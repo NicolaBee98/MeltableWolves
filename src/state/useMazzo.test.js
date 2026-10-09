@@ -102,3 +102,9 @@ test('lo stato persiste in localStorage tra due montaggi', () => {
   const { result: result2 } = renderHook(() => useMazzo())
   expect(result2.current.quantita['lupo-mannaro']).toBe(2)
 })
+
+test('un salvataggio vecchio con il Borgomastro nel mazzo lo perde senza rompersi', () => {
+  localStorage.setItem('meltable-wolves-mazzo', JSON.stringify({ quantita: { borgomastro: 1, veggente: 1 } }))
+  const { result } = renderHook(() => useMazzo())
+  expect(result.current.quantita).toEqual({ veggente: 1 })
+})

@@ -2,11 +2,11 @@ import { nomeRuolo, ruoloPerDisplay } from '../../../data/roles'
 import { ruoliAssegnabili } from '../../../data/assegnazione'
 import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
-// il Mimo non può copiare sé stesso, il Borgomastro (un titolo dato dal voto)
-// né il Fantasma Onnisciente; tutte le altre carte del mazzo ancora non
-// assegnate sì (anche Boia, Alchimista, Scemo, Innocente, Suocera) e la
+// il Mimo non può copiare sé stesso né il Borgomastro (un titolo dato dal
+// voto); tutte le altre carte del mazzo ancora non
+// assegnate sì (anche Boia, Alchimista, Scemo, Innocente, Suocera, Fantasma) e la
 // Guardia Mannara è una carta distinta: il Mimo guarda la carta vera
-const NON_IMITABILI = ['mimo', 'borgomastro', 'fantasma-onnisciente']
+const NON_IMITABILI = ['mimo', 'borgomastro']
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il

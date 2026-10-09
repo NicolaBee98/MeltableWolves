@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ROLES } from '../../data/roles'
+import { maxQuantita } from '../../data/quantitaRuoli'
 import { validaMazzo } from '../../data/validaMazzo'
 import { RuoloIcona } from '../../components/RuoloIcona'
 import { iconaPath } from '../../data/assetRuoli'
@@ -27,7 +28,7 @@ const RUOLI_INFINITI = ['villico', 'lupo-mannaro']
 // titolo per elezione, il Fantasma Onnisciente si riceve solo alla morte,
 // vedi RUOLI_RIVELAZIONE_GIORNO/RUOLI_RIVELAZIONE_ALLA_MORTE): la chip si
 // distingue con un colore diverso per non farli sembrare carte "normali"
-const RUOLI_NON_CARTA_DISTRIBUITA = ['borgomastro', 'fantasma-onnisciente']
+const RUOLI_NON_CARTA_DISTRIBUITA = ['fantasma-onnisciente']
 // durata dell'animazione di dissolvenza di una chip che lascia i
 // "disponibili" perché appena aggiunta al mazzo (vedi .chip--uscendo)
 const DURATA_USCITA_MS = 200
@@ -135,9 +136,9 @@ export function MazzoBuilder({ quantita, setQuantita }) {
         </p>
       )}
 
-      {((quantita.borgomastro ?? 0) > 0 || (quantita['fantasma-onnisciente'] ?? 0) > 0) && (
+      {(quantita['fantasma-onnisciente'] ?? 0) > 0 && (
         <p className="mazzo-builder__nota-ladro">
-          ℹ️ Borgomastro e Fantasma Onnisciente sono "condizioni aggiuntive", non ruoli fissi che i giocatori possono avere.
+          ℹ️ Il Fantasma Onnisciente è una "condizione aggiuntiva", non un ruolo fisso che i giocatori possono avere.
         </p>
       )}
 
@@ -145,7 +146,12 @@ export function MazzoBuilder({ quantita, setQuantita }) {
         const disponibili = ROLES.filter(
           (ruolo) =>
             ruolo.fazione === fazione &&
-            (RUOLI_INFINITI.includes(ruolo.slug) || (quantita[ruolo.slug] ?? 0) === 0 || uscenti.has(ruolo.slug)),
+            // il Borgomastro si elegge in gioco, non è una carta del mazzo
+            ruolo.slug !== 'borgomastro' &&
+            // un ruolo "infinito" sparisce dalle disponibili al suo massimo di copie
+            (RUOLI_INFINITI.includes(ruolo.slug)
+              ? (quantita[ruolo.slug] ?? 0) < maxQuantita(ruolo.slug)
+              : (quantita[ruolo.slug] ?? 0) === 0 || uscenti.has(ruolo.slug)),
         )
         if (disponibili.length === 0) return null
 

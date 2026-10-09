@@ -3,12 +3,11 @@ import { aggiungiCondizionePatch, uccidiPatch, avvisoImmuneNotte, RUOLI_IMMUNI_A
 import { annullaColpo } from './annullaColpo'
 
 // le pozioni sono uniche per l'intera partita (non per notte): una volta
-// davvero utilizzata (notte precedente, già scritta su giocatori) resta
-// bloccata per sempre. Ma finché siamo ancora in QUESTA notte, prima di
-// premere "Avanti", il bersaglio scelto resta modificabile: catturiamo lo
-// stato "già usata" solo una volta, al montaggio del passo (mai più durante
-// i click successivi), così un click su questa stessa notte non nasconde
-// subito le chip.
+// davvero utilizzata (notte precedente) resta bloccata per sempre. Ma finché
+// siamo ancora in QUESTA notte, prima di premere "Avanti", il bersaglio scelto
+// resta modificabile: è scritto sulla Strega (sceltaNotte, ripulita all'alba)
+// e non in uno stato locale, così "usata stanotte" si distingue da "usata in
+// una notte precedente" anche dopo un refresh a metà passo.
 // `attoreId`: Strega e Mimo-Strega condividono la schermata ma hanno due set di
 // pozioni separati (poteriUsati di ciascuno): una istanza per attore
 export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round, vivoAIngresso = (g) => g.vivo, attoreId }) {
@@ -17,28 +16,27 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
   const vivi = giocatori.filter(vivoAIngresso)
   const [avvisoVitale, setAvvisoVitale] = useState(null)
   const [avvisoMortale, setAvvisoMortale] = useState(null)
-  const [giaUsataVitale] = useState(() => poteriUsati.includes('strega-pozione-vitale'))
-  const [giaUsataMortale] = useState(() => poteriUsati.includes('strega-pozione-mortale'))
-  const [targetVitale, setTargetVitale] = useState(null)
-  const [targetMortale, setTargetMortale] = useState(null)
-  // true solo se la pozione ha DAVVERO aggiunto/applicato qualcosa: se il
-  // bersaglio era già protetto (Paladino) o la pozione non ha avuto effetto,
-  // cambiando bersaglio non c'è niente da togliere (non va tolta la
-  // protezione del Paladino)
-  const [protezioneDataDaStrega, setProtezioneDataDaStrega] = useState(false)
-  const [colpoMortaleApplicato, setColpoMortaleApplicato] = useState(false)
+  // protezione: { targetId, protezione } — true solo se la pozione ha DAVVERO
+  // aggiunto la protezione: se il bersaglio era già protetto (Paladino) cambiando
+  // bersaglio non c'è niente da togliere (non va tolta la protezione del Paladino)
+  // colpo: { targetId, colpo } — true solo se la pozione ha davvero ucciso
+  const vitale = strega?.sceltaNotte?.['strega-vitale']
+  const mortale = strega?.sceltaNotte?.['strega-mortale']
+  const targetVitale = vitale?.targetId ?? null
+  const targetMortale = mortale?.targetId ?? null
+  const protezioneDataDaStrega = Boolean(vitale?.protezione)
+  const colpoMortaleApplicato = Boolean(mortale?.colpo)
+  const giaUsataVitale = poteriUsati.includes('strega-pozione-vitale') && !targetVitale
+  const giaUsataMortale = poteriUsati.includes('strega-pozione-mortale') && !targetMortale
 
-  function segnaPotereUsato(chiave) {
+  // una sola patch: pozione segnata/rilasciata e scelta di stanotte insieme
+  function scriviPozione(chiave, scelta, valore) {
     if (!strega) return
-    const poteriCorrenti = strega.poteriUsati ?? []
-    if (poteriCorrenti.includes(chiave)) return
-    aggiornaGiocatore(strega.id, { poteriUsati: [...poteriCorrenti, chiave] })
-  }
-
-  // deselezione: la pozione torna disponibile, come se non l'avesse mai usata
-  function rilasciaPotere(chiave) {
-    if (!strega) return
-    aggiornaGiocatore(strega.id, { poteriUsati: (strega.poteriUsati ?? []).filter((p) => p !== chiave) })
+    const poteri = (strega.poteriUsati ?? []).filter((p) => p !== chiave)
+    aggiornaGiocatore(strega.id, {
+      poteriUsati: valore ? [...poteri, chiave] : poteri,
+      sceltaNotte: { ...strega.sceltaNotte, [scelta]: valore },
+    })
   }
 
   function togliProtezioneDataDaStrega() {
@@ -51,21 +49,17 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
     togliProtezioneDataDaStrega()
     setAvvisoVitale(null)
     if (targetVitale === targetId) {
-      setTargetVitale(null)
-      setProtezioneDataDaStrega(false)
-      rilasciaPotere('strega-pozione-vitale')
+      scriviPozione('strega-pozione-vitale', 'strega-vitale', undefined)
       return
     }
-    setTargetVitale(targetId)
     const target = giocatori.find((g) => g.id === targetId)
     const patch = target && aggiungiCondizionePatch(target, 'protetto')
-    setProtezioneDataDaStrega(Boolean(patch))
+    scriviPozione('strega-pozione-vitale', 'strega-vitale', { targetId, protezione: Boolean(patch) })
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     } else {
       setAvvisoVitale(`${target.nome} era già protetto/a: la pozione non ha avuto alcun effetto.`)
     }
-    segnaPotereUsato('strega-pozione-vitale')
   }
 
   function usaPozioneMortale(targetId) {
@@ -75,16 +69,13 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
     if (targetMortale && colpoMortaleApplicato) annullaColpo(targetMortale, aggiornaGiocatore, annullaMorte)
     setAvvisoMortale(null)
     if (targetMortale === targetId) {
-      setTargetMortale(null)
-      setColpoMortaleApplicato(false)
-      rilasciaPotere('strega-pozione-mortale')
+      scriviPozione('strega-pozione-mortale', 'strega-mortale', undefined)
       return
     }
-    setTargetMortale(targetId)
     const target = giocatori.find((g) => g.id === targetId)
     // la pozione mortale ignora la protezione: non è bloccata da "protetto"
     const patch = target && uccidiPatch(target, round, { ignoraProtezione: true, mortoDa: 'strega' })
-    setColpoMortaleApplicato(Boolean(patch))
+    scriviPozione('strega-pozione-mortale', 'strega-mortale', { targetId, colpo: Boolean(patch) })
     if (patch) {
       aggiornaGiocatore(targetId, patch)
     } else {
@@ -94,7 +85,6 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
           : `La pozione non ha avuto alcun effetto su ${target.nome}.`,
       )
     }
-    segnaPotereUsato('strega-pozione-mortale')
   }
 
   return (

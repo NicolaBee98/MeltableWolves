@@ -721,3 +721,26 @@ test('il Progenitore non può trasformare un lupo (né se stesso): nessun pulsan
   expect(screen.queryByRole('button', { name: /progenitore trasforma/i })).not.toBeInTheDocument()
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', { poteriUsati: ['progenitore-trasforma'] })
 })
+
+test('Progenitore: trasforma anche una vittima protetta e ricorda di svegliarla; il Mezzosangue protetto non è trasformabile', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+    { id: '3', nome: 'Mezzo', ruoloSlug: 'mezzosangue', vivo: true, condizioni: ['protetto'] },
+  ]
+  const props = () => ({ giocatori, aggiornaGiocatore, round: 2, ruoli: ['lupo-mannaro-progenitore'] })
+  const { rerender } = render(<AzioneBrancoLupi {...props()} />)
+  await user.click(screen.getByRole('button', { name: 'Mezzo' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  expect(screen.queryByRole('button', { name: /Il Progenitore trasforma/ })).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
+  expect(screen.getByText(/Svegliane segretamente il giocatore/)).toBeInTheDocument()
+})

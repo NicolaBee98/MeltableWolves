@@ -109,7 +109,7 @@ test('la Suocera si rivela alla morte: assegna ruoloSlug:suocera al morto scelto
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'suocera', storiaRuoli: ['suocera'], poteriUsati: ['suocera-rivelata'] })
 })
 
 test('dichiarare morte sul rogo (un solo click) chiama aggiornaGiocatore con causaMorte:rogo e la notte corrente', async () => {

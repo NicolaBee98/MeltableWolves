@@ -13,19 +13,18 @@ function setup(overrides = {}) {
   return props
 }
 
-test('le chip disponibili restano bianche (senza colore di fazione); nel mazzo hanno il colore della fazione, tranne Borgomastro/Fantasma Onnisciente che hanno quello "non distribuita"', async () => {
+test('le chip disponibili restano bianche (senza colore di fazione); nel mazzo hanno il colore della fazione, tranne il Fantasma Onnisciente che ha quello "non distribuita"', async () => {
   const user = userEvent.setup()
   const setQuantita = vi.fn()
   setup({ setQuantita })
 
   expect(screen.getByRole('button', { name: 'Veggente' })).not.toHaveClass('chip--fazione-villaggio')
   expect(screen.getByRole('button', { name: 'Lupo Mannaro' })).not.toHaveClass('chip--fazione-lupi')
-  expect(screen.getByRole('button', { name: 'Borgomastro' })).not.toHaveClass('chip--fazione-villaggio')
-  expect(screen.getByRole('button', { name: 'Borgomastro' })).not.toHaveClass('chip--non-distribuita')
+  expect(screen.getByRole('button', { name: 'Fantasma Onnisciente' })).not.toHaveClass('chip--non-distribuita')
 
-  await user.click(screen.getByRole('button', { name: 'Borgomastro' }))
-  setup({ setQuantita, quantita: { borgomastro: 1, veggente: 1 } })
-  expect(screen.getByRole('button', { name: /borgomastro ✕/i })).toHaveClass('chip--non-distribuita')
+  await user.click(screen.getByRole('button', { name: 'Fantasma Onnisciente' }))
+  setup({ setQuantita, quantita: { 'fantasma-onnisciente': 1, veggente: 1 } })
+  expect(screen.getByRole('button', { name: /fantasma onnisciente ✕/i })).toHaveClass('chip--non-distribuita')
   expect(screen.getByRole('button', { name: /veggente ✕/i })).toHaveClass('chip--fazione-villaggio')
 })
 
@@ -144,15 +143,15 @@ test('con il Ladro nel mazzo mostra la nota sulle due carte extra (si scelgono l
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 })
 
-test('con Borgomastro o Fantasma nel mazzo spiega perché non contano come giocatori (coerente con l\'avviso giocatori)', () => {
-  setup({ quantita: { villico: 2, borgomastro: 1 } })
-  expect(screen.getByText(/condizioni aggiuntive/i)).toBeInTheDocument()
+test('con il Fantasma nel mazzo spiega perché non conta come giocatore (coerente con l\'avviso giocatori)', () => {
+  setup({ quantita: { villico: 2, 'fantasma-onnisciente': 1 } })
+  expect(screen.getByText(/condizione aggiuntiva/i)).toBeInTheDocument()
   // senza Ladro non cita le sue carte extra
   expect(screen.queryByText(/carte extra del Ladro/i)).not.toBeInTheDocument()
 })
 
-test('con Borgomastro e Ladro nel mazzo la nota cita le carte extra del Ladro', () => {
-  setup({ quantita: { villico: 2, borgomastro: 1, ladro: 1 } })
+test('con Fantasma e Ladro nel mazzo la nota cita le carte extra del Ladro', () => {
+  setup({ quantita: { villico: 2, 'fantasma-onnisciente': 1, ladro: 1 } })
   expect(screen.getByText(/due carte in più/i)).toBeInTheDocument()
 })
 
@@ -174,4 +173,11 @@ test('con lo stato vero, ogni ruolo (Cortigiana inclusa) esce dai disponibili fi
   } finally {
     vi.useRealTimers()
   }
+})
+
+test('il Borgomastro non è nei ruoli aggiungibili; Lupo Mannaro e Villico spariscono dalle disponibili al massimo di copie', () => {
+  setup({ quantita: { 'lupo-mannaro': 5, villico: 11 } })
+  expect(screen.queryByRole('button', { name: 'Borgomastro' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Lupo Mannaro' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Villico' })).toBeInTheDocument()
 })

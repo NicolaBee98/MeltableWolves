@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneResuscita } from './AzioneResuscita'
+import { ConStato } from './ConStato'
+import { ROLES } from '../../../data/roles'
 
 test("resuscita il bersaglio morto e marca il potere come usato sull'attore", async () => {
   const user = userEvent.setup()
@@ -24,7 +26,10 @@ test("resuscita il bersaglio morto e marca il potere come usato sull'attore", as
   // non torna in vita subito: solo il marcatore, la resurrezione è dell'alba
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { resuscitaAllAlba: 2 })
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.objectContaining({ vivo: true }))
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { poteriUsati: ['guaritore-resuscita'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', {
+    poteriUsati: ['guaritore-resuscita'],
+    sceltaNotte: { 'guaritore-resuscita': '2' },
+  })
 })
 
 test('mostra un messaggio se il potere è già stato usato', () => {
@@ -101,9 +106,10 @@ test('cambiare bersaglio sposta il marcatore senza toccare vivo (nessuna catena 
     { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: false, condizioni: [] },
   ]
   render(
-    <AzioneResuscita
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
+    <ConStato
+      Azione={AzioneResuscita}
+      iniziali={giocatori}
+      onAggiorna={aggiornaGiocatore}
       potereSlug="guaritore-resuscita"
       ruoloSlugAttore="guaritore"
       round={2}
@@ -126,9 +132,10 @@ test('cliccare di nuovo il bersaglio lo deseleziona: il marcatore si toglie e il
     { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 1 },
   ]
   render(
-    <AzioneResuscita
-      giocatori={giocatori}
-      aggiornaGiocatore={aggiornaGiocatore}
+    <ConStato
+      Azione={AzioneResuscita}
+      iniziali={giocatori}
+      onAggiorna={aggiornaGiocatore}
       potereSlug="guaritore-resuscita"
       ruoloSlugAttore="guaritore"
       round={2}
@@ -141,7 +148,7 @@ test('cliccare di nuovo il bersaglio lo deseleziona: il marcatore si toglie e il
 
   expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { resuscitaAllAlba: undefined })
-  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [] })
+  expect(aggiornaGiocatore).toHaveBeenLastCalledWith('1', { poteriUsati: [], sceltaNotte: { 'guaritore-resuscita': undefined } })
 })
 
 test('i morti di questa notte non sono candidati (solo morti dei giorni/notti precedenti, rogo del giorno prima incluso)', () => {
@@ -167,4 +174,39 @@ test('il Fantasma Onnisciente non può essere resuscitato: non è tra i candidat
 
   expect(screen.getByRole('button', { name: 'Anna' })).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Fede' })).not.toBeInTheDocument()
+})
+
+test('dopo un refresh a metà passo la scelta di stanotte resta visibile e modificabile (non "Potere già utilizzato")', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Guaritore', ruoloSlug: 'guaritore', vivo: true, condizioni: [], poteriUsati: ['guaritore-resuscita'], sceltaNotte: { 'guaritore-resuscita': '2' } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: [], resuscitaAllAlba: 2 },
+    { id: '3', nome: 'Luca', ruoloSlug: 'villico', vivo: false, condizioni: [] },
+  ]
+  render(
+    <ConStato Azione={AzioneResuscita} iniziali={giocatori} onAggiorna={aggiornaGiocatore} potereSlug="guaritore-resuscita" ruoloSlugAttore="guaritore" round={2} />,
+  )
+
+  expect(screen.queryByText(/già utilizzato/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+
+  await user.click(screen.getByRole('button', { name: 'Luca' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { resuscitaAllAlba: undefined })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { resuscitaAllAlba: 2 })
+  expect(screen.getByRole('button', { name: 'Luca' })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('lo Sciacallo Mannaro può scegliere se stesso e il suo testo non dice "un altro giocatore"', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Sciacallo', ruoloSlug: 'sciacallo-mannaro', vivo: false, condizioni: [], poteriUsati: [], causaMorte: 'rogo', mortoNotte: 1 },
+  ]
+  render(
+    <ConStato Azione={AzioneResuscita} iniziali={giocatori} onAggiorna={aggiornaGiocatore} potereSlug="sciacallo-mannaro-resuscita" ruoloSlugAttore="sciacallo-mannaro" round={2} />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Sciacallo' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { resuscitaAllAlba: 2 })
+  expect(ROLES.find((r) => r.slug === 'sciacallo-mannaro').testoRegole).not.toMatch(/un altro giocatore/)
 })

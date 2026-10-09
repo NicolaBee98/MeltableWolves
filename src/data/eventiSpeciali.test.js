@@ -3,26 +3,10 @@ import {
   bardoDisponibile,
   galloDisponibile,
   borgomastroDisponibile,
-  RUOLI_NON_CARTA_SEGRETA,
   candidatiRivelazione,
   conPotereDisponibile,
   conseguenzeMorte,
 } from './eventiSpeciali'
-
-test('RUOLI_NON_CARTA_SEGRETA copre Fantasma Onnisciente, Suocera, Borgomastro e i 4 ruoli con un evento tutto loro (mai una carta segreta assegnabile da Mimo/Cartomante)', () => {
-  expect(RUOLI_NON_CARTA_SEGRETA).toEqual(
-    expect.arrayContaining([
-      'fantasma-onnisciente',
-      'suocera',
-      'borgomastro',
-      'alchimista',
-      'boia',
-      'scemo-del-villaggio',
-      'innocente',
-    ]),
-  )
-  expect(RUOLI_NON_CARTA_SEGRETA).toHaveLength(7)
-})
 
 test('rivelazioneContestualeDisponibile è vero solo se nel mazzo e non ancora rivelato/usato (la sua identità non è mai assegnata in anticipo)', () => {
   expect(rivelazioneContestualeDisponibile('boia', [], [], {})).toBe(false)
@@ -191,4 +175,18 @@ test('candidatiRivelazione include chi ha già il ruolo (Ladro, Apprendista) fin
   const dalLadro = { id: '1', nome: 'A', vivo: true, ruoloSlug: 'boia', poteriUsati: [] }
   const usato = { id: '2', nome: 'B', vivo: true, ruoloSlug: 'boia', poteriUsati: ['boia-giustizia'] }
   expect(candidatiRivelazione('boia', ['boia'], [dalLadro, usato], { boia: 1 }).map((g) => g.id)).toEqual(['1'])
+})
+
+test('conseguenzeMorte: un Cavaliere che protegge un Antico o uno Spilungone di ruolo noto si immola, senza "sopravvive/si rivela"', () => {
+  for (const ruoloSlug of ['lantico', 'spilungone']) {
+    const gs = [
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug },
+      { id: '2', nome: 'Dino', vivo: true, ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '1' } },
+    ]
+    for (const fatto of [false, true]) {
+      const righe = conseguenzeMorte(gs, '1', fatto)
+      expect(righe[0]).toMatch(/Cavaliere Dino/)
+      expect(righe.join(' ')).not.toMatch(/maledetto|si rivela/)
+    }
+  }
 })

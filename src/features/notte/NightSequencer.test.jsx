@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import { tieni } from '../../test/tieni'
 import userEvent from '@testing-library/user-event'
 import { NightSequencer } from './NightSequencer'
@@ -173,6 +173,31 @@ test('mostra il primo passo e i giocatori assegnati a quel ruolo', () => {
 
   expect(screen.getByRole('heading', { name: /^mimo$/i })).toBeInTheDocument()
   expect(sottotitolo()).toBe('Sara')
+})
+
+test('Bardo: titolo pulito e indicazione del gesto segreto tra le note del passo', () => {
+  const giocatori = [{ id: '1', nome: 'Sara', ruoloSlug: 'bardo', vivo: true, condizioni: [], note: '' }]
+  render(<NightSequencerConNotte ruoliSelezionati={['bardo', 'paladino']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('heading', { name: 'Bardo' }).textContent).toBe('Bardo')
+  expect(screen.getByText('Il Bardo ti mostra il suo gesto segreto.')).toBeInTheDocument()
+})
+
+test('Mucca Mannara: indica che i lupi alzano il pollice ed elenca i lupi', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mucca-mannara', vivo: true, condizioni: [], note: '' },
+    { id: '2', nome: 'Luca', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], note: '' },
+    { id: '3', nome: 'Gina', ruoloSlug: 'nonna', vivo: true, condizioni: [], note: '' },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['mucca-mannara', 'lupo-mannaro', 'nonna']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+  // i passi dei lupi vengono prima: avanza fino alla Mucca
+  for (let i = 0; i < 10 && !screen.queryByText(/alzano il pollice/i); i++) {
+    const avanti = screen.queryByRole('button', { name: /^avanti$/i })
+    if (!avanti) break
+    fireEvent.click(avanti)
+  }
+  expect(screen.getByText('Tutti i lupi mannari alzano il pollice.')).toBeInTheDocument()
+  expect(screen.getByText(/Lupi mannari: Luca, Gina\./)).toBeInTheDocument()
 })
 
 test('il pulsante Avanti passa al passo successivo', async () => {
@@ -350,6 +375,17 @@ test('il Chupacabra non mostra mai il promemoria del legame "è il suo maestro" 
 
   expect(screen.queryByText(/è il suo maestro/i)).not.toBeInTheDocument()
   expect(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).toBeInTheDocument()
+})
+
+test('il Chupacabra sbranato dal branco nella stessa notte caccia comunque: il passo resta con la scelta', () => {
+  const giocatori = [
+    { id: '1', nome: 'Elio', ruoloSlug: 'chupacabra', vivo: false, causaMorte: 'notte', mortoNotte: 1, mortoDa: 'branco', condizioni: [] },
+    { id: '2', nome: 'Fabio', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  render(<NightSequencerConNotte ruoliSelezionati={['chupacabra']} giocatori={giocatori} aggiornaGiocatore={() => {}} />)
+
+  expect(screen.getByRole('group', { name: 'Il Chupacabra caccia' })).toBeInTheDocument()
+  expect(screen.getByText(/caccia comunque/i)).toBeInTheDocument()
 })
 
 test('un ruolo "ogni notte" (es. Addolorata) mostra il picker "chi ha questa carta" solo la prima notte: dalla notte 2 il titolare è fisso e la sua illustrazione compare una volta sola', async () => {

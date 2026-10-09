@@ -336,3 +336,12 @@ test('Cavaliere che salva da una morte sul colpo: marcatore di giorno = mortoGio
   ]
   expect(risolviLegami(giocatori)['1']).toMatchObject({ causaMorte: 'sacrificio', sacrificioRogoRound: 4, sacrificioDa: 'colpo' })
 })
+
+test("l'Apprendista che eredita il Boia lo riceve con il potere usato solo se il Boia l'aveva usato davvero", () => {
+  const apprendista = { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], legame: { tipo: 'apprendista', targetId: '2' } }
+  const boia = (poteriUsati) => ({ id: '2', nome: 'Boris', ruoloSlug: 'boia', vivo: false, causaMorte: 'notte', mortoNotte: 2, condizioni: [], poteriUsati })
+  const scarico = risolviLegami([apprendista, boia([])])['1']
+  expect(scarico.ruoloSlug).toBe('boia')
+  expect(scarico.poteriUsati ?? []).not.toContain('boia-giustizia')
+  expect(risolviLegami([apprendista, boia(['boia-giustizia'])])['1'].poteriUsati).toContain('boia-giustizia')
+})

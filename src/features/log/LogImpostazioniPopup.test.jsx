@@ -23,7 +23,7 @@ test('mostra gli eventi nella tab Diario', async () => {
   render(<LogImpostazioniPopup eventi={[{ round: 1, messaggio: 'Anna è morto/a' }]} />)
 
   await user.click(screen.getByRole('button', { name: 'Diario e impostazioni' }))
-  await user.click(screen.getByRole('button', { name: 'Diario' }))
+  await user.click(screen.getByRole('tab', { name: 'Diario' }))
 
   expect(screen.getByText(/anna è morto\/a/i)).toBeInTheDocument()
 })
@@ -215,4 +215,14 @@ test("l'opzione sull'eredità delle scelte dell'Addolorata è attiva di default 
   expect(opzione).toBeChecked()
   await user.click(opzione)
   expect(onCambia).toHaveBeenCalledWith(false)
+})
+
+test('la scheda attiva ha aria-selected e cambia con il click', async () => {
+  const user = userEvent.setup()
+  render(<LogImpostazioniPopup eventi={[]} />)
+  await user.click(screen.getByRole('button', { name: 'Diario e impostazioni' }))
+  expect(screen.getByRole('tab', { name: 'Impostazioni partita' })).toHaveAttribute('aria-selected', 'true')
+  expect(screen.getByRole('tab', { name: 'Diario' })).toHaveAttribute('aria-selected', 'false')
+  await user.click(screen.getByRole('tab', { name: 'Diario' }))
+  expect(screen.getByRole('tab', { name: 'Diario' })).toHaveAttribute('aria-selected', 'true')
 })

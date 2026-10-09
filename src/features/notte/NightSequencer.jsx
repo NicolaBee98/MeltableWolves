@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { passiNotte, passiAttesi, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
+import { passiNotte, passiAttesi, RUOLI_BRANCO_LUPI, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo, mortoStanotte } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
@@ -576,9 +576,12 @@ export function NightSequencer({
       .filter((x) => x.bersaglio),
   )
 
+  const nomiLupi = step.mostraLupi
+    ? giocatoriConPendenti.filter((g) => g.vivo && RUOLI_BRANCO_LUPI.includes(g.ruoloSlug)).map((g) => g.nome)
+    : []
   const azione = AZIONI_NOTTURNE[step.id]
   const vivoAIngresso = (g) => snapIngresso?.find((x) => x.id === g.id)?.vivo ?? g.vivo
-  const titolareVivo = giocatoriCoinvolti.some(vivoAIngresso)
+  const titolareVivo = giocatoriCoinvolti.some((g) => vivoAIngresso(g) || (step.agisceSeMortoStanotte && mortoStanotte(g, round)))
   // nomi dei coinvolti: sottotitolo sotto il titolo del passo. Uno solo: il
   // nome (con ☠️ se morto); più giocatori: righe "Vivi:" e "Morti:" (solo
   // quelle non vuote). Il Mimo che imita il ruolo resta riconoscibile
@@ -989,6 +992,13 @@ export function NightSequencer({
         <span>{step.titolo}</span>
       </h2>
       {sottotitoloGiocatori}
+      {/* indicazioni per il narratore: stesso formato delle altre note del
+          passo, mai nel titolo. Alla Mucca si elencano anche i lupi che
+          alzano il pollice (passi dei lupi già assegnati prima) */}
+      {step.indicazione && <p className="night-sequencer__tipo">{step.indicazione}</p>}
+      {step.mostraLupi && nomiLupi.length > 0 && (
+        <p className="night-sequencer__tipo">Lupi mannari: {nomiLupi.join(', ')}.</p>
+      )}
       {/* mai i ruoli a titolare singolo che AssegnaRuolo gestisce in questo
           stesso passo (ruoliAssegnabiliStepSingoli, che sia il titolare già
           confermato o ancora da scegliere): quello ha già la propria
@@ -1067,6 +1077,11 @@ export function NightSequencer({
 
       {mostraAzione && (
         <>
+          {step.agisceSeMortoStanotte && !giocatoriCoinvolti.some(vivoAIngresso) && (
+            <p className="night-sequencer__promemoria-morto">
+              ☠️ {nomiCoinvolti} è stato colpito stanotte, ma caccia comunque: i morti si scoprono all'alba.
+            </p>
+          )}
           {step.puoAgireDaMorto && !titolareVivo && (
             <p className="night-sequencer__promemoria-morto">
               ☠️ {nomiCoinvolti}{' '}

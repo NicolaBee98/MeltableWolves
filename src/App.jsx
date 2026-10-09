@@ -57,28 +57,27 @@ export default function App() {
 
   // con il Ladro il mazzo fisico ha 2 carte in più dei giocatori (pag. 15):
   // il conteggio atteso dei giocatori va ridotto di conseguenza, quelle due
-  // carte non sono destinate a nessuno. Borgomastro e Fantasma Onnisciente
-  // non aggiungono invece nessun giocatore in più: il Borgomastro è un
-  // titolo assegnato per elezione sopra un ruolo già distribuito (pag. 13),
-  // il Fantasma Onnisciente si riceve solo alla morte al posto della
-  // propria vecchia carta (pag. 13) — la loro "carta" nel mazzo non conta
-  // come una casella giocatore a sé.
+  // carte non sono destinate a nessuno. Il Fantasma Onnisciente
+  // non aggiunge invece nessun giocatore in più: si riceve solo alla morte al
+  // posto della propria vecchia carta (pag. 13) — la sua "carta" nel mazzo non
+  // conta come una casella giocatore a sé. Il Borgomastro non è una carta.
   const totaleRuoliMazzo =
     Object.values(quantita).reduce((somma, n) => somma + n, 0) -
     (quantita.ladro > 0 ? 2 : 0) -
-    (quantita.borgomastro > 0 ? 1 : 0) -
     (quantita['fantasma-onnisciente'] > 0 ? 1 : 0)
   // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo:
   // "escluse" le carte (femminile), "esclusi" i ruoli, ognuno con la sua "e" finale
   const elenco = (voci) => (voci.length > 1 ? `${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}` : voci[0])
   const escluseCarte = quantita.ladro > 0 ? ['le 2 carte extra del Ladro'] : []
-  const escluseRuoli = [quantita.borgomastro > 0 && 'il Borgomastro', quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente'].filter(Boolean)
+  const escluseRuoli = [quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente'].filter(Boolean)
+  const soloUnRuoloEscluso = escluseCarte.length === 0 && escluseRuoli.length === 1
   const esclusi = [
     escluseCarte.length > 0 && `escluse ${elenco(escluseCarte)}`,
-    escluseRuoli.length > 0 && `esclusi ${elenco(escluseRuoli)}`,
+    escluseRuoli.length > 0 && `${escluseRuoli.length > 1 ? 'esclusi' : 'escluso'} ${elenco(escluseRuoli)}`,
   ].filter(Boolean)
   const ruoliSelezionati = ruoliAttivi(
-    ruoliInMazzo.map((r) => r.slug),
+    // il Borgomastro non è una carta del mazzo: si elegge sempre in gioco
+    [...ruoliInMazzo.map((r) => r.slug), 'borgomastro'],
     giocatori,
   )
 
@@ -212,7 +211,7 @@ export default function App() {
           {giocatori.length !== totaleRuoliMazzo && (
             <p className="avviso">
               ⚠️ {totaleRuoliMazzo === 1 ? 'Serve 1 giocatore' : `Servono ${totaleRuoliMazzo} giocatori`}, ce ne sono {giocatori.length}
-              {esclusi.length > 0 && ` (${esclusi.join('; ')}, che non sono giocatori in più)`}.
+              {esclusi.length > 0 && ` (${esclusi.join('; ')}, ${soloUnRuoloEscluso ? 'che non è un giocatore in più' : 'che non sono giocatori in più'})`}.
             </p>
           )}
           <button

@@ -59,14 +59,12 @@ export function AlbaPanel({
       dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
       return
     }
-    // il Mimo-Suocera ha già lo slug: si segna solo che si è rivelato
-    if (ruoloSlug === 'suocera' && target?.ruoloSlug === 'suocera') {
-      aggiornaGiocatore(id, { poteriUsati: conPotere(target.poteriUsati, 'suocera-rivelata') })
-      return
-    }
+    // la Suocera si rivela una volta sola (anche già nota: Mimo, o carta
+    // data da Cartomante/Medium); il marcatore evita che l'evento si ripresenti
     aggiornaGiocatore(id, {
       ruoloSlug,
       storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
+      ...(ruoloSlug === 'suocera' && { poteriUsati: conPotere(target?.poteriUsati, 'suocera-rivelata') }),
       // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
       ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
     })

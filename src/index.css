@@ -260,7 +260,7 @@ button:disabled {
   box-shadow: none;
   font-size: 0.85rem;
   padding: 0.4rem 0.85rem;
-  min-height: auto;
+  min-height: 44px;
 }
 
 button[aria-pressed='true'] {
@@ -1216,6 +1216,29 @@ button.chip--fazione-sconosciuto {
   padding: 0;
 }
 
+/* conferma: azione pericolosa rossa, Annulla neutro, ben separati (come
+   .player-tracker__conferma) */
+p.concludi-partita {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.concludi-partita__conferma-cta {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--pal-bianco);
+}
+
+.concludi-partita__annulla {
+  background: transparent;
+  border-color: var(--text);
+  color: var(--text);
+  box-shadow: none;
+}
+
 /* "Concludi partita" sopra "È notte" / "Vai al voto": non attaccato */
 .concludi-partita {
   margin-bottom: 0.75rem;
@@ -1416,8 +1439,9 @@ button.chip--fazione-sconosciuto {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  width: 2.25rem;
-  height: 2.25rem;
+  /* area tappabile di almeno 44 px */
+  width: 2.75rem;
+  height: 2.75rem;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -1547,6 +1571,13 @@ textarea:focus-visible {
   background: var(--pal-bianco);
   border-color: var(--pal-inchiostro);
   color: var(--pal-inchiostro);
+}
+
+/* scheda attiva: il popup resta su superfici neutre (bianco/inchiostro) in
+   entrambi i temi, quindi la scheda attiva si inverte */
+.log-impostazioni__tabs button[aria-selected='true'] {
+  background: var(--pal-inchiostro);
+  color: var(--pal-bianco);
 }
 
 .log-impostazioni__impostazioni {

@@ -422,7 +422,8 @@ export function Votazione({
             )}
             {protettori.length > 0 && (
               <p className="avviso">
-                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: si immola prima che {target?.nome} possa
+                {protettori.length > 1 ? 'I Cavalieri' : 'Il Cavaliere'} {protettori.map((c) => c.nome).join(', ')}{' '}
+                {protettori.length > 1 ? 'proteggono' : 'protegge'} {target?.nome}: {protettori.length > 1 ? 'si immolano' : 'si immola'} prima che {target?.nome} possa
                 rivelarsi (se fosse l'Alchimista non esploderebbe, se fosse L'Antico o lo Spilungone non perderebbe la vita né la maledizione).
               </p>
             )}
@@ -482,7 +483,8 @@ export function Votazione({
               renderEsitoDesignato(protettoImmolatoId)
             ) : !morteConfermata ? (
               <div className="votazione__scelta-box">
-                <div className="scelta-giocatore__chips" role="group" aria-label="Chi muore nello spareggio">
+                <p id="spareggio-titolo">Condanna</p>
+                <div className="scelta-giocatore__chips" role="group" aria-labelledby="spareggio-titolo">
                   {designati.map((id) => (
                     <button
                       key={id}

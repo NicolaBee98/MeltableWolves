@@ -1,6 +1,7 @@
 import { eLupo } from './roles'
 import { conRuolo } from './assegnazione'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
+import { cavalieriDi } from './eventiSpeciali'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
 // direttamente dai lupi di notte (libretto pag. 12, 12, 18): usata da
@@ -63,9 +64,13 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
 
   const patches = { [target.id]: patchTarget }
 
+  // Se un Cavaliere si immola il bersaglio non muore: i suoi effetti da
+  // "sbranato" (Berserker, Ubriaco) non scattano
+  const salvatoDalCavaliere = cavalieriDi(giocatori, target.id).length > 0
+
   // Berserker: uccide il lupo vivo più vicino a sé (pag. 10). A parità di
   // distanza la scelta tocca al narratore (berserkerLupoSceltoId).
-  if (target.ruoloSlug === 'berserker') {
+  if (target.ruoloSlug === 'berserker' && !salvatoDalCavaliere) {
     const candidati = berserkerLupiCandidati(giocatori, target.id)
     const lupo = candidati.length <= 1 ? candidati[0] : candidati.find((g) => g.id === berserkerLupoSceltoId)
     if (lupo) {
@@ -75,7 +80,7 @@ export function risolviAttaccoBranco(giocatori, targetId, round, ruoliBranco, be
   }
 
   // Ubriaco: l'alcol nel sangue stordisce il branco la notte successiva (pag. 22)
-  if (target.ruoloSlug === 'ubriaco') {
+  if (target.ruoloSlug === 'ubriaco' && !salvatoDalCavaliere) {
     for (const g of giocatori) {
       if (ruoliBranco.includes(g.ruoloSlug) && g.vivo) {
         patches[g.id] = { brancoStorditoFinoA: round + 1 }
@@ -115,7 +120,7 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
     })
   }
 
-  if (target.ruoloSlug === 'berserker' && muore) {
+  if (target.ruoloSlug === 'berserker' && muore && cavalieri.length === 0) {
     const lupi = Object.entries(patches).filter(([id, p]) => id !== targetId && p.vivo === false).map(([id]) => giocatori.find((g) => g.id === id)?.nome)
     avvisi.push({
       testo: lupi.length

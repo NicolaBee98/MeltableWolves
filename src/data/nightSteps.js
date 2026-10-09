@@ -1,4 +1,4 @@
-import { ruoliAssegnabili } from './assegnazione'
+import { ruoliAssegnabili, mortoStanotte } from './assegnazione'
 import { ROLES, RUOLI_BRANCO_LUPI } from './roles'
 
 export { RUOLI_BRANCO_LUPI }
@@ -51,8 +51,8 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // Villico, con un titolo che non lo nomina nemmeno: come gli altri ruoli
   // passivi qui sopra merita un passo tutto suo, anche se non fa nulla
   { id: 'mezzosangue', titolo: 'Mezzosangue', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mezzosangue'] },
-  { id: 'bardo', titolo: 'Bardo ', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
-  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
+  { id: 'bardo', titolo: 'Bardo', indicazione: 'Il Bardo ti mostra il suo gesto segreto.', tipo: 'informativo', primaNotteSolo: true, ruoli: ['bardo'] },
+  { id: 'gallo-mannaro', titolo: 'Gallo Mannaro', indicazione: 'Il Gallo Mannaro ti mostra il suo gesto segreto.', tipo: 'informativo', primaNotteSolo: true, ruoli: ['gallo-mannaro'] },
   { id: 'apprendista', titolo: 'Apprendista', tipo: 'azione', primaNotteSolo: true, ruoli: ['apprendista'] },
   { id: 'cavaliere', titolo: 'Cavaliere', tipo: 'azione', primaNotteSolo: true, ruoli: ['cavaliere'] },
   { id: 'figlia-dei-lupi', titolo: 'Figlia dei Lupi', tipo: 'azione', primaNotteSolo: true, ruoli: ['figlia-dei-lupi'] },
@@ -68,7 +68,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // carta è indistinguibile dalla loro, quindi il narratore deve chiamarle
   // tutte insieme, senza sapere quale in realtà "tradisce" il branco
   { id: 'guardia-mannara', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia', soloSeSelezionato: ['guardia-mannara'] },
-  { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
+  { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', indicazione: 'Tutti i lupi mannari alzano il pollice.', mostraLupi: true, tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
 
   // --- Ogni notte, poteri non mortali (pag. 28) ---
   { id: 'fattucchiera', titolo: 'Fattucchiera', tipo: 'azione', primaNotteSolo: false, ruoli: ['fattucchiera'] },
@@ -108,7 +108,9 @@ const STEPS_CON_RUOLO_DEDICATO = [
     // icona del titolo (più ruoli nel passo: senza, sarebbe il punto interrogativo)
     iconaSlug: 'lupo-mannaro',
   },
-  { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'] },
+  // agisceSeMortoStanotte: i morti si scoprono all'alba, quindi se il branco lo ha
+  // appena sbranato il Chupacabra caccia comunque (e può portarsi dietro il lupo)
+  { id: 'chupacabra', titolo: 'Chupacabra', tipo: 'azione', primaNotteSolo: false, ruoli: ['chupacabra'], agisceSeMortoStanotte: true },
   { id: 'ipnotizzati', titolo: 'Ipnotizzati (dal Pifferaio)', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato', iconaSlug: 'pifferaio' },
 ]
 
@@ -281,7 +283,7 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { 
       const titolare = giocatori.some(
         (g) =>
           g.ruoloSlug === slug &&
-          (step.puoAgireDaMorto || g.vivo || (step.tipo === 'azione' && promemoriaRuoliMorti)),
+          (step.puoAgireDaMorto || g.vivo || (step.agisceSeMortoStanotte && mortoStanotte(g, round)) || (step.tipo === 'azione' && promemoriaRuoliMorti)),
       )
       return daAssegnare || titolare
     })
