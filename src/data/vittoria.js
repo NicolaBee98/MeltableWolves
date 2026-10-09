@@ -43,10 +43,15 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   const pifferaioVivo = vivi.some((g) => g.ruoloSlug === 'pifferaio')
   const cricetoVivo = vivi.some((g) => g.ruoloSlug === 'criceto-malvagio')
 
+  // i Lupi Mannari hanno la precedenza sul Pifferaio: se la parità scatta
+  // nello stesso momento in cui tutti sono ipnotizzati, vincono i lupi
+  const lupiVincono = lupiVivi.length > 0 && lupiVivi.length >= abitanti
+
   // viviVeri.length > 1: col solo Pifferaio rimasto in vita vale già la
   // condizione "ultimo sopravvissuto" qui sotto, per non duplicare l'annuncio
   if (
     pifferaioVivo &&
+    !lupiVincono &&
     viviVeri.length > 1 &&
     viviVeri.every((g) => g.ruoloSlug === 'pifferaio' || (g.condizioni ?? []).includes('ipnotizzato'))
   ) {
@@ -88,7 +93,7 @@ export function condizioniVittoria(giocatori, quantita = {}) {
     messaggi.push('Non ci sono più Lupi Mannari in vita: vince il Villaggio.')
   }
 
-  if (lupiVivi.length > 0 && lupiVivi.length >= abitanti) {
+  if (lupiVincono) {
     // "Se i Lupi Mannari vincono, il Criceto Malvagio gli ruba la vittoria
     // diventando l'unico vincitore" (roles.js): non è un alleato dei lupi,
     // quindi non vince CON loro, vince AL POSTO loro

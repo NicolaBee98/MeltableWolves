@@ -681,7 +681,7 @@ test('Cavaliere + Alchimista al rogo (ruolo ignoto): niente "Si rivela: è l\'Al
   ])
   const user = userEvent.setup()
   expect(screen.queryByRole('button', { name: "Si rivela: è l'Alchimista" })).not.toBeInTheDocument()
-  expect(screen.getByText(/Il Cavaliere Luca protegge Anna: se fosse l'Alchimista non esploderebbe/)).toBeInTheDocument()
+  expect(screen.getByText(/Il Cavaliere Luca protegge Anna: si immola prima che Anna possa rivelarsi/)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
   expect(screen.getByText(/Il Cavaliere Luca si sacrifica al posto di Anna: Anna sopravvive al rogo/)).toBeInTheDocument()
   const s = salvati()
@@ -856,5 +856,21 @@ test('riepilogo non stantio: il partner morto di crepacuore tornato in vita spar
   expect(screen.getByText(/È morto anche Luca \(crepacuore\)/)).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Torna vivo' }))
   expect(screen.queryByText(/È morto anche Luca/)).not.toBeInTheDocument()
+  localStorage.clear()
+})
+
+test('Cavaliere + L\'Antico noto al rogo: il Cavaliere si immola prima, l\'Antico non perde la vita e non maledice il villaggio', async () => {
+  giornoReale([
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lantico', storiaRuoli: ['lantico'], condizioni: [] },
+    { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'cavaliere', condizioni: [], legame: { tipo: 'cavaliere', targetId: '1' } },
+  ])
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.getByText(/Il Cavaliere Luca si sacrifica al posto di Anna/)).toBeInTheDocument()
+  const s = salvati()
+  expect([s['1'].vivo, s['3'].vivo]).toEqual([true, false])
+  expect(s['1'].anticoSbranatoNotte).toBeUndefined()
+  expect(s['1'].villaggioMaledettoFinoA).toBeUndefined()
   localStorage.clear()
 })

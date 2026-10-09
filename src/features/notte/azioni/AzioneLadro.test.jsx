@@ -321,3 +321,30 @@ test('senza un Mimo che imita il Ladro non compare "Cosa sceglie il Mimo" (nemme
   expect(screen.queryByRole('group', { name: 'Cosa sceglie il Mimo' })).not.toBeInTheDocument()
   expect(screen.queryByText(/Mimo, imita il Ladro/)).not.toBeInTheDocument()
 })
+
+test('le due carte extra possono avere lo stesso ruolo (due Lupi) se il mazzo ne ha ancora due, e la Suocera è una carta valida', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['lupo-mannaro'] }]
+  render(
+    <AzioneLadro
+      giocatori={giocatori}
+      aggiornaGiocatore={() => {}}
+      ruoliSelezionati={['ladro', 'lupo-mannaro', 'suocera', 'fantasma-onnisciente', 'borgomastro']}
+      quantita={{ ladro: 1, 'lupo-mannaro': 3, suocera: 1, 'fantasma-onnisciente': 1, borgomastro: 1 }}
+    />,
+  )
+  const [, select2] = screen.getAllByRole('combobox')
+  const opzioni = Array.from(select2.options).map((o) => o.value)
+  expect(opzioni).toContain('lupo-mannaro')
+  expect(opzioni).toContain('suocera')
+  expect(opzioni).not.toContain('fantasma-onnisciente')
+  expect(opzioni).not.toContain('borgomastro')
+})
+
+test('con due carte uguali compare una sola chip per quel ruolo e, se sono Lupi, non si può restare Villico', () => {
+  const giocatori = [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['lupo-mannaro', 'lupo-mannaro'] }]
+  render(
+    <AzioneLadro giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['ladro', 'lupo-mannaro']} quantita={{ ladro: 1, 'lupo-mannaro': 3 }} />,
+  )
+  expect(screen.getAllByRole('button', { name: 'Lupo Mannaro' })).toHaveLength(1)
+  expect(screen.queryByRole('button', { name: 'Resta Villico' })).not.toBeInTheDocument()
+})

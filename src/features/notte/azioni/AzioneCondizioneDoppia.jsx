@@ -48,7 +48,7 @@ export function AzioneCondizioneDoppia({
     const salvata = attore?.sceltaNotte?.[condizione]
     if (salvata?.length === massimo) return salvata
     if (attoreId) return null
-    const nuovi = giocatori.filter((g) => g.condizioni.includes(condizione) && !condizionatiAllIngresso.has(g.id)).map((g) => g.id)
+    const nuovi = viviTutti.filter((g) => g.condizioni.includes(condizione) && !condizionatiAllIngresso.has(g.id)).map((g) => g.id)
     return nuovi.length === massimo && massimo > 0 ? nuovi : null
   })
   const [coppiaSessione, setCoppiaSessione] = useState(coppiaIniziale)

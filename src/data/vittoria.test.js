@@ -273,3 +273,15 @@ test('Pifferaio morto e Mimo-Pifferaio vivo: il Mimo vince da solo come ultimo s
   ]
   expect(condizioniVittoria(giocatori)).toEqual(["Il Pifferaio è l'ultimo sopravvissuto: vince lui."])
 })
+
+test('i Lupi hanno la precedenza sul Pifferaio: parità lupi e tutti ipnotizzati insieme → vincono i lupi', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: ['ipnotizzato'] },
+    { id: '2', ruoloSlug: 'pifferaio', vivo: true, condizioni: [] },
+    { id: '3', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'] },
+    { id: '4', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: ['ipnotizzato'] },
+  ]
+  expect(condizioniVittoria(giocatori)).toEqual([
+    'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
+  ])
+})

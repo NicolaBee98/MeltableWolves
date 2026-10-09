@@ -1,4 +1,4 @@
-import { contaAssegnati, ruoliAssegnabili, assegnaGuardiaMannaraCasuale } from './assegnazione'
+import { contaAssegnati, ruoliAssegnabili, assegnaGuardiaMannaraCasuale, cartaInMano } from './assegnazione'
 
 test('contaAssegnati conta i giocatori con quel ruolo', () => {
   const giocatori = [
@@ -94,4 +94,10 @@ test('contaAssegnati: chi era Ladro e ha scelto la carta Mimo conta ancora come 
   const giocatori = [{ id: '1', ruoloSlug: 'mimo', storiaRuoli: ['ladro', 'mimo'] }]
   expect(contaAssegnati(giocatori, 'ladro')).toBe(1)
   expect(contaAssegnati(giocatori, 'mimo')).toBe(1)
+})
+
+test('cartaInMano: Ladro/Addolorata/Apprendista mostrano il ruolo preso; Cucciolo cresciuto e Mimo la carta di partenza', () => {
+  expect(cartaInMano({ ruoloSlug: 'strega', storiaRuoli: ['ladro', 'strega'] })).toBe('strega')
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['cucciolo-di-lupo-mannaro', 'lupo-mannaro'] })).toBe('cucciolo-di-lupo-mannaro')
+  expect(cartaInMano({ ruoloSlug: 'veggente', storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '2' } })).toBe('mimo')
 })

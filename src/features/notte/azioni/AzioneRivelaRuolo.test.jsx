@@ -372,3 +372,14 @@ test('Cartomante: mostra la carta iniziale del bersaglio (Cucciolo cresciuto, Mi
   screen.getByRole('button', { name: 'Marco' }).click()
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', ruoloRivelato: 'cucciolo-di-lupo-mannaro', notte: 1 } })
 })
+
+test('Cartomante: un Ladro che ha preso la Strega mostra la carta Strega (la scambia davvero)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'strega', storiaRuoli: ['ladro', 'strega'], vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(<AzioneRivelaRuolo giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} ruoloSlugAttore="cartomante" etichettaAttore="Cartomante" bersaglio="vivo" />)
+  screen.getByRole('button', { name: 'Marco' }).click()
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', ruoloRivelato: 'strega', notte: 1 } })
+})

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ROLES, ruoloPerDisplay } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
-import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo } from '../../../data/assegnazione'
+import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo, cartaInMano } from '../../../data/assegnazione'
 import { RUOLI_NON_CARTA_SEGRETA } from '../../../data/eventiSpeciali'
 import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
 import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
@@ -12,9 +12,6 @@ function nomeRuolo(ruoloSlug, reale = false) {
   return ROLES.find((r) => r.slug === (reale ? ruoloSlug : ruoloPerDisplay(ruoloSlug)))?.nome ?? 'ruolo sconosciuto'
 }
 
-// la carta fisica in mano al giocatore è quella con cui è partito: il Cucciolo
-// cresciuto o il Mimo che ha copiato un ruolo la tengono (storiaRuoli[0])
-const cartaIniziale = (g) => g.storiaRuoli?.[0] ?? g.ruoloSlug
 
 // Usato da Cartomante (bersaglio vivo, "alternativa al Veggente" ma rivela
 // il ruolo intero) e Medium (bersaglio morto, il "vecchio ruolo").
@@ -90,7 +87,7 @@ export function AzioneRivelaRuolo({
       setTargetInAttesaDiRuolo(targetId)
       return
     }
-    registraIndagine(targetId, target && cartaIniziale(target))
+    registraIndagine(targetId, target && cartaInMano(target))
   }
 
   // la carta si può cambiare (altra chip) o deselezionare (stessa chip)
@@ -178,7 +175,7 @@ export function AzioneRivelaRuolo({
             </button>
           ))}
         </div>
-        {esito}
+        {assegnato && esito}
         <button
           type="button"
           onClick={() => {

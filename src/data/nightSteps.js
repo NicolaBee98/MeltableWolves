@@ -67,7 +67,7 @@ const STEPS_CON_RUOLO_DEDICATO = [
   // la Guardia Mannara si sveglia insieme a TUTTE le Guardie (pag. 8): la sua
   // carta è indistinguibile dalla loro, quindi il narratore deve chiamarle
   // tutte insieme, senza sapere quale in realtà "tradisce" il branco
-  { id: 'guardia-mannara', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia' },
+  { id: 'guardia-mannara', titolo: 'Guardie (si riconoscono)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['guardia-mannara', 'guardia'], iconaSlug: 'guardia', soloSeSelezionato: ['guardia-mannara'] },
   { id: 'mucca-mannara', titolo: 'Mucca Mannara (riconosce il branco)', tipo: 'informativo', primaNotteSolo: true, ruoli: ['mucca-mannara'] },
 
   // --- Ogni notte, poteri non mortali (pag. 28) ---
@@ -227,7 +227,9 @@ function passoEscluso(step, ruoliSelezionati, round, maledetto) {
   return (
     (step.primaNotteSolo && round > 1) ||
     (maledetto && passoBloccatoDallaMaledizione(step)) ||
-    Boolean(step.escludiSeSelezionato?.some((slug) => ruoliSelezionati.includes(slug)))
+    Boolean(step.escludiSeSelezionato?.some((slug) => ruoliSelezionati.includes(slug))) ||
+    // passo che ha senso solo se c'è davvero quel ruolo (altrimenti duplicherebbe un altro passo)
+    Boolean(step.soloSeSelezionato && !step.soloSeSelezionato.some((slug) => ruoliSelezionati.includes(slug)))
   )
 }
 

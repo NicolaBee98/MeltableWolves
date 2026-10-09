@@ -272,3 +272,13 @@ describe('carte scartate dal Ladro, in mano al narratore', () => {
 test('il passo degli ipnotizzati ha l\'icona del Pifferaio (non il punto interrogativo)', () => {
   expect(NIGHT_STEPS.find((s) => s.id === 'ipnotizzati').iconaSlug).toBe('pifferaio')
 })
+
+test('con le sole Guardie (senza Guardia Mannara nel mazzo) c\'è un solo passo "Guardie (si riconoscono)"', () => {
+  const ruoli = ['guardia', 'lupo-mannaro', 'villico']
+  const giocatori = [
+    { id: '1', ruoloSlug: 'guardia', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'guardia', vivo: true, condizioni: [] },
+  ]
+  const passi = passiNotte(ruoli, 1, giocatori, { guardia: 2, 'lupo-mannaro': 1, villico: 1 })
+  expect(passi.filter((p) => p.titolo === 'Guardie (si riconoscono)')).toHaveLength(1)
+})

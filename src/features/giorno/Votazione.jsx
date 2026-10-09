@@ -227,11 +227,13 @@ export function Votazione({
     // successiva sarebbe un secondo click ridondante
     function confermaMorte(id) {
       const target = giocatori.find((g) => g.id === id)
-      if (target?.ruoloSlug === 'spilungone' && target.spilungoneRivelatoRound === undefined) {
+      if (target?.ruoloSlug === 'spilungone' && target.spilungoneRivelatoRound === undefined && cavalieriDi(giocatori, id).length === 0) {
         // solo il primo rogo: il marcatore (onRivelazione) ricostruisce l'esito dopo un reload
         onRivelazione('spilungone', id)
         setSpilungoneRivelatoId(id)
-      } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined) {
+      } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined && cavalieriDi(giocatori, id).length === 0) {
+        // con un Cavaliere che lo salva agisce prima lui (si immola): il designato
+        // non muore, quindi non c'è nulla da rivelare (stessa regola dell'Alchimista).
         // già sbranato di notte (anticoSbranatoNotte definito) ha perso la sua
         // prima vita: al rogo muore come chiunque altro, senza maledizione
         onAnticoRivelazione(id)
@@ -366,9 +368,10 @@ export function Votazione({
       }
       if (!morteConfermata) {
         const target = giocatori.find((g) => g.id === id)
-        const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug
-        const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug
         const protettori = cavalieriDi(giocatori, id)
+        // il Cavaliere agisce prima che il designato muoia: con lui, niente rivelazioni
+        const puoEssereSpilungone = rivelabileOra('spilungone') && !target?.ruoloSlug && protettori.length === 0
+        const puoEssereLantico = rivelabileOra('lantico') && !target?.ruoloSlug && protettori.length === 0
         // anche un Alchimista già noto (Mimo, resuscitato) con il potere (ri)caricato
         const alchimistaPossibile =
           (rivelabileOra('alchimista') && !target?.ruoloSlug) || (target?.ruoloSlug === 'alchimista' && potereAlchimista(target))
@@ -417,9 +420,10 @@ export function Votazione({
                 Si rivela: è l'Alchimista
               </button>
             )}
-            {alchimistaPossibile && protettori.length > 0 && (
+            {protettori.length > 0 && (
               <p className="avviso">
-                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto.
+                Il Cavaliere {protettori.map((c) => c.nome).join(', ')} protegge {target?.nome}: si immola prima che {target?.nome} possa
+                rivelarsi (se fosse l'Alchimista non esploderebbe, se fosse L'Antico o lo Spilungone non perderebbe la vita né la maledizione).
               </p>
             )}
           </div>

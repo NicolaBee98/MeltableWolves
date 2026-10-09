@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { eMimoCopiante, conRuolo } from '../../../data/assegnazione'
+import { nomeRuolo } from '../../../data/roles'
 import { patchEredita, LEGAMI_PRIMA_NOTTE } from '../../../data/risoluzioneNotte'
 
 const SCAMBIO = 'addolorata-scambio'
@@ -21,7 +22,10 @@ export function AzioneAddolorata({ giocatori, aggiornaGiocatore, round, ereditaS
     giocatori.find((g) => g.causaMorte === 'sacrificio' && g.sacrificioDa === 'rogo' && g.sacrificioRogoRound === round)
   // le Addolorate in gioco all'ingresso nel passo: dopo lo scambio non hanno più
   // lo slug 'addolorata', ma devono restare qui per poterlo annullare
-  const [attoriIds] = useState(() => giocatori.filter((g) => g.vivo && g.ruoloSlug === 'addolorata').map((g) => g.id))
+  // (e dopo un ricaricamento a metà passo chi ha già scambiato stanotte si riconosce da `scambioAddolorata`)
+  const [attoriIds] = useState(() =>
+    giocatori.filter((g) => (g.vivo && g.ruoloSlug === 'addolorata') || g.scambioAddolorata?.round === round).map((g) => g.id),
+  )
 
   if (!vittima) {
     return <p>Nessuna vittima al rogo questa notte: nessuna azione disponibile.</p>
@@ -37,6 +41,7 @@ export function AzioneAddolorata({ giocatori, aggiornaGiocatore, round, ereditaS
           vittima={vittima}
           giocatori={giocatori}
           conNome={attori.length > 1}
+          round={round}
           ereditaScelte={ereditaScelte}
           aggiornaGiocatore={aggiornaGiocatore}
         />
@@ -45,18 +50,20 @@ export function AzioneAddolorata({ giocatori, aggiornaGiocatore, round, ereditaS
   )
 }
 
-function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, ereditaScelte, giocatori }) {
+function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, ereditaScelte, giocatori, round }) {
   // il potere è "per tutta la partita" (una volta sola): se era già stato
   // usato PRIMA di arrivare a questo passo, resta bloccato per sempre. Ma se lo
   // usiamo ORA, deve restare modificabile finché non si preme "Avanti"
   // (principio generale, vedi AzioneStrega/AzioneChupacabra): va quindi
   // catturato una volta sola all'ingresso, non ricalcolato a ogni render.
-  const [giaUsatoAllIngresso] = useState(() => giaSwappato(attore))
+  // lo scambio di stanotte (anche dopo un refresh) porta con sé lo stato di prima, per poterlo annullare
+  const salvato = attore.scambioAddolorata?.round === round ? attore.scambioAddolorata : null
+  const [giaUsatoAllIngresso] = useState(() => giaSwappato(attore) && !salvato)
   // il ruolo ORIGINALE della vittima, catturato all'ingresso: dopo lo
   // scambio vittima.ruoloSlug cambia, quindi serve un riferimento stabile a
   // "che ruolo aveva prima" per poterlo ripristinare con "Annulla scambio"
-  const [ruoloOriginaleVittima] = useState(() => vittima.ruoloSlug)
-  const [originali] = useState(() => ({ attore: campiScambio(attore), vittima: campiScambio(vittima) }))
+  const [ruoloOriginaleVittima] = useState(() => salvato?.originali.vittima.ruoloSlug ?? vittima.ruoloSlug)
+  const [originali] = useState(() => salvato?.originali ?? { attore: campiScambio(attore), vittima: campiScambio(vittima) })
   const scambiato = giaSwappato(attore)
   const nome = conNome ? ` (${attore.nome})` : ''
 
@@ -68,6 +75,23 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, eredit
   // già passato a lei: non può passare anche a questa
   if (!scambiato && vittima.ruoloSlug !== ruoloOriginaleVittima) {
     return <p>Il ruolo di {vittima.nome} è già stato scambiato da un'altra Addolorata{nome}.</p>
+  }
+
+  // la carta della vittima è già in mano a chi l'ha ereditata (o a questa stessa
+  // Addolorata, se era un'Apprendista): uno scambio la duplicherebbe, quindi non c'è
+  if (
+    !scambiato &&
+    ruoloOriginaleVittima &&
+    (attore.ruoloSlug === ruoloOriginaleVittima ||
+      giocatori.some(
+        (g) => g.vivo && g.id !== attore.id && (g.storiaRuoli ?? []).includes('apprendista') && g.ruoloSlug === ruoloOriginaleVittima,
+      ))
+  ) {
+    return (
+      <p>
+        La carta di {vittima.nome} ({nomeRuolo(ruoloOriginaleVittima)}) è già stata presa da un Apprendista: nessuno scambio possibile{nome}.
+      </p>
+    )
   }
 
   // la vittima di un Mimo diventa un Villico senza poteri, quella della
@@ -89,6 +113,7 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, eredit
     aggiornaGiocatore(attore.id, {
       ...eredita,
       poteriUsati: [...new Set([...(eredita.poteriUsati ?? attore.poteriUsati ?? []), SCAMBIO])],
+      scambioAddolorata: { round, vittimaId: vittima.id, originali },
     })
     // la vittima non tiene più il legame del vecchio ruolo (se resuscitata non deve agire)
     const legameVittima = ['legame', 'legameMimo'].filter((k) => vittima[k]?.tipo === ruoloOriginaleVittima)
@@ -104,7 +129,7 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, eredit
   // un secondo click annulla lo scambio: l'Addolorata torna tale e la vittima
   // al suo ruolo originale (con legami, storia e poteri com'erano all'ingresso)
   function annullaScambio() {
-    aggiornaGiocatore(attore.id, originali.attore)
+    aggiornaGiocatore(attore.id, { ...originali.attore, scambioAddolorata: undefined })
     aggiornaGiocatore(vittima.id, originali.vittima)
   }
 

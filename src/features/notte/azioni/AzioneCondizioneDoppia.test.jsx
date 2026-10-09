@@ -270,3 +270,16 @@ describe('Pifferaio con meno di due bersagli non ipnotizzati', () => {
     expect(screen.getByText(/nessun giocatore da ipnotizzare/i)).toBeInTheDocument()
   })
 })
+
+test('Pifferaio: i morti già ipnotizzati non contano come "nuovi" di stanotte, con tutti i vivi ipnotizzati si preme solo Avanti', () => {
+  const gruppo = [
+    { id: 'p', nome: 'Piero', ruoloSlug: 'pifferaio', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: false, condizioni: ['ipnotizzato'] },
+    { id: '2', nome: 'Bea', ruoloSlug: 'villico', vivo: true, condizioni: ['ipnotizzato'] },
+  ]
+  render(
+    <AzioneCondizioneDoppia giocatori={gruppo} aggiornaGiocatore={() => {}} condizione="ipnotizzato" etichetta="Chi ipnotizzare" ruoloSlugAttore="pifferaio" escludiAttore escludiGiaCondizionati />,
+  )
+  expect(screen.getByText(/Nessun giocatore da ipnotizzare: premi Avanti/)).toBeInTheDocument()
+  expect(screen.queryByText(/al massimo/)).not.toBeInTheDocument()
+})

@@ -68,7 +68,10 @@ export function assegnaGuardiaMannaraCasuale(giocatori, aggiornaGiocatore, quant
   if (daAssegnare <= 0) return
   // il Mimo che copia la Guardia non è una carta Guardia: mai traditrice
   // (se copia esplicitamente 'guardia-mannara' lo è già, con quello slug)
-  const guardieSenzaTradimento = giocatori.filter((g) => g.ruoloSlug === 'guardia' && !eMimoCopiante(g))
+  // (né chi l'ha scelta esplicitamente come Ladro: la sua carta è già nota)
+  const guardieSenzaTradimento = giocatori.filter(
+    (g) => g.ruoloSlug === 'guardia' && !eMimoCopiante(g) && !(g.poteriUsati ?? []).includes('ladro-scelta'),
+  )
   const scelte = mescola(guardieSenzaTradimento).slice(0, daAssegnare)
   for (const g of scelte) {
     aggiornaGiocatore(g.id, {
@@ -87,6 +90,7 @@ export function guardiaIncerta(g, ruoliSelezionati, quantita) {
     (g.ruoloSlug === 'guardia' || g.ruoloSlug === 'guardia-mannara') &&
     !g.guardiaDistinta &&
     !eMimoCopiante(g) &&
+    !(g.poteriUsati ?? []).includes('ladro-scelta') &&
     ruoliSelezionati.includes('guardia-mannara') &&
     (quantita['guardia-mannara'] ?? 1) > 0
   )
@@ -107,4 +111,15 @@ export function distinguiGuardia(giocatori, targetId, slug) {
     if (altro) patch[altro.id] = scambia(altro, target.ruoloSlug)
   }
   return patch
+}
+
+// La carta fisica che un giocatore ha davvero in mano (la vedono Cartomante e
+// Medium): il ruolo corrente, perché Ladro, Addolorata e Apprendista la
+// scambiano o la prendono sul serio. Fanno eccezione il Cucciolo cresciuto in
+// Lupo Mannaro e il Mimo che copia un ruolo: la loro carta resta quella di partenza.
+export function cartaInMano(g) {
+  const storia = g.storiaRuoli ?? []
+  if (eMimoCopiante(g)) return 'mimo'
+  if (g.ruoloSlug === 'lupo-mannaro' && storia.includes('cucciolo-di-lupo-mannaro')) return 'cucciolo-di-lupo-mannaro'
+  return g.ruoloSlug
 }

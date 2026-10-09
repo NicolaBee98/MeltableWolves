@@ -1,5 +1,5 @@
 import { eLupo, nomeRuolo } from '../../../data/roles'
-import { ruoliAssegnabili, eMimoCopiante, conRuolo } from '../../../data/assegnazione'
+import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, conRuolo } from '../../../data/assegnazione'
 
 const POTERE = 'ladro-scelta'
 
@@ -34,17 +34,22 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   const disponibili = [
     ...new Set([
       ...ruoliAssegnabili(
-        // il Borgomastro è una condizione data a un giocatore a voce (voto
-        // doppio), non una carta fisica del mazzo: mai tra le carte rimaste
-        ruoliSelezionati.filter((slug) => slug !== 'ladro' && slug !== 'borgomastro'),
+        // Borgomastro e Fantasma Onnisciente non sono carte fisiche del mazzo (il
+        // primo è un voto doppio dato a voce, il secondo si prende da un morto):
+        // mai tra le carte rimaste. La Suocera invece è una carta vera
+        ruoliSelezionati.filter((slug) => !['ladro', 'borgomastro', 'fantasma-onnisciente'].includes(slug)),
         giocatori,
         quantita,
       ),
       ...[carta1, carta2].filter(Boolean),
     ]),
   ]
-  const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2)
-  const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1)
+  // le due carte possono essere dello stesso ruolo (es. due Lupi), se il mazzo
+  // ne ha ancora due da assegnare o se è già così
+  const puoRipetersi = (slug) =>
+    carta1 === carta2 || (quantita[slug] ?? 1) - contaAssegnati(giocatori, slug) >= 2
+  const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2 || puoRipetersi(slug))
+  const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1 || puoRipetersi(slug))
 
   if (!ladro) return null
 
@@ -156,14 +161,16 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
             >
               {nomeRuolo(carta1)}
             </button>
-            <button
-              type="button"
-              className="chip"
-              aria-pressed={usato && ladro.ruoloSlug === carta2}
-              onClick={() => scegli(carta2)}
-            >
-              {nomeRuolo(carta2)}
-            </button>
+            {carta2 !== carta1 && (
+              <button
+                type="button"
+                className="chip"
+                aria-pressed={usato && ladro.ruoloSlug === carta2}
+                onClick={() => scegli(carta2)}
+              >
+                {nomeRuolo(carta2)}
+              </button>
+            )}
             {!entrambiLupi && (
               <button
                 type="button"

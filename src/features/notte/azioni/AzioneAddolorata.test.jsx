@@ -13,7 +13,7 @@ test('propone lo scambio con la vittima del rogo della notte corrente: è un ver
 
   await user.click(screen.getByRole('button', { name: 'Scambia' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', storiaRuoli: ['veggente'], poteriUsati: ['addolorata-scambio'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'veggente', storiaRuoli: ['veggente'], poteriUsati: ['addolorata-scambio'] }))
   // la vittima diventa "Addolorata" a sua volta: se resuscitata in seguito,
   // deve avere di nuovo i poteri dell'Addolorata, non quelli del suo vecchio ruolo
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'addolorata', storiaRuoli: ['veggente', 'addolorata'] })
@@ -55,7 +55,7 @@ test('il Mimo-Addolorata che scambia ottiene il ruolo della vittima, che diventa
 
   await user.click(screen.getByRole('button', { name: 'Scambia' }))
 
-  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'veggente', storiaRuoli: ['mimo', 'addolorata', 'veggente'], poteriUsati: ['addolorata-scambio'] })
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'veggente', storiaRuoli: ['mimo', 'addolorata', 'veggente'], poteriUsati: ['addolorata-scambio'] }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['veggente', 'villico'] })
 })
 
@@ -148,7 +148,7 @@ test('il Sacerdote non passa nessuna coppia: l\'Addolorata prende il ruolo senza
   const agg = scambiaCon({ ruoloSlug: 'sacerdote', condizioni: ['innamorato'], innamoratiCon: ['3'] })
   await user.click(screen.getByRole('button', { name: 'Scambia' }))
   const patch = agg.mock.calls.find(([id]) => id === '1')[1]
-  expect(patch).toEqual({ ruoloSlug: 'sacerdote', storiaRuoli: ['addolorata', 'sacerdote'], poteriUsati: ['addolorata-scambio'] })
+  expect(patch).toMatchObject({ ruoloSlug: 'sacerdote', storiaRuoli: ['addolorata', 'sacerdote'], poteriUsati: ['addolorata-scambio'] })
   expect(agg.mock.calls.some(([id]) => id === '3')).toBe(false)
 })
 
@@ -206,4 +206,31 @@ test('la vittima con storiaRuoli vuota (ruolo ereditato/assegnato senza storia) 
   render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
   await user.click(screen.getByRole('button', { name: 'Scambia' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { ruoloSlug: 'addolorata', storiaRuoli: ['veggente', 'addolorata'] })
+})
+
+test('dopo un refresh a metà passo lo scambio di stanotte resta visibile e annullabile', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const originali = {
+    attore: { ruoloSlug: 'addolorata', storiaRuoli: ['addolorata'], poteriUsati: [], legame: undefined, legameMimo: undefined },
+    vittima: { ruoloSlug: 'veggente', storiaRuoli: ['veggente'], poteriUsati: undefined, legame: undefined, legameMimo: undefined },
+  }
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'veggente', storiaRuoli: ['addolorata', 'veggente'], vivo: true, condizioni: [], poteriUsati: ['addolorata-scambio'], scambioAddolorata: { round: 2, vittimaId: '2', originali } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'addolorata', storiaRuoli: ['veggente', 'addolorata'], vivo: false, causaMorte: 'rogo', mortoNotte: 2, condizioni: [] },
+  ]
+  render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />)
+  await user.click(screen.getByRole('button', { name: 'Annulla scambio' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'addolorata', scambioAddolorata: undefined }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', originali.vittima)
+})
+
+test('se la carta della vittima è già in mano all\'Apprendista (anche la stessa Addolorata) non si può scambiare: niente potere bruciato', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', storiaRuoli: ['apprendista', 'addolorata'], vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'addolorata', storiaRuoli: ['addolorata'], vivo: false, causaMorte: 'rogo', mortoNotte: 2, condizioni: [] },
+  ]
+  render(<AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} />)
+  expect(screen.queryByRole('button', { name: 'Scambia' })).not.toBeInTheDocument()
+  expect(screen.getByText(/nessuno scambio possibile/)).toBeInTheDocument()
 })
