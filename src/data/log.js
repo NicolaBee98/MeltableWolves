@@ -3,6 +3,7 @@ import { eMimoCopiante } from './assegnazione'
 
 // il Mimo che copia un ruolo agisce da giocatore a sé: nel registro lo si
 // distingue dal titolare con "(Mimo)"
+const nomeDi = (lista, id) => lista.find((g) => g.id === id)?.nome ?? '?'
 const nomeLog = (g) => (eMimoCopiante(g) ? `${g.nome} (Mimo)` : g.nome)
 
 const ETICHETTA_CAUSA = {
@@ -10,7 +11,6 @@ const ETICHETTA_CAUSA = {
   rogo: ' al rogo',
   colpo: ' sul colpo',
   crepacuore: ' di crepacuore',
-  sacrificio: ': il Cavaliere si è rivelato e immolato al posto della vittima',
 }
 
 // morti "sul colpo" (causaMorte 'colpo'): la causa sta in mortoDa
@@ -22,17 +22,11 @@ const ETICHETTA_MORTE_DA = {
   unzione: " per l'unzione",
 }
 
-// morti notturne della Cortigiana: il perché sta in mortoDa (vedi risolviCortigiana)
-const ETICHETTA_NOTTE_DA = {
-  'cliente-lupo': ': il cliente era un lupo ed è stata sbranata',
-  'cliente-sbranato': ': il suo cliente è stato sbranato',
-}
-
 // poteri "una tantum" dichiarati a voce dal narratore (nessun altro campo
 // dice chi li ha usati): voce di registro alla prima comparsa in poteriUsati
 const POTERI_DICHIARATI = {
-  'bardo-salta-notte': (nome) => `${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta`,
-  'gallo-salta-giorno': (nome) => `${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta`,
+  'bardo-salta-notte': (nome) => `Il Bardo ${nome} inizia a suonare: tutti restano svegli e la notte salta`,
+  'gallo-salta-giorno': (nome) => `Il Gallo Mannaro ${nome} oggi non canta: tutti dormono e il giorno salta`,
 }
 
 // legami scelti di notte (Cavaliere, Apprendista, Figlia dei Lupi)
@@ -40,6 +34,14 @@ const LEGAME_SCELTO = {
   cavaliere: (nome, t) => `Il Cavaliere ${nome} sceglie di proteggere ${t}`,
   apprendista: (nome, t) => `L'Apprendista ${nome} sceglie ${t} come maestro`,
   'figlia-dei-lupi': (nome, t) => `La Figlia dei Lupi ${nome} sceglie ${t} come suo genitore`,
+}
+
+// legame arrivato con la carta (Addolorata/Apprendista/Mimo che prendono il
+// ruolo): non è una scelta del nuovo titolare
+const LEGAME_EREDITATO = {
+  cavaliere: (nome, t) => `${nome} eredita il legame: protegge ${t}`,
+  apprendista: (nome, t) => `${nome} eredita il legame: ha ${t} come maestro`,
+  'figlia-dei-lupi': (nome, t) => `${nome} eredita il legame: ha ${t} come genitore`,
 }
 
 // ruoli che si rivelano solo di giorno/all'alba (vedi eventiSpeciali.js): il
@@ -59,6 +61,11 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
   const eventiMimoLadro = []
   const mappaPrecedenti = new Map(precedenti.map((g) => [g.id, g]))
 
+  // la pozione vitale ha già la sua voce: niente "ha ottenuto la condizione protetto"
+  const vitaleOra = correnti.some(
+    (a) => (a.poteriUsati ?? []).includes('strega-pozione-vitale') && !(mappaPrecedenti.get(a.id)?.poteriUsati ?? []).includes('strega-pozione-vitale'),
+  )
+
   for (const giocatore of correnti) {
     const prima = mappaPrecedenti.get(giocatore.id)
     if (!prima) continue
@@ -66,24 +73,34 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
 
     if (prima.vivo && !giocatore.vivo) {
       const faseMorte = giocatore.causaMorte === 'rogo' ? 'rogo' : fase
+      // causa prima dell'effetto: morti dirette (1), poi il crepacuore che ne segue (2)
+      const tier = giocatore.causaMorte === 'crepacuore' ? 2 : 1
       const causa =
         giocatore.causaMorte === 'colpo' && ETICHETTA_MORTE_DA[giocatore.mortoDa]
           ? ETICHETTA_MORTE_DA[giocatore.mortoDa]
-          : giocatore.causaMorte === 'notte' && ETICHETTA_NOTTE_DA[giocatore.mortoDa]
-            ? ETICHETTA_NOTTE_DA[giocatore.mortoDa]
-            : (ETICHETTA_CAUSA[giocatore.causaMorte] ?? '')
+          : (ETICHETTA_CAUSA[giocatore.causaMorte] ?? '')
       const boia = giocatore.mortoDa === 'boia' && correnti.find((g) => g.id === giocatore.giustiziatoDa)
+      const protetto = [prima.legame, prima.legameMimo].find((l) => l?.tipo === 'cavaliere')
+      const cliente = giocatore.ruoloSlug === 'cortigiana' && correnti.find((g) => g.id === prima.visitaNotturna)
+      let messaggio = boia ? `Il Boia ${nomeLog(boia)} giustizia ${giocatore.nome}` : `${nome} è morto/a${causa}`
+      if (giocatore.causaMorte === 'sacrificio') {
+        messaggio = protetto
+          ? `Il Cavaliere ${nome} si immola al posto di ${nomeDi(correnti, protetto.targetId)} e muore`
+          : `Il Cavaliere ${nome} si immola al posto della vittima e muore`
+      } else if (giocatore.causaMorte === 'notte' && giocatore.mortoDa === 'cliente-sbranato') {
+        // sbranato dal branco, "ucciso" se a colpire il cliente è altro (Chupacabra)
+        const verbo = cliente?.mortoDa === 'chupacabra' ? 'ucciso' : 'sbranato'
+        messaggio = `La Cortigiana ${nome} muore: il suo cliente${cliente ? ` ${cliente.nome}` : ''} è stato ${verbo}.`
+      } else if (giocatore.causaMorte === 'notte' && giocatore.mortoDa === 'cliente-lupo') {
+        messaggio = `La Cortigiana ${nome} muore: il suo cliente${cliente ? ` ${cliente.nome}` : ''} era un lupo.`
+      }
       // il crepacuore notturno è già negli annunci dell'alba ("è morto/a di
       // crepacuore per la morte del partner"): niente doppione dalla notte
       if (!(giocatore.causaMorte === 'crepacuore' && fase === 'notte')) {
-        eventi.push({
-          round,
-          fase: faseMorte,
-          messaggio: boia ? `Il Boia ${nomeLog(boia)} giustizia ${giocatore.nome}` : `${nome} è morto/a${causa}`,
-        })
+        eventi.push({ round, fase: faseMorte, messaggio, tier })
       }
       if (prima.eBorgomastro) {
-        eventi.push({ round, fase: faseMorte, messaggio: `${nome} era il Borgomastro: il villaggio dovrà eleggerne uno nuovo` })
+        eventi.push({ round, fase: faseMorte, messaggio: `${nome} era il Borgomastro: il villaggio dovrà eleggerne uno nuovo`, tier })
       }
     }
     // resurrezione (Guaritore/Sciacallo): una sola voce, che assorbe anche la
@@ -104,6 +121,19 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       )[0]
       const chi = potere ? `${potere.p.startsWith('guaritore') ? 'Il Guaritore' : 'Lo Sciacallo Mannaro'} ${nomeLog(potere.a)}` : 'Il Guaritore/Sciacallo'
       eventi.push({ round, fase, messaggio: `${chi} sceglie di resuscitare ${giocatore.nome}` })
+    }
+
+    // pozioni della Strega: il bersaglio non è registrato nello stato, lo si
+    // ricava dall'effetto (protetto / morto per la Strega) nello stesso confronto
+    for (const [potere, tipo] of [['strega-pozione-vitale', 'vitale'], ['strega-pozione-mortale', 'mortale']]) {
+      if ((prima.poteriUsati ?? []).includes(potere) || !(giocatore.poteriUsati ?? []).includes(potere)) continue
+      const bersaglio = correnti.find((g) => {
+        const p = mappaPrecedenti.get(g.id)
+        return tipo === 'vitale'
+          ? p && (g.condizioni ?? []).includes('protetto') && !(p.condizioni ?? []).includes('protetto')
+          : p?.vivo && !g.vivo && g.mortoDa === 'strega'
+      })
+      eventi.push({ round, fase, messaggio: `La Strega ${nome} usa la pozione ${tipo}${bersaglio ? ` su ${bersaglio.nome}` : ''}` })
     }
 
     // rivelazioni diurne, elezione del Borgomastro, Fantasma Onnisciente
@@ -145,6 +175,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     for (const condizione of condizioniDopo) {
       if (condizione === 'innamorato' && partnerNuovi.length > 0) continue
       if (condizione === 'resuscitato' && resuscitato) continue
+      if (condizione === 'protetto' && vitaleOra) continue
       if (!condizioniPrima.includes(condizione)) {
         eventi.push({ round, fase, messaggio: `${nome} ha ottenuto la condizione "${condizione}"` })
       }
@@ -173,9 +204,11 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     // Apprendista con maestro a ruolo ignoto: si rivela e prende la carta ignota
     if (giocatore.apprendistaRivelatoDa && giocatore.apprendistaRivelatoDa !== prima.apprendistaRivelatoDa && !coperto('ereditaNotte')) {
       const maestro = correnti.find((g) => g.id === giocatore.apprendistaRivelatoDa)?.nome ?? '?'
-      eventi.push({ round, fase, messaggio: `${nome} (Apprendista) si rivela e prende la carta del maestro ${maestro} (ruolo ancora ignoto)` })
+      eventi.push({ round, fase, messaggio: `L'Apprendista ${nome} si rivela e prende la carta del maestro ${maestro} (ruolo ancora ignoto)`, tier: 3 })
     }
     let ereditato = false
+    // le voci di legame vanno dopo "ha assunto il ruolo di …" (vedi in fondo)
+    const voceLegame = []
     for (const campo of ['legame', 'legameMimo']) {
       const l0 = prima[campo]
       const l1 = giocatore[campo]
@@ -183,7 +216,9 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       // (un legame ereditato di altro tipo, es. l'Apprendista che prende il Cavaliere
       // col suo protetto, non è una scelta nuova)
       if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId && (!l0 || l0.tipo === l1.tipo)) {
-        eventi.push({ round, fase, messaggio: LEGAME_SCELTO[l1.tipo](nome, nomeTarget(l1.targetId)) })
+        // legame nuovo insieme a un cambio di carta: arriva con il ruolo, non è una scelta
+        const arrivatoConRuolo = !l0 && prima.ruoloSlug && prima.ruoloSlug !== giocatore.ruoloSlug
+        voceLegame.push({ round, fase, messaggio: (arrivatoConRuolo ? LEGAME_EREDITATO : LEGAME_SCELTO)[l1.tipo](nome, nomeTarget(l1.targetId)), ...(arrivatoConRuolo && { tier: 3 }) })
       }
       if ((!l1 || l1.tipo !== l0?.tipo) && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
         if (l0.tipo === 'apprendista') {
@@ -191,11 +226,12 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
           if (!coperto('ereditaNotte')) eventi.push({
             round,
             fase,
-            messaggio: `${nome} (Apprendista) eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}`,
+            messaggio: `L'Apprendista ${nome} eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}`,
+            tier: 3,
           })
         } else if (l0.tipo === 'figlia-dei-lupi') {
           ereditato = true
-          if (!coperto('figliaLupoNotte')) eventi.push({ round, fase, messaggio: `${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro` })
+          if (!coperto('figliaLupoNotte')) eventi.push({ round, fase, messaggio: `La Figlia dei Lupi ${nome} si rivela e diventa Lupo Mannaro`, tier: 3 })
         }
       }
     }
@@ -243,7 +279,48 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
         eventi.push({ round, fase, messaggio: `${nome} ha assunto il ruolo di ${nomeRuolo(dopoDisplay)}` })
       }
     }
+    eventi.push(...voceLegame)
   }
 
-  return [...eventi, ...eventiMimoLadro]
+  // causa prima dell'effetto; a parità l'ordine resta quello di rilevamento
+  return [...eventi.sort((a, b) => (a.tier ?? 0) - (b.tier ?? 0)).map(({ tier, ...e }) => e), ...eventiMimoLadro]
+}
+
+// Voci scritte da fonti diverse per lo stesso fatto (confronto di stati, effetti
+// della notte, annunci dell'alba): le unisce in una sola.
+// `assorbe(a, b)`: la voce a rende superflua la voce b (stesso giro).
+const COLPITO = /^(.+) è stato colpito (dal branco|dal Chupacabra) ma il Cavaliere (.+) si immola al suo posto\.$/
+function normalizza(m) {
+  const c = m.match(COLPITO)
+  return c ? `Il Cavaliere ${c[3]} si immola al posto di ${c[1]} e muore (colpito ${c[2]}).` : m
+}
+function assorbe(a, b) {
+  const mezzo = a.match(/^Il Mezzosangue (.+) è stato sbranato e diventa Lupo Mannaro\.$/)
+  if (mezzo) return b === `Il Mezzosangue ${mezzo[1]} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.`
+  const cort = a.match(/^La Cortigiana (.+) muore: il suo cliente (.+) è stato (?:ucciso|sbranato)\.$/)
+  if (cort) return b === a || b === `La Cortigiana ${cort[1]} muore: il suo cliente ${cort[2]} è stato sbranato.`
+  const cav = a.match(/^Il Cavaliere (.+) si immola al posto di .+ e muore/)
+  if (cav) {
+    return (
+      b === `${cav[1]} si è rivelato: è il Cavaliere, e si è immolato al posto della vittima.` ||
+      (a.includes(' (colpito ') && a.startsWith(`${b} (colpito `))
+    )
+  }
+  return false
+}
+export function unisciVoci(prev, nuovi) {
+  const lista = [...prev]
+  for (const nuovo of nuovi) {
+    const e = { ...nuovo, messaggio: normalizza(nuovo.messaggio) }
+    const stessoGiro = (x) => x.round === e.round
+    if (lista.some((x) => stessoGiro(x) && assorbe(x.messaggio, e.messaggio))) continue
+    const i = lista.findIndex((x) => stessoGiro(x) && assorbe(e.messaggio, x.messaggio))
+    if (i === -1) lista.push(e)
+    else {
+      // la voce nuova prende il posto della vecchia (e assorbe anche le altre)
+      lista[i] = e
+      for (let j = lista.length - 1; j >= 0; j--) if (j !== i && stessoGiro(lista[j]) && assorbe(e.messaggio, lista[j].messaggio)) lista.splice(j, 1)
+    }
+  }
+  return lista
 }

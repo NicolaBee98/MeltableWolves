@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { rilevaEventi } from '../data/log'
+import { rilevaEventi, unisciVoci } from '../data/log'
 import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-log'
@@ -59,7 +59,7 @@ export function useLog(giocatori, round, fase = 'notte') {
   // e aggiorna il riferimento
   function registra(g, roundEvento, faseEvento, passo) {
     const nuovi = rilevaEventi(confermatiRef.current, g, roundEvento, faseEvento).map((e) => (passo ? { ...e, passo } : e))
-    if (nuovi.length > 0) setEventi((prev) => [...prev, ...nuovi])
+    if (nuovi.length > 0) setEventi((prev) => unisciVoci(prev, nuovi))
     imposta(g)
   }
 
@@ -72,6 +72,11 @@ export function useLog(giocatori, round, fase = 'notte') {
       imposta(giocatori)
       return
     }
+    // giocatori aggiunti (prima dell'inizio della notte 1, mentre la fase del
+    // registro è già 'notte'): senza uno stato di riferimento il primo confronto
+    // li salterebbe, perdendo gli eventi del primo passo (es. la scelta del Ladro)
+    const nuovi = giocatori.filter((g) => !confermatiRef.current.some((c) => c.id === g.id))
+    if (nuovi.length > 0) imposta([...confermatiRef.current, ...nuovi])
     // di notte lo stato dei giocatori cambia anche per anteprime transitorie
     // (scelte non ancora confermate): si registra solo con confermaLog()
     if (fase === 'notte' && fasePrecedente === 'notte') return
@@ -115,10 +120,9 @@ export function useLog(giocatori, round, fase = 'notte') {
   // scritti da NightSequencer mentre è ancora sulla notte, vedi App.jsx)
   function aggiungiEvento(messaggio, faseEsplicita) {
     const passo = passoRef.current
-    setEventi((prev) => [
-      ...prev,
-      { round: roundEtichetta(round, fase), fase: faseEsplicita ?? fase, messaggio, ...(passo && { passo }) },
-    ])
+    setEventi((prev) =>
+      unisciVoci(prev, [{ round: roundEtichetta(round, fase), fase: faseEsplicita ?? fase, messaggio, ...(passo && { passo }) }]),
+    )
   }
 
   function resetLog() {

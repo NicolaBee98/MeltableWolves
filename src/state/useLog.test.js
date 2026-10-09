@@ -172,3 +172,12 @@ test('Avanti-Indietro-Avanti non duplica le voci: annullaLogPasso toglie quelle 
   avanti()
   expect(result.current.eventi.map((e) => e.messaggio)).toEqual(['Anna è morto/a', 'Il branco sbrana Anna'])
 })
+
+test('giocatori aggiunti dopo il montaggio (prima della notte 1): la prima conferma registra i loro eventi (es. scelta del Ladro)', () => {
+  const ladro = { id: '1', nome: 'G01', vivo: true, condizioni: [], ruoloSlug: 'ladro', storiaRuoli: ['ladro'], poteriUsati: [], scartoLadro: ['veggente', 'paladino'] }
+  const { result, rerender } = renderHook(({ giocatori }) => useLog(giocatori, 1, 'notte'), { initialProps: { giocatori: [] } })
+  rerender({ giocatori: [{ ...ladro, ruoloSlug: undefined, storiaRuoli: [], scartoLadro: undefined }] })
+  rerender({ giocatori: [{ ...ladro, ruoloSlug: 'veggente', storiaRuoli: ['ladro', 'veggente'], poteriUsati: ['ladro-scelta'] }] })
+  act(() => result.current.confermaLog('1-ladro'))
+  expect(result.current.eventi.map((e) => e.messaggio)).toEqual(['Il Ladro G01 sceglie Veggente: scarta Paladino'])
+})

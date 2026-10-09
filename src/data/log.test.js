@@ -1,4 +1,4 @@
-import { rilevaEventi } from './log'
+import { rilevaEventi, unisciVoci } from './log'
 
 test('rileva una morte e ne include la causa se nota', () => {
   const precedenti = [{ id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'villico' }]
@@ -157,7 +157,7 @@ test('Sacerdote: una voce per coppia; legami scelti; Apprendista e Figlia alla r
 
   const app = { ...a, ruoloSlug: 'apprendista', legame: { tipo: 'apprendista', targetId: '2' } }
   expect(rilevaEventi([app, b], [{ ...app, ruoloSlug: 'veggente', legame: null }, b], 2, 'giorno').map((e) => e.messaggio)).toEqual([
-    'Anna (Apprendista) eredita il ruolo di Veggente dal maestro Bea',
+    "L'Apprendista Anna eredita il ruolo di Veggente dal maestro Bea",
   ])
   const figlia = { ...a, ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '2' } }
   expect(rilevaEventi([figlia, b], [{ ...figlia, ruoloSlug: 'lupo-mannaro', legame: null }, b], 2, 'giorno')[0].messaggio).toMatch(
@@ -217,4 +217,99 @@ test("la maledizione del villaggio per l'Antico (villaggioMaledettoFinoA) è nel
   const dopo = [{ id: '1', nome: 'Gigi', vivo: true, ruoloSlug: 'villico', storiaRuoli: ['lantico', 'villico'], villaggioMaledettoFinoA: 3 }]
   const messaggi = rilevaEventi(prima, dopo, 2, 'giorno').map((e) => e.messaggio)
   expect(messaggi).toContain('Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri')
+})
+
+test('ordine causale: morte diretta, poi crepacuore, poi conseguenze (Figlia dei Lupi)', () => {
+  const g = (id, extra = {}) => ({ ...base, id, nome: `G0${id}`, ruoloSlug: 'villico', ...extra })
+  const prima = [
+    g('1', { ruoloSlug: 'figlia-dei-lupi', legame: { tipo: 'figlia-dei-lupi', targetId: '3' } }),
+    g('2'),
+    g('3'),
+  ]
+  const dopo = [
+    g('1', { ruoloSlug: 'lupo-mannaro' }),
+    g('2', { vivo: false, causaMorte: 'crepacuore' }),
+    g('3', { vivo: false, causaMorte: 'rogo' }),
+  ]
+  expect(rilevaEventi(prima, dopo, 1, 'giorno').map((e) => e.messaggio)).toEqual([
+    'G03 è morto/a al rogo',
+    'G02 è morto/a di crepacuore',
+    'La Figlia dei Lupi G01 si rivela e diventa Lupo Mannaro',
+  ])
+})
+
+test('legame ereditato con la carta: "eredita il legame", dopo "ha assunto il ruolo"', () => {
+  const prima = { ...base, id: '1', nome: 'G04', ruoloSlug: 'addolorata' }
+  const dopo = { ...prima, ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } }
+  const altro = { ...base, id: '2', nome: 'G07', ruoloSlug: 'villico' }
+  expect(rilevaEventi([prima, altro], [dopo, altro], 2, 'giorno').map((e) => e.messaggio)).toEqual([
+    'G04 ha assunto il ruolo di Cavaliere',
+    'G04 eredita il legame: protegge G07',
+  ])
+})
+
+test('Strega: voce per la pozione vitale (bersaglio dalla protezione) e mortale (dalla morte)', () => {
+  const strega = { ...base, id: '1', nome: 'G01', ruoloSlug: 'strega', poteriUsati: [] }
+  const a = { ...base, id: '2', nome: 'G02', ruoloSlug: 'villico' }
+  const b = { ...base, id: '3', nome: 'G03', ruoloSlug: 'villico' }
+  const vitale = rilevaEventi(
+    [strega, a, b],
+    [{ ...strega, poteriUsati: ['strega-pozione-vitale'] }, { ...a, condizioni: ['protetto'] }, b],
+    1,
+    'notte',
+  )
+  expect(vitale.map((e) => e.messaggio)).toEqual(['La Strega G01 usa la pozione vitale su G02'])
+  const mortale = rilevaEventi(
+    [strega, a, b],
+    [{ ...strega, poteriUsati: ['strega-pozione-mortale'] }, a, { ...b, vivo: false, causaMorte: 'notte', mortoDa: 'strega' }],
+    1,
+    'notte',
+  )
+  expect(mortale.map((e) => e.messaggio)).toEqual(['La Strega G01 usa la pozione mortale su G03', 'G03 è morto/a di notte'])
+})
+
+test('Cortigiana: una voce, "ucciso" se il cliente lo uccide il Chupacabra, "sbranato" se il branco', () => {
+  const cort = { ...base, id: '1', nome: 'G02', ruoloSlug: 'cortigiana', visitaNotturna: '2' }
+  const cliente = { ...base, id: '2', nome: 'G03', ruoloSlug: 'villico' }
+  const esito = (mortoDa) =>
+    rilevaEventi(
+      [cort, cliente],
+      [{ ...cort, vivo: false, causaMorte: 'notte', mortoDa: 'cliente-sbranato', visitaNotturna: null }, { ...cliente, vivo: false, mortoDa }],
+      1,
+      'notte',
+    ).map((e) => e.messaggio)[0]
+  expect(esito('chupacabra')).toBe('La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.')
+  expect(esito('branco')).toBe('La Cortigiana G02 muore: il suo cliente G03 è stato sbranato.')
+})
+
+test('unisciVoci: Cortigiana, Mezzosangue e Cavaliere che si immola restano una voce sola', () => {
+  const v = (messaggio) => ({ round: 1, fase: 'notte', messaggio })
+  const testo = (l) => l.map((e) => e.messaggio)
+  expect(
+    testo(
+      unisciVoci(
+        [v('La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.')],
+        [v('La Cortigiana G02 muore: il suo cliente G03 è stato sbranato.')],
+      ),
+    ),
+  ).toEqual(['La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.'])
+  expect(
+    testo(
+      unisciVoci(
+        [v('Il Mezzosangue G03 è stato sbranato e diventa Lupo Mannaro.')],
+        [v('Il Mezzosangue G03 è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.')],
+      ),
+    ),
+  ).toEqual(['Il Mezzosangue G03 è stato sbranato e diventa Lupo Mannaro.'])
+  expect(
+    testo(
+      unisciVoci(
+        [v('Il Cavaliere G01 si immola al posto di G05 e muore')],
+        [
+          v('G05 è stato colpito dal branco ma il Cavaliere G01 si immola al suo posto.'),
+          v('G01 si è rivelato: è il Cavaliere, e si è immolato al posto della vittima.'),
+        ],
+      ),
+    ),
+  ).toEqual(['Il Cavaliere G01 si immola al posto di G05 e muore (colpito dal branco).'])
 })
