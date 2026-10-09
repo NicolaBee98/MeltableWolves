@@ -24,101 +24,155 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo il settimo batch di partite (2026-10-09: Addolorata, Ladro, Cartomante/Medium, coppie 22-38; report `bug-partite-2026-10-09-{a,b,c}.md`). Dopo i report `bug-partite-2026-10-09-{d,e,f}.md` (verifica correzioni, ruoli poco valutati, partite complete): 753 coppie valutate (si 419, parziale 334, molte 'parziale' di passaggio nelle partite complete), 133 celle con problemi aperti o dubbi. Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
+_Aggiornato dopo i commit di correzione b2102ae, 094225d e b35d5fc e le decisioni del proprietario del 2026-10-09 (report `bug-partite-2026-10-09-{a..h}.md`). I numeri si ricalcolano dal JSON con `node scripts/matrice-ruoli.mjs --md`._
 
 | | |
 |---|---|
 | Ruoli | 51 |
 | Coppie (incluse 51 diagonali) | 1326 |
-| Valutate (si + parziale) | 452 (34.1%) |
-| di cui si | 331 (25.0%) |
-| di cui parziale | 121 |
-| Non valutate | 874 (65.9%) |
-| "si" senza problemi (verde) | 130 |
-| "si" con problemi tutti risolti (arancio) | 110 |
-| Celle con problemi aperti o dubbi (rosso) | 91 |
+| Valutate (si + parziale) | 807 (60.9%) |
+| di cui si | 462 (34.8%) |
+| di cui parziale | 345 |
+| Non valutate | 519 (39.1%) |
+| "si" senza problemi (verde) | 221 |
+| "si" con problemi tutti risolti (arancio) | 140 |
+| Celle con problemi aperti o dubbi (rosso) | 101 |
 | Diagonali valutate | 51 / 51 |
-| Coppie con il Mimo valutate | 50 / 51 |
+| Coppie con il Mimo valutate | 51 / 51 |
 
-Le valutazioni sono molto concentrate: il Mimo da solo copre 50 coppie. Escluso il Mimo, le coppie valutate scendono a 269 su 1275 non-Mimo (21.1%).
+Escluso il Mimo, le coppie valutate sono 756 su 1275 non-Mimo (59.3%). Molte celle "parziale" sono di passaggio, da partite complete.
 
 ## Ruoli con piu' coppie valutate (su 51 possibili, diagonale inclusa)
 
-1. Mimo (50/51)
-2. Lupo Mannaro (33/51)
-3. Veggente (24/51)
-4. Chupacabra (20/51)
-5. Strega (18/51)
-6. Borgomastro (17/51)
-7. Ladro (17/51)
-8. L'Antico (17/51)
-9. Apprendista (16/51)
-10. Cucciolo di Lupo Mannaro (16/51)
+1. Mimo (51/51)
+2. Chupacabra (44/51)
+3. Cartomante (43/51)
+4. Veggente (43/51)
+5. Cavaliere (42/51)
+6. Guaritore (41/51)
+7. Strega (41/51)
+8. Lupo Mannaro (41/51)
+9. Paladino (36/51)
+10. Gallo Mannaro (36/51)
 
-Senza il Mimo: Lupo Mannaro (33/51), Veggente (24/51), Chupacabra (20/51), Strega (18/51), Borgomastro (17/51), Ladro (17/51).
+Senza il Mimo: Chupacabra (44/51), Cartomante (43/51), Veggente (43/51), Cavaliere (42/51), Guaritore (41/51), Strega (41/51).
 
 ## Ruoli meno valutati
 
-1. Maga (2/51)
-2. Untore (3/51)
-3. Nonna (4/51)
-4. Fattucchiera (4/51)
-5. Ubriaco (5/51)
-6. Polpo Mannaro (5/51)
-7. Guardia (5/51)
-8. Ambasciatore (5/51)
-9. Sciacallo Mannaro (6/51)
-10. Lupo Mannaro Progenitore (6/51)
+1. Eremita (7/51)
+2. Guardia (7/51)
+3. Bardo (11/51)
+4. Innocente (11/51)
+5. Fantasma Onnisciente (15/51)
+6. Suocera (15/51)
+7. Villico (16/51)
+8. Guardia Mannara (16/51)
+9. Lupo Mannaro Capobranco (16/51)
+10. Figlia dei Lupi (16/51)
 
-Il tratto comune e' che quasi tutte le coppie valutate riguardano il branco dei lupi, il Mimo o ruoli di vittoria; i ruoli "di legame" e di scambio di carta sono incrociati quasi solo con il Mimo.
+I ruoli meno incrociati sono quelli passivi o con poche interazioni (Eremita, Guardia, Bardo, Innocente) e le carte "speciali" come Fantasma Onnisciente e Suocera.
 
-## Problemi ancora aperti o dubbi (45 celle)
+## Problemi ancora aperti o dubbi (97 celle)
 
-- **Addolorata (da solo)**: [aperto] Dati: mortoNotte errato dopo un rogo del giorno 1 (mortoNotte:2); [dubbio] Scambio non eredita i poteri usati del ruolo di provenienza (appendice E)
-- **Addolorata x Strega**: [dubbio] L'Addolorata che diventa Strega riparte con pozioni fresche (non eredita i poteri usati)
+Elenco di tutte le celle con almeno un problema non risolto (comprese quelle "parziale", che nella vista non sono rosse: le rosse sono 94).
+
+- **Addolorata (da solo)**: [aperto] Dati: mortoNotte errato dopo un rogo del giorno 1 (mortoNotte:2); [dubbio] Scambio non eredita i poteri usati del ruolo di provenienza (appendice E); [aperto] storiaRuoli dell'Addolorata che scambia non riceve il nuovo ruolo; scambio con ruolo ignoto lascia ruoloSlug undefined e nessuna voce in registro
+- **Addolorata x Alchimista**: [aperto] Alchimista al rogo non imposta mortoNotte: l'Addolorata non trova la vittima (GiornoPanel dichiaraAlchimistaEsplode)
+- **Addolorata x Apprendista**: [dubbio] nuovo Apprendista senza maestro e inerte; eredita il marcatore addolorata-scambio dal maestro Addolorata (innocuo) (D1)
+- **Addolorata x Boia**: [dubbio] Addolorata-Boia con potere giustizia fresco, non ereditato (D2)
+- **Addolorata x Cavaliere**: [dubbio] nuova Cavaliere senza protetto/inerte; Cavaliere che si immola non e' vittima del rogo per lo scambio (dubbio D1/D3)
+- **Addolorata x Cucciolo di Lupo Mannaro**: [dubbio] vendetta non rinnovata alla nuova Cucciola (D5); banner "il Cucciolo diventa adulto" fuori luogo
+- **Addolorata x Fantasma Onnisciente**: [dubbio] dopo lo scambio il Fantasma ha ruolo Addolorata (ruolo in vita per la vittoria? D4); candidati propongono anche morti notturni; [dubbio] dubbio (vittoria 'ruolo in vita' dopo lo scambio; flag resta sulla persona)
+- **Addolorata x Figlia dei Lupi**: [dubbio] nuova Figlia senza genitore e inerte (D1)
+- **Addolorata x Guaritore**: [dubbio] dubbio (potere ricaricato al resuscitato)
+- **Addolorata x Medium**: [dubbio] il Medium vede Addolorata invece del ruolo in vita; aura di un lupo bruciato diventa benevola (D4)
+- **Addolorata x Strega**: [dubbio] L'Addolorata che diventa Strega riparte con pozioni fresche (non eredita i poteri usati); [dubbio] nuova Strega con pozioni fresche (D2); undo pulito
+- **Alchimista x Apprendista**: [aperto] riepilogo senza l'eredità dell'Apprendista (eredita Alchimista con potere già usato, ok)
+- **Alchimista x Guaritore**: [dubbio] Alchimista resuscitato e bruciato esplode una seconda volta: "Dichiara morte" apre la scelta con potere gia usato mentre "Si rivela" e nascosto, anteprima dice "esplode"; poteriUsati duplicato (dubbio di regolamento)
+- **Alchimista x L'Antico**: [aperto] maledizione ok; il riepilogo del rogo dice ancora "trascina con se G08" dopo la rivelazione dell'Antico che sopravvive
 - **Ambasciatore x Mimo**: [dubbio] Mimo con Pastore/Ambasciatore e aura non provato in browser
 - **Ambasciatore x Veggente**: [dubbio] Annuncio anche se il Veggente muore la stessa notte (non controlla vivo)
+- **Apprendista x Guaritore**: [dubbio] maestro resuscitato dopo l'eredità: due titolari (D6); erede e maestro morto condividono un solo uso
+- **Apprendista x L'Antico**: [dubbio] erede di un ex Antico riceve Villico (domanda D4); [aperto] Registro con voci stantie ("G03 e' morto/a di notte", "G04 si rivela") dopo la rivelazione dell'Antico; riepilogo alba corretto
+- **Apprendista x Scemo del Villaggio**: [aperto] riepilogo senza l'eredità quando muore lo Scemo; annulla morte ripristina tutto
+- **Apprendista x Suocera**: [aperto] L'Apprendista erede di una Suocera sbranata non puo' essere rivelato come Suocera (candidatiSuocera solo morti), resta ignoto e conta come Villico
 - **Bardo (da solo)**: [aperto] Notte saltata dal Bardo: layout schiacciato e nessun feedback dopo il Conferma; [dubbio] "Salta la notte" neutralizza i poteri invece di saltare la fase (semplificazione mai confermata)
-- **Bardo x Mimo**: [dubbio] Bardo + Mimo-Bardo: potere riproposto dopo un uso se resta il morto non usato (caso da chiarire)
+- **Bardo x Mimo**: [dubbio] Bardo + Mimo-Bardo: potere riproposto dopo un uso se resta il morto non usato (caso da chiarire); [dubbio] Potere del Bardo riproposto dopo l'uso del Mimo se il Bardo vero e' morto non usato
 - **Boia (da solo)**: [aperto] Dati: mortoGiorno errato dopo Boia all'alba, storiaRuoli con duplicati ("boia","boia")
+- **Boia x Cavaliere**: [dubbio] Cavaliere salva dal Boia (dubbio regolamento D1); riepilogo dice che è morto ma è vivo; residui mortoDa/giustiziatoDa
+- **Boia x L'Antico**: [dubbio] Boia su Antico: sopravvive, nessuna maledizione (D3); [aperto] testo di rivelazione "perde la prima vita e da ora gioca da Villico" senza menzione della maledizione (il villaggio e maledetto davvero)
+- **Boia x Nano**: [dubbio] Il Boia puo giustiziare il Nano (testo: puo morire solo al rogo) (dubbio)
+- **Boia x Sacerdote**: [aperto] Boia all'alba su innamorato: partner non elencato tra i morti dell'Alba; riepilogo senza crepacuore; annulla morte non restituisce il potere al Boia
 - **Borgomastro (da solo)**: [dubbio] Voto doppio non automatizzato: solo promemoria visivo
 - **Cartomante x Mimo**: [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
+- **Cavaliere x Sacerdote**: [aperto] anteprima rogo "Morirà anche X (crepacuore)" insieme a "il Cavaliere lo protegge"; sacrificio di notte ok
+- **Cavaliere x Scemo del Villaggio**: [dubbio] Cavaliere salva lo Scemo dalla rima (D1); riepilogo "è morto/a" errato
 - **Chupacabra (da solo)**: [dubbio] Chupacabra rispetta la protezione (assunzione non confermata dal testo)
-- **Chupacabra x Lupo Mannaro**: [dubbio] Chupacabra + Lupo 1 contro 1: vincono i Lupi anche con il Chupacabra vivo
+- **Chupacabra x Cortigiana**: [dubbio] dubbio testo 'sbranato' e doppione nel registro
+- **Chupacabra x Lupo Mannaro**: [dubbio] Chupacabra + Lupo 1 contro 1: vincono i Lupi anche con il Chupacabra vivo; [aperto] Chupacabra non ancora assegnato (notte 1) ucciso dal branco: lo step Chupacabra non e' completabile (chip senza il morto, Avanti disabilitato) salvo Indietro
+- **Chupacabra x Mezzosangue**: [dubbio] dubbio muore
 - **Chupacabra x Mimo**: [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
+- **Chupacabra x Nonna**: [dubbio] dubbio noto (1 a 1)
 - **Cortigiana (da solo)**: [dubbio] "Sbranato dal branco" o "morto di notte" in generale: lettura ampia mantenuta
+- **Cortigiana x Figlia dei Lupi**: [dubbio] Cortigiana muore se visita la Figlia che diventa lupo la stessa notte (D8); [dubbio] dubbio (sopravvive)
 - **Cortigiana x Mimo**: [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
 - **Cortigiana x Strega**: [dubbio] Cortigiana sopravvive se il cliente muore per la pozione mortale (lettura "sbranato dal branco")
-- **Criceto Malvagio x Strega**: [dubbio] Criceto immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)
 - **Cucciolo di Lupo Mannaro (da solo)**: [dubbio] Cucciolo resuscitato dal Guaritore la notte della vendetta: i lupi sbranano comunque due vittime
 - **Cucciolo di Lupo Mannaro x Guaritore**: [dubbio] Cucciolo resuscitato dal Guaritore la notte della vendetta: i lupi sbranano comunque due vittime
+- **Cucciolo di Lupo Mannaro x Sacerdote**: [aperto] riepilogo del rogo senza la vendetta quando il Cucciolo muore di crepacuore
+- **Fantasma Onnisciente x Guaritore**: [dubbio] Il Fantasma resuscitato conserva la carta Fantasma da vivo e non si puo riassegnare (dubbio di regolamento)
+- **Fantasma Onnisciente x Sciacallo Mannaro**: [dubbio] Come Guaritore: resuscitato conserva eFantasmaOnnisciente (dubbio)
+- **Fattucchiera x Lupo Mannaro**: [dubbio] inibire un lupo non ha effetto sul Branco (D10)
 - **Fattucchiera x Mimo**: [dubbio] Mimo inibito dalla Fattucchiera: inibizione condivisa o per persona (Q12); [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
+- **Fattucchiera x Strega**: [aperto] primo Avanti non avanza sul passo inibito appena assegnato; blocco pozioni ok
 - **Gallo Mannaro (da solo)**: [dubbio] Gallo che salta il giorno provato solo come dialog, non end-to-end
+- **Gallo Mannaro x Pifferaio**: [aperto] Dopo refresh la coppia scelta dal Pifferaio resta ipnotizzata ma non e evidenziata (reselezione sostituisce); giorno saltato ok
 - **Guardia Mannara (da solo)**: [dubbio] Sbranando la Guardia Mannara una volta "Nessuno e' morto" (non riprodotto)
 - **Guardia Mannara x Veggente**: [dubbio] Veggente su Guardia Mannara: "Aura benevola"
+- **Guardia x Ladro**: [aperto] problemi: passo Guardie duplicato (BUG 2), Guardia Mannara casuale puo' toccare il Ladro (dubbio 7)
+- **Guardia x Mimo**: [dubbio] Mimo-guardia incluso tra i vivi del passo, senza etichetta (non verificato quale carta imita)
+- **Guaritore x L'Antico**: [dubbio] ex Antico resuscitato con una sola vita (D7)
 - **Guaritore x Mimo**: [dubbio] Poteri unici separati (Q5=B): implementazione per Guaritore senza test dedicato
+- **Guaritore x Pifferaio**: [aperto] Con un solo giocatore non ipnotizzato rimasto (o dopo un conteggio dispari) il Pifferaio non puo ipnotizzarlo: "Servono almeno due bersagli disponibili" e Chiudi senza effetto, vittoria irraggiungibile; l'ultimo non ipnotizzato bruciato al rogo non da vittoria subito ma solo all'alba dopo (dubbio); resuscitato non ipnotizzato blocca correttamente la vittoria
+- **Guaritore x Sacerdote**: [dubbio] partner morto di crepacuore resta morto senza avviso (D5); [dubbio] dubbio partner resta morto senza avviso
 - **Innocente x Mimo**: [dubbio] Mimo-Scemo/Innocente non provati in partita
+- **Inquisitore x Nonna**: [dubbio] risponde benevola e fa perdere il potere (D9); [dubbio] L'Inquisitore perde il potere sulla Nonna (aura benevola, noto)
+- **Inquisitore x Pifferaio**: [dubbio] Aura del Pifferaio benevola: l'Inquisitore perde il potere interrogandolo (dubbio di regolamento)
+- **Inquisitore x Sciacallo Mannaro**: [dubbio] Aura benevola dei mannari non-branco (Sciacallo, Polpo, Mucca, Gallo): Inquisitore perde il potere (dubbio, come Guardia Mannara)
 - **L'Antico x Medium**: [dubbio] Medium indaga l'ex Antico come "villico"
-- **Lupo Mannaro x Spilungone**: [dubbio] "La notte cala senza vittime" ma i lupi possono sbranare
+- **L'Antico x Sacerdote**: [dubbio] Antico innamorato: rogo ok; crepacuore consuma la prima vita (D2); [aperto] crepacuore: Antico sopravvive, maledizione ok, partner morto; il riepilogo dice ancora "E morto anche G08" dopo la rivelazione
+- **L'Antico x Spilungone**: [dubbio] Il Branco e' chiamato comunque dopo "notte senza vittime" (noto)
+- **Ladro x Lupo Mannaro Capobranco**: [dubbio] vittoria Capobranco + lupo semplice contro un villico: vincono i lupi, obiettivo individuale del Capobranco non applicato
+- **Ladro x Mimo**: [aperto] registro: "scarta" del Mimo e ordine delle voci invertito (cosmetico)
+- **Ladro x Suocera**: [dubbio] dubbio 4
+- **Lupo Mannaro Capobranco x Lupo Mannaro Progenitore**: [aperto] Il Progenitore puo "trasformare" un lupo (fratello sbranato): potere consumato senza effetto
+- **Lupo Mannaro Capobranco x Nonna**: [dubbio] Il branco senza Capobranco puo' sbranare anche i lupi (anche la Nonna): chip dei lupi presenti
 - **Lupo Mannaro Progenitore (da solo)**: [aperto] Dopo "trasforma" il bottone "Sbrana normalmente" risulta evidenziato (ambiguo)
-- **Maga x Mimo**: [dubbio] Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli
+- **Lupo Mannaro Progenitore x Mimo**: [aperto] potere di trasformazione condiviso: se si consuma quello del Mimo il Progenitore vero non può più trasformare (spec Q7: usi separati)
+- **Lupo Mannaro x Spilungone**: [dubbio] "La notte cala senza vittime" ma i lupi possono sbranare
+- **Lupo Mannaro x Untore**: [aperto] unzione: riepilogo senza nomi dei vicini
+- **Maga x Mimo**: [dubbio] Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli; [dubbio] Mimo inibito con Maga vera libera: azione unica condivisa ancora disponibile (dubbio Q12 confermato)
 - **Medium (da solo)**: [dubbio] Medium indaga l'ex Antico come "villico"
+- **Medium x Polpo Mannaro**: [dubbio] Il Medium interroga anche defunti della fazione lupi (testo: membro del villaggio) (dubbio)
 - **Mimo x Paladino**: [dubbio] Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli
 - **Mimo x Pastore**: [dubbio] Mimo con Pastore/Ambasciatore e aura non provato in browser
-- **Mimo x Pifferaio**: [dubbio] Il Pifferaio puo' ri-ipnotizzare chi lo e' gia'; [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
+- **Mimo x Pifferaio**: [dubbio] Il Pifferaio puo' ri-ipnotizzare chi lo e' gia'; [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile); [dubbio] Gruppo unico di 2 ipnotizzati per notte per Pifferaio e Mimo-Pifferaio, conforme alla spec; il passo non dice chi agisce
 - **Mimo x Scemo del Villaggio**: [dubbio] Mimo-Scemo/Innocente non provati in partita
 - **Mimo x Sciacallo Mannaro**: [dubbio] Poteri unici separati (Q5=B): implementazione per Sciacallo senza test dedicato
-- **Mimo x Untore**: [dubbio] Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli
+- **Mimo x Untore**: [dubbio] Azione di ogni notte unica e condivisa; escluso solo il primo titolare dai bersagli; [aperto] Condizione "unto" rimane sul morto per unzione fino a fine giorno (dati)
 - **Mimo x Veggente**: [aperto] Togliere il Mimo dagli indagabili: non fondamentale (spec)
 - **Mimo x Veggente Mannaro**: [dubbio] Escludere "il titolare" dai bersagli toglie solo il primo della lista (secondo titolare bersagliabile)
+- **Mucca Mannara x Polpo Mannaro**: [dubbio] Il branco puo sbranare Polpo/Mucca/Sciacallo senza alcun avviso (dubbio di regolamento)
 - **Nano (da solo)**: [dubbio] Nano e Criceto immuni solo ai lupi: la frase "puo' morire solo al rogo" potrebbe valere per ogni potere
 - **Nano x Strega**: [dubbio] Nano immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)
 - **Pastore (da solo)**: [dubbio] Pastore con piu' lupi non coperto
 - **Pifferaio (da solo)**: [aperto] Totale passi sovrastimato se il Pifferaio non ipnotizza
+- **Sacerdote x Scemo del Villaggio**: [aperto] anteprima con crepacuore anche se il Cavaliere salva; senza Cavaliere ok
 - **Sacerdote x Sciacallo Mannaro**: [dubbio] Sciacallo resuscita anche gli amanti: il partner morto resta morto senza avviso
 - **Sciacallo Mannaro (da solo)**: [dubbio] Sciacallo resuscita anche gli amanti: il partner morto resta morto senza avviso
 - **Spilungone (da solo)**: [dubbio] "La notte cala senza vittime" non blocca i poteri notturni
 - **Strega (da solo)**: [dubbio] "Richiama i morti": Strega chiamata con entrambe le pozioni usate
+- **Strega x Suocera**: [aperto] Dato: mortoDa non impostato per la vittima della pozione mortale (solo dato)
 
 ## Prime 40 coppie non valutate piu' rischiose
 

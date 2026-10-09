@@ -313,19 +313,24 @@
           "stato": "dubbio"
         },
         {
-          "testo": "dubbio carta duplicata e scambio inutile con carta gia' ereditata (BUG 4); legame segue la persona",
-          "stato": "aperto"
+          "testo": "Carta duplicata e scambio inutile con carta gia' ereditata: corretto (niente scambio se la carta e' gia' in mano all'Apprendista); decisione: i legami seguono la carta, non la persona",
+          "stato": "risolto"
         },
         {
           "testo": "bug 3 (voce spuria 'eredita il ruolo')",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3D t3/t17 2026-10-05",
         "batch4G d1-d3",
         "docs/bug-partite-2026-10-09-a.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "decisione:2026-10-09",
+        "test:features/notte/azioni/AzioneAddolorata.test.jsx:228",
+        "commit:b35d5fc",
+        "test:data/log.test.js:342"
       ]
     },
     {
@@ -351,18 +356,20 @@
       "problemi": [
         {
           "testo": "BUG 2 (carta iniziale al posto della carta attuale)",
-          "stato": "aperto"
+          "stato": "risolto"
         },
         {
           "testo": "dubbio carta iniziale (pre-caricato)",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3D t13 2026-10-05",
         "docs/bug-partite-2026-10-09-a.md",
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99"
       ]
     },
     {
@@ -375,15 +382,16 @@
           "stato": "dubbio"
         },
         {
-          "testo": "nessun bug (legame ereditato/scarico ok); dubbio legame persona-vs-carta e Cavaliere vs esplosione",
-          "stato": "aperto"
+          "testo": "Il legame ereditato segue la carta (decisione); il Cavaliere si immola prima dell'esplosione dell'Alchimista (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3D t1/t2 2026-10-05",
         "batch4G e1-e3",
         "docs/bug-partite-2026-10-09-a.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "decisione:2026-10-09"
       ]
     },
     {
@@ -441,13 +449,15 @@
         },
         {
           "testo": "bug 3 (voce spuria 'diventa Lupo Mannaro')",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3D t4 2026-10-05",
         "docs/bug-partite-2026-10-09-a.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b35d5fc",
+        "test:data/log.test.js:342"
       ]
     },
     {
@@ -496,13 +506,15 @@
         },
         {
           "testo": "BUG 2/dubbio (Medium vede carta iniziale, variante aura vede ruolo corrente)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3D t11 2026-10-05",
         "batch4G e3",
-        "docs/bug-partite-2026-10-09-a.md"
+        "docs/bug-partite-2026-10-09-a.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99"
       ]
     },
     {
@@ -689,16 +701,16 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "Cavaliere salva l'Alchimista al rogo ma esplode comunque (2 morti); riepilogo e anteprima incoerenti col sacrificio",
-          "stato": "aperto"
+          "testo": "Alchimista protetto dal Cavaliere al rogo non esplode: il Cavaliere si immola e agisce prima dell'Alchimista (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio (Cavaliere salva dall'esplosione)",
-          "stato": "dubbio"
+          "testo": "Alchimista protetto dal Cavaliere al rogo non esplode (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio D2 (esplosione resta)",
-          "stato": "dubbio"
+          "testo": "Alchimista protetto dal Cavaliere al rogo non esplode (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -707,7 +719,11 @@
         "batch4I seed21 (Cavaliere protegge l'Alchimista: niente esplosione, si immola)",
         "docs/bug-partite-2026-10-09-a.md",
         "docs/bug-partite-2026-10-09-d.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/giorno/EventiSpeciali.test.jsx:534",
+        "test:features/giorno/Votazione.test.jsx:676"
       ]
     },
     {
@@ -901,7 +917,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "bug-partite-2026-10-05 Non coperto",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -916,7 +933,8 @@
       ],
       "fonti": [
         "audit-ruoli-2026-09-22 §Ambasciatore",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -932,7 +950,8 @@
       "fonti": [
         "test:data/alba.test.js:27",
         "audit-mimo-2026-10-02 §2.3",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -968,14 +987,17 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio potere gia' usato ereditato",
-          "stato": "dubbio"
+          "testo": "Apprendista che eredita il Boia lo riceve con il potere usato solo se il Boia lo aveva usato (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3F sb7, sr2",
         "docs/bug-partite-2026-10-07.md#scenario-1",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/risoluzioneNotte.test.js:340"
       ]
     },
     {
@@ -993,7 +1015,7 @@
         },
         {
           "testo": "bug 2 (manca voce legame ereditato)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -1001,7 +1023,10 @@
         "test:data/risoluzioneNotte.test.js:270",
         "bug-partite-2026-10-02 #16",
         "batch4G j1-j2",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:094225d",
+        "commit:b35d5fc",
+        "test:data/log.test.js:326"
       ]
     },
     {
@@ -1283,17 +1308,19 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "fixture:data/nightSteps.test.js"
+        "fixture:data/nightSteps.test.js",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "bardo",
       "b": "gallo-mannaro",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:data/log.test.js:124",
-        "test:data/nightSteps.test.js:55"
+        "test:data/nightSteps.test.js:55",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -1323,11 +1350,12 @@
     {
       "a": "bardo",
       "b": "lupo-mannaro",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:data/nightSteps.test.js:55",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -1408,10 +1436,16 @@
       "a": "berserker",
       "b": "cucciolo-di-lupo-mannaro",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "dubbio D2 (maturazione non annunciata)",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
         "test:state/usePartita.test.js:383",
-        "batch4I seed11 (morte del lupo fa diventare adulto il Cucciolo)"
+        "batch4I seed11 (morte del lupo fa diventare adulto il Cucciolo)",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -1611,13 +1645,14 @@
           "stato": "dubbio"
         },
         {
-          "testo": "dubbio il Cavaliere si immola per il Boia",
-          "stato": "dubbio"
+          "testo": "Boia che giustizia il protetto del Cavaliere: il Cavaliere si immola (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3F so1",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09"
       ]
     },
     {
@@ -1642,10 +1677,11 @@
     {
       "a": "boia",
       "b": "guardia-mannara",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:features/notte/azioni/AzioneMimo.test.jsx:155"
+        "test:features/notte/azioni/AzioneMimo.test.jsx:155",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -1902,7 +1938,8 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -1992,7 +2029,8 @@
       "fonti": [
         "test:data/eventiSpeciali.test.js:12",
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2008,9 +2046,15 @@
       "a": "borgomastro",
       "b": "villico",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "bug 1 (Villico ultimo ignoto assegnato al Borgomastro)",
+          "stato": "aperto"
+        }
+      ],
       "fonti": [
-        "test:features/notte/azioni/AzioneLadro.test.jsx:250"
+        "test:features/notte/azioni/AzioneLadro.test.jsx:250",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2071,7 +2115,7 @@
         },
         {
           "testo": "dubbio 3",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -2079,7 +2123,8 @@
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:236",
         "commit:362b3c6",
         "docs/bug-partite-2026-10-09-b.md",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "commit:b2102ae"
       ]
     },
     {
@@ -2113,18 +2158,20 @@
       "problemi": [
         {
           "testo": "problemi: carta mostrata \"Ladro\" invece del ruolo preso (BUG 1)",
-          "stato": "aperto"
+          "stato": "risolto"
         },
         {
           "testo": "dubbio carta iniziale (pre-caricato)",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3E (L15c.png)",
         "docs/bug-partite-2026-10-09-b.md",
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99"
       ]
     },
     {
@@ -2143,12 +2190,15 @@
       "problemi": [
         {
           "testo": "bug 1-2 su Mostra carta",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "test:data/nightSteps.test.js:150",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2173,7 +2223,8 @@
         "spec-mimo-2026-10-02 Q9",
         "audit-mimo-2026-10-02 P7",
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2183,7 +2234,8 @@
       "problemi": [],
       "fonti": [
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2215,13 +2267,14 @@
         },
         {
           "testo": "dubbio chip senza Scemo",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
         "commit:dc3f9a0",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "commit:b35d5fc"
       ]
     },
     {
@@ -2314,18 +2367,23 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio incoerenza notte/rogo",
-          "stato": "dubbio"
+          "testo": "Il Cavaliere agisce sempre prima di Antico e Spilungone, anche al rogo (decisione)",
+          "stato": "risolto"
         },
         {
           "testo": "bug 1 (testo maledizione con ruolo noto)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3F s2",
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "decisione:2026-10-09",
+        "commit:b2102ae",
+        "commit:b35d5fc",
+        "test:features/giorno/Votazione.test.jsx:884",
+        "test:data/eventiSpeciali.test.js:180"
       ]
     },
     {
@@ -2351,13 +2409,16 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (vittima protetta trasformata)",
-          "stato": "dubbio"
+          "testo": "Vittima protetta trasformata dal Progenitore: ok (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-07.md#scenario-3",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:725"
       ]
     },
     {
@@ -2436,12 +2497,16 @@
       "problemi": [
         {
           "testo": "bug 1 (testo rivelazione con ruolo noto)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch4H k1",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "commit:b35d5fc",
+        "test:features/giorno/Votazione.test.jsx:884",
+        "test:data/eventiSpeciali.test.js:180"
       ]
     },
     {
@@ -2452,12 +2517,17 @@
         {
           "testo": "Il Cavaliere salva da qualsiasi causa (es. Strega); al rogo il sacrificio non ha mortoNotte",
           "stato": "risolto"
+        },
+        {
+          "testo": "dubbio D1 (si immola anche per la pozione mortale)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "test:data/risoluzioneNotte.test.js:155",
         "docs/bug-partite-2026-10-09-d.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2512,15 +2582,18 @@
           "stato": "risolto"
         },
         {
-          "testo": "dubbio immune anche al Chupacabra",
-          "stato": "dubbio"
+          "testo": "Il Criceto Malvagio e' immune di notte anche al Chupacabra (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:83",
         "commit:c6d0658",
         "docs/bug-partite-2026-10-09-e.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09",
+        "test:data/effettiNotte.test.js:206",
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:80"
       ]
     },
     {
@@ -2622,11 +2695,11 @@
         },
         {
           "testo": "bug 1 (refresh nel passo, doppia uccisione)",
-          "stato": "aperto"
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio sbranato dal branco prima di cacciare",
-          "stato": "dubbio"
+          "testo": "Chupacabra sbranato la stessa notte caccia comunque: i morti si scoprono all'alba (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -2638,7 +2711,11 @@
         "test:features/notte/azioni/AzioneInquisitore.test.jsx:59",
         "bug-partite-2026-10-05 dubbi",
         "batch4I seed70, minimo: mazzo Chupacabra+2 Lupi+Veggente+8 Villici, branco sbrana il Chupacabra",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:205",
+        "decisione:2026-10-09",
+        "test:data/nightSteps.test.js:286"
       ]
     },
     {
@@ -2751,7 +2828,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H c1"
+        "batch4H c1",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -2810,7 +2888,8 @@
       "fonti": [
         "fixture:data/nightSteps.test.js",
         "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3074,8 +3153,8 @@
           "stato": "risolto"
         },
         {
-          "testo": "dubbio conteggio e vittoria",
-          "stato": "dubbio"
+          "testo": "Il Criceto conta come resto del villaggio per conteggio e vittoria (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -3085,7 +3164,8 @@
         "commit:b779f69",
         "audit-regolamento-2026-09-21 #3",
         "batch4I seed1",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "decisione:2026-10-09"
       ]
     },
     {
@@ -3150,18 +3230,21 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "Criceto immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)",
-          "stato": "dubbio"
+          "testo": "Il Criceto Malvagio e' immune di notte anche alla Strega (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio immunita' totale",
-          "stato": "dubbio"
+          "testo": "Il Criceto Malvagio e' immune di notte anche alla Strega (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "audit-ruoli-2026-09-22 appendice C",
         "docs/bug-partite-2026-10-09-e.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09",
+        "test:data/effettiNotte.test.js:206",
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:80"
       ]
     },
     {
@@ -3253,7 +3336,7 @@
         },
         {
           "testo": "bug 4 (ordine Diario)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -3266,7 +3349,9 @@
         "test:features/notte/NightSequencer.test.jsx:904",
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
         "commit:d3e1d00",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b35d5fc",
+        "test:data/log.test.js:359"
       ]
     },
     {
@@ -3368,7 +3453,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:features/notte/azioni/AzioneInquisitore.test.jsx:59"
+        "test:features/notte/azioni/AzioneInquisitore.test.jsx:59",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3387,16 +3473,18 @@
       "problemi": [],
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
-        "spec-mimo-2026-10-02"
+        "spec-mimo-2026-10-02",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "eremita",
       "b": "veggente",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)"
+        "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3460,7 +3548,7 @@
         },
         {
           "testo": "BUG 4 (selezionabile come carta extra, doppio Fantasma)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -3469,7 +3557,9 @@
         "bug-partite-2026-10-02 #19",
         "commit:a6f8099",
         "docs/bug-partite-2026-10-07.md#scenario-4",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "commit:b2102ae",
+        "test:features/notte/azioni/AzioneLadro.test.jsx:325"
       ]
     },
     {
@@ -3508,7 +3598,8 @@
       "fonti": [
         "test:features/giorno/annullaMorte.test.js:11",
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3533,7 +3624,8 @@
       "fonti": [
         "test:data/eventiSpeciali.test.js:12",
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3584,7 +3676,8 @@
       "fonti": [
         "batch3F sp1",
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3659,7 +3752,8 @@
       "problemi": [],
       "fonti": [
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3706,7 +3800,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sk2"
+        "batch3F sk2",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3744,7 +3839,8 @@
       "problemi": [],
       "fonti": [
         "test:data/log.test.js:130",
-        "batch3F se2"
+        "batch3F se2",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3834,7 +3930,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 B4",
-        "commit:4d639e9"
+        "commit:4d639e9",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3914,7 +4011,7 @@
         },
         {
           "testo": "BUG 2 (passo duplicato senza la GM, riprodotto senza Ladro)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
@@ -3930,7 +4027,10 @@
         "batch4G s1",
         "docs/bug-partite-2026-10-07.md#scenario-3",
         "docs/bug-partite-2026-10-09-b.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "test:data/nightSteps.test.js:276",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -3996,12 +4096,13 @@
       "problemi": [
         {
           "testo": "problemi: Cartomante chiede/riscrive la carta (dubbio 3)",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "batch3E (L18_*.png)",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "commit:b2102ae"
       ]
     },
     {
@@ -4017,7 +4118,8 @@
       "fonti": [
         "test:data/alba.test.js:82",
         "bug-partite-2026-10-05 dubbi",
-        "bug-partite-2026-10-02 dubbi"
+        "bug-partite-2026-10-02 dubbi",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -4176,8 +4278,8 @@
           "stato": "dubbio"
         },
         {
-          "testo": "innamorato resuscitato resta \"innamorato\" con il partner morto (nessun avviso ne' rimozione della condizione)",
-          "stato": "dubbio"
+          "testo": "L'innamoramento si scioglie alla morte: il resuscitato non e' piu' innamorato (decisione)",
+          "stato": "risolto"
         },
         {
           "testo": "dubbio partner resta morto senza avviso",
@@ -4187,7 +4289,9 @@
       "fonti": [
         "batch3F sj4",
         "batch4I seed47",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "decisione:2026-10-09",
+        "test:data/effettiNotte.test.js:99"
       ]
     },
     {
@@ -4240,27 +4344,30 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "bug-partite-2026-10-05 Non coperto",
-        "spec-mimo-2026-10-02 §2.4"
+        "spec-mimo-2026-10-02 §2.4",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "innocente",
       "b": "scemo-del-villaggio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "innocente",
       "b": "suocera",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -4320,7 +4427,8 @@
         "test:features/notte/azioni/AzioneInquisitore.test.jsx:94",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "spec-mimo-2026-10-02 §2.3"
+        "spec-mimo-2026-10-02 §2.3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -4477,13 +4585,15 @@
       "problemi": [
         {
           "testo": "problemi: idem BUG 1",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "fixture:data/nightSteps.test.js",
         "batch3E (L16c.png)",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99"
       ]
     },
     {
@@ -4633,18 +4743,23 @@
       "problemi": [
         {
           "testo": "la scelta del Ladro non finisce nel registro quando è assegnato nello stesso passo (bug certo); Avanti senza scelta lascia \"Ladro\" senza avviso",
-          "stato": "aperto"
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio D3 (chip duplicata)",
-          "stato": "dubbio"
+          "testo": "Ladro con due carte uguali non-Lupo (due Villici): ok, una sola chip (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneLadro.test.jsx:23",
         "audit-regolamento-2026-09-21 §17",
         "batch3E s1/s2",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:094225d",
+        "test:state/useLog.test.js:176",
+        "decisione:2026-10-09",
+        "commit:b2102ae",
+        "test:features/notte/azioni/AzioneLadro.test.jsx:343"
       ]
     },
     {
@@ -4736,7 +4851,8 @@
       "fonti": [
         "batch3F s8, sj2",
         "batch4G n1-n2",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5049,7 +5165,8 @@
         "bug-partite-2026-10-02 #24",
         "commit:5013ce4",
         "batch4I seed3",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5203,7 +5320,8 @@
       "fonti": [
         "batch3E (M2c.png, M2d.png)",
         "batch4G g1-g8",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5257,7 +5375,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 P7",
-        "docs/bug-partite-2026-10-07.md#scenario-5"
+        "docs/bug-partite-2026-10-07.md#scenario-5",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5266,7 +5385,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5283,10 +5403,11 @@
     {
       "a": "maga",
       "b": "pifferaio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5302,11 +5423,12 @@
     {
       "a": "maga",
       "b": "veggente",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "batch3F sp1",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5344,7 +5466,8 @@
         "fixture:features/notte/NightSequencer.test.jsx",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 Q4"
+        "audit-mimo-2026-10-02 Q4",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5450,15 +5573,18 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio protezione impedisce trasformazione",
-          "stato": "dubbio"
+          "testo": "La protezione impedisce la trasformazione solo del Mezzosangue; ogni altra vittima protetta si trasforma (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "audit-ruoli-2026-09-22 §Mezzosangue (solo il morso lo converte)",
         "docs/bug-partite-2026-10-09-c.md",
         "docs/bug-partite-2026-10-09-d.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:725"
       ]
     },
     {
@@ -5520,7 +5646,8 @@
       "problemi": [],
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
-        "spec-mimo-2026-10-02"
+        "spec-mimo-2026-10-02",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5538,7 +5665,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 P7",
-        "batch4I seed53"
+        "batch4I seed53",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5729,7 +5857,8 @@
       "problemi": [],
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
-        "spec-mimo-2026-10-02"
+        "spec-mimo-2026-10-02",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5750,7 +5879,8 @@
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
         "audit-mimo-2026-10-02 P7",
-        "docs/bug-partite-2026-10-07.md#bug-certi-5"
+        "docs/bug-partite-2026-10-07.md#bug-certi-5",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5797,7 +5927,8 @@
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "audit-mimo-2026-10-02 P7"
+        "audit-mimo-2026-10-02 P7",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5963,7 +6094,8 @@
         "test:data/aura.test.js:9",
         "audit-ruoli-2026-09-22 §Meccanismi condivisi",
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -5972,13 +6104,16 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (aura benevola)",
-          "stato": "dubbio"
+          "testo": "Il Veggente Mannaro vede come il Veggente (aura benevola per mannari non-branco e Nonna) e il Polpo non lo acceca (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneIndagine.test.jsx:256"
       ]
     },
     {
@@ -6117,7 +6252,8 @@
         "test:features/notte/azioni/SceltaDoppiaGiocatore.test.jsx:11",
         "test:data/vittoria.test.js:213",
         "bug-partite-2026-10-02 #6",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6192,7 +6328,8 @@
         "test:features/notte/azioni/AzioneIndagine.test.jsx:91",
         "test:features/notte/azioni/AzioneIndagine.test.jsx:106",
         "audit-regolamento-2026-09-21 #4",
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6202,7 +6339,8 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneIndagine.test.jsx:69",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6255,13 +6393,15 @@
           "stato": "dubbio"
         },
         {
-          "testo": "idem: innamorato resuscitato dallo Sciacallo resta \"innamorato\" con il partner ancora morto",
-          "stato": "dubbio"
+          "testo": "L'innamoramento si scioglie alla morte: lo Sciacallo resuscita un innamorato che non e' piu' innamorato (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "bug-partite-2026-10-05 dubbi",
-        "batch4I seed55"
+        "batch4I seed55",
+        "decisione:2026-10-09",
+        "test:data/effettiNotte.test.js:99"
       ]
     },
     {
@@ -6292,11 +6432,12 @@
     {
       "a": "scemo-del-villaggio",
       "b": "suocera",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6398,7 +6539,8 @@
       "problemi": [],
       "fonti": [
         "audit-ruoli-2026-09-22 §Ubriaco",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6490,7 +6632,8 @@
       "fonti": [
         "batch3F sp4",
         "docs/bug-partite-2026-10-07.md#scenario-2",
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6530,10 +6673,16 @@
     {
       "a": "veggente",
       "b": "villico",
-      "valutata": "parziale",
-      "problemi": [],
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "bug 1",
+          "stato": "aperto"
+        }
+      ],
       "fonti": [
-        "bug-report-2026-09-17 partita dal vivo"
+        "bug-report-2026-09-17 partita dal vivo",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6596,21 +6745,24 @@
       "problemi": [
         {
           "testo": "BUG 2 (mostra Apprendista per l'erede del Veggente)",
-          "stato": "aperto"
+          "stato": "risolto"
         },
         {
           "testo": "dubbio carta iniziale (pre-caricato)",
-          "stato": "dubbio"
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio D4 (maestro ignoto)",
-          "stato": "dubbio"
+          "testo": "Apprendista con maestro ignoto: ok (decisione del proprietario)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-09-a.md",
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "test:data/assegnazione.test.js:99",
+        "decisione:2026-10-09"
       ]
     },
     {
@@ -6699,12 +6851,14 @@
       "problemi": [
         {
           "testo": "dubbio precedenza vittoria",
-          "stato": "dubbio"
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-09-c.md",
-        "docs/bug-partite-2026-10-09-d.md"
+        "docs/bug-partite-2026-10-09-d.md",
+        "commit:b2102ae",
+        "test:data/vittoria.test.js:277"
       ]
     },
     {
@@ -6731,34 +6885,38 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "chupacabra",
       "b": "maga",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "criceto-malvagio",
       "b": "maga",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
       "a": "berserker",
       "b": "maga",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6794,7 +6952,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6836,10 +6995,11 @@
     {
       "a": "chupacabra",
       "b": "untore",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6866,7 +7026,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6912,11 +7073,14 @@
       "problemi": [
         {
           "testo": "BUG 2 (stordimento senza morte)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:518",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6925,7 +7089,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6943,7 +7108,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6970,7 +7136,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -6979,7 +7146,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7006,12 +7174,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (visita non letale)",
-          "stato": "dubbio"
+          "testo": "Per la Cortigiana sono 'lupi' solo Lupo Mannaro, Capobranco, Progenitore, Cucciolo e Nonna (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:535"
       ]
     },
     {
@@ -7020,12 +7191,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (non e' il lupo piu' vicino)",
-          "stato": "dubbio"
+          "testo": "Per il Berserker sono 'lupi' solo Lupo Mannaro, Capobranco, Progenitore, Cucciolo e Nonna (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:535"
       ]
     },
     {
@@ -7043,7 +7217,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7052,7 +7227,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7061,7 +7237,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7070,7 +7247,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7097,7 +7275,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7142,7 +7321,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7157,10 +7337,11 @@
     {
       "a": "ambasciatore",
       "b": "nonna",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7322,12 +7503,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (trasformazione di un protetto)",
-          "stato": "dubbio"
+          "testo": "Il Progenitore trasforma anche il Paladino protetto: ok (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:725"
       ]
     },
     {
@@ -7408,12 +7592,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (aura benevola)",
-          "stato": "dubbio"
+          "testo": "Il Veggente Mannaro vede come il Veggente (aura benevola per mannari non-branco e Nonna) e il Polpo non lo acceca (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneIndagine.test.jsx:256"
       ]
     },
     {
@@ -7422,12 +7609,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (aura benevola)",
-          "stato": "dubbio"
+          "testo": "Il Veggente Mannaro vede come il Veggente (aura benevola per mannari non-branco e Nonna) e il Polpo non lo acceca (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneIndagine.test.jsx:256"
       ]
     },
     {
@@ -7436,12 +7626,16 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (aura benevola)",
-          "stato": "dubbio"
+          "testo": "Il Veggente Mannaro vede come il Veggente (aura benevola per mannari non-branco e Nonna) e il Polpo non lo acceca (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneIndagine.test.jsx:256",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -7495,12 +7689,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (non e' il lupo piu' vicino)",
-          "stato": "dubbio"
+          "testo": "Per il Berserker sono 'lupi' solo Lupo Mannaro, Capobranco, Progenitore, Cucciolo e Nonna (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:535"
       ]
     },
     {
@@ -7752,16 +7949,19 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio",
-          "stato": "dubbio"
+          "testo": "Il Progenitore trasforma anche Nano e Criceto: ok (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio (trasformabile)",
-          "stato": "dubbio"
+          "testo": "Il Progenitore trasforma anche il Nano: ok (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:725"
       ]
     },
     {
@@ -7770,12 +7970,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio",
-          "stato": "dubbio"
+          "testo": "Il Progenitore trasforma anche Nano e Criceto: ok (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:725"
       ]
     },
     {
@@ -7910,12 +8113,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (visita non letale)",
-          "stato": "dubbio"
+          "testo": "Per la Cortigiana sono 'lupi' solo Lupo Mannaro, Capobranco, Progenitore, Cucciolo e Nonna (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:535"
       ]
     },
     {
@@ -7924,12 +8130,15 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (non e' il lupo piu' vicino)",
-          "stato": "dubbio"
+          "testo": "Per il Berserker sono 'lupi' solo Lupo Mannaro, Capobranco, Progenitore, Cucciolo e Nonna (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "decisione:2026-10-09",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:535"
       ]
     },
     {
@@ -8775,21 +8984,22 @@
       "valutata": "si",
       "problemi": [
         {
-          "testo": "dubbio (resuscitato senza protetto)",
-          "stato": "dubbio"
+          "testo": "Cavaliere resuscitato senza legame: ok (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio legame azzerato alla resurrezione",
-          "stato": "dubbio"
+          "testo": "Cavaliere resuscitato senza legame: ok (decisione)",
+          "stato": "risolto"
         },
         {
-          "testo": "dubbio legame azzerato",
-          "stato": "dubbio"
+          "testo": "Cavaliere resuscitato senza legame: ok (decisione)",
+          "stato": "risolto"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-09-e.md",
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "decisione:2026-10-09"
       ]
     },
     {
@@ -8986,10 +9196,11 @@
     {
       "a": "chupacabra",
       "b": "fattucchiera",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -8998,7 +9209,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -9008,11 +9220,13 @@
       "problemi": [
         {
           "testo": "BUG 3 (muore comunque il lupo piu' vicino)",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-e.md"
+        "docs/bug-partite-2026-10-09-e.md",
+        "commit:b35d5fc",
+        "test:data/effettiNotte.test.js:526"
       ]
     },
     {
@@ -9148,7 +9362,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -9193,7 +9408,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -9275,20 +9491,23 @@
       "problemi": [
         {
           "testo": "bug 1",
-          "stato": "aperto"
+          "stato": "risolto"
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "commit:b35d5fc",
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:205"
       ]
     },
     {
       "a": "lantico",
       "b": "pifferaio",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-f.md"
+        "docs/bug-partite-2026-10-09-f.md",
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     },
     {
@@ -9397,6 +9616,507 @@
       "problemi": [],
       "fonti": [
         "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "eremita",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "sacerdote",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "eremita",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "eremita",
+      "b": "fantasma-onnisciente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "eremita",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "eremita",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "innocente",
+      "b": "maga",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "innocente",
+      "b": "lupo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro",
+      "b": "suocera",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "bug 2 (banner Lupi prematuro con Suocera non rivelata)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "suocera",
+      "b": "villico",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "bug 1 (ultimo ignoto -> borgomastro)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "suocera",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "suocera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "villico",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "bug 1 (Cartomante mostra la carta Borgomastro)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "villico",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "figlia-dei-lupi",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "pifferaio",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "maga",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia-mannara",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "sacerdote",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "guardia",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "sacerdote",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "boia",
+      "b": "guardia",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "alchimista",
+      "b": "guardia",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "lupo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
+      "b": "guardia",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "innocente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "suocera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "guardia",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia-mannara",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia-mannara",
+      "b": "sacerdote",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "guardia-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "guardia-mannara",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "medium",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "fantasma-onnisciente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "bardo",
+      "b": "berserker",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
+      "b": "gallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "fantasma-onnisciente",
+      "b": "medium",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "figlia-dei-lupi",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "figlia-dei-lupi",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "mezzosangue",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "scemo-del-villaggio",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
+      ]
+    },
+    {
+      "a": "eremita",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-h.md"
       ]
     }
   ]

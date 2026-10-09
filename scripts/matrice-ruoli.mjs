@@ -237,3 +237,26 @@ aside li{margin:3px 0}
 `
 fs.writeFileSync(path.join(docs, 'matrice-ruoli.html'), html)
 console.log(`matrice-ruoli.html: ${n} ruoli, ${totale} coppie, valutate ${valutate} (si ${stat.si}, parziale ${stat.par}), problemi aperti/dubbi ${stat.bad}`)
+
+// con --md stampa i numeri per le sezioni statistiche di docs/matrice-ruoli.md
+if (process.argv.includes('--md')) {
+  const pct = (x, t) => `${x} (${((100 * x) / t).toFixed(1)}%)`
+  const mimo = ruoli.findIndex((r) => r.slug === 'mimo')
+  const valMimo = perRuolo[mimo].val
+  const nonMimo = valutate - valMimo
+  console.log(`Valutate ${pct(valutate, totale)}; si ${pct(stat.si, totale)}; parziale ${stat.par}; non valutate ${pct(totale - valutate, totale)}`)
+  console.log(`verde ${stat.ok}; arancio ${stat.warn}; rosso ${stat.bad}; Mimo ${valMimo}/${n}; escluso il Mimo ${nonMimo} su ${totale - n} (${((100 * nonMimo) / (totale - n)).toFixed(1)}%)`)
+  const ord = ruoli.map((r, i) => ({ nome: r.nome, v: perRuolo[i].val, mimo: r.slug === 'mimo' }))
+  const piu = [...ord].sort((a, b) => b.v - a.v).slice(0, 10)
+  const meno = [...ord].sort((a, b) => a.v - b.v).slice(0, 10)
+  console.log('PIU\n' + piu.map((r, i) => `${i + 1}. ${r.nome} (${r.v}/${n})`).join('\n'))
+  console.log('Senza il Mimo: ' + ord.filter((r) => !r.mimo).sort((a, b) => b.v - a.v).slice(0, 6).map((r) => `${r.nome} (${r.v}/${n})`).join(', '))
+  console.log('MENO\n' + meno.map((r, i) => `${i + 1}. ${r.nome} (${r.v}/${n})`).join('\n'))
+  const nome = Object.fromEntries(ruoli.map((r) => [r.slug, r.nome]))
+  const aperti = dati.celle.filter((c) => c.problemi.some((p) => p.stato !== 'risolto'))
+  console.log(`APERTI ${aperti.length} celle`)
+  for (const c of aperti.sort((x, y) => (nome[x.a] + nome[x.b]).localeCompare(nome[y.a] + nome[y.b], 'it'))) {
+    const t = c.a === c.b ? `${nome[c.a]} (da solo)` : `${nome[c.a]} x ${nome[c.b]}`
+    console.log(`- **${t}**: ` + c.problemi.filter((p) => p.stato !== 'risolto').map((p) => `[${p.stato}] ${p.testo}`).join('; '))
+  }
+}
