@@ -24,7 +24,7 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo il quinto batch di partite (2026-10-07: ruoli meno valutati e combinazioni del Mimo). Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
+_Aggiornato dopo il settimo batch di partite (2026-10-09: Addolorata, Ladro, Cartomante/Medium, coppie 22-38; report `bug-partite-2026-10-09-{a,b,c}.md`). Il conteggio sotto riguarda solo le righe riassuntive: 464 coppie valutate (si 346, parziale 118), 109 celle con problemi aperti o dubbi. Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
 
 | | |
 |---|---|
