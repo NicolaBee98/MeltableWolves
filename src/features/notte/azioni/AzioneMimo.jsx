@@ -6,7 +6,7 @@ import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 // voto); tutte le altre carte del mazzo ancora non
 // assegnate sì (anche Boia, Alchimista, Scemo, Innocente, Suocera, Fantasma) e la
 // Guardia Mannara è una carta distinta: il Mimo guarda la carta vera
-const NON_IMITABILI = ['mimo', 'borgomastro']
+const NON_IMITABILI = ['mimo', 'borgomastro', 'cartomante']
 
 // "La prima notte sceglie un giocatore e ne imita il ruolo per tutta la
 // partita" (pag. 18): il Mimo agisce molto presto, spesso prima che il

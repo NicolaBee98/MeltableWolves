@@ -539,3 +539,14 @@ test('sono lupi (Cortigiana, Berserker, Pastore) solo Lupo, Capobranco, Progenit
   const giocatori = [gp('1', 'berserker'), gp('2', 'polpo-mannaro'), gp('3', 'villico'), gp('4', 'nonna')]
   expect(berserkerLupiCandidati(giocatori, '1').map((g) => g.id)).toEqual(['4'])
 })
+
+test('avvisiColpo: il Berserker sbranato che porta con sé un lupo fa maturare anche il Cucciolo (un solo avviso)', () => {
+  const giocatori = [
+    { id: 'b', nome: 'Bruno', ruoloSlug: 'berserker', vivo: true, condizioni: [] },
+    { id: 'l', nome: 'Lia', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: 'c', nome: 'Cleo', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const patches = { b: { vivo: false }, l: { vivo: false } }
+  const avvisi = avvisiColpo(giocatori, 'b', patches, 'branco')
+  expect(avvisi.filter((a) => /Cucciolo Cleo diventa adulto/.test(a.testo))).toHaveLength(1)
+})

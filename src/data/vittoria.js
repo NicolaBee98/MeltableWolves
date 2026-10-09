@@ -27,7 +27,13 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   // gli abitanti, e va tolta dal conteggio degli abitanti per il pareggio
   // lupi/villaggio. Una volta rivelata (sempre alla morte) conta come
   // qualsiasi altro morto: non serve più questo aggiustamento.
-  const suoceraNascosta = (quantita.suocera ?? 0) > 0 && !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
+  // Se c'è già un morto dal ruolo ignoto, la Suocera potrebbe essere proprio lui
+  // (si rivela alla morte, ma l'app lo sa solo quando il narratore lo dichiara):
+  // nel dubbio non si toglie un abitante, per non annunciare una vittoria dei
+  // lupi che sparirebbe appena la Suocera viene rivelata.
+  const mortoIgnoto = giocatori.some((g) => !g.vivo && !g.ruoloSlug)
+  const suoceraNascosta =
+    (quantita.suocera ?? 0) > 0 && !mortoIgnoto && !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
 
   // per le condizioni di vittoria contano solo i membri che cacciano con il
   // branco (Lupo, Capobranco, Cucciolo, Nonna, Progenitore): gli altri

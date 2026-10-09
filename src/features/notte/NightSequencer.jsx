@@ -828,7 +828,8 @@ export function NightSequencer({
     if (senzaRuolo.length === 0) return
 
     const ruoliNonVillicoPendenti = ruoliSelezionati.filter(
-      (slug) => slug !== 'villico' && ruoliAssegnabili([slug], lista, quantita).length > 0,
+      // il Borgomastro non è una carta del mazzo: non è mai un ruolo "pendente"
+      (slug) => slug !== 'villico' && slug !== 'borgomastro' && ruoliAssegnabili([slug], lista, quantita).length > 0,
     )
 
     let ruoloDaAssegnare = 'villico'

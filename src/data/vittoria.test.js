@@ -285,3 +285,15 @@ test('i Lupi hanno la precedenza sul Pifferaio: parità lupi e tutti ipnotizzati
     'I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.',
   ])
 })
+
+test('Suocera nascosta: con un morto dal ruolo ignoto (potrebbe essere lei) non si toglie un abitante, niente vittoria dei lupi prematura', () => {
+  const giocatori = [
+    { id: '1', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '3', vivo: true, condizioni: [] },
+    { id: '4', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '5', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '6', vivo: false, condizioni: [] },
+  ]
+  expect(condizioniVittoria(giocatori, { suocera: 1, 'lupo-mannaro': 2, villico: 3 })).toEqual([])
+})

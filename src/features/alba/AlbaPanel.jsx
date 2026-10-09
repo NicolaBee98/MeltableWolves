@@ -49,7 +49,7 @@ export function AlbaPanel({
   // casi nessun giocatore vivo ha il titolo, e serve eleggerne uno tramite
   // "Eventi speciali"
   const borgomastroDaEleggere =
-    ruoliSelezionati.includes('borgomastro') && !giocatori.some((g) => g.eBorgomastro && g.vivo)
+    ruoliSelezionati.includes('borgomastro') && !giocatori.some((g) => g.eBorgomastro && g.vivo) && vittoria.length === 0
 
   // assegna l'identità di un ruolo a rivelazione diurna solo quando si
   // rivela davvero (vedi nightSteps.js), non preventivamente a inizio partita

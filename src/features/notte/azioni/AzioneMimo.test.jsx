@@ -223,3 +223,15 @@ test('avviso "diventerà Villico" finché il Mimo non ha una carta da imitare (s
   rerender(<AzioneMimo giocatori={conBersaglio} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'veggente']} quantita={{ veggente: 1 }} mimoRuoloScelto="veggente" />)
   expect(screen.queryByText(/diventerà Villico/)).not.toBeInTheDocument()
 })
+
+test('con bersaglio ignoto il Mimo non propone né se stesso né la Cartomante', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'mimo', vivo: true, legame: { tipo: 'mimo', targetId: '2' } },
+    { id: '2', nome: 'Marco', vivo: true },
+  ]
+  render(
+    <AzioneMimo giocatori={giocatori} aggiornaGiocatore={() => {}} ruoliSelezionati={['mimo', 'cartomante', 'veggente']} quantita={{ cartomante: 1, veggente: 1 }} mimoRuoloScelto={null} onScegliRuoloMimo={() => {}} />,
+  )
+  expect(screen.queryByRole('button', { name: 'Cartomante' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Veggente' })).toBeInTheDocument()
+})

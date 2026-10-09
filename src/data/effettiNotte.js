@@ -164,13 +164,19 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
         testo: `Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.`,
         log: `Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco.`,
       })
-    } else if (eLupo(target.ruoloSlug)) {
-      for (const c of giocatori.filter((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro')) {
-        avvisi.push({
-          testo: `Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più.`,
-          log: `Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}.`,
-        })
-      }
+    }
+  }
+  // alla morte di un lupo (il bersaglio stesso o chi muore con lui, es. il lupo del
+  // Berserker) il Cucciolo vivo diventa adulto: un solo avviso per Cucciolo
+  const lupiMorti = Object.entries(patches)
+    .filter(([id, p]) => p.vivo === false && eLupo(giocatori.find((g) => g.id === id)?.ruoloSlug))
+    .map(([id]) => giocatori.find((g) => g.id === id))
+  if (muore && cavalieri.length === 0 && lupiMorti.length > 0 && target.ruoloSlug !== 'cucciolo-di-lupo-mannaro') {
+    for (const c of giocatori.filter((g) => g.vivo && g.ruoloSlug === 'cucciolo-di-lupo-mannaro' && !patches[g.id])) {
+      avvisi.push({
+        testo: `Morto un lupo, il Cucciolo ${c.nome} diventa adulto: il branco non si vendicherà più.`,
+        log: `Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${lupiMorti[0].nome}.`,
+      })
     }
   }
   return avvisi

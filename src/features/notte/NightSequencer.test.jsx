@@ -2226,3 +2226,14 @@ test('notte 1: il Chupacabra non assegnato può andare al giocatore sbranato nel
   expect(screen.getByRole('button', { name: /Avanti|È giorno/ })).toBeEnabled()
   expect(h.stato.giocatori.find((g) => g.id === '2').vivo).toBe(false)
 })
+
+test('il Borgomastro (non è una carta del mazzo) non viene mai assegnato d\'ufficio all\'ultimo giocatore senza ruolo: diventa Villico', async () => {
+  const giocatori = [{ id: '1', nome: 'Elena', vivo: true, condizioni: [] }]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte ruoliSelezionati={['villico', 'borgomastro']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} />,
+  )
+  tieni(screen.getByRole('button', { name: /Vai all'alba|È giorno nel villaggio/ }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'borgomastro' }))
+})

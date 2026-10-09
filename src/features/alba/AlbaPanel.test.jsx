@@ -100,7 +100,7 @@ test('non mostra mai il pulsante Morte Improvvisa: di notte non si può dichiara
 })
 
 test('con il Borgomastro nel mazzo ma nessuno eletto, ricorda di eleggerlo', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' }]
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico' }, { id: 'l', nome: 'Lia', vivo: true, ruoloSlug: 'lupo-mannaro' }, { id: 'v2', nome: 'Vera', vivo: true, ruoloSlug: 'villico' }, { id: 'v3', nome: 'Vito', vivo: true, ruoloSlug: 'villico' }]
   render(<AlbaPanel giocatori={giocatori} round={1} ruoliSelezionati={['borgomastro']} onVaiAlVoto={() => {}} />)
   expect(screen.getByText(/deve eleggere un borgomastro/i)).toBeInTheDocument()
 })
@@ -112,7 +112,7 @@ test('con un Borgomastro vivo non mostra il promemoria', () => {
 })
 
 test('se il Borgomastro eletto è morto, il promemoria riappare', () => {
-  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'villico', eBorgomastro: true }]
+  const giocatori = [{ id: '1', nome: 'Anna', vivo: false, ruoloSlug: 'villico', eBorgomastro: true }, { id: 'l', nome: 'Lia', vivo: true, ruoloSlug: 'lupo-mannaro' }, { id: 'v2', nome: 'Vera', vivo: true, ruoloSlug: 'villico' }, { id: 'v3', nome: 'Vito', vivo: true, ruoloSlug: 'villico' }]
   render(<AlbaPanel giocatori={giocatori} round={1} ruoliSelezionati={['borgomastro']} onVaiAlVoto={() => {}} />)
   expect(screen.getByText(/deve eleggere un borgomastro/i)).toBeInTheDocument()
 })
@@ -333,4 +333,16 @@ test("Boia all'alba su un innamorato: il partner morto di crepacuore compare tra
   expect(screen.getByText('Bea (crepacuore)')).toBeInTheDocument()
   expect(screen.getByText('È morto anche Bea (crepacuore).')).toBeInTheDocument()
   localStorage.clear()
+})
+
+test('con la partita già vinta non compare l\'avviso di eleggere il Borgomastro', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Bea', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AlbaPanel giocatori={giocatori} ruoliSelezionati={['lupo-mannaro', 'villico', 'borgomastro']} quantita={{ 'lupo-mannaro': 1, villico: 1 }} round={2} aggiornaGiocatore={() => {}} onVaiAlVoto={() => {}} onConcludiPartita={() => {}} />,
+  )
+  expect(screen.getByText(/vincono loro/)).toBeInTheDocument()
+  expect(screen.queryByText(/eleggere un Borgomastro/)).not.toBeInTheDocument()
 })
