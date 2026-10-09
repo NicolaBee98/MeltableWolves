@@ -24,7 +24,7 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo il settimo batch di partite (2026-10-09: Addolorata, Ladro, Cartomante/Medium, coppie 22-38; report `bug-partite-2026-10-09-{a,b,c}.md`). Il conteggio sotto riguarda solo le righe riassuntive: 464 coppie valutate (si 346, parziale 118), 109 celle con problemi aperti o dubbi. Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
+_Aggiornato dopo il settimo batch di partite (2026-10-09: Addolorata, Ladro, Cartomante/Medium, coppie 22-38; report `bug-partite-2026-10-09-{a,b,c}.md`). Dopo i report `bug-partite-2026-10-09-{d,e,f}.md` (verifica correzioni, ruoli poco valutati, partite complete): 753 coppie valutate (si 419, parziale 334, molte 'parziale' di passaggio nelle partite complete), 133 celle con problemi aperti o dubbi. Gli elenchi "ruoli più/meno valutati" e "prime 40 coppie" più sotto sono quelli di partenza (prima del batch) e vanno ricalcolati._
 
 | | |
 |---|---|

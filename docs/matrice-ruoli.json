@@ -315,12 +315,17 @@
         {
           "testo": "dubbio carta duplicata e scambio inutile con carta gia' ereditata (BUG 4); legame segue la persona",
           "stato": "aperto"
+        },
+        {
+          "testo": "bug 3 (voce spuria 'eredita il ruolo')",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "batch3D t3/t17 2026-10-05",
         "batch4G d1-d3",
-        "docs/bug-partite-2026-10-09-a.md"
+        "docs/bug-partite-2026-10-09-a.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -356,7 +361,8 @@
       "fonti": [
         "batch3D t13 2026-10-05",
         "docs/bug-partite-2026-10-09-a.md",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -376,7 +382,8 @@
       "fonti": [
         "batch3D t1/t2 2026-10-05",
         "batch4G e1-e3",
-        "docs/bug-partite-2026-10-09-a.md"
+        "docs/bug-partite-2026-10-09-a.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -431,11 +438,16 @@
         {
           "testo": "nuova Figlia senza genitore e inerte (D1)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "bug 3 (voce spuria 'diventa Lupo Mannaro')",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "batch3D t4 2026-10-05",
-        "docs/bug-partite-2026-10-09-a.md"
+        "docs/bug-partite-2026-10-09-a.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -683,13 +695,19 @@
         {
           "testo": "dubbio (Cavaliere salva dall'esplosione)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio D2 (esplosione resta)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "batch3F sn1 (screenshot sn-alch.png)",
         "batch4G a4/a5",
         "batch4I seed21 (Cavaliere protegge l'Alchimista: niente esplosione, si immola)",
-        "docs/bug-partite-2026-10-09-a.md"
+        "docs/bug-partite-2026-10-09-a.md",
+        "docs/bug-partite-2026-10-09-d.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -882,7 +900,8 @@
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "bug-partite-2026-10-05 Non coperto"
+        "bug-partite-2026-10-05 Non coperto",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -947,10 +966,16 @@
       "a": "apprendista",
       "b": "boia",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "dubbio potere gia' usato ereditato",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
         "batch3F sb7, sr2",
-        "docs/bug-partite-2026-10-07.md#scenario-1"
+        "docs/bug-partite-2026-10-07.md#scenario-1",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -965,13 +990,18 @@
         {
           "testo": "Cavaliere e Apprendista sullo stesso bersaglio: se il Cavaliere salva, l'Apprendista non eredita",
           "stato": "risolto"
+        },
+        {
+          "testo": "bug 2 (manca voce legame ereditato)",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "test:data/risoluzioneNotte.test.js:168",
         "test:data/risoluzioneNotte.test.js:270",
         "bug-partite-2026-10-02 #16",
-        "batch4G j1-j2"
+        "batch4G j1-j2",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -1028,7 +1058,8 @@
       "fonti": [
         "test:data/risoluzioneNotte.test.js:12",
         "commit:362b3c6",
-        "batch3F sw1, sc5"
+        "batch3F sw1, sc5",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1058,7 +1089,8 @@
       "fonti": [
         "batch3F sg4, sg5",
         "batch4G k1-k3",
-        "docs/bug-partite-2026-10-07.md#bug-certi-3"
+        "docs/bug-partite-2026-10-07.md#bug-certi-3",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1114,7 +1146,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F si1, si2"
+        "batch3F si1, si2",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1138,7 +1171,8 @@
       ],
       "fonti": [
         "batch3F se6, se7",
-        "docs/bug-partite-2026-10-07.md#scenario-1"
+        "docs/bug-partite-2026-10-07.md#scenario-1",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1169,7 +1203,8 @@
       "fonti": [
         "audit-ruoli-2026-09-22 appendice E",
         "commit:362b3c6",
-        "docs/bug-partite-2026-10-07.md#scenario-1"
+        "docs/bug-partite-2026-10-07.md#scenario-1",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -1365,7 +1400,8 @@
       "problemi": [],
       "fonti": [
         "fixture:features/notte/NightSequencer.test.jsx",
-        "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)"
+        "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -1497,7 +1533,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)"
+        "audit-ruoli-2026-09-22 §Berserker (non scatta se ucciso da Strega/Chupacabra)",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -1572,10 +1609,15 @@
         {
           "testo": "Cavaliere salva dal Boia (dubbio regolamento D1); riepilogo dice che è morto ma è vivo; residui mortoDa/giustiziatoDa",
           "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio il Cavaliere si immola per il Boia",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
-        "batch3F so1"
+        "batch3F so1",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1717,7 +1759,8 @@
       ],
       "fonti": [
         "batch3F sb6, s14",
-        "batch4G p1-p2"
+        "batch4G p1-p2",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1727,7 +1770,8 @@
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneMimo.test.jsx:155",
-        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120"
+        "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1847,7 +1891,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H f1"
+        "batch4H f1",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -1887,7 +1932,8 @@
       "fonti": [
         "test:data/log.test.js:84",
         "test:data/log.test.js:164",
-        "docs/bug-partite-2026-10-07.md#scenario-4"
+        "docs/bug-partite-2026-10-07.md#scenario-4",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2077,7 +2123,8 @@
       "fonti": [
         "batch3E (L15c.png)",
         "docs/bug-partite-2026-10-09-b.md",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -2125,7 +2172,8 @@
         "audit-mimo-2026-10-02 Q4",
         "spec-mimo-2026-10-02 Q9",
         "audit-mimo-2026-10-02 P7",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -2134,7 +2182,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2163,11 +2212,16 @@
         {
           "testo": "La Cartomante non puo' assegnare questa carta come ruolo del bersaglio ignoto",
           "stato": "risolto"
+        },
+        {
+          "testo": "dubbio chip senza Scemo",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneRivelaRuolo.test.jsx:120",
-        "commit:dc3f9a0"
+        "commit:dc3f9a0",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2262,11 +2316,16 @@
         {
           "testo": "dubbio incoerenza notte/rogo",
           "stato": "dubbio"
+        },
+        {
+          "testo": "bug 1 (testo maledizione con ruolo noto)",
+          "stato": "aperto"
         }
       ],
       "fonti": [
         "batch3F s2",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -2289,10 +2348,16 @@
     {
       "a": "cavaliere",
       "b": "lupo-mannaro-progenitore",
-      "valutata": "parziale",
-      "problemi": [],
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (vittima protetta trasformata)",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-3"
+        "docs/bug-partite-2026-10-07.md#scenario-3",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2368,9 +2433,15 @@
       "a": "cavaliere",
       "b": "spilungone",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "bug 1 (testo rivelazione con ruolo noto)",
+          "stato": "aperto"
+        }
+      ],
       "fonti": [
-        "batch4H k1"
+        "batch4H k1",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -2384,7 +2455,9 @@
         }
       ],
       "fonti": [
-        "test:data/risoluzioneNotte.test.js:155"
+        "test:data/risoluzioneNotte.test.js:155",
+        "docs/bug-partite-2026-10-09-d.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2425,7 +2498,8 @@
         "test:data/risoluzioneNotte.test.js:113",
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
         "batch4I seed53",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -2436,11 +2510,17 @@
         {
           "testo": "Nano/Criceto immuni al Chupacabra",
           "stato": "risolto"
+        },
+        {
+          "testo": "dubbio immune anche al Chupacabra",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:83",
-        "commit:c6d0658"
+        "commit:c6d0658",
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2456,7 +2536,8 @@
       "fonti": [
         "test:data/effettiNotte.test.js:259",
         "test:data/effettiNotte.test.js:415",
-        "test:features/notte/azioni/AzioneChupacabra.test.jsx:183"
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2538,6 +2619,14 @@
         {
           "testo": "Chupacabra non ancora assegnato (notte 1) ucciso dal branco: lo step Chupacabra non e' completabile (chip senza il morto, Avanti disabilitato) salvo Indietro",
           "stato": "aperto"
+        },
+        {
+          "testo": "bug 1 (refresh nel passo, doppia uccisione)",
+          "stato": "aperto"
+        },
+        {
+          "testo": "dubbio sbranato dal branco prima di cacciare",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
@@ -2548,7 +2637,8 @@
         "test:features/notte/NightSequencer.test.jsx:1908",
         "test:features/notte/azioni/AzioneInquisitore.test.jsx:59",
         "bug-partite-2026-10-05 dubbi",
-        "batch4I seed70, minimo: mazzo Chupacabra+2 Lupi+Veggente+8 Villici, branco sbrana il Chupacabra"
+        "batch4I seed70, minimo: mazzo Chupacabra+2 Lupi+Veggente+8 Villici, branco sbrana il Chupacabra",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2618,9 +2708,15 @@
       "a": "chupacabra",
       "b": "nonna",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "dubbio noto (1 a 1)",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2645,7 +2741,8 @@
       "problemi": [],
       "fonti": [
         "fixture:data/vittoria.test.js",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -2682,7 +2779,8 @@
       "problemi": [],
       "fonti": [
         "test:data/effettiNotte.test.js:259",
-        "audit-ruoli-2026-09-22 §Chupacabra"
+        "audit-ruoli-2026-09-22 §Chupacabra",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2700,17 +2798,19 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "audit-ruoli-2026-09-22 §Ubriaco"
+        "audit-ruoli-2026-09-22 §Ubriaco",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
       "a": "chupacabra",
       "b": "veggente",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "fixture:data/nightSteps.test.js",
-        "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)"
+        "audit-ruoli-2026-09-22 §Meccanismi condivisi (aura)",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2826,17 +2926,19 @@
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
         "audit-regolamento-2026-09-21 #1",
         "commit:68cf67c",
-        "batch4I seed22 (cliente sbranato, muore anche lei)"
+        "batch4I seed22 (cliente sbranato, muore anche lei)",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
       "a": "cortigiana",
       "b": "maga",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "batch3F sp1",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2886,7 +2988,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp4",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -2940,7 +3043,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp1",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3006,12 +3110,13 @@
     {
       "a": "criceto-malvagio",
       "b": "nano",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
         "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:50",
         "test:features/notte/azioni/AzioneBrancoLupi.test.jsx:331",
-        "test:features/notte/azioni/AzioneChupacabra.test.jsx:83"
+        "test:features/notte/azioni/AzioneChupacabra.test.jsx:83",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3047,10 +3152,16 @@
         {
           "testo": "Criceto immune solo ai lupi: la Strega puo' ucciderlo (immunita' totale?)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio immunita' totale",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
-        "audit-ruoli-2026-09-22 appendice C"
+        "audit-ruoli-2026-09-22 appendice C",
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -3139,6 +3250,10 @@
         {
           "testo": "Cucciolo matura solo per un lupo vero (non Gallo)",
           "stato": "risolto"
+        },
+        {
+          "testo": "bug 4 (ordine Diario)",
+          "stato": "aperto"
         }
       ],
       "fonti": [
@@ -3150,7 +3265,8 @@
         "test:data/nightSteps.test.js:62",
         "test:features/notte/NightSequencer.test.jsx:904",
         "test:features/notte/azioni/AzioneChupacabra.test.jsx:183",
-        "commit:d3e1d00"
+        "commit:d3e1d00",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -3438,10 +3554,11 @@
     {
       "a": "fattucchiera",
       "b": "inquisitore",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3466,7 +3583,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp1",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3496,7 +3614,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3539,7 +3658,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -3809,7 +3929,8 @@
         "commit:2cc8833",
         "batch4G s1",
         "docs/bug-partite-2026-10-07.md#scenario-3",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -4041,7 +4162,8 @@
         }
       ],
       "fonti": [
-        "batch4H b1,b2 (b2-n2.png, b1-n3.png)"
+        "batch4H b1,b2 (b2-n2.png, b1-n3.png)",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -4081,7 +4203,8 @@
       "fonti": [
         "test:data/risoluzioneNotte.test.js:12",
         "test:features/notte/NightSequencer.test.jsx:202",
-        "audit-ruoli-2026-09-22 correzioni 2"
+        "audit-ruoli-2026-09-22 correzioni 2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -4179,7 +4302,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "test:data/nightSteps.test.js:150"
+        "test:data/nightSteps.test.js:150",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -4243,7 +4367,8 @@
         }
       ],
       "fonti": [
-        "batch4H i2"
+        "batch4H i2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -4262,7 +4387,8 @@
       "problemi": [],
       "fonti": [
         "test:data/nightSteps.test.js:150",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -4314,7 +4440,8 @@
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneLadro.test.jsx:23",
-        "commit:61b667b"
+        "commit:61b667b",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -4462,7 +4589,8 @@
       "problemi": [],
       "fonti": [
         "batch3E (L6c.png, L6d.png)",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -4477,7 +4605,8 @@
       ],
       "fonti": [
         "test:data/vittoria.test.js:143",
-        "docs/bug-partite-2026-10-09-b.md"
+        "docs/bug-partite-2026-10-09-b.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -4505,12 +4634,17 @@
         {
           "testo": "la scelta del Ladro non finisce nel registro quando è assegnato nello stesso passo (bug certo); Avanti senza scelta lascia \"Ladro\" senza avviso",
           "stato": "aperto"
+        },
+        {
+          "testo": "dubbio D3 (chip duplicata)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "test:features/notte/azioni/AzioneLadro.test.jsx:23",
         "audit-regolamento-2026-09-21 §17",
-        "batch3E s1/s2"
+        "batch3E s1/s2",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -4563,7 +4697,8 @@
         }
       ],
       "fonti": [
-        "bug-partite-2026-10-02 dubbi"
+        "bug-partite-2026-10-02 dubbi",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -4647,7 +4782,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sd4",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -4753,7 +4889,8 @@
       "fonti": [
         "test:data/effettiNotte.test.js:178",
         "test:data/effettiNotte.test.js:406",
-        "audit-regolamento-2026-09-21 #9"
+        "audit-regolamento-2026-09-21 #9",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -5139,7 +5276,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp1",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5157,7 +5295,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5166,7 +5305,8 @@
       "valutata": "parziale",
       "problemi": [],
       "fonti": [
-        "batch3F sp1"
+        "batch3F sp1",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5236,7 +5376,8 @@
         }
       ],
       "fonti": [
-        "batch4H i2"
+        "batch4H i2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5251,10 +5392,11 @@
     {
       "a": "medium",
       "b": "veggente-mannaro",
-      "valutata": "parziale",
+      "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:data/nightSteps.test.js:150"
+        "test:data/nightSteps.test.js:150",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5314,7 +5456,9 @@
       ],
       "fonti": [
         "audit-ruoli-2026-09-22 §Mezzosangue (solo il morso lo converte)",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md",
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     },
     {
@@ -5411,7 +5555,8 @@
         "fixture:features/notte/NightSequencer.test.jsx",
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "bug-partite-2026-10-05 Non coperto"
+        "bug-partite-2026-10-05 Non coperto",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5522,7 +5667,8 @@
       "fonti": [
         "audit-mimo-2026-10-02 §2-4",
         "spec-mimo-2026-10-02",
-        "spec-mimo-2026-10-02 Q5"
+        "spec-mimo-2026-10-02 Q5",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5776,7 +5922,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H j2"
+        "batch4H j2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5794,7 +5941,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "batch4H h1"
+        "batch4H h1",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -5814,16 +5962,23 @@
       "fonti": [
         "test:data/aura.test.js:9",
         "audit-ruoli-2026-09-22 §Meccanismi condivisi",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
       "a": "nonna",
       "b": "veggente-mannaro",
       "valutata": "si",
-      "problemi": [],
+      "problemi": [
+        {
+          "testo": "dubbio (aura benevola)",
+          "stato": "dubbio"
+        }
+      ],
       "fonti": [
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6000,7 +6155,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:features/notte/NightSequencer.test.jsx:1558"
+        "test:features/notte/NightSequencer.test.jsx:1558",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -6045,7 +6201,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "test:features/notte/azioni/AzioneIndagine.test.jsx:69"
+        "test:features/notte/azioni/AzioneIndagine.test.jsx:69",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6240,7 +6397,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "audit-ruoli-2026-09-22 §Ubriaco"
+        "audit-ruoli-2026-09-22 §Ubriaco",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6250,7 +6408,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp13",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6330,7 +6489,8 @@
       "problemi": [],
       "fonti": [
         "batch3F sp4",
-        "docs/bug-partite-2026-10-07.md#scenario-2"
+        "docs/bug-partite-2026-10-07.md#scenario-2",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6441,11 +6601,16 @@
         {
           "testo": "dubbio carta iniziale (pre-caricato)",
           "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio D4 (maestro ignoto)",
+          "stato": "dubbio"
         }
       ],
       "fonti": [
         "docs/bug-partite-2026-10-09-a.md",
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -6468,7 +6633,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
       ]
     },
     {
@@ -6504,7 +6670,8 @@
       "valutata": "si",
       "problemi": [],
       "fonti": [
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-e.md"
       ]
     },
     {
@@ -6536,7 +6703,2700 @@
         }
       ],
       "fonti": [
-        "docs/bug-partite-2026-10-09-c.md"
+        "docs/bug-partite-2026-10-09-c.md",
+        "docs/bug-partite-2026-10-09-d.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "nano",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "maga",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "untore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ubriaco",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "nonna",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "BUG 2 (stordimento senza morte)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "ubriaco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ubriaco",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "polpo-mannaro",
+      "b": "strega",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (visita non letale)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "polpo-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (non e' il lupo piu' vicino)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "polpo-mannaro",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "polpo-mannaro",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "fattucchiera",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "pastore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "cavaliere",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "cartomante",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "cortigiana",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "chupacabra",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "criceto-malvagio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "pastore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "paladino",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "paladino",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "paladino",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (trasformazione di un protetto)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (aura benevola)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "sciacallo-mannaro",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (aura benevola)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (aura benevola)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "strega",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "veggente-mannaro",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (non e' il lupo piu' vicino)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "untore",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ubriaco",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "sciacallo-mannaro",
+      "b": "spilungone",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "sciacallo-mannaro",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "sciacallo-mannaro",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "sciacallo-mannaro",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "polpo-mannaro",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "medium",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "nano",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio",
+          "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio (trasformabile)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "mucca-mannara",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (visita non letale)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "mucca-mannara",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (non e' il lupo piu' vicino)",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "veggente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "mucca-mannara",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "gallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "gallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "gallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "maga",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "gallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "gallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "paladino",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "spilungone",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "spilungone",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-progenitore",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "spilungone",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "spilungone",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "spilungone",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "spilungone",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "polpo-mannaro",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "pastore",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nonna",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "nano",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "nano",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "sciacallo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "mucca-mannara",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "nano",
+      "b": "spilungone",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "mucca-mannara",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "inquisitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "inquisitore",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "medium",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "medium",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "sciacallo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "gallo-mannaro",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "maga",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "medium",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "guaritore",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "dubbio (resuscitato senza protetto)",
+          "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio legame azzerato alla resurrezione",
+          "stato": "dubbio"
+        },
+        {
+          "testo": "dubbio legame azzerato",
+          "stato": "dubbio"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "paladino",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "medium",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "untore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "nonna",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "ubriaco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "polpo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "ambasciatore",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "pastore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "guaritore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "veggente-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "lupo-mannaro-progenitore",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "nano",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "fattucchiera",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "fattucchiera",
+      "b": "lantico",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "fattucchiera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "fattucchiera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "fattucchiera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "fattucchiera",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "cavaliere",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "BUG 3 (muore comunque il lupo piu' vicino)",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cortigiana",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "cortigiana",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "berserker",
+      "b": "criceto-malvagio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "veggente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-e.md",
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "sacerdote",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "apprendista",
+      "b": "borgomastro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "cavaliere",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "chupacabra",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "borgomastro",
+      "b": "criceto-malvagio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "alchimista",
+      "b": "lupo-mannaro",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "alchimista",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "alchimista",
+      "b": "chupacabra",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "pifferaio",
+      "b": "scemo-del-villaggio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "scemo-del-villaggio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "veggente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-capobranco",
+      "b": "veggente",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "pifferaio",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "mezzosangue",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "mezzosangue",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "lantico",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "chupacabra",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "criceto-malvagio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "strega",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "guaritore",
+      "b": "lupo-mannaro",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "chupacabra",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "si",
+      "problemi": [
+        {
+          "testo": "bug 1",
+          "stato": "aperto"
+        }
+      ],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "pifferaio",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "mezzosangue",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-capobranco",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cucciolo-di-lupo-mannaro",
+      "b": "pifferaio",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lantico",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "criceto-malvagio",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro-capobranco",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cucciolo-di-lupo-mannaro",
+      "b": "mezzosangue",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "lupo-mannaro",
+      "b": "sacerdote",
+      "valutata": "si",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cartomante",
+      "b": "sacerdote",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "sacerdote",
+      "b": "veggente",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
+      ]
+    },
+    {
+      "a": "cavaliere",
+      "b": "lupo-mannaro-capobranco",
+      "valutata": "parziale",
+      "problemi": [],
+      "fonti": [
+        "docs/bug-partite-2026-10-09-f.md"
       ]
     }
   ]
