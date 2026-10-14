@@ -24,23 +24,23 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo i commit di correzione b2102ae, 094225d e b35d5fc e le decisioni del proprietario del 2026-10-09 (report `bug-partite-2026-10-09-{a..h}.md`). I numeri si ricalcolano dal JSON con `node scripts/matrice-ruoli.mjs --md`._
+_Aggiornato dopo i commit di correzione b2102ae, 094225d e b35d5fc e le decisioni del proprietario del 2026-10-09 (report `bug-partite-2026-10-09-{a..h}.md` e `bug-partite-2026-10-14-{a..e}.md`). I numeri si ricalcolano dal JSON con `node scripts/matrice-ruoli.mjs --md`._
 
 | | |
 |---|---|
 | Ruoli | 51 |
 | Coppie (incluse 51 diagonali) | 1326 |
-| Valutate (si + parziale) | 807 (60.9%) |
-| di cui si | 462 (34.8%) |
-| di cui parziale | 345 |
-| Non valutate | 519 (39.1%) |
-| "si" senza problemi (verde) | 221 |
+| Valutate (si + parziale) | 1159 (87.4%) |
+| di cui si | 716 (54.0%) |
+| di cui parziale | 443 |
+| Non valutate | 167 (12.6%) |
+| "si" senza problemi (verde) | 456 |
 | "si" con problemi tutti risolti (arancio) | 140 |
-| Celle con problemi aperti o dubbi (rosso) | 101 |
+| Celle con problemi aperti o dubbi (rosso) | 120 |
 | Diagonali valutate | 51 / 51 |
 | Coppie con il Mimo valutate | 51 / 51 |
 
-Escluso il Mimo, le coppie valutate sono 756 su 1275 non-Mimo (59.3%). Molte celle "parziale" sono di passaggio, da partite complete.
+Escluso il Mimo, le coppie valutate sono 1108 su 1275 non-Mimo (86.9%). Molte celle "parziale" sono di passaggio, da partite complete.
 
 ## Ruoli con piu' coppie valutate (su 51 possibili, diagonale inclusa)
 
