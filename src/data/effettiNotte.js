@@ -147,14 +147,19 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
     })
   }
 
-  // la Cortigiana muore se il cliente è sbranato (e non c'è nessuno a salvarlo)
-  if (muore && cavalieri.length === 0) {
-    for (const c of giocatori.filter((g) => g.ruoloSlug === 'cortigiana' && g.vivo && g.visitaNotturna === targetId)) {
-      avvisi.push({
-        testo: `A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno.`,
-        log: `La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato sbranato.`,
-      })
-    }
+  // la Cortigiana muore se i lupi visitano la casa del cliente, anche se il
+  // cliente si salva (protetto, Antico, trasformato; il Cavaliere che si
+  // immola non salva lei)
+  for (const c of giocatori.filter((g) => g.ruoloSlug === 'cortigiana' && g.vivo && g.visitaNotturna === targetId)) {
+    const entrambi = muore && cavalieri.length === 0
+    avvisi.push({
+      testo: entrambi
+        ? `A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: entrambi moriranno.`
+        : `A casa di ${target.nome} c'è anche la Cortigiana ${c.nome}: morirà comunque, perché i lupi hanno visitato quella casa.`,
+      log: entrambi
+        ? `La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato sbranato.`
+        : `La Cortigiana ${c.nome} muore: il suo cliente ${target.nome} è stato visitato dai lupi.`,
+    })
   }
 
   // alla morte del primo lupo il Cucciolo matura; il Cucciolo ucciso scatena la vendetta

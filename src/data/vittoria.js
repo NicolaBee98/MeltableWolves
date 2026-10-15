@@ -33,7 +33,10 @@ export function condizioniVittoria(giocatori, quantita = {}) {
   // lupi che sparirebbe appena la Suocera viene rivelata.
   const mortoIgnoto = giocatori.some((g) => !g.vivo && !g.ruoloSlug)
   const suoceraNascosta =
-    (quantita.suocera ?? 0) > 0 && !mortoIgnoto && !giocatori.some((g) => g.ruoloSlug === 'suocera' && !eMimoCopiante(g))
+    (quantita.suocera ?? 0) > 0 && !mortoIgnoto && !giocatori.some(
+      // già nota (anche se diventata Lupo Mannaro: allora conta come lupa viva, non è più nascosta)
+      (g) => (g.ruoloSlug === 'suocera' || (g.storiaRuoli ?? []).includes('suocera')) && !eMimoCopiante(g),
+    )
 
   // per le condizioni di vittoria contano solo i membri che cacciano con il
   // branco (Lupo, Capobranco, Cucciolo, Nonna, Progenitore): gli altri
@@ -111,8 +114,8 @@ export function condizioniVittoria(giocatori, quantita = {}) {
           ? 'I Criceti Malvagi (con il Mimo) rubano la vittoria ai Lupi Mannari: vincono solo loro.'
           : 'Il Criceto Malvagio ruba la vittoria ai Lupi Mannari: vince solo lui.',
       )
-    } else if (abitanti <= 0 && lupiVivi.length > 1 && lupiVivi.every((g) => g.ruoloSlug === 'lupo-mannaro-capobranco')) {
-      // Capobranco + Mimo-Capobranco ultimi rimasti: vincono i capibranco (cioè i lupi)
+    } else if (abitanti <= 0 && !vivi.some((g) => g.ruoloSlug === 'guardia-mannara') && lupiVivi.length > 1 && lupiVivi.every((g) => g.ruoloSlug === 'lupo-mannaro-capobranco')) {
+      // (con una Guardia Mannara viva i Capibranco non sono gli ultimi) Capobranco + Mimo-Capobranco ultimi rimasti: vincono i capibranco (cioè i lupi)
       messaggi.push('Il Capobranco e il Mimo-Capobranco sono gli ultimi rimasti: la vittoria va ai Capibranco.')
     } else {
       messaggi.push('I Lupi Mannari sono in numero pari o superiore al resto del villaggio: vincono loro.')

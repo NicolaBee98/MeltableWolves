@@ -45,7 +45,8 @@ export function risolviLegami(giocatori) {
     for (const campo of CAMPI_LEGAME) {
       if (!attore.vivo || attore[campo]?.tipo !== 'cavaliere') continue
       const target = giocatori.find((g) => g.id === attore[campo].targetId)
-      if (!target || target.vivo) continue
+      // il crepacuore non fa scattare il sacrificio: il Cavaliere protegge solo da sbranamento, rogo e simili
+      if (!target || target.vivo || target.causaMorte === 'crepacuore') continue
       // "Se questa persona viene sbranata di notte il Cavaliere muore al suo
       // posto; se invece viene messa al rogo di giorno il Cavaliere rivela la
       // propria carta immolandosi al suo posto" (pag. 11): salva da QUALSIASI
@@ -161,7 +162,12 @@ export function risolviCortigiana(giocatori, round) {
     // protezione sulla Cortigiana stessa non conta, non è in casa
     const clienteProtetto = (cliente.condizioni ?? []).includes('protetto')
 
-    if ((clientePericoloso || clienteSbranato) && !clienteProtetto) {
+    // i lupi (o il Chupacabra) hanno scelto la casa del cliente: la Cortigiana
+    // muore anche se il cliente si salva (protetto, Antico, trasformato,
+    // salvato dal Cavaliere). Il marcatore lo scrivono le azioni del branco/Chupacabra.
+    const clienteVisitato = round !== undefined && cliente.visitatoDaiLupi === round
+
+    if (clienteVisitato || ((clientePericoloso || clienteSbranato) && !clienteProtetto)) {
       // causaMorte/mortoNotte come qualunque altra morte notturna (vedi
       // uccidiPatch): senza, l'Alba non la riconoscerebbe mai come morta
       // quella notte (CAUSE_MORTE_NOTTURNE in AlbaPanel.jsx filtra su
@@ -171,7 +177,7 @@ export function risolviCortigiana(giocatori, round) {
         causaMorte: 'notte',
         mortoNotte: round,
         // il "perché" per il registro: il cliente era un lupo (o il Chupacabra) oppure è stato sbranato
-        mortoDa: clientePericoloso ? 'cliente-lupo' : 'cliente-sbranato',
+        mortoDa: clientePericoloso && !clienteProtetto ? 'cliente-lupo' : clienteSbranato ? 'cliente-sbranato' : 'cliente-visitato',
         visitaNotturna: null,
       }
     } else {

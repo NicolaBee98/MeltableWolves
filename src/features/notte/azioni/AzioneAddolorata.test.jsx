@@ -234,3 +234,20 @@ test('se la carta della vittima è già in mano all\'Apprendista (anche la stess
   expect(screen.queryByRole('button', { name: 'Scambia' })).not.toBeInTheDocument()
   expect(screen.getByText(/nessuno scambio possibile/)).toBeInTheDocument()
 })
+
+test('dopo lo scambio con un ruolo a riconoscimento ricorda al narratore chi sono i compagni', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'addolorata', vivo: true, condizioni: [], poteriUsati: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'guardia', vivo: false, condizioni: [], causaMorte: 'rogo', mortoNotte: 2, storiaRuoli: ['guardia'] },
+    { id: '3', nome: 'Lia', ruoloSlug: 'guardia', vivo: true, condizioni: [], storiaRuoli: ['guardia'] },
+  ]
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  }
+  const el = () => <AzioneAddolorata giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={2} />
+  const { rerender } = render(el())
+  await user.click(screen.getByRole('button', { name: 'Scambia' }))
+  rerender(el())
+  expect(screen.getByText('Mostra a Sara chi sono i suoi compagni: Lia.')).toBeInTheDocument()
+})

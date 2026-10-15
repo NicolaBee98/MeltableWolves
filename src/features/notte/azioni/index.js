@@ -20,6 +20,14 @@ import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
 // Vale per le scelte della prima notte (Sacerdote e legami) e per i ruoli con
 // poteri propri di ciascuno (Guaritore, Sciacallo, Inquisitore, Addolorata).
 // Le altre azioni di ogni notte sono invece condivise col Mimo ("si accorda").
+// la Fattucchiera non può inibire chi agisce di giorno né chi sceglie altri giocatori la prima notte
+const GIORNO = 'agisce di giorno'
+const PRIMA_NOTTE = { motivo: 'sceglie altri giocatori la prima notte', primaNotte: true }
+const NON_INIBIBILI = {
+  ...Object.fromEntries(['bardo', 'gallo-mannaro', 'boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'borgomastro'].map((s) => [s, GIORNO])),
+  ...Object.fromEntries(['cavaliere', 'apprendista', 'figlia-dei-lupi', 'sacerdote'].map((s) => [s, PRIMA_NOTTE])),
+}
+
 export const AZIONI_NOTTURNE = {
   paladino: {
     Componente: AzioneCondizioneSingola,
@@ -34,7 +42,8 @@ export const AZIONI_NOTTURNE = {
     // inibire se stessa è un paradosso (bloccherebbe l'azione che la sta
     // già bloccando): unico ruolo tra quelli con AzioneCondizioneSingola a
     // escludersi dai propri bersagli
-    props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera', escludiAttore: true },
+    props: { condizione: 'inibito', etichetta: 'Chi inibire', ruoloSlugAttore: 'fattucchiera', escludiAttore: true,
+      nonApplicabili: NON_INIBIBILI },
   },
   maga: {
     Componente: AzioneCondizioneSingola,

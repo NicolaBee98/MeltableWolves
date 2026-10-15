@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { eMimoCopiante, conRuolo } from '../../../data/assegnazione'
 import { nomeRuolo } from '../../../data/roles'
+import { promemoriaCompagni } from '../../../data/compagni'
 import { patchEredita, LEGAMI_PRIMA_NOTTE } from '../../../data/risoluzioneNotte'
 
 const SCAMBIO = 'addolorata-scambio'
@@ -142,6 +143,9 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, eredit
       <button type="button" aria-pressed={scambiato} onClick={scambiato ? annullaScambio : scambia}>
         {scambiato ? 'Annulla scambio' : 'Scambia'}
       </button>
+      {scambiato && promemoriaCompagni(attore, giocatori) && (
+        <p className="night-sequencer__tipo">{promemoriaCompagni(attore, giocatori)}</p>
+      )}
     </div>
   )
 }

@@ -2,11 +2,11 @@ import { useEffect } from 'react'
 import { annunciAlba } from '../../data/alba'
 import { ConcludiPartita } from '../../components/ConcludiPartita'
 import { condizioniVittoria } from '../../data/vittoria'
-import { resuscitaPatch } from '../../data/effettiNotte'
+import { resuscitaPatch, propagaUnzione } from '../../data/effettiNotte'
 import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile, conPotere } from '../../data/eventiSpeciali'
+import { conPotereDisponibile, conPotere, cavalieriDi } from '../../data/eventiSpeciali'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
-import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia } from '../giorno/annullaMorte'
+import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia, dichiaraColpo } from '../giorno/annullaMorte'
 
 // solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
@@ -73,6 +73,23 @@ export function AlbaPanel({
   function dichiaraElezioneBorgomastro(id) {
     giocatori.filter((g) => g.eBorgomastro).forEach((g) => aggiornaGiocatore(g.id, { eBorgomastro: false }))
     aggiornaGiocatore(id, { eBorgomastro: true })
+  }
+
+  // come in giorno (GiornoPanel), ma la morte conta nel giorno che segue l'alba
+  function dichiaraScemoSbaglia(id) {
+    const target = giocatori.find((g) => g.id === id)
+    dichiaraColpo(id, giocatori, aggiornaGiocatore, round + 1, {
+      ruoloSlug: 'scemo-del-villaggio',
+      mortoDa: 'scemo',
+      storiaRuoli: conRuolo(target?.storiaRuoli, 'scemo-del-villaggio'),
+    })
+  }
+
+  function dichiaraMorteUnzione(id) {
+    if (!dichiaraColpo(id, giocatori, aggiornaGiocatore, round + 1, { mortoDa: 'unzione' }) || cavalieriDi(giocatori, id).length > 0) return
+    for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
+      aggiornaGiocatore(vicinoId, patch)
+    }
   }
 
   function dichiaraGalloSaltaGiorno() {
@@ -163,6 +180,8 @@ export function AlbaPanel({
         onRivelazione={dichiaraRivelazione}
         // il Boia può giustiziare anche all'alba: la morte conta nel giorno che segue
         onBoiaGiustizia={(boiaId, id) => dichiaraBoiaGiustizia(boiaId, id, giocatori, aggiornaGiocatore, round + 1)}
+        onScemoSbaglia={dichiaraScemoSbaglia}
+        onMorteUnzione={dichiaraMorteUnzione}
         onElezioneBorgomastro={dichiaraElezioneBorgomastro}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}
         // la Suocera resta "?" per tutta la partita finché non muore (pag.

@@ -16,6 +16,7 @@ test('uccide un bersaglio di fazione lupi', async () => {
     causaMorte: 'notte',
     mortoNotte: 2,
     mortoDa: 'chupacabra',
+    visitatoDaiLupi: 2,
   })
 })
 
@@ -41,6 +42,7 @@ test('la scelta resta modificabile: cambiare bersaglio annulla la morte del prec
     causaMorte: 'notte',
     mortoNotte: 2,
     mortoDa: 'chupacabra',
+    visitatoDaiLupi: 2,
   })
 })
 
@@ -74,6 +76,7 @@ test('uccide chiunque se non ci sono più lupi vivi', async () => {
     causaMorte: 'notte',
     mortoNotte: 2,
     mortoDa: 'chupacabra',
+    visitatoDaiLupi: 2,
   })
 })
 

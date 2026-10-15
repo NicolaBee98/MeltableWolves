@@ -1,4 +1,4 @@
-import { contaAssegnati, ruoliAssegnabili, assegnaGuardiaMannaraCasuale, cartaInMano } from './assegnazione'
+import { contaAssegnati, ruoliAssegnabili, assegnaGuardiaMannaraCasuale, cartaInMano, ignotiSonoVillici } from './assegnazione'
 
 test('contaAssegnati conta i giocatori con quel ruolo', () => {
   const giocatori = [
@@ -100,4 +100,18 @@ test('cartaInMano: Ladro/Addolorata/Apprendista mostrano il ruolo preso; Cucciol
   expect(cartaInMano({ ruoloSlug: 'strega', storiaRuoli: ['ladro', 'strega'] })).toBe('strega')
   expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['cucciolo-di-lupo-mannaro', 'lupo-mannaro'] })).toBe('cucciolo-di-lupo-mannaro')
   expect(cartaInMano({ ruoloSlug: 'veggente', storiaRuoli: ['mimo', 'veggente'], legame: { tipo: 'mimo', targetId: '2' } })).toBe('mimo')
+})
+
+test('cartaInMano: Figlia, Mezzosangue e trasformati dal Progenitore restano con la carta di prima', () => {
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['figlia-dei-lupi', 'lupo-mannaro'] })).toBe('figlia-dei-lupi')
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', trasformatoNotte: 2, storiaRuoli: ['mezzosangue', 'lupo-mannaro'] })).toBe('mezzosangue')
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['veggente', 'lupo-mannaro'] })).toBe('veggente')
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'] })).toBe('lupo-mannaro')
+  // chi ha preso la carta (Ladro) mostra quella
+  expect(cartaInMano({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['ladro', 'lupo-mannaro'] })).toBe('lupo-mannaro')
+})
+
+test('ignotiSonoVillici ignora il Fantasma Onnisciente (non è una carta del mazzo)', () => {
+  const gs = [{ id: '1', ruoloSlug: 'lupo-mannaro' }, { id: '2', ruoloSlug: 'veggente' }, { id: '3' }]
+  expect(ignotiSonoVillici(gs, { 'lupo-mannaro': 1, veggente: 1, villico: 1, 'fantasma-onnisciente': 1 })).toBe(true)
 })

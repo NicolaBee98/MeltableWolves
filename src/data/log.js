@@ -4,7 +4,7 @@ import { eMimoCopiante } from './assegnazione'
 // il Mimo che copia un ruolo agisce da giocatore a sé: nel registro lo si
 // distingue dal titolare con "(Mimo)"
 const nomeDi = (lista, id) => lista.find((g) => g.id === id)?.nome ?? '?'
-const nomeLog = (g) => (eMimoCopiante(g) ? `${g.nome} (Mimo)` : g.nome)
+export const nomeLog = (g) => (eMimoCopiante(g) ? `${g.nome} (Mimo)` : g.nome)
 
 const ETICHETTA_CAUSA = {
   notte: ' di notte',
@@ -16,15 +16,15 @@ const ETICHETTA_CAUSA = {
 // morti "sul colpo" (causaMorte 'colpo'): la causa sta in mortoDa
 // (vedi giorno/annullaMorte.js e GiornoPanel)
 const ETICHETTA_MORTE_DA = {
-  boia: ': giustiziato/a dal Boia',
-  alchimista: ": morto/a per l'esplosione dell'Alchimista",
-  scemo: ': ha sbagliato la rima (Scemo del Villaggio)',
+  boia: ' giustiziato/a dal Boia',
+  alchimista: " per l'esplosione dell'Alchimista",
+  scemo: ' per aver sbagliato la rima (Scemo del Villaggio)',
   unzione: " per l'unzione",
 }
 
 // poteri "una tantum" dichiarati a voce dal narratore (nessun altro campo
 // dice chi li ha usati): voce di registro alla prima comparsa in poteriUsati
-const POTERI_DICHIARATI = {
+export const POTERI_DICHIARATI = {
   'bardo-salta-notte': (nome) => `Il Bardo ${nome} inizia a suonare: tutti restano svegli e la notte salta`,
   'gallo-salta-giorno': (nome) => `Il Gallo Mannaro ${nome} oggi non canta: tutti dormono e il giorno salta`,
 }
@@ -91,6 +91,9 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
         messaggio = `La Cortigiana ${nome} muore: il suo cliente${cliente ? ` ${cliente.nome}` : ''} è stato ${verbo}.`
       } else if (giocatore.causaMorte === 'notte' && giocatore.mortoDa === 'cliente-lupo') {
         messaggio = `La Cortigiana ${nome} muore: il suo cliente${cliente ? ` ${cliente.nome}` : ''} era un lupo.`
+      } else if (giocatore.causaMorte === 'notte' && giocatore.mortoDa === 'cliente-visitato') {
+        // il cliente non è morto (protetto, Antico, trasformato...) ma i lupi erano a casa sua
+        messaggio = `La Cortigiana ${nome} muore: i lupi hanno visitato il suo cliente${cliente ? ` ${cliente.nome}` : ''}.`
       }
       // il crepacuore notturno è già negli annunci dell'alba ("è morto/a di
       // crepacuore per la morte del partner"): niente doppione dalla notte
@@ -132,6 +135,17 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
           : p?.vivo && !g.vivo && g.mortoDa === 'strega'
       })
       eventi.push({ round, fase, messaggio: `La Strega ${nome} usa la pozione ${tipo}${bersaglio ? ` su ${bersaglio.nome}` : ''}` })
+    }
+
+    // indagine dell'Inquisitore (il bersaglio e l'esito stanno in ultimaIndagine)
+    const ind = giocatore.ultimaIndagine
+    const indPrima = prima.ultimaIndagine
+    if (giocatore.ruoloSlug === 'inquisitore' && ind && (ind.notte !== indPrima?.notte || ind.targetId !== indPrima?.targetId)) {
+      const esito = ind.esito === 'malvagia' ? 'sì (aura malvagia)' : 'no (aura benevola)'
+      eventi.push({ round, fase, messaggio: `L'Inquisitore ${nome} interroga ${nomeDi(correnti, ind.targetId)}: ${esito}` })
+    }
+    if (!(prima.poteriUsati ?? []).includes('inquisitore-potere-perso') && (giocatore.poteriUsati ?? []).includes('inquisitore-potere-perso')) {
+      eventi.push({ round, fase, messaggio: `L'Inquisitore ${nome} perde il potere dopo un'indagine inutile` })
     }
 
     // rivelazioni diurne, elezione del Borgomastro, Fantasma Onnisciente

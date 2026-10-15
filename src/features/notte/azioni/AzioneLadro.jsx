@@ -3,6 +3,30 @@ import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, conRuolo } from '../..
 
 const POTERE = 'ladro-scelta'
 
+// il Ladro che non ha scelto (Avanti senza scelta) può solo restare Villico
+export const ladroDaScegliere = (g) =>
+  g.ruoloSlug === 'ladro' && !eMimoCopiante(g) && !(g.poteriUsati ?? []).includes(POTERE)
+export const ladroDeveScambiare = (g) => {
+  const [a, b] = g.scartoLadro ?? []
+  return Boolean(a) && Boolean(b) && eLupo(a) && eLupo(b)
+}
+
+// "Resta Villico" fatto da Avanti: stesse conseguenze del chip (ruolo, storia,
+// potere usato, due carte scartate dal mazzo); senza le due carte nessuno scarto
+export function ladroRestaVillico(g, quantita, aggiornaGiocatore, onCambiaQuantita) {
+  aggiornaGiocatore(g.id, {
+    ruoloSlug: 'villico',
+    storiaRuoli: conRuolo(g.storiaRuoli, 'villico'),
+    poteriUsati: [...(g.poteriUsati ?? []), POTERE],
+  })
+  const [a, b] = g.scartoLadro ?? []
+  if (!a || !b) return
+  for (const slug of new Set([a, b])) {
+    const n = a === b ? 2 : 1
+    onCambiaQuantita(slug, Math.max(0, (quantita[slug] ?? 1) - n))
+  }
+}
+
 // Il mazzo fisico ha due carte in più quando c'è il Ladro (pag. 15): quali
 // due ruoli siano non si decide componendo il mazzo, ma qui, quando tocca al
 // Ladro guardarle. Le due carte candidate si tengono sul giocatore stesso

@@ -35,6 +35,8 @@ function senzaUltimiUsi(usi, n) {
 // colpo del Berserker, o al primo. Come annullaMorte senza snapshot, disfare un
 // colpo ricostruito ripristina i campi toccati senza la catena in memoria.
 const CAMPI_NON_DEL_COLPO = ['usiNotte', 'vendettaCucciolo', 'attesaLupoBerserker']
+// ogni morso lascia sul bersaglio questo marcatore (vedi applica): è l'unica traccia di un morso senza effetto
+const MARCATORE_MORSO = 'visitatoDaiLupi'
 function colpiDaStato(ingresso, giocatori, ruoli) {
   if (!ingresso || usiStanotte(giocatori, ruoli) === 0) return []
   const modifiche = giocatori.flatMap((g) => {
@@ -49,7 +51,8 @@ function colpiDaStato(ingresso, giocatori, ruoli) {
   const eMorso = (m) =>
     (m.prima.vivo && !m.ora.vivo && m.ora.mortoDa === 'branco') ||
     (m.ora.anticoSbranatoNotte !== undefined && m.prima.anticoSbranatoNotte === undefined) ||
-    (m.campi.includes('ruoloSlug') && m.ora.ruoloSlug === 'lupo-mannaro')
+    (m.campi.includes('ruoloSlug') && m.ora.ruoloSlug === 'lupo-mannaro') ||
+    m.campi.includes(MARCATORE_MORSO)
   const bersagli = modifiche.filter(eMorso)
   if (bersagli.length === 0) return []
   const trasforma = (m) =>
@@ -120,7 +123,12 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   // stato com'era all'ingresso nel passo (dopo un refresh `giocatori` ha già i morsi)
   const iniziali = giocatoriIngresso ?? giocatori
   // feedback sull'ultimo morso: perché non ha avuto effetto, o cosa comporta
-  const [esito, setEsito] = useState(null)
+  // (dopo un refresh un morso senza effetto si riconosce dal solo marcatore)
+  const [esito, setEsito] = useState(() => {
+    const ultimo = colpi.at(-1)
+    const senzaEffetto = ultimo && Object.values(ultimo.patches ?? {}).every((p) => Object.keys(p).every((k) => k === MARCATORE_MORSO))
+    return senzaEffetto ? descriviEsito(ultimo.targetId, {}, iniziali) : null
+  })
   // effetti speciali dei morsi (Berserker, Mezzosangue, Cavaliere, Cortigiana...):
   // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
   const avvisiMorsi = colpi.flatMap((c) => c.avvisi ?? [])
@@ -255,7 +263,10 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     setAttesaLupo(null)
     if (sostituisce !== false) disfaEffetti(colpi[indice])
     const consumaVendetta = vendettaAttiva && indice >= 1
-    const patches = calcolaPatch(tipo, targetId, berserkerLupoSceltoId, base)
+    const effetti = calcolaPatch(tipo, targetId, berserkerLupoSceltoId, base)
+    // la Cortigiana a casa del bersaglio muore perché i lupi l'hanno visitata,
+    // anche se il bersaglio non muore (protetto, Antico, trasformato): vedi risolviCortigiana
+    const patches = base.some((g) => g.id === targetId) ? { ...effetti, [targetId]: { ...effetti[targetId], visitatoDaiLupi: round } } : effetti
     const originali = {}
     const letali = []
     for (const [id, patch] of Object.entries(patches)) {
@@ -264,7 +275,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
       if (eColpoLetale(patch)) letali.push(id)
       aggiornaGiocatore(id, patch)
     }
-    setEsito(descriviEsito(targetId, patches, base))
+    setEsito(descriviEsito(targetId, effetti, base))
     const avvisi = tipo === 'trasforma' ? avvisoTrasforma(base, targetId, progenitore) : avvisiColpo(base, targetId, patches, 'branco')
     const nuovo = { targetId, tipo, originali, letali, consumaVendetta, avvisi }
     // sostituendo un colpo non l'ultimo (con la vendetta il Cucciolo ucciso dal

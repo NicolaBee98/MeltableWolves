@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { rilevaEventi, unisciVoci } from '../data/log'
+import { rilevaEventi, unisciVoci, POTERI_DICHIARATI, nomeLog } from '../data/log'
 import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-log'
@@ -63,6 +63,20 @@ export function useLog(giocatori, round, fase = 'notte') {
     imposta(g)
   }
 
+  // Indietro sul gesto del Bardo (notte saltata): il potere torna non usato e la
+  // voce "inizia a suonare" sparisce subito (anche dopo un reload), niente
+  // "gesto annullato" al prossimo confronto
+  function annullaGestoBardo(correnti) {
+    const POTERE = 'bardo-salta-notte'
+    const annullati = confermatiRef.current.filter(
+      (c) => (c.poteriUsati ?? []).includes(POTERE) && !(correnti.find((g) => g.id === c.id)?.poteriUsati ?? []).includes(POTERE),
+    )
+    if (annullati.length === 0) return
+    const voci = annullati.map((c) => POTERI_DICHIARATI[POTERE](nomeLog(c)))
+    setEventi((prev) => prev.filter((e) => !voci.includes(e.messaggio)))
+    imposta(confermatiRef.current.map((c) => (annullati.includes(c) ? { ...c, poteriUsati: correnti.find((g) => g.id === c.id).poteriUsati } : c)))
+  }
+
   useEffect(() => {
     const fasePrecedente = faseRef.current
     faseRef.current = fase
@@ -79,7 +93,10 @@ export function useLog(giocatori, round, fase = 'notte') {
     if (nuovi.length > 0) imposta([...confermatiRef.current, ...nuovi])
     // di notte lo stato dei giocatori cambia anche per anteprime transitorie
     // (scelte non ancora confermate): si registra solo con confermaLog()
-    if (fase === 'notte' && fasePrecedente === 'notte') return
+    if (fase === 'notte' && fasePrecedente === 'notte') {
+      annullaGestoBardo(giocatori)
+      return
+    }
     if (fasePrecedente === 'notte') {
       // ingresso nell'alba: ultima conferma della notte appena conclusa
       // (round e giocatori possono cambiare nello stesso batch)

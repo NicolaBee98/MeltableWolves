@@ -190,3 +190,14 @@ test('conseguenzeMorte: un Cavaliere che protegge un Antico o uno Spilungone di 
     }
   }
 })
+
+test('conseguenzeMorte: il Cavaliere del partner non si immola per il crepacuore', () => {
+  const gs = [
+    { id: '1', nome: 'A', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['2'] },
+    { id: '2', nome: 'B', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'] },
+    { id: '3', nome: 'C', vivo: true, condizioni: [], ruoloSlug: 'cavaliere', legame: { tipo: 'cavaliere', targetId: '2' } },
+  ]
+  const out = conseguenzeMorte(gs, '1').join(' ')
+  expect(out).toMatch(/Morirà anche B \(crepacuore\)/)
+  expect(out).not.toMatch(/Cavaliere/)
+})

@@ -346,3 +346,21 @@ test('con la partita già vinta non compare l\'avviso di eleggere il Borgomastro
   expect(screen.getByText(/vincono loro/)).toBeInTheDocument()
   expect(screen.queryByText(/eleggere un Borgomastro/)).not.toBeInTheDocument()
 })
+
+test('Morte per unzione e Scemo del Villaggio sono disponibili già all\'alba, con la morte nel giorno che segue', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, condizioni: ['unto'] },
+    { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+  ]
+  render(
+    <AlbaPanel giocatori={giocatori} round={2} onVaiAlVoto={() => {}} aggiornaGiocatore={aggiornaGiocatore} ruoliSelezionati={['scemo-del-villaggio']} quantita={{ 'scemo-del-villaggio': 1 }} />,
+  )
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  expect(screen.getByRole('button', { name: 'Lo Scemo del Villaggio sbaglia la rima' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Morte per unzione' }))
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Conferma' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { mortoDa: 'unzione', vivo: false, causaMorte: 'colpo', mortoGiorno: 3 })
+})

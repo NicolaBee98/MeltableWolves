@@ -2237,3 +2237,50 @@ test('il Borgomastro (non è una carta del mazzo) non viene mai assegnato d\'uff
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
   expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ ruoloSlug: 'borgomastro' }))
 })
+
+test('Ladro: Avanti senza scelta lo lascia Villico, scarta le due carte e il passo dopo non le chiede più', async () => {
+  const user = userEvent.setup()
+  const h = creaHarness(
+    [
+      { id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['veggente', 'paladino'] },
+      { id: '2', nome: 'Marco', vivo: true, condizioni: [] },
+    ],
+    ['ladro', 'veggente', 'paladino', 'medium'],
+    { ladro: 1, veggente: 1, paladino: 1, medium: 1 },
+  )
+  await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  expect(h.stato.giocatori[0]).toMatchObject({ ruoloSlug: 'villico', storiaRuoli: ['ladro', 'villico'], poteriUsati: ['ladro-scelta'] })
+  expect(h.stato.quantita).toMatchObject({ veggente: 0, paladino: 0 })
+})
+
+test('Ladro: Avanti senza scelta con due carte-lupo resta bloccato', async () => {
+  const h = creaHarness(
+    [{ id: '1', nome: 'Anna', ruoloSlug: 'ladro', vivo: true, condizioni: [], poteriUsati: [], storiaRuoli: ['ladro'], scartoLadro: ['lupo-mannaro', 'lupo-mannaro'] }],
+    ['ladro', 'lupo-mannaro'],
+    { ladro: 1, 'lupo-mannaro': 3 },
+  )
+  expect(screen.getByRole('button', { name: 'Avanti' })).toBeDisabled()
+  expect(h.stato.giocatori[0].ruoloSlug).toBe('ladro')
+})
+
+test('il Fantasma Onnisciente (non è nel mazzo fisico) non blocca l\'assegnazione d\'ufficio del Villico', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'], vivo: true, condizioni: [] },
+    { id: '2', nome: 'Bea', ruoloSlug: 'veggente', storiaRuoli: ['veggente'], vivo: true, condizioni: [] },
+    { id: '3', nome: 'Carla', vivo: true, condizioni: [] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro', 'veggente', 'villico', 'fantasma-onnisciente']}
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+    />,
+  )
+  while (screen.queryByRole('button', { name: 'Avanti' })) {
+    await user.click(screen.getByRole('button', { name: 'Avanti' }))
+  }
+  tieni(screen.getByRole('button', { name: /È giorno nel villaggio|Vai all'alba/ }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
+})

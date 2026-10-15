@@ -161,3 +161,45 @@ test('cliccando di nuovo il bersaglio scelto la condizione si toglie', async () 
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { condizioni: [] })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { usiNotte: [] })
 })
+
+test('Fattucchiera: su chi agisce di giorno avvisa e non applica inibito', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const gs = [
+    { id: '1', nome: 'Fatt', ruoloSlug: 'fattucchiera', vivo: true, condizioni: [], note: '' },
+    { id: '2', nome: 'Boia', ruoloSlug: 'boia', vivo: true, condizioni: [], note: '' },
+  ]
+  render(
+    <AzioneCondizioneSingola
+      giocatori={gs}
+      aggiornaGiocatore={aggiornaGiocatore}
+      condizione="inibito"
+      etichetta="Chi inibire"
+      ruoloSlugAttore="fattucchiera"
+      nonApplicabili={{ boia: 'agisce di giorno' }}
+    />,
+  )
+  await user.click(screen.getByRole('button', { name: 'Boia' }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.anything())
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { sceltaNotte: { fattucchiera: '2' } })
+})
+
+test('Fattucchiera: avviso non bloccante per chi sceglie la prima notte, solo al round 1', () => {
+  const gs = [
+    { id: '1', nome: 'Fatt', ruoloSlug: 'fattucchiera', vivo: true, condizioni: [], note: '', sceltaNotte: { fattucchiera: '2' } },
+    { id: '2', nome: 'Cav', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], note: '' },
+  ]
+  const props = {
+    giocatori: gs,
+    aggiornaGiocatore: () => {},
+    condizione: 'inibito',
+    etichetta: 'Chi inibire',
+    ruoloSlugAttore: 'fattucchiera',
+    nonApplicabili: { cavaliere: { motivo: 'sceglie altri giocatori la prima notte', primaNotte: true } },
+  }
+  const { unmount } = render(<AzioneCondizioneSingola {...props} round={1} />)
+  expect(screen.getByText(/Non può inibire Cavaliere: sceglie altri giocatori la prima notte/)).toBeInTheDocument()
+  unmount()
+  render(<AzioneCondizioneSingola {...props} round={2} />)
+  expect(screen.queryByText(/Non può inibire/)).not.toBeInTheDocument()
+})

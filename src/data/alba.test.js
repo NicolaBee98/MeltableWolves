@@ -114,3 +114,12 @@ test('non annuncia unti o trasformati già morti', () => {
   const annunci = annunciAlba(giocatori, 1)
   expect(annunci).toEqual(["Anna è stato unto dall'Untore."])
 })
+
+test("l'Apprendista che eredita un ruolo a riconoscimento riceve il promemoria dei compagni", () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'mucca-mannara', ereditaNotte: 2, ereditaDa: '2', condizioni: [] },
+    { id: '2', nome: 'Bea', vivo: false, ruoloSlug: 'villico', condizioni: [] },
+    { id: '3', nome: 'Carlo', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  expect(annunciAlba(giocatori, 2)).toContain('Mostra a Anna chi sono i lupi: Carlo.')
+})

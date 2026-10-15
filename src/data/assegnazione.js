@@ -42,7 +42,7 @@ export function ruoliAssegnabili(ruoli, giocatori, quantita) {
 export function ignotiSonoVillici(giocatori, quantita) {
   const residui = Object.entries(quantita)
     .map(([slug, n]) => [slug, n - contaAssegnati(giocatori, slug)])
-    .filter(([, resto]) => resto > 0)
+    .filter(([slug, resto]) => resto > 0 && slug !== 'fantasma-onnisciente') // si assegna a un morto, non è in mazzo
   return residui.length > 0 && residui.every(([slug]) => slug === 'villico')
 }
 
@@ -121,5 +121,10 @@ export function cartaInMano(g) {
   const storia = g.storiaRuoli ?? []
   if (eMimoCopiante(g)) return 'mimo'
   if (g.ruoloSlug === 'lupo-mannaro' && storia.includes('cucciolo-di-lupo-mannaro')) return 'cucciolo-di-lupo-mannaro'
+  // Figlia dei Lupi, Mezzosangue e chi il Progenitore trasforma restano con la
+  // carta di prima (le carte fisiche non cambiano). Non vale per chi la carta
+  // l'ha presa (Ladro, Addolorata, Apprendista). Storia ignota: Lupo Mannaro.
+  const i = storia.indexOf('lupo-mannaro')
+  if (g.ruoloSlug === 'lupo-mannaro' && i > 0 && !storia.slice(0, i).some((s) => ['ladro', 'addolorata', 'apprendista'].includes(s))) return storia[i - 1]
   return g.ruoloSlug
 }

@@ -550,3 +550,26 @@ test('avvisiColpo: il Berserker sbranato che porta con sé un lupo fa maturare a
   const avvisi = avvisiColpo(giocatori, 'b', patches, 'branco')
   expect(avvisi.filter((a) => /Cucciolo Cleo diventa adulto/.test(a.testo))).toHaveLength(1)
 })
+
+describe('avvisiColpo: Cortigiana a casa di chi i lupi visitano', () => {
+  const g = (id, ruoloSlug, extra = {}) => ({ id, nome: `N${id}`, ruoloSlug, vivo: true, condizioni: [], ...extra })
+
+  test('avviso anche se il bersaglio non muore (protetto o Antico)', () => {
+    const lista = [g('1', 'cortigiana', { visitaNotturna: '2' }), g('2', 'villico', { condizioni: ['protetto'] })]
+    const a = avvisiColpo(lista, '2', { 2: { visitatoDaiLupi: 1 } }, 'branco')
+    expect(a).toHaveLength(1)
+    expect(a[0].testo).toMatch(/Cortigiana N1: morirà comunque/)
+    expect(a[0].log).toMatch(/visitato dai lupi/)
+  })
+
+  test('con il Cavaliere che si immola la Cortigiana muore comunque', () => {
+    const lista = [
+      g('1', 'cortigiana', { visitaNotturna: '2' }),
+      g('2', 'villico'),
+      g('3', 'cavaliere', { legame: { tipo: 'cavaliere', targetId: '2' } }),
+    ]
+    const a = avvisiColpo(lista, '2', { 2: { vivo: false, visitatoDaiLupi: 1 } }, 'branco')
+    expect(a.some((x) => /Cavaliere si immola/.test(x.testo))).toBe(true)
+    expect(a.some((x) => /Cortigiana N1: morirà comunque/.test(x.testo))).toBe(true)
+  })
+})

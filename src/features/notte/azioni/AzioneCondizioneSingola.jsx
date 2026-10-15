@@ -1,4 +1,5 @@
 import { segnaUsoStanotte, annullaUsoStanotte } from '../../../data/effettiNotte'
+import { ROLES } from '../../../data/roles'
 
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
 // (principio generale, vedi NightSequencer/azionePatches): niente più
@@ -11,18 +12,32 @@ export function AzioneCondizioneSingola({
   etichetta,
   ruoloSlugAttore,
   escludiAttore = false,
+  // {slug: motivo}: ruoli su cui la condizione non ha effetto (avviso non bloccante,
+  // la condizione non viene scritta); {slug: {motivo, primaNotte: true}} vale solo alla prima notte
+  nonApplicabili = {},
+  round = 1,
   vivoAIngresso = (g) => g.vivo,
 }) {
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
   const vivi = giocatori.filter((g) => vivoAIngresso(g) && (!escludiAttore || g.id !== attore?.id))
   // chi ha già questa condizione (assegnata da questa stessa azione stanotte,
   // vedi pulizia a fine notte in NightSequencer) è il bersaglio scelto finora
-  const scelto = vivi.find((g) => g.condizioni.includes(condizione))
+  // chi non può subire la condizione la tiene in `sceltaNotte` dell'attore (ripulita a fine notte)
+  const sceltoSenzaCondizione = attore?.sceltaNotte?.[ruoloSlugAttore]
+  const scelto = vivi.find((g) => g.condizioni.includes(condizione)) ?? vivi.find((g) => g.id === sceltoSenzaCondizione)
+  const motivoDi = (g) => {
+    const m = nonApplicabili[g?.ruoloSlug]
+    return m && (!m.primaNotte || round === 1) ? m.motivo ?? m : null
+  }
+  const motivoScelto = motivoDi(scelto)
+  const salvaSceltaSenzaCondizione = (v) =>
+    attore && aggiornaGiocatore(attore.id, { sceltaNotte: { ...attore.sceltaNotte, [ruoloSlugAttore]: v } })
 
   function confermaScelta(targetId) {
     // click sulla chip già scelta: toglie la condizione e il potere torna non usato
     if (targetId === scelto?.id) {
-      aggiornaGiocatore(targetId, { condizioni: scelto.condizioni.filter((c) => c !== condizione) })
+      if (scelto.condizioni.includes(condizione)) aggiornaGiocatore(targetId, { condizioni: scelto.condizioni.filter((c) => c !== condizione) })
+      if (sceltoSenzaCondizione) salvaSceltaSenzaCondizione(undefined)
       annullaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
       return
     }
@@ -33,7 +48,9 @@ export function AzioneCondizioneSingola({
       .filter((g) => g.condizioni.includes(condizione) && g.id !== targetId)
       .forEach((g) => aggiornaGiocatore(g.id, { condizioni: g.condizioni.filter((c) => c !== condizione) }))
     const target = giocatori.find((g) => g.id === targetId)
-    if (target && !target.condizioni.includes(condizione)) {
+    if (sceltoSenzaCondizione) salvaSceltaSenzaCondizione(undefined)
+    if (motivoDi(target)) salvaSceltaSenzaCondizione(targetId)
+    else if (target && !target.condizioni.includes(condizione)) {
       aggiornaGiocatore(targetId, { condizioni: [...target.condizioni, condizione] })
     }
     segnaUsoStanotte(giocatori, aggiornaGiocatore, [ruoloSlugAttore], ruoloSlugAttore)
@@ -59,6 +76,11 @@ export function AzioneCondizioneSingola({
           </button>
         ))}
       </div>
+      {motivoScelto && (
+        <p className="avviso">
+          ⚠️ Non può inibire {ROLES.find((r) => r.slug === scelto.ruoloSlug)?.nome ?? scelto.nome}: {motivoScelto}.
+        </p>
+      )}
     </div>
   )
 }

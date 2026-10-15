@@ -345,3 +345,30 @@ test("l'Apprendista che eredita il Boia lo riceve con il potere usato solo se il
   expect(scarico.poteriUsati ?? []).not.toContain('boia-giustizia')
   expect(risolviLegami([apprendista, boia(['boia-giustizia'])])['1'].poteriUsati).toContain('boia-giustizia')
 })
+
+test('la cortigiana muore se i lupi hanno visitato il cliente, anche se il cliente si salva (protetto)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'], visitatoDaiLupi: 4 },
+  ]
+  expect(risolviCortigiana(giocatori, 4)['1']).toMatchObject({ vivo: false, mortoDa: 'cliente-visitato' })
+  // visita di un'altra notte: nessun effetto
+  expect(risolviCortigiana(giocatori, 5)['1']).toEqual({ visitaNotturna: null })
+})
+
+test('la cortigiana muore anche se il cliente è salvato dal Cavaliere', () => {
+  const giocatori = [
+    { id: '1', nome: 'Gina', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '2' },
+    { id: '2', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], visitatoDaiLupi: 4 },
+  ]
+  expect(risolviCortigiana(giocatori, 4)['1'].vivo).toBe(false)
+})
+
+test('il Cavaliere non si immola per il crepacuore del protetto', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'cavaliere', vivo: true, condizioni: [], legame: { tipo: 'cavaliere', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'villico', vivo: false, causaMorte: 'crepacuore', condizioni: [] },
+  ]
+  expect(risolviLegami(giocatori)).toEqual({})
+  expect(risolviLegami([{ ...giocatori[1], causaMorte: 'notte' }].concat(giocatori[0]))['1'].causaMorte).toBe('sacrificio')
+})

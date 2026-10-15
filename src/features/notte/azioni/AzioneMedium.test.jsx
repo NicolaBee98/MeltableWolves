@@ -33,3 +33,12 @@ test('con la variante attiva, percepisce solo l\'aura del defunto', async () => 
     ultimaIndagine: { targetId: '2', esito: 'malvagia', notte: 2 },
   })
 })
+
+test('variante attivata a passo aperto con un defunto già scelto: l\'esito è ricalcolato (aura malvagia)', () => {
+  const giocatori = [
+    { id: '1', nome: 'Ivo', ruoloSlug: 'medium', vivo: true, condizioni: [], usiNotte: ['medium-indagine'], ultimaIndagine: { targetId: '2', ruoloRivelato: 'lupo-mannaro', notte: 2 } },
+    { id: '2', nome: 'Anna', ruoloSlug: 'lupo-mannaro', vivo: false, condizioni: [] },
+  ]
+  render(<AzioneMedium giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} varianteMedium={true} />)
+  expect(screen.getByText('Aura malvagia')).toBeInTheDocument()
+})

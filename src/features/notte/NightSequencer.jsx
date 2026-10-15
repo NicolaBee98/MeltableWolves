@@ -4,6 +4,7 @@ import { ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo, mortoStanotte } from '../../data/assegnazione'
 import { annunciAlba } from '../../data/alba'
 import { AZIONI_NOTTURNE } from './azioni'
+import { ladroDaScegliere, ladroDeveScambiare, ladroRestaVillico } from './azioni/AzioneLadro'
 import { risolviCortigiana } from '../../data/risoluzioneNotte'
 import { AssegnaRuolo } from './AssegnaRuolo'
 import { PulsanteTieni } from '../../components/PulsanteTieni'
@@ -678,6 +679,8 @@ export function NightSequencer({
   // scelta obbligatoria in sospeso (parità del Berserker, scritta sul giocatore:
   // sopravvive al ricaricamento): niente Avanti finché non si decide
   const sceltaObbligatoria = giocatori.some((g) => g.attesaLupoBerserker)
+  // Ladro con due carte-lupo non ancora scelte: deve scambiare, Avanti resta bloccato
+  const ladroObbligato = step.id === 'ladro' && giocatori.some((g) => ladroDaScegliere(g) && ladroDeveScambiare(g))
   const assegnazioneIncompleta =
     ruoliPendenti.length > 0 &&
     selezionatiPendenti < capacitaPendente &&
@@ -828,8 +831,8 @@ export function NightSequencer({
     if (senzaRuolo.length === 0) return
 
     const ruoliNonVillicoPendenti = ruoliSelezionati.filter(
-      // il Borgomastro non è una carta del mazzo: non è mai un ruolo "pendente"
-      (slug) => slug !== 'villico' && slug !== 'borgomastro' && ruoliAssegnabili([slug], lista, quantita).length > 0,
+      // Borgomastro e Fantasma Onnisciente non sono carte del mazzo: mai ruoli "pendenti"
+      (slug) => slug !== 'villico' && slug !== 'borgomastro' && slug !== 'fantasma-onnisciente' && ruoliAssegnabili([slug], lista, quantita).length > 0,
     )
 
     let ruoloDaAssegnare = 'villico'
@@ -864,8 +867,14 @@ export function NightSequencer({
     return true
   }
 
+  // Avanti sul passo del Ladro senza scelta: resta Villico (come "Resta Villico")
+  function ladroSenzaScelta(lista, aggiorna) {
+    if (step.id !== 'ladro') return
+    lista.filter(ladroDaScegliere).forEach((g) => ladroRestaVillico(g, quantita, aggiorna, onCambiaQuantita))
+  }
+
   function vaiAvanti() {
-    if (assegnazioneIncompleta || sceltaObbligatoria) return
+    if (assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato) return
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     if (ciSonoSelezioniDaConfermare) {
@@ -882,12 +891,13 @@ export function NightSequencer({
     } else {
       commitMimoSeSelezionato()
     }
+    ladroSenzaScelta(giocatoriConPendenti, aggiornaGiocatore)
     registraEventiAvanti()
     vaiAlPasso(stepsDopoCommit[indiceDopoCommit + 1].id)
   }
 
   function passaAllaNotteSuccessiva() {
-    if (assegnazioneIncompleta || sceltaObbligatoria) return
+    if (assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato) return
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     const [aggiorna, listaAggiornata] = creaTracciatore()
@@ -900,6 +910,7 @@ export function NightSequencer({
     } else {
       commitMimoSeSelezionato(giocatori, aggiorna)
     }
+    ladroSenzaScelta(listaAggiornata(), aggiorna)
     registraEventiAvanti()
     autoAssegnaRuoliRimasti(listaAggiornata(), aggiorna)
 
@@ -1114,6 +1125,9 @@ export function NightSequencer({
       {sceltaObbligatoria && (
         <p className="avviso">⚠️ Scegli quale lupo muore lottando con il Berserker prima di continuare.</p>
       )}
+      {ladroObbligato && (
+        <p className="avviso">⚠️ Con due Lupi Mannari tra le carte il Ladro deve scambiare: scegli una carta prima di continuare.</p>
+      )}
       </div>
 
       <div className="night-sequencer__nav">
@@ -1123,11 +1137,11 @@ export function NightSequencer({
         {/* con l'assegnazione ancora incompleta non si sa se i ruoli che si
             stanno assegnando faranno comparire altri passi (il Branco): niente "È giorno" */}
         {ultimoPasso && !assegnazioneIncompleta ? (
-          <PulsanteTieni onConferma={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta || sceltaObbligatoria}>
+          <PulsanteTieni onConferma={passaAllaNotteSuccessiva} disabled={assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato}>
             È giorno nel villaggio
           </PulsanteTieni>
         ) : (
-          <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta || sceltaObbligatoria}>
+          <button type="button" onClick={vaiAvanti} disabled={assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato}>
             Avanti
           </button>
         )}

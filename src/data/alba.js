@@ -1,5 +1,6 @@
 import { eLupo, nomeRuolo, ruoloPerDisplay } from './roles'
 import { viciniVivi } from './vicinanza'
+import { promemoriaCompagni } from './compagni'
 
 export function annunciAlba(giocatori, round) {
   const annunci = []
@@ -66,6 +67,8 @@ export function annunciAlba(giocatori, round) {
     annunci.push(
       `${g.nome} si rivela: è l'Apprendista${maestro ? ` di ${maestro}` : ''} ed eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(g.ruoloSlug))}.`,
     )
+    const promemoria = promemoriaCompagni(g, giocatori)
+    if (promemoria) annunci.push(promemoria)
   }
   for (const g of giocatori.filter((g) => g.figliaLupoNotte === round)) {
     annunci.push(`${g.nome} è la Figlia dei Lupi e rimasta orfana diventa Lupo Mannaro.`)

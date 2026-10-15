@@ -21,6 +21,7 @@ test('conferma uccide il bersaglio scelto e marca il branco come già usato', as
     causaMorte: 'notte',
     mortoNotte: 2,
     mortoDa: 'branco',
+    visitatoDaiLupi: 2,
   })
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: ['branco-lupi-sbrana'] })
 })
@@ -33,7 +34,8 @@ test('non uccide un bersaglio protetto', async () => {
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
 
-  expect(aggiornaGiocatore).not.toHaveBeenCalled()
+  // nessun effetto sul bersaglio (la visita dei lupi si registra comunque per la Cortigiana)
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('1', expect.objectContaining({ vivo: false }))
 })
 
 test('non permette una seconda vittima nella stessa notte', () => {
@@ -641,6 +643,23 @@ test('dopo un ricaricamento a metà passo i morsi si ricostruiscono dallo stato:
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true, mortoNotte: undefined }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { usiNotte: [] })
+})
+
+test('dopo un ricaricamento un morso senza effetto (protetto) mostra ancora l\'esito e la chip premuta, non "ha già sbranato"', () => {
+  const ingresso = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: ['protetto'] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [] },
+  ]
+  const giocatori = [
+    { ...ingresso[0], visitatoDaiLupi: 2 },
+    { ...ingresso[1], usiNotte: ['branco-lupi-sbrana'] },
+  ]
+  render(
+    <AzioneBrancoLupi giocatori={giocatori} giocatoriIngresso={ingresso} aggiornaGiocatore={vi.fn()} round={2} ruoli={['lupo-mannaro']} />,
+  )
+  expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByText(/il morso non ha effetto su anna: è protetto/i)).toBeInTheDocument()
+  expect(screen.queryByText(/ha già sbranato/i)).not.toBeInTheDocument()
 })
 
 test('Ubriaco sbranato: avviso subito e riga di registro (si scrive con Avanti)', async () => {

@@ -44,6 +44,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // deselezione (click sulla chip premuta): niente bersaglio, uso del potere tolto
   function deseleziona() {
     if (colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
+    if (target) aggiornaGiocatore(target, { visitatoDaiLupi: undefined })
     giocatori
       .filter((g) => RUOLI.includes(g.ruoloSlug))
       .forEach((g) => {
@@ -60,6 +61,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   function confermaScelta(targetId) {
     if (targetId === target) return deseleziona()
     if (target && colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
+    if (target) aggiornaGiocatore(target, { visitatoDaiLupi: undefined })
     const eraScelto = Boolean(target)
     let colpitoOra = false
     setAvviso(null)
@@ -70,10 +72,12 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
         setAvviso(`${bersaglio.nome} non è un lupo: la caccia del Chupacabra fallisce.`)
       } else {
         const patch = uccidiPatch(bersaglio, round, { mortoDa: 'chupacabra' })
+        // la Cortigiana a casa del bersaglio muore anche se lui si salva (vedi risolviCortigiana)
+        const conVisita = { ...patch, visitatoDaiLupi: round }
+        aggiornaGiocatore(targetId, conVisita)
+        setAvvisiEffetti(avvisiColpo(giocatori, targetId, { [targetId]: conVisita }, 'chupacabra'))
         if (patch) {
-          aggiornaGiocatore(targetId, patch)
           colpitoOra = true
-          setAvvisiEffetti(avvisiColpo(giocatori, targetId, { [targetId]: patch }, 'chupacabra'))
         } else if (RUOLI_IMMUNI_ALLA_NOTTE.includes(bersaglio.ruoloSlug)) {
           setAvviso(`${avvisoImmuneNotte(bersaglio)}: la caccia non ha alcun effetto su ${bersaglio.nome}.`)
         } else {

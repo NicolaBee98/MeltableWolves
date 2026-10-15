@@ -28,6 +28,9 @@ export function AzioneIndagine({
   const candidati = giocatori.filter((g) => (bersaglio === 'morto' ? !vivoAIngresso(g) : vivoAIngresso(g) && g.id !== veggente?.id))
   const indagineStanotte = veggente?.ultimaIndagine?.notte === round ? veggente.ultimaIndagine : null
   const giaUsato = usatoStanotte(giocatori, ruoli, potere)
+  // l'esito si ricalcola dal bersaglio se l'indagine è stata scritta senza (variante del Medium cambiata a passo aperto)
+  const esitoIndagine =
+    indagineStanotte && (indagineStanotte.esito ?? auraDi(giocatori.find((g) => g.id === indagineStanotte.targetId)?.ruoloSlug))
   // l'accecamento dura "fino alla morte del Polpo" (permanente tra notti):
   // se il Veggente era già cieco PRIMA di questo passo, resta tale per tutta
   // la notte, qualunque bersaglio si scelga. Ma se è QUESTO stesso click a
@@ -91,7 +94,7 @@ export function AzioneIndagine({
       <div className="scelta-giocatore__chips" role="group" aria-label="Chi indagare">
         {candidati.map((g) => {
           const indagato = giaUsato && indagineStanotte?.targetId === g.id
-          const classeEsito = indagato ? `chip--${indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
+          const classeEsito = indagato ? `chip--${esitoIndagine === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
           return (
             <button
               key={g.id}
@@ -113,7 +116,7 @@ export function AzioneIndagine({
       )}
       {giaUsato && indagineStanotte && (
         <p className="azione-indagine__etichetta-esito">
-          Aura {indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}
+          Aura {esitoIndagine === 'malvagia' ? 'malvagia' : 'benevola'}
         </p>
       )}
     </div>

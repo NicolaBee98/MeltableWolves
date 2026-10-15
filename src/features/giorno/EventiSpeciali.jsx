@@ -228,7 +228,7 @@ export function EventiSpeciali({
         key: 'alchimista',
         etichetta: "L'Alchimista esplode",
       },
-    inGiorno &&
+    (inGiorno || contesto === 'alba') &&
       rivelazioneContestualeDisponibile('scemo-del-villaggio', ruoliSelezionati, giocatori, quantita) && {
         key: 'scemo',
         etichetta: 'Lo Scemo del Villaggio sbaglia la rima',
@@ -237,7 +237,7 @@ export function EventiSpeciali({
       key: 'innocente',
       etichetta: "L'Innocente si rivela",
     },
-    inGiorno && unti.length > 0 && { key: 'unzione', etichetta: 'Morte per unzione' },
+    (inGiorno || contesto === 'alba') && unti.length > 0 && { key: 'unzione', etichetta: 'Morte per unzione' },
     contesto === 'esito' && bardoDisponibile(giocatori) && { key: 'bardo', etichetta: 'Il Bardo salta la notte' },
     contesto === 'alba' && galloDisponibile(giocatori) && {
       key: 'gallo',

@@ -80,7 +80,7 @@ export function borgomastroDisponibile(ruoliSelezionati, giocatori) {
 }
 
 // Cavalieri vivi (anche il Mimo-Cavaliere) legati a `id`: se `id` muore (rogo,
-// colpo, crepacuore...) si immolano al suo posto e lui sopravvive
+// colpo...; non crepacuore) si immolano al suo posto e lui sopravvive
 export function cavalieriDi(giocatori, id) {
   return giocatori.filter(
     (g) => g.vivo && g.id !== id && ['legame', 'legameMimo'].some((c) => g[c]?.tipo === 'cavaliere' && g[c].targetId === id),
@@ -103,7 +103,7 @@ export function conseguenzeMorte(giocatori, id, fatto = false) {
   return [...new Set(conseguenze(giocatori, id, fatto, new Set()))]
 }
 
-function conseguenze(giocatori, id, fatto, visti) {
+function conseguenze(giocatori, id, fatto, visti, perCrepacuore = false) {
   const t = giocatori.find((g) => g.id === id)
   if (!t) return []
   const primo = visti.size === 0
@@ -130,7 +130,7 @@ function conseguenze(giocatori, id, fatto, visti) {
 
   // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
   // avviene, ma la morte del Cavaliere ha le sue
-  const cavalieri = protettori
+  const cavalieri = perCrepacuore ? [] : protettori
   if (cavalieri.length > 0) {
     const out = cavalieri.map((g) =>
       fatto ? `Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive.` : `Il Cavaliere ${g.nome} lo protegge: si immola al suo posto.`,
@@ -141,16 +141,12 @@ function conseguenze(giocatori, id, fatto, visti) {
 
   const out = []
   for (const p of partner.filter((g) => g.vivo && !visti.has(g.id))) {
-    const protettoDa = cavalieriDi(giocatori, p.id)
-    if (primaVitaAntico(p) && protettoDa.length === 0) {
+    // il Cavaliere NON si immola per il crepacuore del suo protetto
+    if (primaVitaAntico(p)) {
       out.push(`L'Antico ${p.nome} sopravvive al crepacuore (prima vita) ma il villaggio è maledetto: la notte i poteri del villaggio non si sveglieranno.`)
-    } else if (protettoDa.length > 0) {
-      visti.add(p.id)
-      out.push(`Il Cavaliere ${protettoDa.map((g) => g.nome).join(', ')} si immola al posto di ${p.nome} (crepacuore).`)
-      protettoDa.forEach((g) => out.push(...conseguenze(giocatori, g.id, fatto, visti)))
     } else {
       out.push(fatto ? `È morto anche ${p.nome} (crepacuore).` : `Morirà anche ${p.nome} (crepacuore).`)
-      out.push(...conseguenze(giocatori, p.id, fatto, visti))
+      out.push(...conseguenze(giocatori, p.id, fatto, visti, true))
     }
   }
   const legati = (tipo) =>

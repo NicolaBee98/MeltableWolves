@@ -297,3 +297,22 @@ test('Suocera nascosta: con un morto dal ruolo ignoto (potrebbe essere lei) non 
   ]
   expect(condizioniVittoria(giocatori, { suocera: 1, 'lupo-mannaro': 2, villico: 3 })).toEqual([])
 })
+
+test('Suocera diventata Lupo Mannaro non è più nascosta: conta come lupa viva', () => {
+  const giocatori = [
+    { id: '1', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '2', vivo: true, ruoloSlug: 'lupo-mannaro', storiaRuoli: ['suocera', 'lupo-mannaro'], condizioni: [] },
+    { id: '3', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '4', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+    { id: '5', vivo: true, ruoloSlug: 'villico', condizioni: [] },
+  ]
+  // 2 lupi vs 3 abitanti: nessuna sottrazione della Suocera già rivelata
+  expect(condizioniVittoria(giocatori, { suocera: 1 })).toEqual([])
+})
+
+test('Capobranco e Mimo-Capobranco con una Guardia Mannara viva: niente vittoria dei Capibranco', () => {
+  const v = (id, ruoloSlug) => ({ id, vivo: true, ruoloSlug, condizioni: [] })
+  const m = condizioniVittoria([v('1', 'lupo-mannaro-capobranco'), v('2', 'lupo-mannaro-capobranco'), v('3', 'guardia-mannara')])
+  expect(m.join(' ')).not.toMatch(/Capibranco/)
+  expect(m.join(' ')).toMatch(/pari o superiore/)
+})

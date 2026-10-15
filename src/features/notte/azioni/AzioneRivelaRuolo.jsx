@@ -119,8 +119,9 @@ export function AzioneRivelaRuolo({
 
   // la carta fisica da mostrare: la Cartomante vede quella vera (anche la Guardia
   // Mannara), il Medium la stessa maschera del resto dell'app
-  const ruoloCarta = indagineStanotte?.ruoloRivelato
+  // (se la variante del Medium è cambiata a passo aperto l'indagine ha solo l'esito: si ricava dal bersaglio)
   const bersaglioIndagato = giocatori.find((g) => g.id === indagineStanotte?.targetId)
+  const ruoloCarta = indagineStanotte?.ruoloRivelato ?? bersaglioIndagato?.ruoloSlug
   const cartaMostrata = ruoloCarta
     ? cartaFisicaPath(reale ? ruoloCarta : ruoloPerDisplay(ruoloCarta), bersaglioIndagato?.ruoloSlug === ruoloCarta ? variantePerGiocatore(giocatori, bersaglioIndagato.id) : undefined)
     : null
@@ -129,7 +130,7 @@ export function AzioneRivelaRuolo({
   const esito = indagineStanotte && (
     <>
       <p className="azione-indagine__etichetta-esito">
-        Mostra a {etichettaAttore} la carta: {nomeRuolo(indagineStanotte.ruoloRivelato, reale)}
+        Mostra a {etichettaAttore} la carta: {nomeRuolo(ruoloCarta, reale)}
       </p>
       {cartaMostrata && (
         <button type="button" onClick={() => setCartaAperta(true)}>
@@ -139,7 +140,7 @@ export function AzioneRivelaRuolo({
       {cartaAperta && cartaMostrata && (
         <CartaSchermoIntero
           src={cartaMostrata}
-          etichetta={`Carta: ${nomeRuolo(indagineStanotte.ruoloRivelato, reale)}`}
+          etichetta={`Carta: ${nomeRuolo(ruoloCarta, reale)}`}
           onChiudi={() => setCartaAperta(false)}
         />
       )}

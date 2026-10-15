@@ -168,7 +168,7 @@ test('Sacerdote: una voce per coppia; legami scelti; Apprendista e Figlia alla r
 test('morti sul colpo con causa: Boia, esplosione, rima sbagliata', () => {
   const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'villico' }
   const muore = (mortoDa) => rilevaEventi([prima], [{ ...prima, vivo: false, causaMorte: 'colpo', mortoDa }], 1, 'giorno')[0].messaggio
-  expect(muore('boia')).toBe('Anna è morto/a: giustiziato/a dal Boia')
+  expect(muore('boia')).toBe('Anna è morto/a giustiziato/a dal Boia')
   expect(muore('alchimista')).toMatch(/esplosione/)
   expect(muore('scemo')).toMatch(/rima/)
 })
@@ -376,4 +376,29 @@ test('unisciVoci: la trasformazione del Progenitore resta una voce sola, in qual
   const d = 'G05 ha assunto il ruolo di Lupo Mannaro'
   expect(unisciVoci([v(d)], [v(t)]).map((e) => e.messaggio)).toEqual([t])
   expect(unisciVoci([v(t)], [v(d)]).map((e) => e.messaggio)).toEqual([t])
+})
+
+test("morte per l'esplosione dell'Alchimista senza ripetizioni", () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'villico' }
+  const dopo = { ...prima, vivo: false, causaMorte: 'colpo', mortoDa: 'alchimista' }
+  expect(rilevaEventi([prima], [dopo], 1, 'giorno')[0].messaggio).toBe("Anna è morto/a per l'esplosione dell'Alchimista")
+})
+
+test("Inquisitore: voce per l'indagine e per la perdita del potere", () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'inquisitore' }
+  const altro = { ...base, id: '2', nome: 'Bea', ruoloSlug: 'villico' }
+  const dopo = { ...prima, ultimaIndagine: { targetId: '2', esito: 'benevola', notte: 1 }, poteriUsati: ['inquisitore-potere-perso'] }
+  expect(rilevaEventi([prima, altro], [dopo, altro], 1, 'notte').map((e) => e.messaggio)).toEqual([
+    "L'Inquisitore Anna interroga Bea: no (aura benevola)",
+    "L'Inquisitore Anna perde il potere dopo un'indagine inutile",
+  ])
+})
+
+test('Cortigiana morta perché i lupi hanno visitato il cliente (che non è morto): voce dedicata', () => {
+  const prima = [
+    { id: 'c', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: 'a' },
+    { id: 'a', nome: 'Aldo', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+  ]
+  const dopo = [{ ...prima[0], vivo: false, causaMorte: 'notte', mortoNotte: 1, mortoDa: 'cliente-visitato' }, prima[1]]
+  expect(rilevaEventi(prima, dopo, 1, 'notte').map((e) => e.messaggio)).toContain('La Cortigiana Cora muore: i lupi hanno visitato il suo cliente Aldo.')
 })

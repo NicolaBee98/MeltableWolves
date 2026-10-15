@@ -181,3 +181,19 @@ test('giocatori aggiunti dopo il montaggio (prima della notte 1): la prima confe
   act(() => result.current.confermaLog('1-ladro'))
   expect(result.current.eventi.map((e) => e.messaggio)).toEqual(['Il Ladro G01 sceglie Veggente: scarta Paladino'])
 })
+
+test('Indietro sul gesto del Bardo toglie la voce dal registro', () => {
+  const bardo = { id: '1', nome: 'Anna', vivo: true, condizioni: [], ruoloSlug: 'bardo' }
+  const usato = [{ ...bardo, poteriUsati: ['bardo-salta-notte'] }]
+  const { result, rerender } = renderHook(({ giocatori, fase }) => useLog(giocatori, 1, fase), {
+    initialProps: { giocatori: [bardo], fase: 'giorno' },
+  })
+  rerender({ giocatori: usato, fase: 'giorno' })
+  expect(result.current.eventi).toHaveLength(1)
+  rerender({ giocatori: usato, fase: 'notte' })
+  rerender({ giocatori: [bardo], fase: 'notte' })
+  expect(result.current.eventi).toEqual([])
+  expect(JSON.parse(localStorage.getItem('meltable-wolves-log'))).toEqual([])
+  act(() => result.current.confermaLog())
+  expect(result.current.eventi).toEqual([])
+})
