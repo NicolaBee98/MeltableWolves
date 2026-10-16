@@ -63,6 +63,15 @@ export const FILE_RUOLI = {
 // ruoli che nel mazzo hanno più copie, così due Villici in lista non sono
 // indistinguibili. `variante` è la posizione (1-based) di quel giocatore tra
 // tutti quelli con lo stesso ruolo; scicla se supera il numero di facce disegnate.
+// ordine in cui compaiono le varianti di un ruolo con più copie (il primo lupo in
+// elenco è il Lupo Mannaro 4, poi 1, 2, 3, 5); senza voce vale l'ordine dei file
+const ORDINE_VARIANTI = { 'lupo-mannaro': [4, 1, 2, 3, 5] }
+const nesimaVariante = (slug, variante, totale) => {
+  const posizione = (variante - 1) % totale
+  const ordine = ORDINE_VARIANTI[slug]?.filter((n) => n <= totale)
+  return ordine ? ordine[posizione] : posizione + 1
+}
+
 const VARIANTI_FACCIA = {
   villico: { cartella: 'villico_varianti', prefisso: 'villico', totale: 7 },
   'lupo-mannaro': { cartella: 'lupo_mannaro_varianti', prefisso: 'lupo_mannaro', totale: 4 },
@@ -73,7 +82,7 @@ const VARIANTI_FACCIA = {
 export function faccePath(slug, variante) {
   const varianti = VARIANTI_FACCIA[slug]
   if (varianti && variante) {
-    const n = ((variante - 1) % varianti.totale) + 1
+    const n = nesimaVariante(slug, variante, varianti.totale)
     return `/assets/facce/${varianti.cartella}/${varianti.prefisso}_${n}.svg`
   }
   const file = FILE_RUOLI[slug]
@@ -108,7 +117,7 @@ export function personaggioPath(slug, variante) {
   const file = FILE_RUOLI[slug]
   if (!file) return null
   const totale = VARIANTI_PERSONAGGIO[slug]
-  const suffisso = totale ? `_${variante ? ((variante - 1) % totale) + 1 : 1}` : ''
+  const suffisso = totale ? `_${nesimaVariante(slug, variante || 1, totale)}` : ''
   return `/assets/personaggi/${file}${suffisso}.svg`
 }
 
