@@ -24,23 +24,23 @@ Convenzioni: la diagonale e' "il ruolo da solo" (o due copie dello stesso ruolo)
 
 ## Riepilogo statistico
 
-_Aggiornato dopo i commit di correzione b2102ae, 094225d e b35d5fc e le decisioni del proprietario del 2026-10-09 (report `bug-partite-2026-10-09-{a..h}.md` e `bug-partite-2026-10-14-{a..e}.md` e `bug-partite-2026-10-15-{a..e}.md`). I numeri si ricalcolano dal JSON con `node scripts/matrice-ruoli.mjs --md`._
+_Aggiornato dopo i commit di correzione b2102ae, 094225d e b35d5fc e le decisioni del proprietario del 2026-10-09 (report `bug-partite-2026-10-09-{a..h}.md` e `bug-partite-2026-10-14-{a..e}.md` e `bug-partite-2026-10-15-{a..e}.md` e `bug-partite-2026-10-16-{a..f}.md`; tutte le 1326 coppie hanno ora un verdetto "si", molte come assenza di interazione provata in uno scenario mirato). I numeri si ricalcolano dal JSON con `node scripts/matrice-ruoli.mjs --md`._
 
 | | |
 |---|---|
 | Ruoli | 51 |
 | Coppie (incluse 51 diagonali) | 1326 |
-| Valutate (si + parziale) | 1213 (91.5%) |
-| di cui si | 866 (65.3%) |
-| di cui parziale | 347 |
-| Non valutate | 113 (8.5%) |
-| "si" senza problemi (verde) | 601 |
+| Valutate (si + parziale) | 1326 (100.0%) |
+| di cui si | 1326 (100.0%) |
+| di cui parziale | 0 |
+| Non valutate | 0 (0.0%) |
+| "si" senza problemi (verde) | 1045 |
 | "si" con problemi tutti risolti (arancio) | 140 |
-| Celle con problemi aperti o dubbi (rosso) | 125 |
+| Celle con problemi aperti o dubbi (rosso) | 139 |
 | Diagonali valutate | 51 / 51 |
 | Coppie con il Mimo valutate | 51 / 51 |
 
-Escluso il Mimo, le coppie valutate sono 1162 su 1275 non-Mimo (91.1%). Molte celle "parziale" sono di passaggio, da partite complete.
+Escluso il Mimo, le coppie valutate sono 1275 su 1275 non-Mimo (100.0%). Molte celle "parziale" sono di passaggio, da partite complete.
 
 ## Ruoli con piu' coppie valutate (su 51 possibili, diagonale inclusa)
 
