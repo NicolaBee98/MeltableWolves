@@ -2300,3 +2300,18 @@ test('il Fantasma Onnisciente (non è nel mazzo fisico) non blocca l\'assegnazio
   tieni(screen.getByRole('button', { name: /È giorno nel villaggio|Vai all'alba/ }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { ruoloSlug: 'villico', storiaRuoli: ['villico'] })
 })
+
+test('branco stordito dall\'Ubriaco: la vendetta del Cucciolo si perde solo premendo Avanti (non all\'ingresso nel passo, così Indietro funziona)', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 3, stepIndex: 0 }))
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], storiaRuoli: ['lupo-mannaro'], vendettaCucciolo: 2, brancoStorditoFinoA: 3 },
+    { id: '3', nome: 'Elia', ruoloSlug: 'villico', vivo: true, condizioni: [], storiaRuoli: ['villico'] },
+  ]
+  const aggiornaGiocatore = vi.fn()
+  render(<NightSequencerConNotte ruoliSelezionati={['lupo-mannaro', 'villico']} giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} quantita={{ 'lupo-mannaro': 1, villico: 2 }} />)
+  expect(screen.getByText(/ancora stordito/i)).toBeInTheDocument()
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', { vendettaCucciolo: false })
+  tieni(screen.getByRole('button', { name: /È giorno nel villaggio/ }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('2', { vendettaCucciolo: false })
+})

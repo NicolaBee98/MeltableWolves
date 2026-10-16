@@ -166,12 +166,8 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   const progenitore = giocatori.find((g) => g.id === progenitoreId)
   const progenitorePuoTrasformare = Boolean(progenitoreId)
 
-  // la caccia annullata dall'Ubriaco fa perdere la vendetta del Cucciolo
-  useEffect(() => {
-    if (!storditi) return
-    giocatori.filter((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storditi])
+  // la caccia annullata dall'Ubriaco fa perdere la vendetta del Cucciolo: l'azzeramento avviene
+  // all'Avanti (NightSequencer, perdiVendettaSeBrancoStordito), non qui, così Indietro funziona
 
   if (storditi) {
     return (

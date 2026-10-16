@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { vendettaAttivaIn } from '../../data/effettiNotte'
 import { passiNotte, passiAttesi, RUOLI_BRANCO_LUPI, ruoliInMano, notteBloccata, villaggioMaledetto, NIGHT_STEPS, RUOLI_NON_ASSEGNABILI_MANUALMENTE } from '../../data/nightSteps'
 import { ruoloPerDisplay } from '../../data/roles'
 import { ruoliAssegnabili, contaAssegnati, eMimoCopiante, assegnaGuardiaMannaraCasuale, conRuolo, mortoStanotte } from '../../data/assegnazione'
@@ -873,8 +874,18 @@ export function NightSequencer({
     lista.filter(ladroDaScegliere).forEach((g) => ladroRestaVillico(g, quantita, aggiorna, onCambiaQuantita))
   }
 
+  // il branco stordito dall'Ubriaco non caccia: la vendetta del Cucciolo va persa. Si azzera
+  // solo all'Avanti (non all'ingresso nel passo), così Indietro riapre il passo com'era
+  function perdiVendettaSeBrancoStordito() {
+    if (step.id !== 'branco-lupi') return
+    const lupi = giocatori.filter((g) => RUOLI_BRANCO_LUPI.includes(g.ruoloSlug))
+    if (!lupi.some((g) => g.brancoStorditoFinoA !== undefined && g.brancoStorditoFinoA === round)) return
+    lupi.filter((g) => vendettaAttivaIn(g, round)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
+  }
+
   function vaiAvanti() {
     if (assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato) return
+    perdiVendettaSeBrancoStordito()
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     if (ciSonoSelezioniDaConfermare) {
@@ -898,6 +909,7 @@ export function NightSequencer({
 
   function passaAllaNotteSuccessiva() {
     if (assegnazioneIncompleta || sceltaObbligatoria || ladroObbligato) return
+    perdiVendettaSeBrancoStordito()
     confermaLog?.(`${round}-${idStep}`)
     if (!ciSonoSelezioniDaConfermare && vaiAlMimoSeDaScegliere()) return
     const [aggiorna, listaAggiornata] = creaTracciatore()

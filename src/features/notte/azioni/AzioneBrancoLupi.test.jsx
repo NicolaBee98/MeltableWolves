@@ -787,7 +787,9 @@ describe('vendetta del Cucciolo: si attua la notte dopo la morte', () => {
     const aggiorna = vi.fn()
     monta(mk(2, { brancoStorditoFinoA: 3 }), 3, aggiorna)
     expect(screen.getByText(/ancora stordito/i)).toBeInTheDocument()
-    expect(aggiorna).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
+    // l'azzeramento avviene all'Avanti (NightSequencer), non all'ingresso: così Indietro riapre il passo
+    expect(aggiorna).not.toHaveBeenCalled()
+    expect(screen.getByText(/vendetta del Cucciolo è andata persa/)).toBeInTheDocument()
   })
 })
 
@@ -860,6 +862,6 @@ test('Ubriaco: il marcatore di vendetta scritto la stessa notte stordita non vie
   expect(aggiorna).not.toHaveBeenCalled()
   unmount()
   render(<AzioneBrancoLupi giocatori={mk(2)} aggiornaGiocatore={aggiorna} round={3} ruoli={['lupo-mannaro']} />)
-  expect(aggiorna).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
+  expect(aggiorna).not.toHaveBeenCalled()
   expect(screen.getByText(/vendetta del Cucciolo è andata persa/)).toBeInTheDocument()
 })
