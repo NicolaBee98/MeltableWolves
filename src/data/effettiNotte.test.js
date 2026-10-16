@@ -12,6 +12,7 @@ import {
   daRipulireCambioNotte,
   maturaCucciolo,
   attivaVendettaCucciolo,
+  vendettaAttivaIn,
   berserkerLupiCandidati,
   propagaUnzione,
   aggiornaTuttiConRuolo,
@@ -572,4 +573,20 @@ describe('avvisiColpo: Cortigiana a casa di chi i lupi visitano', () => {
     expect(a.some((x) => /Cavaliere si immola/.test(x.testo))).toBe(true)
     expect(a.some((x) => /Cortigiana N1: morirà comunque/.test(x.testo))).toBe(true)
   })
+})
+
+test('vendetta del Cucciolo: il marcatore è il round di morte notturna, attiva solo da un round successivo; true (morte diurna/vecchi salvataggi) sempre', () => {
+  const gs = [
+    { id: '1', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: false, condizioni: [], causaMorte: 'notte', mortoNotte: 3 },
+    { id: '2', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [] },
+  ]
+  const lupo = attivaVendettaCucciolo(gs, '1', RUOLI_BRANCO).find((g) => g.id === '2')
+  expect(lupo.vendettaCucciolo).toBe(3)
+  expect(vendettaAttivaIn(lupo, 3)).toBe(false)
+  expect(vendettaAttivaIn(lupo, 4)).toBe(true)
+  expect(vendettaAttivaIn(lupo, 6)).toBe(true) // notte del Bardo saltata: slitta
+  const rogo = attivaVendettaCucciolo([{ ...gs[0], causaMorte: 'rogo' }, gs[1]], '1', RUOLI_BRANCO).find((g) => g.id === '2')
+  expect(rogo.vendettaCucciolo).toBe(true)
+  expect(vendettaAttivaIn({ vendettaCucciolo: true }, 1)).toBe(true)
+  expect(vendettaAttivaIn({}, 9)).toBe(false)
 })

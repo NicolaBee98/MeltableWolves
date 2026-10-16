@@ -595,9 +595,9 @@ test('Progenitore trasforma il Berserker e poi "Sbrana normalmente": il bersagli
 test('con la vendetta del Cucciolo il Progenitore sceglie QUALE vittima trasformare: l\'altra resta sbranata, e si può tornare indietro', async () => {
   const user = userEvent.setup()
   const g = montaConStato([
-    { id: 'C', nome: 'Cuc', ruoloSlug: 'cucciolo-di-lupo-mannaro', vivo: true },
+    { id: 'C', nome: 'Cuc', ruoloSlug: 'villico', vivo: true },
     { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true },
-    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, vendettaCucciolo: true },
     { id: '4', nome: 'Elia', ruoloSlug: 'villico', vivo: true },
   ])
   await user.click(screen.getByRole('button', { name: 'Cuc' }))
@@ -762,4 +762,91 @@ test('Progenitore: trasforma anche una vittima protetta e ricorda di svegliarla;
   rerender(<AzioneBrancoLupi {...props()} />)
   expect(giocatori.find((g) => g.id === '1').ruoloSlug).toBe('lupo-mannaro')
   expect(screen.getByText(/Svegliane segretamente il giocatore/)).toBeInTheDocument()
+})
+
+describe('vendetta del Cucciolo: si attua la notte dopo la morte', () => {
+  const mk = (vendetta, extra = {}) => [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Carlo', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], vendettaCucciolo: vendetta, ...extra },
+  ]
+  const monta = (giocatori, round, aggiorna = () => {}) =>
+    render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={aggiorna} round={round} ruoli={['lupo-mannaro']} />)
+
+  test('Cucciolo morto in questa stessa notte: una sola vittima', () => {
+    monta(mk(2), 2)
+    expect(screen.queryByText(/vendetta del cucciolo/i)).not.toBeInTheDocument()
+  })
+
+  test('notte dopo (anche dopo una notte saltata dal Bardo): due vittime', () => {
+    monta(mk(2), 3)
+    expect(screen.getByText(/vendetta del cucciolo.*vittima 1 di 2/i)).toBeInTheDocument()
+  })
+
+  test('branco stordito dall\'Ubriaco: la caccia è annullata e la vendetta si perde', () => {
+    const aggiorna = vi.fn()
+    monta(mk(2, { brancoStorditoFinoA: 3 }), 3, aggiorna)
+    expect(screen.getByText(/stordito/i)).toBeInTheDocument()
+    expect(aggiorna).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
+  })
+})
+
+test('Progenitore inibito dalla Fattucchiera: nessun pulsante di trasformazione', async () => {
+  const user = userEvent.setup()
+  const giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: ['inibito'], usiNotte: [], poteriUsati: [] },
+  ]
+  render(<AzioneBrancoLupi giocatori={giocatori} aggiornaGiocatore={() => {}} round={2} ruoli={['lupo-mannaro-progenitore']} />)
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  expect(screen.queryByRole('button', { name: /progenitore trasforma/i })).not.toBeInTheDocument()
+})
+
+test('Progenitore che trasforma il cliente della Cortigiana: avviso che la Cortigiana morirà comunque', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Anna', ruoloSlug: 'villico', vivo: true, condizioni: [] },
+    { id: '2', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true, condizioni: [], usiNotte: [], poteriUsati: [] },
+    { id: '3', nome: 'Cora', ruoloSlug: 'cortigiana', vivo: true, condizioni: [], visitaNotturna: '1' },
+  ]
+  const aggiornaGiocatore = vi.fn((id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  })
+  const props = () => ({ giocatori, aggiornaGiocatore, round: 2, ruoli: ['lupo-mannaro-progenitore'] })
+  const { rerender } = render(<AzioneBrancoLupi {...props()} />)
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' }))
+  rerender(<AzioneBrancoLupi {...props()} />)
+  expect(screen.getByText(/Cortigiana Cora: morirà comunque/)).toBeInTheDocument()
+})
+
+test('Cucciolo sbranato durante il passo Branco: la vendetta non scatta nella stessa notte (una sola vittima)', async () => {
+  const user = userEvent.setup()
+  const mkG = (id, nome, ruoloSlug) => ({ id, nome, ruoloSlug, vivo: true, condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] })
+  let stato
+  function Prova() {
+    stato = usePartita()
+    return <AzioneBrancoLupi giocatori={stato.giocatori} aggiornaGiocatore={stato.aggiornaGiocatore} annullaMorte={stato.annullaMorte} round={2} ruoli={RUOLI_BRANCO_LUPI} />
+  }
+  localStorage.setItem('meltable-wolves-partita', JSON.stringify([mkG('C', 'Cuc', 'cucciolo-di-lupo-mannaro'), mkG('2', 'Carlo', 'villico'), mkG('3', 'Dario', 'lupo-mannaro')]))
+  render(<StrictMode><Prova /></StrictMode>)
+  await user.click(screen.getByRole('button', { name: 'Cuc' }))
+  expect(screen.queryByText(/vittima \d di 2/i)).not.toBeInTheDocument()
+  expect(stato.giocatori.find((g) => g.id === '3').vendettaCucciolo).toBe(2)
+  localStorage.clear()
+})
+
+test('Progenitore che trasforma un giocatore con carta ignota lo marca cartaIgnotaTrasformata (e disfacendo lo toglie)', async () => {
+  const user = userEvent.setup()
+  const g = montaConStato([
+    { id: '1', nome: 'Anna', ruoloSlug: undefined, vivo: true },
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro-progenitore', vivo: true },
+  ])
+  await user.click(screen.getByRole('button', { name: 'Anna' }))
+  await user.click(screen.getByRole('button', { name: 'Il Progenitore trasforma Anna in Lupo Mannaro' }))
+  expect(g('1')).toMatchObject({ ruoloSlug: 'lupo-mannaro', cartaIgnotaTrasformata: true })
+  await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
+  expect(g('1').cartaIgnotaTrasformata).toBeUndefined()
+  localStorage.clear()
 })

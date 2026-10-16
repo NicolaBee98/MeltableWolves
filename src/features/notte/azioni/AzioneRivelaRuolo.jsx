@@ -11,7 +11,7 @@ import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
 // Tutte le altre carte ancora assegnabili vanno bene, anche Alchimista, Boia,
 // Scemo, Innocente, Suocera e Fantasma: i loro eventi dedicati funzionano
 // anche per chi ha già quel ruoloSlug (vedi candidatiRivelazione).
-const NON_CARTE_PROPONIBILI = ['borgomastro', 'cartomante']
+const NON_CARTE_PROPONIBILI = ['borgomastro', 'cartomante', 'fantasma-onnisciente']
 
 // `reale`: chi guarda la carta fisica (Cartomante e Medium) vede la carta vera, quindi
 // per loro la Guardia Mannara non è mascherata da Guardia (come invece nel resto dell'app)
@@ -45,6 +45,9 @@ export function AzioneRivelaRuolo({
   const [assegnato, setAssegnato] = useState(null)
   // il bersaglio è una Guardia da distinguere dalla Mannara (non un ruolo ignoto)
   const [guardiaTarget, setGuardiaTarget] = useState(false)
+  // il bersaglio è un trasformato dal Progenitore con carta originale ignota:
+  // si sceglie la carta fisica (cartaOriginale), il giocatore resta Lupo Mannaro
+  const [cartaOriginaleTarget, setCartaOriginaleTarget] = useState(false)
   // carta mostrata a schermo intero al giocatore interrogato (facoltativo)
   const [cartaAperta, setCartaAperta] = useState(false)
   // sia la Cartomante sia il Medium guardano la carta FISICA: vedono (e fanno distinguere
@@ -89,8 +92,10 @@ export function AzioneRivelaRuolo({
     const target = giocatori.find((g) => g.id === targetId)
     // bersaglio ignoto, o una Guardia che potrebbe essere la Mannara (solo
     // per la Cartomante): il narratore dice quale carta vede
-    if (target && (!target.ruoloSlug || (reale && guardiaIncerta(target, ruoliSelezionati, quantita)))) {
-      setGuardiaTarget(Boolean(target.ruoloSlug))
+    const origIgnota = Boolean(target?.cartaIgnotaTrasformata && !target.cartaOriginale)
+    if (target && (!target.ruoloSlug || origIgnota || (reale && guardiaIncerta(target, ruoliSelezionati, quantita)))) {
+      setCartaOriginaleTarget(origIgnota)
+      setGuardiaTarget(Boolean(target.ruoloSlug) && !origIgnota)
       setTargetInAttesaDiRuolo(targetId)
       return
     }
@@ -106,10 +111,17 @@ export function AzioneRivelaRuolo({
     const target = originali.find((g) => g.id === targetInAttesaDiRuolo)
     const patch = guardiaTarget
       ? distinguiGuardia(originali, target.id, ruoloSlug)
-      : { [target.id]: { ruoloSlug, storiaRuoli: conRuolo(target.storiaRuoli, ruoloSlug) } }
+      : cartaOriginaleTarget
+        ? { [target.id]: { cartaOriginale: ruoloSlug } }
+        : { [target.id]: { ruoloSlug, storiaRuoli: conRuolo(target.storiaRuoli, ruoloSlug) } }
     for (const id of Object.keys(patch)) {
       const g = originali.find((x) => x.id === id)
-      prima[id] ??= { ruoloSlug: g.ruoloSlug, storiaRuoli: g.storiaRuoli ?? [], guardiaDistinta: g.guardiaDistinta }
+      prima[id] ??= {
+        ruoloSlug: g.ruoloSlug,
+        storiaRuoli: g.storiaRuoli ?? [],
+        guardiaDistinta: g.guardiaDistinta,
+        ...(cartaOriginaleTarget && { cartaOriginale: g.cartaOriginale }),
+      }
     }
     // chi era stato toccato dalla scelta precedente e non da questa torna com'era
     for (const [id, stato] of Object.entries(prima)) aggiornaGiocatore(id, { ...stato, ...patch[id] })
@@ -168,7 +180,9 @@ export function AzioneRivelaRuolo({
         <p>
           {guardiaTarget
             ? `${target?.nome} è una Guardia: la carta è una Guardia o la Guardia Mannara?`
-            : `La carta di ${target?.nome} è ancora sconosciuta: quale ruolo mostra?`}
+            : cartaOriginaleTarget
+              ? `${target?.nome} è stato trasformato dal Progenitore: la sua carta originale è ancora sconosciuta, quale ruolo mostra?`
+              : `La carta di ${target?.nome} è ancora sconosciuta: quale ruolo mostra?`}
         </p>
         <div className="scelta-giocatore__chips" role="group" aria-label="Che ruolo era">
           {opzioni.map((slug) => (

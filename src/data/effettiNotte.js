@@ -166,7 +166,7 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
   if (muore && cavalieri.length === 0) {
     if (target.ruoloSlug === 'cucciolo-di-lupo-mannaro') {
       avvisi.push({
-        testo: `Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.`,
+        testo: `Il Cucciolo ${target.nome} è stato ucciso: la prossima notte il branco sbranerà due persone per vendetta.`,
         log: `Il Cucciolo ${target.nome} è stato ucciso: scatta la vendetta del branco.`,
       })
     }
@@ -205,8 +205,21 @@ export function attivaVendettaCucciolo(giocatori, idAppenaMorto, ruoliBranco) {
 
   return giocatori.map((g) => {
     if (g.id === idAppenaMorto) return { ...g, vendettaInnescata: true }
-    return ruoliBranco.includes(g.ruoloSlug) && g.vivo ? { ...g, vendettaCucciolo: true } : g
+    return ruoliBranco.includes(g.ruoloSlug) && g.vivo ? { ...g, vendettaCucciolo: marcatoreVendetta(morto) } : g
   })
+}
+
+// La vendetta si attua la notte DOPO la morte del Cucciolo (i lupi lo scoprono
+// all'alba): il marcatore è il round della notte di morte (attiva solo da un
+// round successivo), oppure `true` (sempre attiva: morte diurna, o salvataggi vecchi).
+function marcatoreVendetta(morto) {
+  const notturna = ['notte', 'crepacuore'].includes(morto.causaMorte) && morto.mortoGiorno === undefined
+  return notturna && typeof morto.mortoNotte === 'number' ? morto.mortoNotte : true
+}
+
+export function vendettaAttivaIn(g, round) {
+  const v = g.vendettaCucciolo
+  return v === true || (typeof v === 'number' && round > v)
 }
 
 export function aggiungiCondizionePatch(giocatore, condizione) {

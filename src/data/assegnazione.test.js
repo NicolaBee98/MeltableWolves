@@ -115,3 +115,10 @@ test('ignotiSonoVillici ignora il Fantasma Onnisciente (non è una carta del maz
   const gs = [{ id: '1', ruoloSlug: 'lupo-mannaro' }, { id: '2', ruoloSlug: 'veggente' }, { id: '3' }]
   expect(ignotiSonoVillici(gs, { 'lupo-mannaro': 1, veggente: 1, villico: 1, 'fantasma-onnisciente': 1 })).toBe(true)
 })
+
+test('cartaOriginale (trasformato da "?" dal Progenitore): è la carta in mano e conta come assegnata senza cambiare il ruolo', () => {
+  const g = { id: '1', ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'], cartaOriginale: 'veggente' }
+  expect(cartaInMano(g)).toBe('veggente')
+  expect(contaAssegnati([g], 'veggente')).toBe(1)
+  expect(g.ruoloSlug).toBe('lupo-mannaro')
+})

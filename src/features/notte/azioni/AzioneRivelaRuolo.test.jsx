@@ -1,3 +1,4 @@
+import { cartaInMano, contaAssegnati } from '../../../data/assegnazione'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneRivelaRuolo } from './AzioneRivelaRuolo'
@@ -117,7 +118,7 @@ test('Cartomante: scelto un bersaglio ignoto, "Annulla" torna alla scelta del be
   expect(screen.getByRole('button', { name: 'Marco' })).toBeInTheDocument()
 })
 
-test('Cartomante: la carta di un bersaglio ignoto può essere qualunque carta assegnabile (anche Fantasma, Suocera, Alchimista, Boia, Scemo, Innocente) tranne Borgomastro e Cartomante', async () => {
+test('Cartomante: la carta di un bersaglio ignoto può essere qualunque carta assegnabile (anche Suocera, Alchimista, Boia, Scemo, Innocente) tranne Borgomastro, Fantasma Onnisciente e Cartomante', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [] },
@@ -158,10 +159,11 @@ test('Cartomante: la carta di un bersaglio ignoto può essere qualunque carta as
 
   await user.click(screen.getByRole('button', { name: 'Marco' }))
 
-  for (const nome of ['Fantasma Onnisciente', 'Suocera', 'Alchimista', 'Boia', 'Scemo del Villaggio', 'Innocente']) {
+  for (const nome of ['Suocera', 'Alchimista', 'Boia', 'Scemo del Villaggio', 'Innocente']) {
     expect(screen.getByRole('button', { name: nome })).toBeInTheDocument()
   }
   expect(screen.queryByRole('button', { name: 'Borgomastro' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Fantasma Onnisciente' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Cartomante' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Villico' })).toBeInTheDocument()
 })
@@ -380,4 +382,49 @@ test('Cartomante: un Ladro che ha preso la Strega mostra la carta Strega (la sca
   render(<AzioneRivelaRuolo giocatori={giocatori} aggiornaGiocatore={aggiornaGiocatore} round={1} ruoloSlugAttore="cartomante" etichettaAttore="Cartomante" bersaglio="vivo" />)
   screen.getByRole('button', { name: 'Marco' }).click()
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { ultimaIndagine: { targetId: '2', ruoloRivelato: 'strega', notte: 1 } })
+})
+
+test('Cartomante su un "?" trasformato dal Progenitore: sceglie la carta originale, il giocatore resta Lupo Mannaro e la carta conta come assegnata; si cambia e si deseleziona', async () => {
+  const user = userEvent.setup()
+  let giocatori = [
+    { id: '1', nome: 'Nora', ruoloSlug: 'cartomante', vivo: true, condizioni: [], usiNotte: [] },
+    { id: '2', nome: 'Marco', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], storiaRuoli: ['lupo-mannaro'], cartaIgnotaTrasformata: true },
+  ]
+  const aggiornaGiocatore = (id, patch) => {
+    giocatori = giocatori.map((g) => (g.id === id ? { ...g, ...patch } : g))
+  }
+  const el = () => (
+    <AzioneRivelaRuolo
+      giocatori={giocatori}
+      aggiornaGiocatore={aggiornaGiocatore}
+      round={3}
+      ruoloSlugAttore="cartomante"
+      etichettaAttore="Cartomante"
+      bersaglio="vivo"
+      ruoliSelezionati={['cartomante', 'villico', 'veggente']}
+      quantita={{ cartomante: 1, villico: 1, veggente: 1 }}
+    />
+  )
+  const { rerender } = render(el())
+  const clic = async (nome) => {
+    await user.click(screen.getByRole('button', { name: nome }))
+    rerender(el())
+  }
+
+  await clic('Marco')
+  expect(screen.getByText(/trasformato dal Progenitore/)).toBeInTheDocument()
+  await clic('Veggente')
+  expect(giocatori[1]).toMatchObject({ ruoloSlug: 'lupo-mannaro', storiaRuoli: ['lupo-mannaro'], cartaOriginale: 'veggente' })
+  expect(giocatori[0].ultimaIndagine.ruoloRivelato).toBe('veggente')
+  expect(cartaInMano(giocatori[1])).toBe('veggente')
+  expect(contaAssegnati(giocatori, 'veggente')).toBe(1)
+
+  await clic('Villico')
+  expect(giocatori[1]).toMatchObject({ ruoloSlug: 'lupo-mannaro', cartaOriginale: 'villico' })
+  expect(contaAssegnati(giocatori, 'veggente')).toBe(0)
+
+  await clic('Villico')
+  expect(giocatori[1].cartaOriginale).toBeUndefined()
+  expect(giocatori[0].ultimaIndagine).toBeNull()
+  expect(giocatori[0].usiNotte).toEqual([])
 })

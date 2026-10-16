@@ -372,3 +372,12 @@ test('il Cavaliere non si immola per il crepacuore del protetto', () => {
   expect(risolviLegami(giocatori)).toEqual({})
   expect(risolviLegami([{ ...giocatori[1], causaMorte: 'notte' }].concat(giocatori[0]))['1'].causaMorte).toBe('sacrificio')
 })
+
+test('l\'Apprendista che eredita l\'Inquisitore riparte da zero: non eredita il potere perso', () => {
+  const giocatori = [
+    { id: '1', nome: 'Sara', ruoloSlug: 'apprendista', vivo: true, condizioni: [], poteriUsati: [], legame: { tipo: 'apprendista', targetId: '2' } },
+    { id: '2', nome: 'Marco', ruoloSlug: 'inquisitore', vivo: false, condizioni: [], poteriUsati: ['inquisitore-potere-perso'] },
+  ]
+  expect(risolviLegami(giocatori)['1']).toMatchObject({ ruoloSlug: 'inquisitore' })
+  expect(risolviLegami(giocatori)['1'].poteriUsati ?? []).not.toContain('inquisitore-potere-perso')
+})

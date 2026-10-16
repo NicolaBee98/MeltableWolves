@@ -2138,6 +2138,22 @@ test('Fattucchiera su un lupo del Branco: nessun effetto se ci sono altri lupi; 
   expect(screen.getByText(/branco non può sbranare questa notte/i)).toBeInTheDocument()
 })
 
+test('Capobranco unico lupo vivo e inibito: il branco non può sbranare', () => {
+  localStorage.setItem('meltable-wolves-notte', JSON.stringify({ round: 2, stepIndex: 0 }))
+  render(
+    <NightSequencerConNotte
+      ruoliSelezionati={['lupo-mannaro-capobranco']}
+      giocatori={[
+        { id: '1', nome: 'Lia', ruoloSlug: 'lupo-mannaro-capobranco', vivo: true, condizioni: ['inibito'], usiNotte: [] },
+        { id: '3', nome: 'Anna', vivo: true, condizioni: [] },
+      ]}
+      aggiornaGiocatore={() => {}}
+    />,
+  )
+  expect(screen.queryByRole('group', { name: 'Il branco sbrana' })).not.toBeInTheDocument()
+  expect(screen.getByText(/branco non può sbranare questa notte/i)).toBeInTheDocument()
+})
+
 test('Ladro assegnato e scelta nello stesso passo: all\'Avanti il registro scrive "sceglie ... scarta"', async () => {
   const user = userEvent.setup()
   const out = {}

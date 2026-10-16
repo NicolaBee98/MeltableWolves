@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
+import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, vendettaAttivaIn, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
 import { annullaColpo, eColpoLetale } from './annullaColpo'
 import { conRuolo, eMimoCopiante } from '../../../data/assegnazione'
 import { eLupo } from '../../../data/roles'
@@ -87,16 +87,17 @@ function colpiDaStato(ingresso, giocatori, ruoli) {
 // l'ha ancora usato, il Progenitore vero prima del Mimo
 function chiTrasforma(lista) {
   return lista
-    .filter((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo && !(g.poteriUsati ?? []).includes(POTERE_TRASFORMA))
+    .filter((g) => g.ruoloSlug === 'lupo-mannaro-progenitore' && g.vivo && !(g.condizioni ?? []).includes('inibito') && !(g.poteriUsati ?? []).includes(POTERE_TRASFORMA))
     .sort((a, b) => eMimoCopiante(a) - eMimoCopiante(b))[0]
 }
 
-// solo per il registro (nessun testo a schermo: lo dice già "verrà trasformato")
+// il registro dice chi trasforma; a schermo basta "verrà trasformato", più la
+// Cortigiana a casa del trasformato, che muore comunque (come per il morso)
 function avvisoTrasforma(lista, targetId, attore) {
   const nome = lista.find((g) => g.id === targetId)?.nome
   if (!attore || !nome) return []
   const chi = eMimoCopiante(attore) ? `${attore.nome} (Mimo del Progenitore)` : `Il Progenitore ${attore.nome}`
-  return [{ log: `${chi} trasforma ${nome} in Lupo Mannaro.` }]
+  return [{ log: `${chi} trasforma ${nome} in Lupo Mannaro.` }, ...avvisiColpo(lista, targetId, { [targetId]: {} }, 'branco')]
 }
 
 export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocatore, annullaMorte, round, ruoli = [], vivoAIngresso = (g) => g.vivo, impostaEventiAvanti }) {
@@ -140,7 +141,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   }, [logMorsi])
   // vendetta già attiva prima di cominciare (Cucciolo morto in precedenza):
   // se invece l'ha fatta scattare il primo colpo, disfarlo la disattiva
-  const [vendettaIniziale] = useState(() => iniziali.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo))
+  const [vendettaIniziale] = useState(() => iniziali.some((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)))
   // il bersaglio appena sbranato resta in lista (anche se non più vivo),
   // altrimenti la sua chip sparirebbe subito dopo il click invece di
   // restare visibile e cliccabile (vedi AzioneChupacabra)
@@ -153,7 +154,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   // il flag viene consumato dalla seconda vittima: la vendetta resta attiva
   // finché quel colpo c'è (così si può ancora cambiarlo)
   const vendettaAttiva =
-    giocatori.some((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo) || colpi.some((c) => c.consumaVendetta)
+    giocatori.some((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)) || colpi.some((c) => c.consumaVendetta)
   const limite = vendettaAttiva ? 2 : 1
   const usi = usiStanotte(giocatori, ruoli)
   // snapshot all'ingresso nel passo: usarla dal vivo farebbe sparire il
@@ -164,6 +165,13 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   const [progenitoreId] = useState(() => chiTrasforma(iniziali)?.id)
   const progenitore = giocatori.find((g) => g.id === progenitoreId)
   const progenitorePuoTrasformare = Boolean(progenitoreId)
+
+  // la caccia annullata dall'Ubriaco fa perdere la vendetta del Cucciolo
+  useEffect(() => {
+    if (!storditi) return
+    giocatori.filter((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storditi])
 
   if (storditi) {
     return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
@@ -194,7 +202,12 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     const prog = lista.find((g) => g.id === progenitore?.id)
     if (!target || !prog) return {}
     return {
-      [target.id]: { ruoloSlug: 'lupo-mannaro', storiaRuoli: conRuolo(target.storiaRuoli, 'lupo-mannaro') },
+      [target.id]: {
+        ruoloSlug: 'lupo-mannaro',
+        storiaRuoli: conRuolo(target.storiaRuoli, 'lupo-mannaro'),
+        // carta fisica ancora ignota: Cartomante/Medium la faranno scegliere al narratore
+        ...(!target.ruoloSlug && { cartaIgnotaTrasformata: true }),
+      },
       [prog.id]: { poteriUsati: [...(prog.poteriUsati ?? []), POTERE_TRASFORMA] },
     }
   }

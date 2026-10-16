@@ -26,7 +26,8 @@ export function patchEredita(giocatori, erede, campo, morto, { conLegame = false
   const legameMorto = [morto.legame, morto.legameMimo].find((l) => l?.tipo === slug)
   const bersaglio = legameMorto && giocatori.find((g) => g.id === legameMorto.targetId)
   const legameVivo = conLegame && bersaglio?.vivo && bersaglio.id !== erede.id
-  const usati = [...(morto.poteriUsati ?? []), ...(LEGAMI_PRIMA_NOTTE.includes(slug) && !legameVivo ? [MARCATORE_LEGAME_EREDITATO] : [])]
+  // l'erede è un altro Inquisitore: riparte da zero, senza il potere perso dal predecessore
+  const usati = [...(morto.poteriUsati ?? []).filter((p) => p !== 'inquisitore-potere-perso'), ...(LEGAMI_PRIMA_NOTTE.includes(slug) && !legameVivo ? [MARCATORE_LEGAME_EREDITATO] : [])]
   return {
     ruoloSlug: slug,
     storiaRuoli: conRuolo(erede.storiaRuoli, slug),

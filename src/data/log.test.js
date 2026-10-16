@@ -402,3 +402,57 @@ test('Cortigiana morta perché i lupi hanno visitato il cliente (che non è mort
   const dopo = [{ ...prima[0], vivo: false, causaMorte: 'notte', mortoNotte: 1, mortoDa: 'cliente-visitato' }, prima[1]]
   expect(rilevaEventi(prima, dopo, 1, 'notte').map((e) => e.messaggio)).toContain('La Cortigiana Cora muore: i lupi hanno visitato il suo cliente Aldo.')
 })
+
+test('unisciVoci: Cortigiana con cliente visitato dai lupi (o lupo, o ucciso) resta una voce sola', () => {
+  const v = (messaggio) => ({ round: 1, fase: 'notte', messaggio })
+  const testo = (l) => l.map((e) => e.messaggio)
+  const visitato = 'La Cortigiana G02 muore: il suo cliente G03 è stato visitato dai lupi.'
+  expect(testo(unisciVoci([v(visitato)], [v('La Cortigiana G02 muore: i lupi hanno visitato il suo cliente G03.')]))).toEqual([visitato])
+  expect(testo(unisciVoci([v(visitato)], [v('La Cortigiana G02 muore: il suo cliente G03 era un lupo.')]))).toEqual([
+    'La Cortigiana G02 muore: il suo cliente G03 era un lupo.',
+  ])
+  expect(testo(unisciVoci([v('La Cortigiana G02 muore: il suo cliente G03 è stato sbranato.'), v(visitato)], []))).toHaveLength(2)
+  expect(
+    testo(unisciVoci([v('La Cortigiana G02 muore: il suo cliente G03 è stato sbranato.')], [v('La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.')])),
+  ).toEqual(['La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.'])
+  expect(testo(unisciVoci([v(visitato)], [v('La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.')]))).toEqual([
+    'La Cortigiana G02 muore: il suo cliente G03 è stato ucciso.',
+  ])
+})
+
+test('Ladro senza scelta (storiaRuoli senza "ladro"): "resta Villico" nel Diario', () => {
+  const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: 'ladro' }
+  const dopo = { ...prima, ruoloSlug: 'villico', storiaRuoli: ['villico'], poteriUsati: ['ladro-scelta'] }
+  expect(rilevaEventi([prima], [dopo], 1, 'notte').map((e) => e.messaggio)).toEqual(['Il Ladro Anna resta Villico'])
+  expect(rilevaEventi([{ ...prima, scartoLadro: ['veggente', 'boia'] }], [{ ...dopo, scartoLadro: ['veggente', 'boia'] }], 1, 'notte')[0].messaggio).toBe(
+    'Il Ladro Anna sceglie di restare Villico: scarta Veggente e Boia',
+  )
+})
+
+test('rivelazione diurna registrata anche se il ruolo era già in storiaRuoli (Ladro)', () => {
+  const casi = [
+    ['innocente', { poteriUsati: ['innocente-rivelato'] }],
+    ['suocera', { poteriUsati: ['suocera-rivelata'] }],
+    ['spilungone', { spilungoneRivelatoRound: 1 }],
+  ]
+  for (const [slug, patch] of casi) {
+    const prima = { ...base, id: '1', nome: 'Anna', ruoloSlug: slug, storiaRuoli: ['ladro', slug], poteriUsati: ['ladro-scelta'] }
+    const dopo = { ...prima, ...patch, poteriUsati: [...prima.poteriUsati, ...(patch.poteriUsati ?? [])] }
+    expect(rilevaEventi([prima], [dopo], 1, 'alba').map((e) => e.messaggio)).toEqual([expect.stringMatching(/Anna si è rivelato\/a: è /)])
+  }
+})
+
+test('Strega: il bersaglio viene da sceltaNotte anche se non c\'è passaggio a protetto', () => {
+  const strega = { ...base, id: '1', nome: 'Sofia', ruoloSlug: 'strega' }
+  const vit = { ...base, id: '2', nome: 'Vito', ruoloSlug: 'villico', condizioni: ['protetto'] }
+  const mor = { ...base, id: '3', nome: 'Mara', ruoloSlug: 'villico' }
+  const dopo = {
+    ...strega,
+    poteriUsati: ['strega-pozione-vitale', 'strega-pozione-mortale'],
+    sceltaNotte: { 'strega-vitale': { targetId: '2' }, 'strega-mortale': { targetId: '3' } },
+  }
+  expect(rilevaEventi([strega, vit, mor], [dopo, vit, mor], 1, 'notte').map((e) => e.messaggio)).toEqual([
+    'La Strega Sofia usa la pozione vitale su Vito',
+    'La Strega Sofia usa la pozione mortale su Mara',
+  ])
+})

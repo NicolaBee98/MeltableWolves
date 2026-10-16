@@ -50,6 +50,15 @@ const LEGAME_EREDITATO = {
 // rivelazione). L'Antico ha un testo suo (prima vita).
 const RUOLI_RIVELAZIONE_DIURNA = ['boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'spilungone', 'suocera']
 
+// marcatori di rivelazione (campo numerico, potere in poteriUsati): vedi EventiSpeciali/GiornoPanel
+const MARCATORE_RIVELAZIONE = {
+  innocente: [null, 'innocente-rivelato'],
+  boia: [null, 'boia-giustizia'],
+  alchimista: [null, 'alchimista-esplosione'],
+  spilungone: ['spilungoneRivelatoRound', null],
+  suocera: [null, 'suocera-rivelata'],
+}
+
 // "fase" (notte/alba/giorno/rogo) è la sotto-fase del giorno di gioco a cui
 // appartiene l'evento (per l'icona nel registro, vedi LogPartita.jsx): quella
 // passata dal chiamante (App.jsx, dedotta dalla schermata su cui si trova il
@@ -128,7 +137,9 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     // ricava dall'effetto (protetto / morto per la Strega) nello stesso confronto
     for (const [potere, tipo] of [['strega-pozione-vitale', 'vitale'], ['strega-pozione-mortale', 'mortale']]) {
       if ((prima.poteriUsati ?? []).includes(potere) || !(giocatore.poteriUsati ?? []).includes(potere)) continue
-      const bersaglio = correnti.find((g) => {
+      // dato affidabile: la scelta di stanotte scritta sulla Strega (sceltaNotte)
+      const scelta = (giocatore.sceltaNotte ?? prima.sceltaNotte)?.[`strega-${tipo}`]
+      const bersaglio = (scelta && correnti.find((g) => g.id === scelta.targetId)) || correnti.find((g) => {
         const p = mappaPrecedenti.get(g.id)
         return tipo === 'vitale'
           ? p && (g.condizioni ?? []).includes('protetto') && !(p.condizioni ?? []).includes('protetto')
@@ -162,7 +173,15 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
       eventi.push({ round, fase, messaggio: 'Il villaggio è maledetto: la notte successiva il villaggio non potrà usare i propri poteri' })
     }
     if (fase !== 'notte') {
-      for (const slug of nuoviInStoria.filter((r) => RUOLI_RIVELAZIONE_DIURNA.includes(r))) {
+      // ruolo già in storiaRuoli (preso col Ladro...): si guarda il marcatore di rivelazione
+      const markerNuovo = (campo, valore) => (giocatore.poteriUsati ?? []).includes(valore) && !(prima.poteriUsati ?? []).includes(valore) ||
+        (campo && giocatore[campo] !== undefined && prima[campo] === undefined)
+      const rivelati = RUOLI_RIVELAZIONE_DIURNA.filter(
+        (r) =>
+          nuoviInStoria.includes(r) ||
+          (giocatore.ruoloSlug === r && storiaPrima.includes(r) && markerNuovo(MARCATORE_RIVELAZIONE[r]?.[0], MARCATORE_RIVELAZIONE[r]?.[1])),
+      )
+      for (const slug of rivelati) {
         eventi.push({ round, fase, messaggio: `${nome} si è rivelato/a: è ${nomeRuolo(slug)}` })
       }
     }
@@ -271,19 +290,22 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     const storiaDopo = giocatore.storiaRuoli ?? []
     const haScelto = !(prima.poteriUsati ?? []).includes('ladro-scelta') && (giocatore.poteriUsati ?? []).includes('ladro-scelta')
     let ladroSceglie = false
-    if (haScelto && storiaDopo.includes('ladro')) {
+    // (storiaRuoli può non contenere 'ladro' se il Ladro è stato assegnato senza storia)
+    if (haScelto && (storiaDopo.includes('ladro') || prima.ruoloSlug === 'ladro')) {
       ladroSceglie = true
       const scelta = ruoloPerDisplay(giocatore.ruoloSlug)
       // il Mimo del Ladro sceglie tra le carte rimaste: non scarta nulla
       const eMimoDelLadro = eMimoCopiante(giocatore)
       const scarto = eMimoDelLadro ? [] : (giocatore.scartoLadro ?? []).filter((r) => r !== giocatore.ruoloSlug)
       const scartate = scarto.length ? `: scarta ${scarto.map((r) => nomeRuolo(ruoloPerDisplay(r))).join(' e ')}` : ''
+      const senzaCarte = scelta === 'villico' && !scartate && !eMimoDelLadro
       const titolo = eMimoDelLadro ? `${giocatore.nome} (Mimo del Ladro)` : `Il Ladro ${giocatore.nome}`
       ;(eMimoDelLadro ? eventiMimoLadro : eventi).push({
         round,
         fase,
-        messaggio:
-          scelta === 'villico'
+        messaggio: senzaCarte
+          ? `${titolo} resta Villico`
+          : scelta === 'villico'
             ? `${titolo} sceglie di restare Villico${scartate}`
             : `${titolo} sceglie ${nomeRuolo(scelta)}${scartate}`,
       })
@@ -324,13 +346,20 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
 const COLPITO = /^(.+) è stato colpito (dal branco|dal Chupacabra) ma il Cavaliere (.+) si immola al suo posto\.$/
 function normalizza(m) {
   const c = m.match(COLPITO)
-  return c ? `Il Cavaliere ${c[3]} si immola al posto di ${c[1]} e muore (colpito ${c[2]}).` : m
+  if (c) return `Il Cavaliere ${c[3]} si immola al posto di ${c[1]} e muore (colpito ${c[2]}).`
+  // stessa morte della Cortigiana, due formulazioni (confronto di stati / avviso del Branco)
+  return m.replace(/^(La Cortigiana .+ muore): i lupi hanno visitato il suo cliente (.+)\.$/, '$1: il suo cliente $2 è stato visitato dai lupi.')
 }
 function assorbe(a, b) {
   const mezzo = a.match(/^Il Mezzosangue (.+) è stato sbranato e diventa Lupo Mannaro\.$/)
   if (mezzo) return b === `Il Mezzosangue ${mezzo[1]} è stato bersaglio dei lupi e diventa perciò Lupo Mannaro.`
-  const cort = a.match(/^La Cortigiana (.+) muore: il suo cliente (.+) è stato (?:ucciso|sbranato)\.$/)
-  if (cort) return b === a || b === `La Cortigiana ${cort[1]} muore: il suo cliente ${cort[2]} è stato sbranato.`
+  const cort = a.match(/^La Cortigiana (.+) muore: il suo cliente (.+) (?:è stato (ucciso|sbranato|visitato dai lupi)|era un lupo)\.$/)
+  if (cort) {
+    const voce = (x) => `La Cortigiana ${cort[1]} muore: il suo cliente ${cort[2]} è stato ${x}.`
+    // "visitato dai lupi" è la voce meno precisa: cede a tutte le altre
+    // ("sbranato" cede a "ucciso" o "era un lupo": a colpire non è il branco)
+    return b === a || b === voce('visitato dai lupi') || (cort[3] !== 'visitato dai lupi' && cort[3] !== 'sbranato' && b === voce('sbranato'))
+  }
   const cav = a.match(/^Il Cavaliere (.+) si immola al posto di .+ e muore/)
   if (cav) {
     return (

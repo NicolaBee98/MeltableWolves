@@ -1,5 +1,5 @@
 import { StrictMode, useState } from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AlbaPanel } from './AlbaPanel'
 import { usePartita } from '../../state/usePartita'
@@ -363,4 +363,43 @@ test('Morte per unzione e Scemo del Villaggio sono disponibili già all\'alba, c
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
   expect(aggiornaGiocatore).toHaveBeenCalledWith('1', { mortoDa: 'unzione', vivo: false, causaMorte: 'colpo', mortoGiorno: 3 })
+})
+
+test("L'Antico (carta ignota) morto di crepacuore per il partner sbranato: si rivela e torna Villico, il partner resta morto", async () => {
+  localStorage.setItem(
+    'meltable-wolves-partita',
+    JSON.stringify([
+      { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'villico', condizioni: ['innamorato'], innamoratiCon: ['2'], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+      { id: '2', nome: 'Tizio', vivo: true, condizioni: ['innamorato'], innamoratiCon: ['1'], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+      { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [], poteriUsati: [], usiNotte: [], storiaRuoli: [] },
+    ]),
+  )
+  let stato
+  function Alba() {
+    stato = usePartita()
+    return (
+      <AlbaPanel
+        giocatori={stato.giocatori}
+        round={2}
+        aggiornaGiocatore={stato.aggiornaGiocatore}
+        annullaMorte={stato.annullaMorte}
+        ruoliSelezionati={['lantico']}
+        quantita={{ lantico: 1 }}
+        onVaiAlVoto={() => {}}
+      />
+    )
+  }
+  const user = userEvent.setup()
+  render(<StrictMode><Alba /></StrictMode>)
+  act(() => stato.aggiornaGiocatore('1', { vivo: false, causaMorte: 'notte', mortoNotte: 2, mortoDa: 'branco' }))
+  expect(stato.giocatori.find((g) => g.id === '2')).toMatchObject({ vivo: false, causaMorte: 'crepacuore' })
+
+  await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
+  await user.click(screen.getByRole('button', { name: "L'Antico si rivela" }))
+  await user.click(screen.getByRole('button', { name: 'Tizio' }))
+  await user.click(screen.getByRole('button', { name: /conferma/i }))
+
+  expect(stato.giocatori.find((g) => g.id === '2')).toMatchObject({ vivo: true, ruoloSlug: 'villico', anticoSbranatoNotte: 2 })
+  expect(stato.giocatori.find((g) => g.id === '1').vivo).toBe(false)
+  localStorage.clear()
 })

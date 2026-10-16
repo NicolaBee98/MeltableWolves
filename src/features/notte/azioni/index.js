@@ -25,6 +25,7 @@ const GIORNO = 'agisce di giorno'
 const PRIMA_NOTTE = { motivo: 'sceglie altri giocatori la prima notte', primaNotte: true }
 const NON_INIBIBILI = {
   ...Object.fromEntries(['bardo', 'gallo-mannaro', 'boia', 'alchimista', 'scemo-del-villaggio', 'innocente', 'borgomastro'].map((s) => [s, GIORNO])),
+  'mucca-mannara': 'non può essere inibita',
   ...Object.fromEntries(['cavaliere', 'apprendista', 'figlia-dei-lupi', 'sacerdote'].map((s) => [s, PRIMA_NOTTE])),
 }
 

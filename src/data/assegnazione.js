@@ -28,7 +28,9 @@ export function contaAssegnati(giocatori, slug) {
     // bersaglio. Contano solo i ruoli fino alla carta Mimo inclusa (chi era
     // Ladro e ha scelto la carta Mimo ha storia [ladro, mimo]: il Ladro conta)
     const i = storia.indexOf('mimo')
-    return (i < 0 ? storia : storia.slice(0, i + 1)).includes(slug)
+    // cartaOriginale: carta fisica di chi il Progenitore ha trasformato da "?"
+    // (è Lupo Mannaro per l'app, ma quella carta resta occupata)
+    return g.cartaOriginale === slug || (i < 0 ? storia : storia.slice(0, i + 1)).includes(slug)
   }).length
 }
 
@@ -119,6 +121,7 @@ export function distinguiGuardia(giocatori, targetId, slug) {
 // Lupo Mannaro e il Mimo che copia un ruolo: la loro carta resta quella di partenza.
 export function cartaInMano(g) {
   const storia = g.storiaRuoli ?? []
+  if (g.cartaOriginale) return g.cartaOriginale
   if (eMimoCopiante(g)) return 'mimo'
   if (g.ruoloSlug === 'lupo-mannaro' && storia.includes('cucciolo-di-lupo-mannaro')) return 'cucciolo-di-lupo-mannaro'
   // Figlia dei Lupi, Mezzosangue e chi il Progenitore trasforma restano con la

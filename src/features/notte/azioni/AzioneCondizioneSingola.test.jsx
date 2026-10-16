@@ -1,3 +1,4 @@
+import { AZIONI_NOTTURNE } from './index'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneCondizioneSingola } from './AzioneCondizioneSingola'
@@ -202,4 +203,19 @@ test('Fattucchiera: avviso non bloccante per chi sceglie la prima notte, solo al
   unmount()
   render(<AzioneCondizioneSingola {...props} round={2} />)
   expect(screen.queryByText(/Non può inibire/)).not.toBeInTheDocument()
+})
+
+test('Fattucchiera (configurazione reale): la Mucca Mannara non può essere inibita, avviso e nessuna condizione scritta', async () => {
+  const user = userEvent.setup()
+  const aggiornaGiocatore = vi.fn()
+  const gs = [
+    { id: '1', nome: 'Fatt', ruoloSlug: 'fattucchiera', vivo: true, condizioni: [], note: '' },
+    { id: '2', nome: 'Mucca', ruoloSlug: 'mucca-mannara', vivo: true, condizioni: [], note: '' },
+  ]
+  const { props } = AZIONI_NOTTURNE.fattucchiera
+  const { rerender } = render(<AzioneCondizioneSingola giocatori={gs} aggiornaGiocatore={aggiornaGiocatore} round={2} {...props} />)
+  await user.click(screen.getByRole('button', { name: 'Mucca' }))
+  expect(aggiornaGiocatore).not.toHaveBeenCalledWith('2', expect.anything())
+  rerender(<AzioneCondizioneSingola giocatori={[{ ...gs[0], sceltaNotte: { fattucchiera: '2' } }, gs[1]]} aggiornaGiocatore={aggiornaGiocatore} round={2} {...props} />)
+  expect(screen.getByText(/Non può inibire Mucca Mannara: non può essere inibita/)).toBeInTheDocument()
 })
