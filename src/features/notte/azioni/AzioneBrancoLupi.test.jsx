@@ -786,7 +786,7 @@ describe('vendetta del Cucciolo: si attua la notte dopo la morte', () => {
   test('branco stordito dall\'Ubriaco: la caccia è annullata e la vendetta si perde', () => {
     const aggiorna = vi.fn()
     monta(mk(2, { brancoStorditoFinoA: 3 }), 3, aggiorna)
-    expect(screen.getByText(/stordito/i)).toBeInTheDocument()
+    expect(screen.getByText(/ancora stordito/i)).toBeInTheDocument()
     expect(aggiorna).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
   })
 })
@@ -849,4 +849,17 @@ test('Progenitore che trasforma un giocatore con carta ignota lo marca cartaIgno
   await user.click(screen.getByRole('button', { name: 'Sbrana normalmente' }))
   expect(g('1').cartaIgnotaTrasformata).toBeUndefined()
   localStorage.clear()
+})
+
+test('Ubriaco: il marcatore di vendetta scritto la stessa notte stordita non viene azzerato; vendetta attiva persa con avviso', () => {
+  const aggiorna = vi.fn()
+  const mk = (v) => [
+    { id: '3', nome: 'Dario', ruoloSlug: 'lupo-mannaro', vivo: true, condizioni: [], usiNotte: [], vendettaCucciolo: v, brancoStorditoFinoA: 3 },
+  ]
+  const { unmount } = render(<AzioneBrancoLupi giocatori={mk(3)} aggiornaGiocatore={aggiorna} round={3} ruoli={['lupo-mannaro']} />)
+  expect(aggiorna).not.toHaveBeenCalled()
+  unmount()
+  render(<AzioneBrancoLupi giocatori={mk(2)} aggiornaGiocatore={aggiorna} round={3} ruoli={['lupo-mannaro']} />)
+  expect(aggiorna).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
+  expect(screen.getByText(/vendetta del Cucciolo è andata persa/)).toBeInTheDocument()
 })

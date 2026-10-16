@@ -123,3 +123,12 @@ test("l'Apprendista che eredita un ruolo a riconoscimento riceve il promemoria d
   ]
   expect(annunciAlba(giocatori, 2)).toContain('Mostra a Anna chi sono i lupi: Carlo.')
 })
+
+test("l'Apprendista che eredita da un Mezzosangue già lupo riceve il promemoria dei compagni", () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro', ereditaNotte: 2, ereditaDa: '2', condizioni: [] },
+    { id: '2', nome: 'Bea', vivo: false, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+    { id: '3', nome: 'Carlo', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [] },
+  ]
+  expect(annunciAlba(giocatori, 2)).toContain('Mostra a Anna chi sono i suoi compagni: Carlo.')
+})

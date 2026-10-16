@@ -403,3 +403,14 @@ test("L'Antico (carta ignota) morto di crepacuore per il partner sbranato: si ri
   expect(stato.giocatori.find((g) => g.id === '1').vivo).toBe(false)
   localStorage.clear()
 })
+
+test('resurrezione del Cucciolo: diventa Lupo Mannaro adulto e la vendetta pendente decade', () => {
+  const aggiornaGiocatore = vi.fn()
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: false, mortoNotte: 2, causaMorte: 'notte', ruoloSlug: 'cucciolo-di-lupo-mannaro', condizioni: [], resuscitaAllAlba: 2, vendettaInnescata: true },
+    { id: '3', nome: 'Luca', vivo: true, ruoloSlug: 'lupo-mannaro', condizioni: [], vendettaCucciolo: 2 },
+  ]
+  render(<AlbaPanel giocatori={giocatori} round={2} aggiornaGiocatore={aggiornaGiocatore} onVaiAlVoto={() => {}} />)
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('1', expect.objectContaining({ vivo: true, ruoloSlug: 'lupo-mannaro' }))
+  expect(aggiornaGiocatore).toHaveBeenCalledWith('3', { vendettaCucciolo: false })
+})

@@ -169,12 +169,17 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   // la caccia annullata dall'Ubriaco fa perdere la vendetta del Cucciolo
   useEffect(() => {
     if (!storditi) return
-    giocatori.filter((g) => ruoli.includes(g.ruoloSlug) && g.vendettaCucciolo).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
+    giocatori.filter((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storditi])
 
   if (storditi) {
-    return <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
+    return (
+      <>
+        <p>Il branco è ancora stordito dall'alcol dell'Ubriaco: questa notte non può cacciare.</p>
+        {vendettaIniziale && <p className="avviso">La vendetta del Cucciolo è andata persa: il branco era stordito.</p>}
+      </>
+    )
   }
 
   // senza traccia di colpi (es. già dati prima che questo passo esistesse)
@@ -189,7 +194,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
       .forEach((g) => {
         aggiornaGiocatore(g.id, {
           usiNotte: [...(g.usiNotte ?? []), POTERE],
-          ...(consumaVendetta ? { vendettaCucciolo: false } : {}),
+          ...(consumaVendetta && vendettaAttivaIn(g, round) ? { vendettaCucciolo: false } : {}),
         })
       })
   }
@@ -296,7 +301,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
     setColpi(sostituisce === false ? [...colpi, nuovo] : colpi.map((c, i) => (i === indice ? nuovo : c)))
     if (sostituisce === false) segnaUsoBranco(consumaVendetta)
     else if (consumaVendetta) {
-      giocatori.filter((g) => ruoli.includes(g.ruoloSlug)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
+      giocatori.filter((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)).forEach((g) => aggiornaGiocatore(g.id, { vendettaCucciolo: false }))
     }
   }
 

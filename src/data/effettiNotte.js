@@ -285,6 +285,11 @@ export function resuscitaPatch(giocatore, round) {
     innamoratiCon: [],
     ...(poteri.includes('alchimista-esplosione') && { poteriUsati: poteri.filter((p) => p !== 'alchimista-esplosione') }),
     resuscitatoNotte: round,
+    // un Cucciolo resuscitato conta come Lupo Mannaro adulto (niente vendetta doppia)
+    ...(giocatore.ruoloSlug === 'cucciolo-di-lupo-mannaro' && {
+      ruoloSlug: 'lupo-mannaro',
+      storiaRuoli: conRuolo(giocatore.storiaRuoli, 'lupo-mannaro'),
+    }),
   }
 }
 

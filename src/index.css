@@ -46,6 +46,9 @@
   --accent: var(--pal-rosso);
   --accent-contrast: var(--pal-bianco);
   --accent-soft: color-mix(in srgb, var(--pal-rosso) 12%, white);
+  /* accento per i testi (titoli di fase, legend, Round): ogni fase lo porta
+     ad almeno 4.5:1 sul proprio fondo */
+  --accent-testo: var(--accent);
   --warn-bg: color-mix(in srgb, var(--pal-ambra) 25%, white);
   --warn-border: var(--pal-ambra);
   --danger: color-mix(in srgb, var(--pal-rosso) 82%, black);
@@ -72,6 +75,12 @@
   --accent: var(--pal-viola-scuro);
   --accent-contrast: var(--pal-bianco);
   --accent-soft: color-mix(in srgb, var(--pal-viola) 20%, var(--pal-inchiostro));
+  --accent-testo: var(--text-soft); /* 5.7:1 su blu notte (il viola era 1.78:1) */
+}
+
+/* il rosso del logo su blu notte è 1.8:1: silhouette bianca */
+[data-fase='notte'] .app__logo--inline {
+  filter: brightness(0) invert(1);
 }
 
 /* Alba: il caldo dell'amber all'orizzonte */
@@ -93,6 +102,7 @@
   --accent: var(--pal-rosso);
   --accent-contrast: var(--pal-bianco);
   --accent-soft: color-mix(in srgb, var(--pal-rosso) 10%, white);
+  --accent-testo: #6d0c1c; /* 4.88:1 su azzurro (il rosso era 3.45:1) */
 }
 
 /* Mazzo / giocatori: fase di preparazione, verde come crescita/costruzione */
@@ -100,6 +110,7 @@
 [data-fase='giocatori'] {
   --accent: var(--pal-verde-scuro);
   --accent-soft: color-mix(in srgb, var(--pal-verde) 12%, white);
+  --accent-testo: color-mix(in srgb, var(--pal-verde-scuro) 60%, var(--pal-inchiostro)); /* 5.4:1 su pelle (era 3.28:1) */
 }
 
 * {
@@ -303,7 +314,7 @@ legend {
   font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-testo);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 0 0.4rem;
@@ -466,6 +477,7 @@ legend {
 }
 
 .sfoglia-mazzo__immagine {
+  min-width: 0; /* le frecce non devono sforare dallo schermo */
   max-width: 78%;
   max-height: 100%;
   object-fit: contain;
@@ -482,6 +494,9 @@ legend {
   box-shadow: none;
   border-radius: 50%;
   flex-shrink: 0;
+  padding: 0;
+  width: 2.75rem;
+  height: 2.75rem;
 }
 
 .sfoglia-mazzo__scorrimento {
@@ -1050,7 +1065,7 @@ button.chip--fazione-sconosciuto {
 
 .night-sequencer__notte,
 .titolo-fase {
-  color: var(--accent);
+  color: var(--accent-testo);
   font-family: var(--font-heading);
   font-weight: 700;
   text-transform: uppercase;
@@ -1188,7 +1203,7 @@ button.chip--fazione-sconosciuto {
 
 .alba-panel__morti li {
   font-weight: 700;
-  color: var(--danger);
+  color: color-mix(in srgb, var(--pal-rosso) 60%, black); /* 5.35:1 su ambra (--danger 4.14:1) */
 }
 
 .alba-panel__annunci li {
@@ -1697,7 +1712,7 @@ textarea:focus-visible {
 }
 
 .log-partita__giorno h3 {
-  color: var(--accent);
+  color: var(--accent-testo);
   font-size: 1rem;
   margin-bottom: 0.4rem;
 }
@@ -1748,7 +1763,7 @@ textarea:focus-visible {
 
 .pulsante-tieni__testo small {
   font-weight: 600;
-  font-size: 0.75em;
+  font-size: max(0.8em, 13px);
 }
 
 /* Scarica offline: istruzioni di installazione */
@@ -1819,4 +1834,20 @@ textarea:focus-visible {
   border-color: var(--pal-inchiostro);
   color: var(--pal-inchiostro);
   z-index: 1;
+}
+
+/* Votazione: "Ricomincia votazione" e "Vai all'esito" non attaccati */
+.votazione__azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.votazione__azioni > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.sfoglia-mazzo:focus {
+  outline: none;
 }

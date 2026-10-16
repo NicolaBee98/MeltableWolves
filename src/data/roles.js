@@ -86,7 +86,7 @@ export const ROLES = [
   { slug: 'sciacallo-mannaro', nome: 'Sciacallo Mannaro', fazione: 'lupi', notturno: true,
     testoRegole: "Ha il potere di far resuscitare, una volta per partita, un giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro." },
   { slug: 'spilungone', nome: 'Spilungone', fazione: 'villaggio', notturno: false,
-    testoRegole: "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime." },
+    testoRegole: "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime (in qualsiasi giorno: una volta rivelato resta immune al rogo)." },
   { slug: 'strega', nome: 'Strega', fazione: 'villaggio', notturno: true,
     testoRegole: "Ha a disposizione due pozioni: una dose di pozione vitale (che protegge un giocatore dalla morte durante quella notte) e una dose di pozione mortale. Ogni notte si sveglia e può decidere se utilizzare o meno ciascuna delle due dosi." },
   { slug: 'suocera', nome: 'Suocera', fazione: 'villaggio', notturno: false,

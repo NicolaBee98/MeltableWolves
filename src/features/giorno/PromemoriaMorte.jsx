@@ -12,6 +12,6 @@ export function RigheConseguenze({ righe }) {
 }
 
 // Promemoria delle conseguenze note della morte di `id` (crepacuore, legami...)
-export function PromemoriaMorte({ giocatori, id }) {
-  return <RigheConseguenze righe={conseguenzeMorte(giocatori, id)} />
+export function PromemoriaMorte({ giocatori, id, rogo = false }) {
+  return <RigheConseguenze righe={conseguenzeMorte(giocatori, id, false, rogo)} />
 }

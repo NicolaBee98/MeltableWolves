@@ -81,7 +81,7 @@ Totale voci: 900.
   TESTO: ✕
 
 - **T0089** · nota Ladro (parte di una frase) · `src/features/mazzo/MazzoBuilder.jsx:134`
-  TESTO: ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.
+  TESTO: ℹ️ Il Ladro richiede di inserire due carte in più nel mazzo rispetto al numero di giocatori.
 
 - **T0090** · nota Borgomastro/Fantasma: parte 1 di 3 · `src/features/mazzo/MazzoBuilder.jsx:141`
   TESTO: ℹ️ Borgomastro e Fantasma Onnisciente sono "condizioni aggiuntive", non ruoli fissi che i giocatori possono avere
@@ -2832,7 +2832,7 @@ Totale voci: 900.
   TESTO: Utilizzare con parsimonia i **ruoli che uccidono** altri giocatori (in aggiunta ai lupi)
 
 - **T0838** · voce di elenco · `src/data/libretto.js:62`
-  TESTO: Utilizzare con parsimonia i **ruoli che rivelano**** ****sè stessi** alla morte o dopo un'azione
+  TESTO: Utilizzare con parsimonia i **ruoli che rivelano**** ****se stessi** alla morte o dopo un'azione
 
 - **T0839** · voce di elenco · `src/data/libretto.js:63`
   TESTO: Evitare di inserire nello stesso mazzo **ruoli ****molto simili **tra loro

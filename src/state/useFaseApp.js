@@ -4,9 +4,13 @@ import { salvaLocale } from './salvaLocale'
 const STORAGE_KEY = 'meltable-wolves-fase-app'
 const DEFAULT_FASE = 'home'
 
+const FASI = ['home', 'mazzo', 'mazzo-galleria', 'libretto', 'offline', 'giocatori', 'notte', 'alba', 'giorno']
+
 function loadFase() {
   try {
-    return localStorage.getItem(STORAGE_KEY) ?? DEFAULT_FASE
+    const fase = localStorage.getItem(STORAGE_KEY)
+    // valore sconosciuto (storage corrotto/vecchio): ripiega sulla Home
+    return FASI.includes(fase) ? fase : DEFAULT_FASE
   } catch {
     return DEFAULT_FASE
   }

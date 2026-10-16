@@ -227,8 +227,8 @@ export function Votazione({
     // successiva sarebbe un secondo click ridondante
     function confermaMorte(id) {
       const target = giocatori.find((g) => g.id === id)
-      if (target?.ruoloSlug === 'spilungone' && target.spilungoneRivelatoRound === undefined && cavalieriDi(giocatori, id).length === 0) {
-        // solo il primo rogo: il marcatore (onRivelazione) ricostruisce l'esito dopo un reload
+      if (target?.ruoloSlug === 'spilungone' && cavalieriDi(giocatori, id).length === 0) {
+        // immune al rogo per sempre (anche se già rivelato): il marcatore (onRivelazione) ricostruisce l'esito dopo un reload
         onRivelazione('spilungone', id)
         setSpilungoneRivelatoId(id)
       } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined && cavalieriDi(giocatori, id).length === 0) {
@@ -243,7 +243,7 @@ export function Votazione({
         // con il potere già speso (non ricaricato) muore come chiunque altro
         setAlchimistaInAttesaVittimaId(id)
       } else {
-        setRiepilogoMorte((r) => ({ ...r, [id]: conseguenzeMorte(giocatori, id, true) }))
+        setRiepilogoMorte((r) => ({ ...r, [id]: conseguenzeMorte(giocatori, id, true, true) }))
         onRogo(id)
       }
     }
@@ -258,7 +258,7 @@ export function Votazione({
       const righe = (
         riepilogoMorte[id]?.length
           ? riepilogoMorte[id]
-          : [...new Set([id, ...con].flatMap((x) => conseguenzeMorte(giocatori, x)))]
+          : [...new Set([id, ...con].flatMap((x) => conseguenzeMorte(giocatori, x, false, x === id)))]
       ).filter((r) => !vivoOra(r.match(/^È morto anche (.+) \(crepacuore\)\.$/)?.[1]))
       return <RigheConseguenze righe={righe} />
     }
@@ -401,7 +401,7 @@ export function Votazione({
         }
         return (
           <div className="votazione__designato-azioni">
-            <PromemoriaMorte giocatori={giocatori} id={id} />
+            <PromemoriaMorte giocatori={giocatori} id={id} rogo />
             <button type="button" onClick={() => confermaMorte(id)}>
               Dichiara morte sul rogo
             </button>
@@ -513,7 +513,8 @@ export function Votazione({
         )}
         {morteConfermata &&
           ruoliSelezionati?.includes('fantasma-onnisciente') &&
-          !giocatori.some((g) => g.eFantasmaOnnisciente) && (
+          !giocatori.some((g) => g.eFantasmaOnnisciente) &&
+          giocatori.some((g) => !g.vivo) && (
             <p className="avviso">
               ⚠️ Assegna la carta del Fantasma Onnisciente al primo morto (menu "Eventi speciali").
             </p>
@@ -589,6 +590,7 @@ export function Votazione({
           </li>
         ))}
       </ul>
+      <div className="votazione__azioni">
       {confermaRicomincia ? (
         <p className="votazione__conferma">
           Azzerare tutti i voti?{' '}
@@ -624,6 +626,7 @@ export function Votazione({
           Vai all'esito
         </button>
       )}
+      </div>
       <EventiSpeciali
         giocatori={giocatori}
         ruoliSelezionati={ruoliSelezionati}

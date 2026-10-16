@@ -7,6 +7,9 @@
 // `self.__WB_MANIFEST` è un segnaposto: vite-plugin-pwa (strategia
 // "injectManifest", vedi vite.config.js) lo sostituisce a ogni build con
 // l'elenco reale dei file generati, ciascuno con la propria revisione/hash.
+// ignoreVary: con `Vary: Origin` (anche vite preview) senza questa opzione il match
+// fallisce e offline resta bianco subito dopo l'installazione
+const OPZ = { ignoreVary: true }
 const VOCI = self.__WB_MANIFEST
 // nome versionato: hash dell'elenco file+revisioni del build, cambia a ogni
 // build che cambia anche un solo file (poi activate cancella le cache vecchie)
@@ -45,7 +48,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(event.request, OPZ).then((cached) => {
       const rete = fetch(event.request).then((risposta) => {
         // le risposte opache (font di Google cross-origin senza CORS) non
         // hanno .ok ma sono comunque cacheabili
@@ -64,7 +67,7 @@ self.addEventListener('fetch', (event) => {
       // che farebbe fallire respondWith)
       return rete.catch(async () => {
         if (event.request.mode === 'navigate') {
-          const shell = (await caches.match('/index.html')) ?? (await caches.match('/'))
+          const shell = (await caches.match('/index.html', OPZ)) ?? (await caches.match('/', OPZ))
           if (shell) return shell
         }
         return Response.error()

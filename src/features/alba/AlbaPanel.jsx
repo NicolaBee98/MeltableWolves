@@ -115,8 +115,14 @@ export function AlbaPanel({
   useEffect(() => {
     for (const g of daResuscitare) {
       const patch = resuscitaPatch(g, round)
-      if (patch) aggiornaGiocatore(g.id, { ...patch, resuscitaAllAlba: undefined, mortoGiorno: undefined })
+      if (!patch) continue
+      aggiornaGiocatore(g.id, { ...patch, resuscitaAllAlba: undefined, mortoGiorno: undefined })
+      // il Cucciolo che aveva innescato la vendetta è adulto: la vendetta pendente decade
+      if (g.ruoloSlug === 'cucciolo-di-lupo-mannaro' && g.vendettaInnescata) {
+        giocatori.filter((x) => x.vendettaCucciolo).forEach((x) => aggiornaGiocatore(x.id, { vendettaCucciolo: false }))
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daResuscitare, round, aggiornaGiocatore])
 
   // corregge una morte dichiarata per errore (anche la sua catena: crepacuore,

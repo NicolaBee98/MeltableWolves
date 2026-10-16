@@ -48,3 +48,9 @@ test('Indietro del telefono: dalla galleria torna alla Home, in notte resta in n
     })
   })
 })
+
+test('valore salvato non valido ripiega sulla home', () => {
+  localStorage.setItem('meltable-wolves-fase-app', 'boh')
+  const { result } = renderHook(() => useFaseApp())
+  expect(result.current[0]).toBe('home')
+})

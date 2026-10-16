@@ -99,11 +99,11 @@ const TESTO_ANTICO = "L'Antico sopravvive (prima vita) ma il villaggio è malede
 // Le conseguenze di seconda generazione (la morte del Cavaliere che si
 // immola, il crepacuore del partner...) si ottengono ricorsivamente; `visti`
 // evita i giri tra coppie e Cavalieri.
-export function conseguenzeMorte(giocatori, id, fatto = false) {
-  return [...new Set(conseguenze(giocatori, id, fatto, new Set()))]
+export function conseguenzeMorte(giocatori, id, fatto = false, rogo = false) {
+  return [...new Set(conseguenze(giocatori, id, fatto, new Set(), false, rogo))]
 }
 
-function conseguenze(giocatori, id, fatto, visti, perCrepacuore = false) {
+function conseguenze(giocatori, id, fatto, visti, perCrepacuore = false, rogo = false) {
   const t = giocatori.find((g) => g.id === id)
   if (!t) return []
   const primo = visti.size === 0
@@ -126,7 +126,8 @@ function conseguenze(giocatori, id, fatto, visti, perCrepacuore = false) {
   // avviene e vale il testo del sacrificio, qui sotto)
   const protettori = cavalieriDi(giocatori, id)
   if (primaVitaAntico(t) && protettori.length === 0) return [TESTO_ANTICO]
-  if (primo && t.ruoloSlug === 'spilungone' && t.spilungoneRivelatoRound === undefined && protettori.length === 0) return ['Lo Spilungone si rivela e non muore durante il rogo.']
+  // l'immunità dello Spilungone vale solo per il rogo (e per sempre, anche già rivelato)
+  if (primo && rogo && t.ruoloSlug === 'spilungone' && protettori.length === 0) return ['Lo Spilungone si rivela e non muore durante il rogo.']
 
   // il Cavaliere salva `t` da qualunque morte: nessuna delle conseguenze dirette
   // avviene, ma la morte del Cavaliere ha le sue

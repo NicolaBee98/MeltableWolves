@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { MAZZO_COMPLETO } from '../../data/mazzoCompleto'
 
 const SOGLIA_SWIPE = 50 // px orizzontali minimi perché un trascinamento conti come swipe
@@ -6,7 +6,24 @@ const SOGLIA_SWIPE = 50 // px orizzontali minimi perché un trascinamento conti 
 export function SfogliaMazzo({ onChiudi }) {
   const [indice, setIndice] = useState(0)
   const partenzaX = useRef(null)
+  const contenitore = useRef(null)
   const carta = MAZZO_COMPLETO[indice]
+
+  // il focus entra nel dialogo (e torna dov'era alla chiusura): senza, resta
+  // sul pulsante che l'ha aperto, nascosto sotto
+  useEffect(() => {
+    const prima = document.activeElement
+    contenitore.current?.focus()
+    return () => prima?.isConnected && prima.focus?.()
+  }, [])
+
+  function onKeyDown(event) {
+    if (event.key === 'Escape') onChiudi()
+    // lo slider gestisce già le frecce da sé
+    else if (event.target.type === 'range') return
+    else if (event.key === 'ArrowLeft') vai(indice - 1)
+    else if (event.key === 'ArrowRight') vai(indice + 1)
+  }
 
   function vai(nuovoIndice) {
     setIndice(Math.max(0, Math.min(MAZZO_COMPLETO.length - 1, nuovoIndice)))
@@ -25,7 +42,7 @@ export function SfogliaMazzo({ onChiudi }) {
   }
 
   return (
-    <div className="sfoglia-mazzo" role="dialog" aria-label="Sfoglia il mazzo">
+    <div className="sfoglia-mazzo" role="dialog" aria-label="Sfoglia il mazzo" tabIndex={-1} ref={contenitore} onKeyDown={onKeyDown}>
       <div className="sfoglia-mazzo__header">
         <button type="button" onClick={onChiudi}>
           ✕ Chiudi

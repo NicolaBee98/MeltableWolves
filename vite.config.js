@@ -28,6 +28,7 @@ export default defineConfig({
         name: 'Meltable Wolves — Narratore',
         short_name: 'Meltable Wolves',
         description: 'Meltable Wolves - Assistente per il Narratore',
+        lang: 'it',
         start_url: '/',
         display: 'standalone',
         background_color: '#8ca6c6',

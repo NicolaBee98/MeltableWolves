@@ -201,3 +201,10 @@ test('conseguenzeMorte: il Cavaliere del partner non si immola per il crepacuore
   expect(out).toMatch(/Morirà anche B \(crepacuore\)/)
   expect(out).not.toMatch(/Cavaliere/)
 })
+
+test('conseguenzeMorte: Spilungone, riga "si rivela" solo al rogo (anche già rivelato); per colpo/unzione muore davvero', () => {
+  const gs = [{ id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'spilungone', spilungoneRivelatoRound: 1 }]
+  expect(conseguenzeMorte(gs, '1', true, true)).toEqual(['Lo Spilungone si rivela e non muore durante il rogo.'])
+  expect(conseguenzeMorte(gs, '1', true)).toEqual([])
+  expect(conseguenzeMorte(gs, '1', true, false).join(' ')).not.toMatch(/si rivela/)
+})

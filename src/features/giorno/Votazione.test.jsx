@@ -777,7 +777,7 @@ test('refresh nello spareggio dopo "Dichiara morte sul rogo": "Vittima designata
   localStorage.clear()
 })
 
-test('refresh con Spilungone al rogo: resta l\'esito confermato e "È notte nel villaggio"; al secondo rogo muore', async () => {
+test('refresh con Spilungone al rogo: resta l\'esito confermato e "È notte nel villaggio"; anche al secondo rogo non muore', async () => {
   giornoReale([
     { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'spilungone', storiaRuoli: ['spilungone'], condizioni: [] },
     { id: '2', nome: 'Marco', vivo: true, ruoloSlug: 'villico', condizioni: [] },
@@ -791,10 +791,11 @@ test('refresh con Spilungone al rogo: resta l\'esito confermato e "È notte nel 
   expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
   expect(salvati()['1'].vivo).toBe(true)
   cleanup()
-  // un altro giorno: l'esito non è più quello del primo rogo e lo Spilungone muore
+  // un altro giorno: l'immunità al rogo è permanente, nessuna nuova conferma di rivelazione
   giornoRimontato({ round: 3 })
   await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
-  expect(salvati()['1'].vivo).toBe(false)
+  expect(salvati()['1'].vivo).toBe(true)
+  expect(screen.getByText(/è lo Spilungone, troppo alto per qualsiasi patibolo/)).toBeInTheDocument()
   localStorage.clear()
 })
 
@@ -893,4 +894,20 @@ test("Cavaliere che protegge l'Antico noto: l'anteprima parla del sacrificio, no
   })
   expect(screen.getAllByText(/Cavaliere Dino/).length).toBeGreaterThan(0)
   expect(screen.queryByText(/maledetto/)).not.toBeInTheDocument()
+})
+
+test('rogo senza morti (Spilungone): niente avviso del Fantasma Onnisciente, non c\'è un morto a cui darlo', async () => {
+  const user = userEvent.setup()
+  setup({
+    giocatori: [
+      { id: '1', nome: 'Anna', ruoloSlug: 'spilungone', vivo: true },
+      { id: '2', nome: 'Marco', vivo: true },
+    ],
+    voti: { 1: 2 },
+    fase: 'esito',
+    ruoliSelezionati: ['fantasma-onnisciente'],
+  })
+  await user.click(screen.getByRole('button', { name: 'Dichiara morte sul rogo' }))
+  expect(screen.getByRole('button', { name: 'È notte nel villaggio' })).toBeInTheDocument()
+  expect(screen.queryByText(/Fantasma Onnisciente al primo morto/)).not.toBeInTheDocument()
 })

@@ -19,6 +19,8 @@ import { useImpostazioni } from './state/useImpostazioni'
 import { daRipulireCambioNotte } from './data/effettiNotte'
 import { ruoliAttivi } from './data/nightSteps'
 
+const TITOLI_FASE = { mazzo: 'Mazzo', giocatori: 'Giocatori', notte: 'Notte', alba: 'Alba', giorno: 'Giorno', libretto: 'Libretto', 'mazzo-galleria': 'Galleria', offline: 'Offline' }
+
 export default function App() {
   const [faseApp, setFaseApp] = useFaseApp()
   const { quantita, setQuantita, resetMazzo, ruoliInMazzo } = useMazzo()
@@ -37,6 +39,8 @@ export default function App() {
   // della schermata precedente)
   useEffect(() => {
     window.scrollTo(0, 0)
+    const nome = TITOLI_FASE[faseApp]
+    document.title = nome ? `${nome} — Meltable Wolves` : 'Meltable Wolves — Narratore'
   }, [faseApp])
   const {
     mostraRuoliInVotazione,

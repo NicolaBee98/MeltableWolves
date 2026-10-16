@@ -132,7 +132,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
 
       {ladroPresente && (
         <p className="mazzo-builder__nota-ladro">
-          ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.
+          ℹ️ Il Ladro richiede di inserire due carte in più nel mazzo rispetto al numero di giocatori.
         </p>
       )}
 

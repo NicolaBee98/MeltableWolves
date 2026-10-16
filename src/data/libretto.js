@@ -59,7 +59,7 @@ In caso di **parità**, i due (o più) candidati al rogo hanno diritto a un'**ar
       `Non introdurre troppe **fazioni indipendenti**`,
       `Non inserire troppi ruoli che **agiscono di ****notte**, per non allungare eccessivamente i tempi notturni`,
       `Utilizzare con parsimonia i **ruoli che uccidono** altri giocatori (in aggiunta ai lupi)`,
-      `Utilizzare con parsimonia i **ruoli che rivelano**** ****sè stessi** alla morte o dopo un'azione`,
+      `Utilizzare con parsimonia i **ruoli che rivelano**** ****se stessi** alla morte o dopo un'azione`,
       `Evitare di inserire nello stesso mazzo **ruoli ****molto simili **tra loro`,
     ],
   },

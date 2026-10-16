@@ -590,3 +590,9 @@ test('vendetta del Cucciolo: il marcatore è il round di morte notturna, attiva 
   expect(vendettaAttivaIn({ vendettaCucciolo: true }, 1)).toBe(true)
   expect(vendettaAttivaIn({}, 9)).toBe(false)
 })
+
+test('resuscitaPatch: il Cucciolo resuscitato diventa Lupo Mannaro adulto', () => {
+  const p = resuscitaPatch({ vivo: false, condizioni: [], ruoloSlug: 'cucciolo-di-lupo-mannaro', storiaRuoli: ['cucciolo-di-lupo-mannaro'] }, 3)
+  expect(p.ruoloSlug).toBe('lupo-mannaro')
+  expect(p.storiaRuoli).toEqual(['cucciolo-di-lupo-mannaro', 'lupo-mannaro'])
+})
