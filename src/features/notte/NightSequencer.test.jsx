@@ -1019,7 +1019,7 @@ test('selezionare più Lupi Mannari generici (ancora solo pendenti, non conferma
   expect(container.querySelectorAll('img.night-sequencer__illustrazione')).toHaveLength(4) // invariato
 })
 
-test('i Lupi Mannari selezionati (pendenti) usano illustrazioni diverse Lupo_Mannaro 4, 1, 2..., una per ciascuno', async () => {
+test('i Lupi Mannari selezionati (pendenti) usano illustrazioni diverse Lupo_Mannaro_1..N, una per ciascuno', async () => {
   const user = userEvent.setup()
   const giocatori = [
     { id: '1', nome: 'Elsa', vivo: true, condizioni: [] },
@@ -1036,7 +1036,7 @@ test('i Lupi Mannari selezionati (pendenti) usano illustrazioni diverse Lupo_Man
   )
   // già tutti presenti all'ingresso, senza dipendere dai click
   const src = [...container.querySelectorAll('img.night-sequencer__illustrazione')].map((img) => img.src.split('/').pop())
-  expect(src).toEqual(['Lupo_Mannaro_4.svg', 'Lupo_Mannaro_1.svg', 'Lupo_Mannaro_2.svg'])
+  expect(src).toEqual(['Lupo_Mannaro_1.svg', 'Lupo_Mannaro_2.svg', 'Lupo_Mannaro_3.svg'])
 })
 
 test('Veggente copiato dal Mimo: selezionare/deselezionare le chip di "Chi ha questa carta?" non cambia le illustrazioni a figura intera (calcolate all\'ingresso nel passo)', async () => {
@@ -1133,8 +1133,8 @@ test('quando si sveglia il branco compaiono le illustrazioni di tutti i lupi coi
   const illustrazioni = container.querySelectorAll('img.night-sequencer__illustrazione')
   expect(illustrazioni).toHaveLength(3)
   const src = [...illustrazioni].map((img) => img.src)
-  expect(src.some((s) => s.includes('Lupo_Mannaro_4.svg'))).toBe(true)
   expect(src.some((s) => s.includes('Lupo_Mannaro_1.svg'))).toBe(true)
+  expect(src.some((s) => s.includes('Lupo_Mannaro_2.svg'))).toBe(true)
   expect(src.some((s) => s.includes('Cucciolo_di_Lupo_Mannaro.svg'))).toBe(true)
 })
 
@@ -2203,7 +2203,7 @@ test('Branco: il Mimo-Lupo compare con la sua illustrazione e non sposta la vari
     />,
   )
   const src = [...document.querySelectorAll('.night-sequencer__illustrazione')].map((e) => e.getAttribute('src'))
-  expect(src).toEqual(['/assets/personaggi/Mimo.svg', '/assets/personaggi/Lupo_Mannaro_4.svg'])
+  expect(src).toEqual(['/assets/personaggi/Mimo.svg', '/assets/personaggi/Lupo_Mannaro_1.svg'])
 })
 
 test('"Guardie (si riconoscono)": insieme Guardie, Guardia Mannara, Mimo-guardia e Ladro che ha preso la Guardia Mannara, senza etichette', () => {

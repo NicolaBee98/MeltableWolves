@@ -164,26 +164,26 @@
  "Lupo_Mannaro_1": {
   "spessore": 0.5096,
   "fattore": 1,
+  "larghezza": 54.43,
+  "altezza": 67.27
+ },
+ "Lupo_Mannaro_2": {
+  "spessore": 0.5096,
+  "fattore": 1,
   "larghezza": 46.32,
   "altezza": 59.06
  },
- "Lupo_Mannaro_2": {
+ "Lupo_Mannaro_3": {
   "spessore": 0.5096,
   "fattore": 1,
   "larghezza": 39.06,
   "altezza": 49.68
  },
- "Lupo_Mannaro_3": {
+ "Lupo_Mannaro_4": {
   "spessore": 0.5096,
   "fattore": 1,
   "larghezza": 43.69,
   "altezza": 66.39
- },
- "Lupo_Mannaro_4": {
-  "spessore": 0.5096,
-  "fattore": 1,
-  "larghezza": 54.43,
-  "altezza": 67.27
  },
  "Lupo_Mannaro_5": {
   "spessore": 0.5096,
