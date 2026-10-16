@@ -17,3 +17,12 @@ test('cliccare "Home" chiama onTornaAllaHome', async () => {
   await user.click(screen.getByRole('button', { name: /Home/ }))
   expect(onTornaAllaHome).toHaveBeenCalled()
 })
+
+test('chiudendo Sfoglia il mazzo il focus torna sul pulsante che l\'ha aperto', async () => {
+  const user = userEvent.setup()
+  render(<MazzoGalleria onTornaAllaHome={() => {}} />)
+  const apri = screen.getByRole('button', { name: /sfoglia il mazzo/i })
+  await user.click(apri)
+  await user.keyboard('{Escape}')
+  expect(screen.getByRole('button', { name: /sfoglia il mazzo/i })).toHaveFocus()
+})

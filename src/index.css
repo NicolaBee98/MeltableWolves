@@ -1008,6 +1008,28 @@ button.chip--fazione-indipendente {
   color: var(--pal-bianco);
 }
 
+/* da selezionate (nel pannello "Nel mazzo") .chip[aria-pressed='true'] imporrebbe testo
+   bianco su sfondi chiari: si ripetono colori e testo di fazione con specificità maggiore */
+.chip.chip--fazione-villaggio[aria-pressed='true'] {
+  background: var(--pal-azzurro);
+  color: var(--pal-inchiostro);
+}
+
+.chip.chip--fazione-lupi[aria-pressed='true'] {
+  background: var(--pal-rosso);
+  color: var(--pal-bianco);
+}
+
+.chip.chip--fazione-indipendente[aria-pressed='true'] {
+  background: var(--pal-verde-scuro);
+  color: var(--pal-bianco);
+}
+
+.chip.chip--fazione-sconosciuto[aria-pressed='true'] {
+  background: var(--pal-ambra);
+  color: var(--pal-inchiostro);
+}
+
 button.chip--fazione-sconosciuto {
   /* ocra (--pal-ambra), non il giallo freddo della palette: più leggibile
      e coerente con gli altri toni caldi del mazzo */

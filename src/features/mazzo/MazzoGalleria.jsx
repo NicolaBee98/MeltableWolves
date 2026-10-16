@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ROLES } from '../../data/roles'
 import { cartaPath } from '../../data/assetRuoli'
 import { SfogliaMazzo } from './SfogliaMazzo'
@@ -16,6 +16,13 @@ const FAZIONE_LABEL = {
 // "Sfoglia il mazzo" apre invece il vero mazzo, carta fisica per carta fisica.
 export function MazzoGalleria({ onTornaAllaHome }) {
   const [sfogliaAperto, setSfogliaAperto] = useState(false)
+  // alla chiusura di Sfoglia il pulsante che l'ha aperto è stato smontato: il focus torna lì
+  const apriRef = useRef(null)
+  const eraAperto = useRef(false)
+  useEffect(() => {
+    if (!sfogliaAperto && eraAperto.current) apriRef.current?.focus()
+    eraAperto.current = sfogliaAperto
+  }, [sfogliaAperto])
 
   if (sfogliaAperto) {
     return <SfogliaMazzo onChiudi={() => setSfogliaAperto(false)} />
@@ -27,7 +34,7 @@ export function MazzoGalleria({ onTornaAllaHome }) {
         <button type="button" onClick={onTornaAllaHome} className="torna-alla-home">
           ← Torna alla Home
         </button>
-        <button type="button" onClick={() => setSfogliaAperto(true)}>
+        <button type="button" ref={apriRef} onClick={() => setSfogliaAperto(true)}>
           <img src="/assets/icone/ui/mazzo.svg" alt="" aria-hidden="true" className="mazzo-galleria__sfoglia-icona" />
           Sfoglia il mazzo
         </button>
