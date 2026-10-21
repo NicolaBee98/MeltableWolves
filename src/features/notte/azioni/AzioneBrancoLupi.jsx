@@ -137,7 +137,6 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   useEffect(() => {
     impostaEventiAvanti?.('branco', logMorsi ? logMorsi.split('\n') : [])
     return () => impostaEventiAvanti?.('branco', [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logMorsi])
   // vendetta già attiva prima di cominciare (Cucciolo morto in precedenza):
   // se invece l'ha fatta scattare il primo colpo, disfarlo la disattiva

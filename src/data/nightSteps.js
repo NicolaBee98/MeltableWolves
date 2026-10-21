@@ -5,14 +5,15 @@ export { RUOLI_BRANCO_LUPI }
 
 // Il Villico non ha alcuna azione o caratteristica da tracciare (pag. 5): non
 // ha senso chiedere al narratore di individuarlo carta per carta come gli
-// altri ruoli "senza step dedicato" (Ambasciatore, Berserker...). Resta
-// nell'elenco assegnabile (così il passo "assegna i ruoli rimanenti" esiste
-// ancora finché ci sono Villici da piazzare) ma va escluso dalla selezione
-// manuale: chi resta senza ruolo a fine passo diventa Villico in automatico
-// (vedi NightSequencer).
+// altri ruoli. Va escluso dalla selezione manuale: chi resta senza ruolo a
+// fine prima notte diventa Villico in automatico (vedi
+// autoAssegnaRuoliRimasti in NightSequencer).
 export const RUOLI_NON_ASSEGNABILI_MANUALMENTE = ['villico']
 
-const STEPS_CON_RUOLO_DEDICATO = [
+// ogni ruolo con una carta distribuita all'inizio ha qui il suo passo (il
+// Villico si assegna da solo a fine prima notte, i ruoli a rivelazione diurna
+// o alla morte dagli Eventi speciali): lo verifica nightSteps.test.js
+export const NIGHT_STEPS = [
   // --- Solo prima notte, nell'ordine del regolamento (pag. 27) ---
   { id: 'mimo', titolo: 'Mimo', tipo: 'azione', primaNotteSolo: true, ruoli: ['mimo'] },
   { id: 'ladro', titolo: 'Ladro', tipo: 'azione', primaNotteSolo: true, ruoli: ['ladro'] },
@@ -114,72 +115,6 @@ const STEPS_CON_RUOLO_DEDICATO = [
   { id: 'ipnotizzati', titolo: 'Ipnotizzati (dal Pifferaio)', tipo: 'informativo', primaNotteSolo: false, condizione: 'ipnotizzato', iconaSlug: 'pifferaio' },
 ]
 
-// Ruoli che si rivelano pubblicamente DI GIORNO, a un momento scelto dal
-// narratore/giocatore (esecuzione del Boia, favorito al rogo per Spilungone
-// o Alchimista, autorivelazione dell'Innocente, morte al rogo de L'Antico,
-// rima sbagliata dello Scemo del Villaggio) o tramite elezione (Borgomastro):
-// non vanno forzati in un passo notturno all'inizio, perché il narratore
-// potrebbe non sapere ancora se/quando quel giocatore si rivelerà. Restano
-// assegnabili in qualsiasi momento tramite il menu "Eventi speciali"
-// (EventiSpeciali.jsx, evento "Rivelazione personaggio" o l'evento dedicato
-// del ruolo).
-export const RUOLI_RIVELAZIONE_GIORNO = [
-  'boia', 'spilungone', 'alchimista', 'innocente', 'lantico', 'scemo-del-villaggio', 'borgomastro',
-]
-
-// Ruoli come Villico e Mezzosangue non hanno nessuna azione o
-// riconoscimento notturno, quindi altrimenti non comparirebbero mai in
-// nessun passo: non avrebbero mai occasione di essere assegnati a un
-// giocatore. Questo passo raccoglie tutti i ruoli del mazzo che non sono
-// già coperti da uno step dedicato (né sono di rivelazione diurna, vedi
-// sopra), e li rende assegnabili come gli altri entro la fine della prima
-// notte. Fantasma Onnisciente e Suocera sono le eccezioni volute: per
-// regolamento (pag. 13, 21) le loro carte non vanno distribuite/assegnate
-// all'inizio, restano "?" finché non muoiono — vedi RUOLI_RIVELAZIONE_ALLA_MORTE.
-const RUOLI_CON_STEP_DEDICATO = new Set(STEPS_CON_RUOLO_DEDICATO.flatMap((s) => s.ruoli ?? []))
-export const RUOLI_RIVELAZIONE_ALLA_MORTE = ['fantasma-onnisciente', 'suocera']
-const RUOLI_SENZA_STEP_DEDICATO = ROLES.map((r) => r.slug).filter(
-  (slug) =>
-    !RUOLI_RIVELAZIONE_ALLA_MORTE.includes(slug) &&
-    !RUOLI_RIVELAZIONE_GIORNO.includes(slug) &&
-    !RUOLI_CON_STEP_DEDICATO.has(slug),
-)
-
-// il Villico (RUOLI_NON_ASSEGNABILI_MANUALMENTE) non va mai mostrato qui:
-// si assegna da solo in automatico a fine prima notte (vedi
-// autoAssegnaVillici in NightSequencer), non tramite questo passo. Oggi è
-// anche l'unico ruolo rimasto in RUOLI_SENZA_STEP_DEDICATO (Mezzosangue,
-// Ambasciatore, Berserker... hanno tutti un passo proprio): se in futuro ne
-// arrivasse un altro senza passo dedicato, tornerebbe a comparire qui da
-// solo, senza bisogno di ritoccare questo file.
-const RUOLI_ASSEGNA_RESTANTI = RUOLI_SENZA_STEP_DEDICATO.filter(
-  (slug) => !RUOLI_NON_ASSEGNABILI_MANUALMENTE.includes(slug),
-)
-
-const PASSO_ASSEGNA_RESTANTI = {
-  id: 'assegna-restanti',
-  titolo: 'Assegna i ruoli rimanenti',
-  tipo: 'informativo',
-  primaNotteSolo: true,
-  ruoli: RUOLI_ASSEGNA_RESTANTI,
-}
-
-// va inserito subito dopo l'ultimo passo "solo prima notte" e prima di
-// qualunque azione "ogni notte": i ruoli senza passo dedicato (a partire
-// dal Villico) devono essere già assegnati quando le azioni che dipendono
-// dal ruolo del bersaglio (es. il branco che sbrana) iniziano a chiamare
-// giocatori per nome
-const indiceUltimoPassoPrimaNotte = STEPS_CON_RUOLO_DEDICATO.reduce(
-  (ultimo, step, indice) => (step.primaNotteSolo ? indice : ultimo),
-  -1,
-)
-
-export const NIGHT_STEPS = [
-  ...STEPS_CON_RUOLO_DEDICATO.slice(0, indiceUltimoPassoPrimaNotte + 1),
-  ...(RUOLI_ASSEGNA_RESTANTI.length > 0 ? [PASSO_ASSEGNA_RESTANTI] : []),
-  ...STEPS_CON_RUOLO_DEDICATO.slice(indiceUltimoPassoPrimaNotte + 1),
-]
-
 // i ruoli "attivi" da considerare per i passi notturni non sono solo quelli
 // scelti nel mazzo, ma anche quelli che un giocatore ha in questo momento
 // senza che fossero nel mazzo originale (es. il Ladro che assume una delle
@@ -268,9 +203,8 @@ export function passiNotte(ruoliSelezionati, round, giocatori, quantita = {}, { 
       return giocatori.some((giocatore) => giocatore.condizioni.includes(step.condizione))
     }
 
-    // carta scartata dal Ladro: il passo del ruolo compare comunque (non il
-    // generico "assegna i ruoli rimanenti", che non è una carta che si sveglia)
-    if (step.id !== PASSO_ASSEGNA_RESTANTI.id && step.ruoli.some((slug) => inMano.includes(slug))) return true
+    // carta scartata dal Ladro: il passo del ruolo compare comunque
+    if (step.ruoli.some((slug) => inMano.includes(slug))) return true
 
     return step.ruoli.some((slug) => {
       if (!ruoliSelezionati.includes(slug)) return false

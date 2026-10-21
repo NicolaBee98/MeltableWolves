@@ -217,7 +217,6 @@ export function NightSequencer({
   )
   useEffect(() => {
     if (ingresso?.giocatori) salvaIngresso(ingresso)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ingresso])
   const idDaIndice = stepsCalcolati[Math.min(stepIndex, stepsCalcolati.length - 1)]?.id
   const idPasso = ingresso?.round === round ? ingresso.id : idDaIndice
@@ -265,7 +264,6 @@ export function NightSequencer({
 
   useEffect(() => {
     setStorico([])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
   // selezioni non ancora confermate per il passo corrente di assegnazione
@@ -310,7 +308,6 @@ export function NightSequencer({
     if (!ingresso?.giocatori || ingresso.round !== round || ingresso.id !== idStep) return
     const vuote = !Object.values(selezioniRuolo).some((ids) => ids.length > 0) && !mimoRuoloScelto
     salvaIngresso({ ...ingresso, pendenti: vuote ? undefined : { selezioniRuolo, mimoRuoloScelto } })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selezioniRuolo, mimoRuoloScelto])
 
   // applica i commit pendenti di questo passo tramite `aggiorna` (di norma
@@ -642,7 +639,6 @@ export function NightSequencer({
     <azione.Componente
       giocatori={giocatoriConPendenti}
       aggiornaGiocatore={aggiornaGiocatoreConCommit}
-      impostaGiocatori={impostaGiocatoriConCommit}
       annullaMorte={annullaMorte}
       round={round}
       ruoliSelezionati={ruoliSelezionati}
@@ -787,17 +783,6 @@ export function NightSequencer({
       setSelezioniRuolo({})
     }
     aggiornaGiocatore(id, patch)
-  }
-
-  // come aggiornaGiocatoreConCommit, per chi reimposta l'intera lista (le
-  // azioni la ricevono già con le selezioni pendenti applicate: vanno
-  // confermate e azzerate, altrimenti verrebbero riapplicate due volte)
-  function impostaGiocatoriConCommit(nuovi) {
-    impostaGiocatori(nuovi)
-    if (ciSonoSelezioniDaConfermare) {
-      commitSelezioniRuolo(conSelezioniRuoloApplicate(giocatori))
-      setSelezioniRuolo({})
-    }
   }
 
   // "giocatori" resta lo snapshot di questo render: le aggiornaGiocatore
@@ -1010,8 +995,8 @@ export function NightSequencer({
       <div key={`${round}-${step.id}-${versione}`} className="night-sequencer__contenuto">
       <h2 className="night-sequencer__ruolo" aria-live="polite" aria-atomic="true">
         {/* un solo ruolo possibile → la sua faccia; più ruoli raggruppati
-            nello stesso passo (es. "assegna i ruoli rimanenti") → punto
-            interrogativo, mostrare una faccia a caso tra tante sarebbe fuorviante */}
+            nello stesso passo → iconaSlug del passo (o il punto
+            interrogativo): una faccia a caso tra tante sarebbe fuorviante */}
         <RuoloIcona slug={step.ruoli?.length === 1 ? step.ruoli[0] : step.iconaSlug} size={32} />
         <span>{step.titolo}</span>
       </h2>
@@ -1043,11 +1028,6 @@ export function NightSequencer({
         voci={PASSI_CON_FIGURE_ATTESE.includes(step.id) ? vociAttese(step, ruoliSelezionati, quantita, giocatoriConPendenti) : undefined}
         inTempoReale={Boolean(step.condizione)}
       />
-      {/* "Possibile azione" (quando il passo prevedeva potenzialmente
-          un'azione ma non c'era nessun titolare in attesa di selezione) è
-          stata rimossa: creava confusione lasciando intendere ci fosse
-          qualcosa da fare in app, quando in realtà l'azione fisica del
-          ruolo (se c'è) resta interamente in mano al narratore */}
       {ruoliAssegnabiliStep.length === 0 && step.tipo === 'informativo' && (
         <p className="night-sequencer__tipo">Nessuna azione richiesta</p>
       )}

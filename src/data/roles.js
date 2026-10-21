@@ -185,10 +185,6 @@ export const RUOLI_BRANCO_LUPI = [
 ]
 export const eLupo = (slug) => RUOLI_BRANCO_LUPI.includes(slug)
 
-export function fazioneDi(giocatore) {
-  return ROLES.find((r) => r.slug === giocatore.ruoloSlug)?.fazione
-}
-
 export function nomeRuolo(slug) {
   return ROLES.find((r) => r.slug === slug)?.nome ?? slug
 }

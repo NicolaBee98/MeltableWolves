@@ -2,7 +2,7 @@ import { segnaUsoStanotte, annullaUsoStanotte } from '../../../data/effettiNotte
 import { ROLES } from '../../../data/roles'
 
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
-// (principio generale, vedi NightSequencer/azionePatches): niente più
+// (principio generale di tutte le azioni notturne): niente più
 // "Potere già utilizzato questa notte" che nasconde le chip subito dopo il
 // primo click, il narratore può ripensarci fino a quando non avanza.
 export function AzioneCondizioneSingola({

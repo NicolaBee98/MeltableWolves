@@ -8,7 +8,7 @@ import { AzioneIndagine } from './AzioneIndagine'
 // ma su un bersaglio morto (AzioneIndagine con bersaglio: 'morto').
 export function AzioneMedium({ varianteMedium, ...props }) {
   return varianteMedium ? (
-    <AzioneIndagine {...props} ruoloSlugAttore="medium" etichettaAttore="Medium" bersaglio="morto" />
+    <AzioneIndagine {...props} ruoloSlugAttore="medium" bersaglio="morto" />
   ) : (
     <AzioneRivelaRuolo {...props} ruoloSlugAttore="medium" etichettaAttore="Medium" bersaglio="morto" />
   )

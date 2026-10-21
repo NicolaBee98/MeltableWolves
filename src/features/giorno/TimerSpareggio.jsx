@@ -1,16 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // la durata si imposta nelle impostazioni di partita, non qui (vedi
 // LogImpostazioniPopup): questo componente si limita ad avviarla/fermarla
 export function TimerSpareggio({ durataSecondi = 60 }) {
   const [rimanente, setRimanente] = useState(durataSecondi)
   const [attivo, setAttivo] = useState(false)
-  const intervalRef = useRef(null)
 
   useEffect(() => {
     if (!attivo) return
-    intervalRef.current = setInterval(() => setRimanente((prev) => Math.max(prev - 1, 0)), 1000)
-    return () => clearInterval(intervalRef.current)
+    const intervallo = setInterval(() => setRimanente((prev) => Math.max(prev - 1, 0)), 1000)
+    return () => clearInterval(intervallo)
   }, [attivo])
 
   // a 0 si ferma (fuori dall'updater di setRimanente, che deve restare

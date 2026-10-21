@@ -11,7 +11,6 @@ export function AzioneIndagine({
   aggiornaGiocatore,
   round,
   ruoloSlugAttore = 'veggente',
-  etichettaAttore = 'Veggente',
   bersaglio = 'vivo',
   puoEssereAccecato = false,
   vivoAIngresso = (g) => g.vivo,

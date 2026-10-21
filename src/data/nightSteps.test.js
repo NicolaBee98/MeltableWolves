@@ -1,4 +1,5 @@
 import { NIGHT_STEPS, passiNotte, passiAttesi, notteBloccata, villaggioMaledetto, ruoliAttivi, ruoliInMano } from './nightSteps'
+import { ROLES } from './roles'
 
 const NESSUN_GIOCATORE = []
 
@@ -9,6 +10,19 @@ test('un mazzo di soli Villici non genera alcun passo notturno (si assegna da so
 
 test('il passo "assegna-restanti" non esiste più: il Villico era l\'unico ruolo rimasto senza uno step dedicato, e non va mai mostrato (si assegna da solo)', () => {
   expect(NIGHT_STEPS.find((s) => s.id === 'assegna-restanti')).toBeUndefined()
+})
+
+test('ogni ruolo distribuito all\'inizio ha un passo notturno: altrimenti non verrebbe mai assegnato a nessuno', () => {
+  // si assegnano altrove: il Villico da solo a fine prima notte, gli altri
+  // dagli Eventi speciali (rivelazione diurna, elezione o morte)
+  const fuoriDallaNotte = [
+    'villico',
+    'boia', 'spilungone', 'alchimista', 'innocente', 'lantico', 'scemo-del-villaggio', 'borgomastro',
+    'fantasma-onnisciente', 'suocera',
+  ]
+  const conPasso = new Set(NIGHT_STEPS.flatMap((s) => s.ruoli ?? []))
+  const senzaPasso = ROLES.map((r) => r.slug).filter((slug) => !conPasso.has(slug) && !fuoriDallaNotte.includes(slug))
+  expect(senzaPasso).toEqual([])
 })
 
 test('mimo compare solo alla notte 1', () => {

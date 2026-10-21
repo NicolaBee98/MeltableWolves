@@ -97,8 +97,6 @@ for (const [nome, r] of Object.entries(risultato)) {
   // più il contorno è spesso (a parità di viewBox), più la figura va rimpicciolita
   const f = 1 / fattore
   tabella[nome] = {
-    spessore: +(r.spessore ?? mediano).toFixed(4),
-    fattore: +f.toFixed(4),
     larghezza: +(r.vbL * f).toFixed(2),
     altezza: +(r.vbA * f).toFixed(2),
   }
@@ -106,4 +104,4 @@ for (const [nome, r] of Object.entries(risultato)) {
 fs.writeFileSync(path.join(radice, 'src/data/scalePersonaggi.json'), JSON.stringify(tabella, null, 1) + '\n')
 console.log(`mediana spessore ${mediano.toFixed(3)} (riferimento ${RIFERIMENTO.toFixed(3)})`)
 if (senzaContorno.length) console.log('senza contorno (usata la mediana):', senzaContorno.join(', '))
-for (const [nome, t] of Object.entries(tabella)) console.log(nome.padEnd(30), t.spessore, t.fattore, t.altezza)
+for (const [nome, r] of Object.entries(risultato)) console.log(nome.padEnd(30), r.spessore, tabella[nome].altezza)

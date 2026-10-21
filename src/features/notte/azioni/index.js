@@ -84,7 +84,7 @@ export const AZIONI_NOTTURNE = {
   veggente: { Componente: AzioneIndagine, props: { puoEssereAccecato: true } },
   'veggente-mannaro': {
     Componente: AzioneIndagine,
-    props: { ruoloSlugAttore: 'veggente-mannaro', etichettaAttore: 'Veggente Mannaro' },
+    props: { ruoloSlugAttore: 'veggente-mannaro' },
   },
   cartomante: {
     Componente: AzioneRivelaRuolo,

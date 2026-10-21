@@ -122,7 +122,6 @@ export function AlbaPanel({
         giocatori.filter((x) => x.vendettaCucciolo).forEach((x) => aggiornaGiocatore(x.id, { vendettaCucciolo: false }))
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daResuscitare, round, aggiornaGiocatore])
 
   // corregge una morte dichiarata per errore (anche la sua catena: crepacuore,

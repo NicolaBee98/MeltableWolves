@@ -25,9 +25,9 @@ const FAZIONE_ICONA = {
 // aggiungerne un'altra unità, invece di sparire dopo il primo click
 const RUOLI_INFINITI = ['villico', 'lupo-mannaro']
 // non sono carte distribuite come le altre all'inizio (il Borgomastro è un
-// titolo per elezione, il Fantasma Onnisciente si riceve solo alla morte,
-// vedi RUOLI_RIVELAZIONE_GIORNO/RUOLI_RIVELAZIONE_ALLA_MORTE): la chip si
-// distingue con un colore diverso per non farli sembrare carte "normali"
+// titolo per elezione, il Fantasma Onnisciente si riceve solo alla morte):
+// la chip si distingue con un colore diverso per non farli sembrare carte
+// "normali"
 const RUOLI_NON_CARTA_DISTRIBUITA = ['fantasma-onnisciente']
 // durata dell'animazione di dissolvenza di una chip che lascia i
 // "disponibili" perché appena aggiunta al mazzo (vedi .chip--uscendo)

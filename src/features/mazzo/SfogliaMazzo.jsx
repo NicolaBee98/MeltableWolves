@@ -9,13 +9,9 @@ export function SfogliaMazzo({ onChiudi }) {
   const contenitore = useRef(null)
   const carta = MAZZO_COMPLETO[indice]
 
-  // il focus entra nel dialogo (e torna dov'era alla chiusura): senza, resta
-  // sul pulsante che l'ha aperto, nascosto sotto
-  useEffect(() => {
-    const prima = document.activeElement
-    contenitore.current?.focus()
-    return () => prima?.isConnected && prima.focus?.()
-  }, [])
+  // il focus entra nel dialogo: senza, resta sul pulsante che l'ha aperto,
+  // nascosto sotto (al ritorno lo rimette lì MazzoGalleria)
+  useEffect(() => contenitore.current?.focus(), [])
 
   function onKeyDown(event) {
     if (event.key === 'Escape') onChiudi()

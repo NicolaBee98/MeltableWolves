@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ROLES, ruoloPerDisplay } from '../../../data/roles'
+import { nomeRuolo } from '../../../data/roles'
 import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo, cartaInMano } from '../../../data/assegnazione'
 import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
@@ -13,12 +13,9 @@ import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
 // anche per chi ha già quel ruoloSlug (vedi candidatiRivelazione).
 const NON_CARTE_PROPONIBILI = ['borgomastro', 'cartomante', 'fantasma-onnisciente']
 
-// `reale`: chi guarda la carta fisica (Cartomante e Medium) vede la carta vera, quindi
+// chi guarda la carta fisica (Cartomante e Medium) vede la carta vera, quindi
 // per loro la Guardia Mannara non è mascherata da Guardia (come invece nel resto dell'app)
-function nomeRuolo(ruoloSlug, reale = false) {
-  return ROLES.find((r) => r.slug === (reale ? ruoloSlug : ruoloPerDisplay(ruoloSlug)))?.nome ?? 'ruolo sconosciuto'
-}
-
+const nomeCarta = (slug) => nomeRuolo(slug) ?? 'ruolo sconosciuto'
 
 // Usato da Cartomante (bersaglio vivo, "alternativa al Veggente" ma rivela
 // il ruolo intero) e Medium (bersaglio morto, il "vecchio ruolo").
@@ -50,9 +47,6 @@ export function AzioneRivelaRuolo({
   const [cartaOriginaleTarget, setCartaOriginaleTarget] = useState(false)
   // carta mostrata a schermo intero al giocatore interrogato (facoltativo)
   const [cartaAperta, setCartaAperta] = useState(false)
-  // sia la Cartomante sia il Medium guardano la carta FISICA: vedono (e fanno distinguere
-  // al narratore) la Guardia Mannara, che per il resto dell'app resta mascherata da Guardia
-  const reale = true
   const ruoli = [ruoloSlugAttore]
   const potere = `${ruoloSlugAttore}-indagine`
   const attore = giocatori.find((g) => g.ruoloSlug === ruoloSlugAttore)
@@ -93,7 +87,7 @@ export function AzioneRivelaRuolo({
     // bersaglio ignoto, o una Guardia che potrebbe essere la Mannara (solo
     // per la Cartomante): il narratore dice quale carta vede
     const origIgnota = Boolean(target?.cartaIgnotaTrasformata && !target.cartaOriginale)
-    if (target && (!target.ruoloSlug || origIgnota || (reale && guardiaIncerta(target, ruoliSelezionati, quantita)))) {
+    if (target && (!target.ruoloSlug || origIgnota || guardiaIncerta(target, ruoliSelezionati, quantita))) {
       setCartaOriginaleTarget(origIgnota)
       setGuardiaTarget(Boolean(target.ruoloSlug) && !origIgnota)
       setTargetInAttesaDiRuolo(targetId)
@@ -129,20 +123,19 @@ export function AzioneRivelaRuolo({
     setAssegnato({ id: target.id, prima, ruoloSlug })
   }
 
-  // la carta fisica da mostrare: la Cartomante vede quella vera (anche la Guardia
-  // Mannara), il Medium la stessa maschera del resto dell'app
+  // la carta fisica da mostrare: quella vera, anche la Guardia Mannara
   // (se la variante del Medium è cambiata a passo aperto l'indagine ha solo l'esito: si ricava dal bersaglio)
   const bersaglioIndagato = giocatori.find((g) => g.id === indagineStanotte?.targetId)
   const ruoloCarta = indagineStanotte?.ruoloRivelato ?? bersaglioIndagato?.ruoloSlug
   const cartaMostrata = ruoloCarta
-    ? cartaFisicaPath(reale ? ruoloCarta : ruoloPerDisplay(ruoloCarta), bersaglioIndagato?.ruoloSlug === ruoloCarta ? variantePerGiocatore(giocatori, bersaglioIndagato.id) : undefined)
+    ? cartaFisicaPath(ruoloCarta, bersaglioIndagato?.ruoloSlug === ruoloCarta ? variantePerGiocatore(giocatori, bersaglioIndagato.id) : undefined)
     : null
 
   // etichetta + pulsante carta: visibili appena c'è una carta, anche mentre si sceglie
   const esito = indagineStanotte && (
     <>
       <p className="azione-indagine__etichetta-esito">
-        Mostra a {etichettaAttore} la carta: {nomeRuolo(ruoloCarta, reale)}
+        Mostra a {etichettaAttore} la carta: {nomeCarta(ruoloCarta)}
       </p>
       {cartaMostrata && (
         <button type="button" onClick={() => setCartaAperta(true)}>
@@ -152,7 +145,7 @@ export function AzioneRivelaRuolo({
       {cartaAperta && cartaMostrata && (
         <CartaSchermoIntero
           src={cartaMostrata}
-          etichetta={`Carta: ${nomeRuolo(ruoloCarta, reale)}`}
+          etichetta={`Carta: ${nomeCarta(ruoloCarta)}`}
           onChiudi={() => setCartaAperta(false)}
         />
       )}
@@ -193,7 +186,7 @@ export function AzioneRivelaRuolo({
               aria-pressed={assegnato?.ruoloSlug === slug}
               onClick={() => confermaRuoloVisto(slug)}
             >
-              {nomeRuolo(slug, reale)}
+              {nomeCarta(slug)}
             </button>
           ))}
         </div>

@@ -1,14 +1,5 @@
-import { ruoliAssegnabili, eMimoCopiante } from './assegnazione'
+import { ruoliAssegnabili } from './assegnazione'
 import { eLupo } from './roles'
-
-// Ruoli con un evento tutto loro: Alchimista/Boia/Scemo del
-// Villaggio perché la rivelazione diurna coincide con l'uso stesso del
-// potere (si rivelano "facendo" l'azione, non prima); l'Innocente perché,
-// pur non avendo un'azione a sé (è solo "mostra la carta"), è comunque
-// un'iniziativa che il giocatore prende quando vuole — un pulsante dedicato
-// evita il doppio passaggio "Rivelazione personaggio" -> unica opzione
-// disponibile.
-export const RIVELAZIONE_CONTESTUALE_AL_POTERE = ['alchimista', 'boia', 'scemo-del-villaggio', 'innocente']
 
 // Alchimista, Boia, Scemo del Villaggio e Innocente di norma non hanno
 // un'identità assegnata prima: si rivelano solo tramite il loro evento

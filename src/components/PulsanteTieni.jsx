@@ -9,10 +9,6 @@ export function PulsanteTieni({ onConferma, children, durata = DURATA_TIENI_MS, 
   const [tenendo, setTenendo] = useState(false)
   const timer = useRef(null)
 
-  const annulla = () => {
-    clearTimeout(timer.current)
-    setTenendo(false)
-  }
   const inizia = () => {
     if (disabled || timer.current) return
     setTenendo(true)

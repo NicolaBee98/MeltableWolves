@@ -24,7 +24,7 @@ function BadgeCondizioni({ condizioni = [] }) {
 // senso solo perché già protetto da mostraRuoli, quindi il narratore l'ha
 // scelto di proposito per la sua partita
 // senza ruoloSlug il giocatore è probabilmente uno dei ruoli a rivelazione
-// diurna non ancora rivelati (RUOLI_RIVELAZIONE_GIORNO): mostra comunque il
+// diurna non ancora rivelati (Boia, Innocente, Scemo...): mostra comunque il
 // punto interrogativo invece di sparire, per segnalare "identità non nota
 // ancora" e non "nessuna informazione qui"
 // ignotiVillici: tutte le altre carte sono già uscite, il "?" può essere solo Villico

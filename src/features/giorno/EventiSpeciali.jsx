@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { SceltaGiocatore } from '../../components/SceltaGiocatore'
-import { RuoloIcona } from '../../components/RuoloIcona'
 import { PromemoriaMorte, RigheConseguenze } from './PromemoriaMorte'
 import { useDialogA11y } from '../../components/useDialogA11y'
 import { ruoliAssegnabili } from '../../data/assegnazione'
@@ -20,7 +19,7 @@ import {
 // Forma più comune: si sceglie un solo giocatore, si dichiara l'esito, si
 // chiude. Usata da Scemo del Villaggio, Morte per unzione, Elezione
 // Borgomastro, Fantasma Onnisciente.
-function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla, richiedeConferma = true, dettaglio }) {
+function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnulla, dettaglio }) {
   return (
     <>
       {messaggio && <p>{messaggio}</p>}
@@ -30,7 +29,7 @@ function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnu
         onSalta={onAnnulla}
         etichetta={etichetta}
         etichettaSalta="Annulla"
-        richiedeConferma={richiedeConferma}
+        richiedeConferma
         dettaglioSelezione={dettaglio}
       />
     </>
@@ -39,48 +38,36 @@ function EventoUnGiocatore({ candidati, etichetta, messaggio, onConferma, onAnnu
 
 // Forma a due passi: prima "chi è" (l'identità non è mai nota in anticipo,
 // quindi si sceglie solo tra chi non ha ancora un ruolo assegnato), poi
-// "chi subisce l'azione" (un giocatore qualunque). Usata da Boia e Alchimista.
-function EventoDueGiocatori({
-  candidatiAttore,
-  candidatiBersaglio,
-  etichettaAttore,
-  etichettaBersaglio,
-  escludiAttoreDaBersagli = false,
-  onConferma,
-  onAnnulla,
-  richiedeConferma = true,
-  dettaglio,
-}) {
+// "chi subisce l'azione" (un giocatore qualunque, tranne sé stesso). Usata da
+// Boia e Alchimista.
+function EventoDueGiocatori({ candidatiAttore, candidatiBersaglio, etichettaAttore, etichettaBersaglio, onConferma, onAnnulla, dettaglio }) {
   const [attoreId, setAttoreId] = useState(null)
 
   if (!attoreId) {
+    // key diversa dal secondo passo: altrimenti React riusa lo stato e la
+    // chip scelta come attore resterebbe preselezionata come bersaglio
     return (
-      <>
-        {/* key diversa dal secondo passo: altrimenti React riusa lo stato e la
-            chip scelta come attore resterebbe preselezionata come bersaglio */}
-        <SceltaGiocatore
-          key="attore"
-          candidati={candidatiAttore}
-          onConferma={setAttoreId}
-          onSalta={onAnnulla}
-          etichetta={etichettaAttore}
-          etichettaSalta="Annulla"
-          richiedeConferma={richiedeConferma}
-        />
-      </>
+      <SceltaGiocatore
+        key="attore"
+        candidati={candidatiAttore}
+        onConferma={setAttoreId}
+        onSalta={onAnnulla}
+        etichetta={etichettaAttore}
+        etichettaSalta="Annulla"
+        richiedeConferma
+      />
     )
   }
 
-  const bersagli = escludiAttoreDaBersagli ? candidatiBersaglio.filter((g) => g.id !== attoreId) : candidatiBersaglio
   return (
     <SceltaGiocatore
       key="bersaglio"
-      candidati={bersagli}
+      candidati={candidatiBersaglio.filter((g) => g.id !== attoreId)}
       onConferma={(id) => onConferma(attoreId, id)}
       onSalta={onAnnulla}
       etichetta={etichettaBersaglio}
       etichettaSalta="Annulla"
-      richiedeConferma={richiedeConferma}
+      richiedeConferma
       dettaglioSelezione={dettaglio}
     />
   )
@@ -147,12 +134,12 @@ export function EventiSpeciali({
     setEsito(messaggio)
     setEvento('esito')
   }
-  // il colpo non uccide davvero: l'Antico alla prima vita o chi ha un Cavaliere
-  // che si immola (il motivo lo dice la riga di riepilogo)
   const nomiVicini = (id) => {
     const { sinistra, destra } = viciniVivi(giocatori, id)
     return [sinistra, destra].filter(Boolean).map((g) => g.nome).join(' e ') || 'nessuno'
   }
+  // il colpo non uccide davvero: l'Antico alla prima vita o chi ha un Cavaliere
+  // che si immola (il motivo lo dice la riga di riepilogo)
   const sopravvive = (id) => {
     const g = giocatori.find((x) => x.id === id)
     return Boolean(g) && (primaVitaAntico(g) || cavalieriDi(giocatori, id).length > 0)
@@ -376,7 +363,6 @@ export function EventiSpeciali({
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è il Boia"
               etichettaBersaglio="Chi giustizia il Boia"
-              escludiAttoreDaBersagli
               onConferma={(boiaId, id) =>
                 applica(
                   `${nome(boiaId)} si è rivelato/a: è il Boia e giustizia ${nome(id)}${sopravvive(id) ? ', che però sopravvive.' : '.'}`,
@@ -395,7 +381,6 @@ export function EventiSpeciali({
               candidatiBersaglio={vivi}
               etichettaAttore="Chi è l'Alchimista"
               etichettaBersaglio="Chi trascina con sé l'Alchimista"
-              escludiAttoreDaBersagli
               onConferma={(alchimistaId, id) =>
                 applica(
                   sopravvive(id)

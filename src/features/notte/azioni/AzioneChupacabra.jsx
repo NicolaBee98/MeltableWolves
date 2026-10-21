@@ -30,7 +30,6 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   useEffect(() => {
     impostaEventiAvanti?.('chupacabra', logEffetti ? logEffetti.split('\n') : [])
     return () => impostaEventiAvanti?.('chupacabra', [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logEffetti])
   // il bersaglio appena colpito resta in lista anche se non è più vivo,
   // altrimenti la sua chip sparirebbe subito dopo il click

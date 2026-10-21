@@ -38,7 +38,6 @@ export function useDialogA11y(aperto, onChiudi) {
       document.removeEventListener('keydown', onKeyDown)
       triggerRef.current?.focus()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aperto])
 
   return { dialogRef, triggerRef }

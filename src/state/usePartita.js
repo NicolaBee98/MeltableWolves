@@ -8,9 +8,8 @@ const STORAGE_KEY = 'meltable-wolves-partita'
 
 // normalizza i giocatori caricati da localStorage: dati salvati da uno
 // schema precedente (o modificati a mano) potrebbero non avere questi campi
-// array, e il resto del codice li usa sempre senza controllare (es.
-// `giocatore.condizioni.includes(...)`) — un solo punto di guardia qui
-// invece di sparsi `?? []` in ogni funzione che li legge
+// array, e parte del codice li usa senza controllare (es.
+// `giocatore.condizioni.includes(...)`)
 function normalizzaGiocatore(giocatore) {
   return {
     ...giocatore,
@@ -53,7 +52,7 @@ function nuovoGiocatore(nome, id = crypto.randomUUID()) {
 // Si ripete fino a punto fisso, così anche le morti prodotte dalla catena
 // stessa (crepacuore, sacrificio del Cavaliere) innescano le loro reazioni.
 // `giaProcessati`: id dei morti le cui reazioni sono già state applicate.
-export function propagaMorti(giocatori, giaProcessati) {
+function propagaMorti(giocatori, giaProcessati) {
   let aggiornati = giocatori
   const processati = new Set(giaProcessati)
   for (;;) {

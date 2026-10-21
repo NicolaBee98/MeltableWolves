@@ -1,4 +1,4 @@
-import { ROLES, eLupo } from './roles'
+import { eLupo } from './roles'
 import { conRuolo } from './assegnazione'
 
 // applica una mappa {id: patch} (come quelle ritornate da risolviLegami/

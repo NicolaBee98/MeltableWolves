@@ -7,7 +7,7 @@ import { cavalieriDi } from './eventiSpeciali'
 // direttamente dai lupi di notte (libretto pag. 12, 12, 18): usata da
 // risolviAttaccoBranco per non applicare mai una morte a nessuno dei tre,
 // qualunque bersaglio scelga il branco.
-export const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
+const RUOLI_IMMUNI_AL_BRANCO = ['cortigiana', 'nano', 'criceto-malvagio']
 
 // La Cortigiana non compare tra le chip da scegliere per il branco: la sua
 // morte è sempre un effetto indiretto (visita a un lupo, o il suo cliente
@@ -260,12 +260,6 @@ export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoD
     return { vivo: true, anticoSbranatoNotte: round }
   }
   return { vivo: false, causaMorte: 'notte', mortoNotte: round, mortoDa }
-}
-
-// aggiunge un potere a poteriUsati senza duplicati
-export function conPotereUsato(poteriUsati, potere) {
-  const p = poteriUsati ?? []
-  return p.includes(potere) ? p : [...p, potere]
 }
 
 // Il resuscitato torna libero da ogni innamoramento (sciolto alla morte) e

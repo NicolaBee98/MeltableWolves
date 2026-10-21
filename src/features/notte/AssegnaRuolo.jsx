@@ -177,7 +177,7 @@ export function AssegnaRuolo({
         </div>
       )}
       {/* sempre subito dopo le chip che l'hanno generato, mai sopra: stessa
-          posizione in tutta l'app (vedi anche night-sequencer__avviso) */}
+          posizione in tutta l'app */}
       {avviso && <p className="avviso">⚠️ {avviso}</p>}
     </div>
   )

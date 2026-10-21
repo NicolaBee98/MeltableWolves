@@ -205,9 +205,9 @@ export function personaggioRiconoscimentoPath(nome) {
 }
 
 // altezza nel disegno originale (viewBox), stessa unità per tutti e
-// quattro: Diletta è disegnata più bassa delle altre, la stessa logica di
-// altezzaNaturalePersonaggio la mantiene proporzionalmente più piccola
-// invece di forzarla alla stessa altezza delle altre tre
+// quattro: Diletta è disegnata più bassa delle altre, e resta
+// proporzionalmente più piccola invece di essere forzata alla stessa
+// altezza delle altre tre
 const ALTEZZE_NATURALI_RICONOSCIMENTI = { diletta: 22.6, filippo: 24.1, nicola: 23.7, remo: 25.2 }
 export function altezzaNaturaleRiconoscimento(nome) {
   return ALTEZZE_NATURALI_RICONOSCIMENTI[nome] ?? Math.max(...Object.values(ALTEZZE_NATURALI_RICONOSCIMENTI))
