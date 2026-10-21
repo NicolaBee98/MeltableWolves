@@ -67,7 +67,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 136,
+  "riga": 144,
   "schermata": "Intestazione",
   "contesto": "testo alternativo del logo (Home)",
   "tipo": "attributo",
@@ -80,7 +80,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 138,
+  "riga": 144,
   "schermata": "Intestazione",
   "contesto": "testo alternativo del logo (altre schermate)",
   "tipo": "attributo",
@@ -93,7 +93,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 182,
+  "riga": 190,
   "schermata": "Mazzo",
   "contesto": "pulsante indietro",
   "tipo": "jsx",
@@ -106,7 +106,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 186,
+  "riga": 194,
   "schermata": "Mazzo",
   "contesto": "pulsante Avanti",
   "tipo": "jsx",
@@ -119,7 +119,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 194,
+  "riga": 202,
   "schermata": "Giocatori",
   "contesto": "pulsante indietro",
   "tipo": "jsx",
@@ -132,7 +132,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 206,
+  "riga": 214,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio giocatori: parte 1 (simbolo, prima della frase)",
   "tipo": "jsx",
@@ -145,7 +145,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 206,
+  "riga": 214,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio: parte 2, caso 1 giocatore richiesto",
   "tipo": "stringa",
@@ -158,7 +158,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 206,
+  "riga": 214,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio: parte 2, caso più giocatori",
   "tipo": "template",
@@ -173,7 +173,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 206,
+  "riga": 214,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio: parte 3, dopo il numero richiesto",
   "tipo": "jsx",
@@ -186,22 +186,23 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 207,
+  "riga": 215,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio: parte 4, nota sui ruoli esclusi (se presenti)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": " (${esclusi.join('; ')}, che non sono giocatori in più)",
+  "originale": " (${esclusi.join('; ')}, ${soloUnRuoloEscluso ? 'che non è un giocatore in più' : 'che non sono giocatori in più'})",
   "dinamico": [
-   "${esclusi.join('; ')}"
+   "${esclusi.join('; ')}",
+   "${soloUnRuoloEscluso ? 'che non è un giocatore in più' : 'che non sono giocatori in più'}"
   ],
   "id": "T0015",
-  "mostrato": " (${esclusi.join('; ')}, che non sono giocatori in più)"
+  "mostrato": " (${esclusi.join('; ')}, ${soloUnRuoloEscluso ? 'che non è un giocatore in più' : 'che non sono giocatori in più'})"
  },
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 207,
+  "riga": 212,
   "schermata": "Giocatori",
   "contesto": "avviso conteggio: parte 5, punto finale",
   "tipo": "jsx",
@@ -214,7 +215,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 216,
+  "riga": 224,
   "schermata": "Giocatori",
   "contesto": "pulsante per iniziare la notte",
   "tipo": "jsx",
@@ -223,22 +224,6 @@
   "dinamico": [],
   "id": "T0017",
   "mostrato": "È notte nel villaggio"
- },
- {
-  "parte": "generale",
-  "file": "src/App.jsx",
-  "riga": 73,
-  "schermata": "Giocatori",
-  "contesto": "elenco esclusi: congiunzione tra le voci",
-  "tipo": "template",
-  "delimitatore": "`",
-  "originale": "${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}",
-  "dinamico": [
-   "${voci.slice(0, -1).join(', ')}",
-   "${voci.at(-1)}"
-  ],
-  "id": "T0018",
-  "mostrato": "${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}"
  },
  {
   "parte": "generale",
@@ -256,7 +241,7 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 75,
+  "riga": 80,
   "schermata": "Giocatori",
   "contesto": "voce esclusi: Borgomastro",
   "tipo": "stringa",
@@ -282,32 +267,28 @@
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 77,
+  "riga": 74,
   "schermata": "Giocatori",
   "contesto": "prefisso esclusi (carte, femminile)",
-  "tipo": "template",
-  "delimitatore": "`",
-  "originale": "escluse ${elenco(escluseCarte)}",
-  "dinamico": [
-   "${elenco(escluseCarte)}"
-  ],
+  "tipo": "stringa",
+  "delimitatore": "'",
+  "originale": "escluse le 2 carte extra del Ladro",
+  "dinamico": [],
   "id": "T0022",
-  "mostrato": "escluse ${elenco(escluseCarte)}"
+  "mostrato": "escluse le 2 carte extra del Ladro"
  },
  {
   "parte": "generale",
   "file": "src/App.jsx",
-  "riga": 78,
+  "riga": 75,
   "schermata": "Giocatori",
   "contesto": "prefisso esclusi (ruoli, maschile)",
-  "tipo": "template",
-  "delimitatore": "`",
-  "originale": "esclusi ${elenco(escluseRuoli)}",
-  "dinamico": [
-   "${elenco(escluseRuoli)}"
-  ],
+  "tipo": "stringa",
+  "delimitatore": "'",
+  "originale": "escluso il Fantasma Onnisciente",
+  "dinamico": [],
   "id": "T0023",
-  "mostrato": "esclusi ${elenco(escluseRuoli)}"
+  "mostrato": "escluso il Fantasma Onnisciente"
  },
  {
   "parte": "generale",
@@ -884,7 +865,7 @@
  {
   "parte": "generale",
   "file": "src/data/validaMazzo.js",
-  "riga": 25,
+  "riga": 26,
   "schermata": "Avvisi",
   "contesto": "avviso mazzo: nessun lupo",
   "tipo": "stringa",
@@ -897,7 +878,7 @@
  {
   "parte": "generale",
   "file": "src/data/validaMazzo.js",
-  "riga": 28,
+  "riga": 29,
   "schermata": "Avvisi",
   "contesto": "avviso mazzo: pochi lupi",
   "tipo": "template",
@@ -913,7 +894,7 @@
  {
   "parte": "generale",
   "file": "src/data/validaMazzo.js",
-  "riga": 34,
+  "riga": 35,
   "schermata": "Avvisi",
   "contesto": "avviso mazzo: troppi indipendenti",
   "tipo": "stringa",
@@ -926,7 +907,7 @@
  {
   "parte": "generale",
   "file": "src/data/validaMazzo.js",
-  "riga": 39,
+  "riga": 40,
   "schermata": "Avvisi",
   "contesto": "avviso mazzo: troppi ruoli notturni",
   "tipo": "stringa",
@@ -939,7 +920,7 @@
  {
   "parte": "generale",
   "file": "src/data/validaMazzo.js",
-  "riga": 43,
+  "riga": 44,
   "schermata": "Avvisi",
   "contesto": "avviso mazzo: Guardia Mannara senza Guardie",
   "tipo": "stringa",
@@ -952,7 +933,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 28,
+  "riga": 41,
   "schermata": "Sfoglia il mazzo",
   "contesto": "etichetta accessibile della finestra",
   "tipo": "aria",
@@ -965,7 +946,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 31,
+  "riga": 44,
   "schermata": "Sfoglia il mazzo",
   "contesto": "pulsante chiudi",
   "tipo": "jsx",
@@ -978,7 +959,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 34,
+  "riga": 45,
   "schermata": "Sfoglia il mazzo",
   "contesto": "contatore carta (separatore tra numeri)",
   "tipo": "jsx",
@@ -991,7 +972,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 46,
+  "riga": 59,
   "schermata": "Sfoglia il mazzo",
   "contesto": "etichetta accessibile freccia indietro",
   "tipo": "aria",
@@ -1004,7 +985,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 63,
+  "riga": 76,
   "schermata": "Sfoglia il mazzo",
   "contesto": "etichetta accessibile freccia avanti",
   "tipo": "aria",
@@ -1017,7 +998,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/SfogliaMazzo.jsx",
-  "riga": 76,
+  "riga": 89,
   "schermata": "Sfoglia il mazzo",
   "contesto": "etichetta accessibile dello slider",
   "tipo": "aria",
@@ -1082,7 +1063,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 77,
+  "riga": 71,
   "schermata": "Mazzo",
   "contesto": "chip numerata di ruolo moltiplicabile (Villico, Lupo Mannaro)",
   "tipo": "template",
@@ -1098,7 +1079,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 86,
+  "riga": 80,
   "schermata": "Mazzo",
   "contesto": "chip numerata della Guardia",
   "tipo": "template",
@@ -1113,7 +1094,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 97,
+  "riga": 91,
   "schermata": "Mazzo",
   "contesto": "titolo sezione ruoli nel mazzo (parte 1)",
   "tipo": "jsx",
@@ -1126,7 +1107,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 99,
+  "riga": 93,
   "schermata": "Mazzo",
   "contesto": "messaggio mazzo vuoto",
   "tipo": "jsx",
@@ -1139,7 +1120,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 101,
+  "riga": 95,
   "schermata": "Mazzo",
   "contesto": "etichetta accessibile gruppo ruoli scelti",
   "tipo": "aria",
@@ -1152,7 +1133,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 116,
+  "riga": 110,
   "schermata": "Mazzo",
   "contesto": "simbolo rimozione sulla chip (dopo il nome)",
   "tipo": "jsx",
@@ -1165,28 +1146,28 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 134,
+  "riga": 128,
   "schermata": "Mazzo",
   "contesto": "nota Ladro (parte di una frase)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori.",
+  "originale": "ℹ️ Il Ladro richiede di inserire due carte in più nel mazzo rispetto al numero di giocatori.",
   "dinamico": [],
   "id": "T0089",
-  "mostrato": "ℹ️ Il Ladro richiede inserire due carte in più nel mazzo rispetto al numero di giocatori."
+  "mostrato": "ℹ️ Il Ladro richiede di inserire due carte in più nel mazzo rispetto al numero di giocatori."
  },
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 141,
+  "riga": 134,
   "schermata": "Mazzo",
-  "contesto": "nota Borgomastro/Fantasma: parte 1 di 3",
+  "contesto": "nota Fantasma Onnisciente",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "ℹ️ Borgomastro e Fantasma Onnisciente sono \"condizioni aggiuntive\", non ruoli fissi che i giocatori possono avere",
+  "originale": "ℹ️ Il Fantasma Onnisciente è una \"condizione aggiuntiva\", non un ruolo fisso che i giocatori possono avere.",
   "dinamico": [],
   "id": "T0090",
-  "mostrato": "ℹ️ Borgomastro e Fantasma Onnisciente sono \"condizioni aggiuntive\", non ruoli fissi che i giocatori possono avere"
+  "mostrato": "ℹ️ Il Fantasma Onnisciente è una \"condizione aggiuntiva\", non un ruolo fisso che i giocatori possono avere."
  },
  {
   "parte": "generale",
@@ -1204,7 +1185,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 142,
+  "riga": 141,
   "schermata": "Mazzo",
   "contesto": "nota Borgomastro/Fantasma: parte 3 di 3, punto finale",
   "tipo": "jsx",
@@ -1217,7 +1198,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 162,
+  "riga": 157,
   "schermata": "Mazzo",
   "contesto": "etichetta accessibile gruppo ruoli disponibili",
   "tipo": "template",
@@ -1232,7 +1213,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 201,
+  "riga": 185,
   "schermata": "Mazzo",
   "contesto": "suffisso Guardia Mannara disabilitata",
   "tipo": "stringa",
@@ -1245,7 +1226,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoBuilder.jsx",
-  "riga": 216,
+  "riga": 185,
   "schermata": "Mazzo",
   "contesto": "chip Guardie",
   "tipo": "jsx",
@@ -1258,7 +1239,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoGalleria.jsx",
-  "riga": 11,
+  "riga": 10,
   "schermata": "Il mazzo (galleria)",
   "contesto": "titolo fazione Sconosciuti",
   "tipo": "stringa",
@@ -1271,7 +1252,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoGalleria.jsx",
-  "riga": 28,
+  "riga": 34,
   "schermata": "Il mazzo (galleria)",
   "contesto": "pulsante indietro",
   "tipo": "jsx",
@@ -1284,7 +1265,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoGalleria.jsx",
-  "riga": 32,
+  "riga": 38,
   "schermata": "Il mazzo (galleria)",
   "contesto": "pulsante Sfoglia il mazzo",
   "tipo": "jsx",
@@ -1297,7 +1278,7 @@
  {
   "parte": "generale",
   "file": "src/features/mazzo/MazzoGalleria.jsx",
-  "riga": 35,
+  "riga": 41,
   "schermata": "Il mazzo (galleria)",
   "contesto": "titolo della schermata",
   "tipo": "jsx",
@@ -1325,13 +1306,39 @@
   "file": "src/features/players/PlayerTracker.jsx",
   "riga": 52,
   "schermata": "Giocatori",
-  "contesto": "istruzioni",
+  "contesto": "istruzioni, parte 1 di 3",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare.",
+  "originale": "Aggiungi i giocatori ",
   "dinamico": [],
   "id": "T0101",
-  "mostrato": "Aggiungi i giocatori *nell'ordine in cui siedono al tavolo*. Tieni premuta la ✕ per eliminare, trascina una card per riordinare."
+  "mostrato": "Aggiungi i giocatori "
+ },
+ {
+  "parte": "generale",
+  "file": "src/features/players/PlayerTracker.jsx",
+  "riga": 52,
+  "schermata": "Giocatori",
+  "contesto": "istruzioni, parte 2 di 3 (corsivo)",
+  "tipo": "jsx",
+  "delimitatore": "jsx",
+  "originale": "nell'ordine in cui siedono al tavolo",
+  "dinamico": [],
+  "id": "T0904",
+  "mostrato": "nell'ordine in cui siedono al tavolo"
+ },
+ {
+  "parte": "generale",
+  "file": "src/features/players/PlayerTracker.jsx",
+  "riga": 52,
+  "schermata": "Giocatori",
+  "contesto": "istruzioni, parte 3 di 3",
+  "tipo": "jsx",
+  "delimitatore": "jsx",
+  "originale": ". Tieni premuta la ✕ per eliminare, trascina una card per riordinare.",
+  "dinamico": [],
+  "id": "T0905",
+  "mostrato": ". Tieni premuta la ✕ per eliminare, trascina una card per riordinare."
  },
  {
   "parte": "generale",
@@ -1574,7 +1581,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 152,
+  "riga": 131,
   "schermata": "Regolamento",
   "contesto": "testo alternativo icona simbolo speciale",
   "tipo": "attributo",
@@ -1587,7 +1594,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 161,
+  "riga": 140,
   "schermata": "Regolamento",
   "contesto": "testo alternativo icona fazione",
   "tipo": "attributo",
@@ -1600,7 +1607,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 238,
+  "riga": 217,
   "schermata": "Regolamento",
   "contesto": "pulsante indietro",
   "tipo": "jsx",
@@ -1613,7 +1620,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 240,
+  "riga": 219,
   "schermata": "Regolamento",
   "contesto": "titolo del gioco",
   "tipo": "jsx",
@@ -1626,7 +1633,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 241,
+  "riga": 220,
   "schermata": "Regolamento",
   "contesto": "sottotitolo",
   "tipo": "jsx",
@@ -1639,7 +1646,7 @@
  {
   "parte": "generale",
   "file": "src/features/libretto/Libretto.jsx",
-  "riga": 271,
+  "riga": 264,
   "schermata": "Regolamento",
   "contesto": "titolo di sezione confrontato nel codice (non mostrato qui, ma uguale al titolo in libretto.js)",
   "tipo": "stringa",
@@ -1873,7 +1880,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 93,
+  "riga": 88,
   "schermata": "Impostazioni",
   "contesto": "opzione: ruoli in votazione",
   "tipo": "jsx",
@@ -1886,7 +1893,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 101,
+  "riga": 89,
   "schermata": "Impostazioni",
   "contesto": "opzione: varianti icona",
   "tipo": "jsx",
@@ -1899,7 +1906,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 109,
+  "riga": 90,
   "schermata": "Impostazioni",
   "contesto": "opzione: nome ruolo accanto al nome",
   "tipo": "jsx",
@@ -1912,7 +1919,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 117,
+  "riga": 91,
   "schermata": "Impostazioni",
   "contesto": "opzione: promemoria ruoli morti",
   "tipo": "jsx",
@@ -1925,7 +1932,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 125,
+  "riga": 92,
   "schermata": "Impostazioni",
   "contesto": "opzione: variante Medium",
   "tipo": "jsx",
@@ -1938,7 +1945,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 133,
+  "riga": 93,
   "schermata": "Impostazioni",
   "contesto": "opzione: Addolorata eredita scelte",
   "tipo": "jsx",
@@ -1951,7 +1958,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 136,
+  "riga": 101,
   "schermata": "Impostazioni",
   "contesto": "campo durata timer",
   "tipo": "jsx",
@@ -1964,7 +1971,7 @@
  {
   "parte": "generale",
   "file": "src/features/log/LogImpostazioniPopup.jsx",
-  "riga": 145,
+  "riga": 110,
   "schermata": "Impostazioni",
   "contesto": "pulsante Nuova Partita",
   "tipo": "jsx",
@@ -2094,7 +2101,7 @@
  {
   "parte": "generale",
   "file": "src/components/PulsanteTieni.jsx",
-  "riga": 63,
+  "riga": 59,
   "schermata": "Pulsanti comuni",
   "contesto": "indicazione sui pulsanti a pressione prolungata",
   "tipo": "jsx",
@@ -2125,15 +2132,15 @@
   "contesto": "messaggio lista candidati vuota",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0162",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "generale",
   "file": "src/components/SceltaGiocatore.jsx",
-  "riga": 30,
+  "riga": 32,
   "schermata": "Pulsanti comuni",
   "contesto": "pulsante Chiudi con lista vuota",
   "tipo": "jsx",
@@ -2159,7 +2166,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 18,
+  "riga": 20,
   "schermata": "Notte — promemoria legame",
   "contesto": "promemoria legame Apprendista (frase intera)",
   "tipo": "template",
@@ -2174,7 +2181,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 21,
+  "riga": 23,
   "schermata": "Notte — comune",
   "contesto": "promemoria legame Cavaliere (frase intera)",
   "tipo": "template",
@@ -2189,7 +2196,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 22,
+  "riga": 24,
   "schermata": "Notte — comune",
   "contesto": "promemoria legame Figlia dei Lupi (frase intera)",
   "tipo": "template",
@@ -2204,7 +2211,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 343,
+  "riga": 326,
   "schermata": "Notte — registro eventi (Mimo)",
   "contesto": "registro: Mimo senza carta scelta",
   "tipo": "template",
@@ -2219,7 +2226,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 406,
+  "riga": 389,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "messaggio notte saltata (Bardo)",
   "tipo": "stringa",
@@ -2232,7 +2239,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 406,
+  "riga": 389,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "messaggio notte saltata (generico)",
   "tipo": "stringa",
@@ -2245,7 +2252,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 409,
+  "riga": 392,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "registro: gesto segreto del Bardo",
   "tipo": "template",
@@ -2260,7 +2267,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 430,
+  "riga": 445,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "intestazione notte, parte 1/2 (\"Notte \" + numero)",
   "tipo": "jsx",
@@ -2273,7 +2280,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 432,
+  "riga": 415,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "nota sotto il messaggio notte saltata",
   "tipo": "jsx",
@@ -2286,7 +2293,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 434,
+  "riga": 417,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "tooltip pulsante Indietro (notte saltata)",
   "tipo": "aria",
@@ -2299,7 +2306,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 434,
+  "riga": 417,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "pulsante Indietro (notte saltata)",
   "tipo": "jsx",
@@ -2312,7 +2319,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 437,
+  "riga": 447,
   "schermata": "Notte — saltata dal Bardo",
   "contesto": "pulsante Vai all'alba (notte saltata)",
   "tipo": "jsx",
@@ -2325,7 +2332,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 462,
+  "riga": 445,
   "schermata": "Notte — nessun ruolo con azione",
   "contesto": "intestazione notte (nessun ruolo con azione), parte 1/2",
   "tipo": "jsx",
@@ -2338,7 +2345,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 463,
+  "riga": 446,
   "schermata": "Notte — nessun ruolo con azione",
   "contesto": "messaggio nessun ruolo con azione notturna",
   "tipo": "jsx",
@@ -2351,7 +2358,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 464,
+  "riga": 447,
   "schermata": "Notte — nessun ruolo con azione",
   "contesto": "pulsante Vai all'alba (nessun ruolo)",
   "tipo": "jsx",
@@ -2364,7 +2371,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 561,
+  "riga": 544,
   "schermata": "Notte — comune",
   "contesto": "domanda assegnazione lupi rimanenti",
   "tipo": "stringa",
@@ -2377,7 +2384,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 602,
+  "riga": 588,
   "schermata": "Notte — comune",
   "contesto": "nome giocatore Mimo nel sottotitolo del passo",
   "tipo": "template",
@@ -2392,7 +2399,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 608,
+  "riga": 594,
   "schermata": "Notte — comune",
   "contesto": "sottotitolo passo: giocatore morto con teschio",
   "tipo": "template",
@@ -2407,7 +2414,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 612,
+  "riga": 598,
   "schermata": "Notte — comune",
   "contesto": "sottotitolo passo: etichetta Vivi (parte 1/2 con elenco nomi)",
   "tipo": "jsx",
@@ -2420,7 +2427,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 613,
+  "riga": 599,
   "schermata": "Notte — comune",
   "contesto": "sottotitolo passo: etichetta Morti (parte 1/2 con elenco nomi)",
   "tipo": "jsx",
@@ -2459,7 +2466,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 976,
+  "riga": 960,
   "schermata": "Notte — comune",
   "contesto": "motivo Indietro non disponibile (nulla da annullare)",
   "tipo": "stringa",
@@ -2472,7 +2479,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 981,
+  "riga": 965,
   "schermata": "Notte — comune",
   "contesto": "pulsante Torna ai giocatori",
   "tipo": "jsx",
@@ -2485,7 +2492,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 985,
+  "riga": 969,
   "schermata": "Notte — comune",
   "contesto": "intestazione notte (passo), parte 1/2",
   "tipo": "jsx",
@@ -2498,7 +2505,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 986,
+  "riga": 970,
   "schermata": "Notte — comune",
   "contesto": "indicatore passo, parte 1/3 (\"Passo \" + numero)",
   "tipo": "jsx",
@@ -2511,7 +2518,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 987,
+  "riga": 989,
   "schermata": "Notte — comune",
   "contesto": "indicatore passo, parte 2/3 (\" di \" + totale)",
   "tipo": "jsx",
@@ -2524,7 +2531,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 996,
+  "riga": 974,
   "schermata": "Notte — comune",
   "contesto": "avviso maledizione de L'Antico",
   "tipo": "jsx",
@@ -2537,7 +2544,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1047,
+  "riga": 1027,
   "schermata": "Notte — comune",
   "contesto": "testo passo informativo senza azione",
   "tipo": "jsx",
@@ -2550,7 +2557,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1051,
+  "riga": 1031,
   "schermata": "Notte — comune",
   "contesto": "promemoria legame, parte 1/3 (emoji)",
   "tipo": "jsx",
@@ -2563,7 +2570,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1052,
+  "riga": 1032,
   "schermata": "Notte — comune",
   "contesto": "promemoria legame, prefisso nome attore (con più attori)",
   "tipo": "template",
@@ -2578,7 +2585,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1053,
+  "riga": 1072,
   "schermata": "Notte — comune",
   "contesto": "promemoria legame, parte 3/3 (punto finale)",
   "tipo": "jsx",
@@ -2591,7 +2598,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1077,
+  "riga": 1056,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria carta non assegnata (carta in mano al narratore)",
   "tipo": "stringa",
@@ -2604,7 +2611,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1078,
+  "riga": 1057,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria nessun giocatore assegnato al ruolo",
   "tipo": "stringa",
@@ -2617,7 +2624,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1083,
+  "riga": 1062,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "avviso potere inibito, prefisso emoji",
   "tipo": "jsx",
@@ -2630,7 +2637,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1085,
+  "riga": 1064,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "avviso Fattucchiera inibisce tutto il branco",
   "tipo": "stringa",
@@ -2643,7 +2650,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1086,
+  "riga": 1065,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "avviso Fattucchiera inibisce il potere",
   "tipo": "stringa",
@@ -2656,7 +2663,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1091,
+  "riga": 1070,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria chiamata morto, parte 1/3 (prima dei nomi)",
   "tipo": "jsx",
@@ -2669,7 +2676,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1093,
+  "riga": 1072,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria chiamata morti (plurale), parte 2/3",
   "tipo": "stringa",
@@ -2682,7 +2689,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1093,
+  "riga": 1072,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria chiamata morto (singolare), parte 2/3",
   "tipo": "stringa",
@@ -2695,7 +2702,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1093,
+  "riga": 1086,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria chiamata morto, parte 3/3 (punto finale)",
   "tipo": "jsx",
@@ -2708,7 +2715,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1100,
+  "riga": 1084,
   "schermata": "Notte — passo (promemoria)",
   "contesto": "promemoria attore morto che agisce comunque, parte 1/3 (emoji)",
   "tipo": "jsx",
@@ -2721,7 +2728,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1102,
+  "riga": 1086,
   "schermata": "Notte — comune",
   "contesto": "promemoria attori morti che agiscono (plurale), parte 2/3",
   "tipo": "stringa",
@@ -2734,7 +2741,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1102,
+  "riga": 1086,
   "schermata": "Notte — comune",
   "contesto": "promemoria attore morto che agisce (singolare), parte 2/3",
   "tipo": "stringa",
@@ -2747,7 +2754,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1107,
+  "riga": 1091,
   "schermata": "Notte — comune",
   "contesto": "aria-label gruppo scelta di un attore",
   "tipo": "template",
@@ -2762,7 +2769,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1110,
+  "riga": 1094,
   "schermata": "Notte — comune",
   "contesto": "etichetta Mimo accanto al nome attore",
   "tipo": "stringa",
@@ -2775,7 +2782,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1122,
+  "riga": 1106,
   "schermata": "Notte — comune",
   "contesto": "avviso assegnazione incompleta, parte 1/3 (emoji + \"Seleziona ancora\")",
   "tipo": "jsx",
@@ -2788,7 +2795,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1124,
+  "riga": 1108,
   "schermata": "Notte — comune",
   "contesto": "avviso assegnazione incompleta, parte 2/3 (singolare)",
   "tipo": "stringa",
@@ -2801,7 +2808,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1124,
+  "riga": 1108,
   "schermata": "Notte — comune",
   "contesto": "avviso assegnazione incompleta, parte 2/3 (plurale)",
   "tipo": "stringa",
@@ -2814,7 +2821,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1124,
+  "riga": 1108,
   "schermata": "Notte — comune",
   "contesto": "avviso assegnazione incompleta, parte 3/3",
   "tipo": "jsx",
@@ -2827,7 +2834,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1128,
+  "riga": 1112,
   "schermata": "Notte — comune",
   "contesto": "avviso scelta obbligatoria lupo del Berserker",
   "tipo": "jsx",
@@ -2840,7 +2847,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1133,
+  "riga": 1120,
   "schermata": "Notte — comune",
   "contesto": "pulsante Indietro",
   "tipo": "jsx",
@@ -2853,7 +2860,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1139,
+  "riga": 1126,
   "schermata": "Notte — comune",
   "contesto": "pulsante ultimo passo (fine notte)",
   "tipo": "jsx",
@@ -2866,7 +2873,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1143,
+  "riga": 1130,
   "schermata": "Notte — comune",
   "contesto": "pulsante Avanti",
   "tipo": "jsx",
@@ -2879,7 +2886,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/NightSequencer.jsx",
-  "riga": 1148,
+  "riga": 1135,
   "schermata": "Notte — comune",
   "contesto": "motivo Indietro non disponibile (prefisso, poi il motivo)",
   "tipo": "jsx",
@@ -2892,7 +2899,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/AssegnaRuolo.jsx",
-  "riga": 28,
+  "riga": 29,
   "schermata": "Notte — assegnazione ruoli",
   "contesto": "domanda predefinita assegnazione carta",
   "tipo": "stringa",
@@ -2905,18 +2912,17 @@
  {
   "parte": "notte",
   "file": "src/features/notte/AssegnaRuolo.jsx",
-  "riga": 105,
+  "riga": 102,
   "schermata": "Notte — assegnazione ruoli",
   "contesto": "avviso troppi giocatori selezionati per il ruolo",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Puoi selezionare al massimo ${capacita} ${capacita === 1 ? 'giocatore' : 'giocatori'} per questo ruolo.",
+  "originale": "Puoi selezionare al massimo ${capacita} giocatori per questo ruolo.",
   "dinamico": [
-   "${capacita}",
-   "${capacita === 1 ? 'giocatore' : 'giocatori'}"
+   "${capacita}"
   ],
   "id": "T0224",
-  "mostrato": "Puoi selezionare al massimo ${capacita} ${capacita === 1 ? 'giocatore' : 'giocatori'} per questo ruolo."
+  "mostrato": "Puoi selezionare al massimo ${capacita} giocatori per questo ruolo."
  },
  {
   "parte": "notte",
@@ -3002,7 +3008,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneResuscita.jsx",
-  "riga": 31,
+  "riga": 32,
   "schermata": "Notte — Guaritore / Sciacallo Mannaro",
   "contesto": "potere già usato (Guaritore/Sciacallo Mannaro)",
   "tipo": "jsx",
@@ -3015,20 +3021,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneResuscita.jsx",
-  "riga": 59,
+  "riga": 61,
   "schermata": "Notte — Guaritore / Sciacallo Mannaro",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun defunto: chiamalo comunque.",
   "dinamico": [],
   "id": "T0232",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun defunto: chiamalo comunque."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneResuscita.jsx",
-  "riga": 64,
+  "riga": 67,
   "schermata": "Notte — Guaritore / Sciacallo Mannaro",
   "contesto": "titolo scelta resurrezione",
   "tipo": "jsx",
@@ -3041,7 +3047,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneResuscita.jsx",
-  "riga": 65,
+  "riga": 67,
   "schermata": "Notte — Guaritore / Sciacallo Mannaro",
   "contesto": "aria-label gruppo chip resurrezione",
   "tipo": "aria",
@@ -3054,7 +3060,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 26,
+  "riga": 35,
   "schermata": "Notte — Paladino",
   "contesto": "etichetta scelta Paladino",
   "tipo": "stringa",
@@ -3067,7 +3073,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 30,
+  "riga": 39,
   "schermata": "Notte — Untore",
   "contesto": "etichetta scelta Untore",
   "tipo": "stringa",
@@ -3080,7 +3086,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 37,
+  "riga": 46,
   "schermata": "Notte — Fattucchiera",
   "contesto": "etichetta scelta Fattucchiera",
   "tipo": "stringa",
@@ -3093,7 +3099,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 41,
+  "riga": 51,
   "schermata": "Notte — Maga",
   "contesto": "etichetta scelta Maga",
   "tipo": "stringa",
@@ -3106,7 +3112,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 49,
+  "riga": 59,
   "schermata": "Notte — Pifferaio",
   "contesto": "etichetta scelta Pifferaio",
   "tipo": "stringa",
@@ -3119,7 +3125,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 57,
+  "riga": 67,
   "schermata": "Notte — Sacerdote",
   "contesto": "etichetta scelta Sacerdote",
   "tipo": "stringa",
@@ -3132,7 +3138,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 64,
+  "riga": 74,
   "schermata": "Notte — Apprendista",
   "contesto": "etichetta scelta Apprendista",
   "tipo": "stringa",
@@ -3145,7 +3151,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 65,
+  "riga": 75,
   "schermata": "Notte — Cavaliere",
   "contesto": "etichetta scelta Cavaliere",
   "tipo": "stringa",
@@ -3158,7 +3164,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 66,
+  "riga": 76,
   "schermata": "Notte — Figlia dei Lupi",
   "contesto": "etichetta scelta Figlia dei Lupi",
   "tipo": "stringa",
@@ -3171,20 +3177,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/index.js",
-  "riga": 77,
-  "schermata": "Notte — Veggente Mannaro",
-  "contesto": "etichetta attore Veggente Mannaro",
-  "tipo": "stringa",
-  "delimitatore": "'",
-  "originale": "Veggente Mannaro",
-  "dinamico": [],
-  "id": "T0244",
-  "mostrato": "Veggente Mannaro"
- },
- {
-  "parte": "notte",
-  "file": "src/features/notte/azioni/index.js",
-  "riga": 81,
+  "riga": 91,
   "schermata": "Notte — Cartomante",
   "contesto": "etichetta attore Cartomante",
   "tipo": "stringa",
@@ -3197,7 +3190,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 4,
+  "riga": 5,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "avviso legame mancante Apprendista (poi \": il legame andrà perso.\")",
   "tipo": "stringa",
@@ -3210,7 +3203,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 5,
+  "riga": 6,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "avviso legame mancante Cavaliere",
   "tipo": "stringa",
@@ -3223,7 +3216,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 6,
+  "riga": 7,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "avviso legame mancante Figlia dei Lupi",
   "tipo": "stringa",
@@ -3236,7 +3229,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 46,
+  "riga": 47,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "legame ereditato già usato",
   "tipo": "jsx",
@@ -3249,20 +3242,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 50,
+  "riga": 51,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0250",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 70,
+  "riga": 64,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "avviso legame mancante, prefisso emoji (parte 1/3)",
   "tipo": "jsx",
@@ -3275,7 +3268,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLegame.jsx",
-  "riga": 70,
+  "riga": 64,
   "schermata": "Notte — Apprendista / Cavaliere / Figlia dei Lupi",
   "contesto": "avviso legame mancante, parte 3/3",
   "tipo": "jsx",
@@ -3288,20 +3281,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneCortigiana.jsx",
-  "riga": 27,
+  "riga": 28,
   "schermata": "Notte — Cortigiana",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0253",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneCortigiana.jsx",
-  "riga": 32,
+  "riga": 34,
   "schermata": "Notte — Cortigiana",
   "contesto": "titolo scelta Cortigiana",
   "tipo": "jsx",
@@ -3314,7 +3307,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneCortigiana.jsx",
-  "riga": 33,
+  "riga": 34,
   "schermata": "Notte — Cortigiana",
   "contesto": "aria-label gruppo chip Cortigiana",
   "tipo": "aria",
@@ -3348,28 +3341,15 @@
   "contesto": "nessun bersaglio sufficiente per scelta doppia",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Servono almeno due bersagli disponibili.",
+  "originale": "Servono almeno due bersagli disponibili: premi Avanti.",
   "dinamico": [],
   "id": "T0257",
-  "mostrato": "Servono almeno due bersagli disponibili."
+  "mostrato": "Servono almeno due bersagli disponibili: premi Avanti."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/SceltaDoppiaGiocatore.jsx",
-  "riga": 32,
-  "schermata": "Notte — scelta di due giocatori",
-  "contesto": "pulsante Chiudi",
-  "tipo": "jsx",
-  "delimitatore": "jsx",
-  "originale": "\n          Chiudi\n        ",
-  "dinamico": [],
-  "id": "T0258",
-  "mostrato": " Chiudi "
- },
- {
-  "parte": "notte",
-  "file": "src/features/notte/azioni/SceltaDoppiaGiocatore.jsx",
-  "riga": 55,
+  "riga": 54,
   "schermata": "Notte — scelta di due giocatori",
   "contesto": "prefisso avviso scelta doppia (emoji)",
   "tipo": "jsx",
@@ -3382,7 +3362,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/SceltaDoppiaGiocatore.jsx",
-  "riga": 57,
+  "riga": 54,
   "schermata": "Notte — scelta di due giocatori",
   "contesto": "prefisso avviso scelta doppia incompleta (emoji)",
   "tipo": "jsx",
@@ -3395,7 +3375,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 30,
+  "riga": 27,
   "schermata": "Notte — Inquisitore",
   "contesto": "Inquisitore ha perso il potere",
   "tipo": "jsx",
@@ -3408,20 +3388,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 76,
+  "riga": 71,
   "schermata": "Notte — Inquisitore",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0262",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 81,
+  "riga": 79,
   "schermata": "Notte — Inquisitore",
   "contesto": "titolo scelta Inquisitore",
   "tipo": "jsx",
@@ -3434,7 +3414,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 82,
+  "riga": 79,
   "schermata": "Notte — Inquisitore",
   "contesto": "aria-label gruppo chip Inquisitore",
   "tipo": "aria",
@@ -3447,7 +3427,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 100,
+  "riga": 86,
   "schermata": "Notte — Inquisitore",
   "contesto": "risposta all'Inquisitore, parte 1/2",
   "tipo": "jsx",
@@ -3460,7 +3440,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 101,
+  "riga": 87,
   "schermata": "Notte — Inquisitore",
   "contesto": "risposta all'Inquisitore: aura malvagia",
   "tipo": "stringa",
@@ -3473,7 +3453,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 101,
+  "riga": 87,
   "schermata": "Notte — Inquisitore",
   "contesto": "risposta all'Inquisitore: aura benevola",
   "tipo": "stringa",
@@ -3486,7 +3466,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneInquisitore.jsx",
-  "riga": 104,
+  "riga": 90,
   "schermata": "Notte — Inquisitore",
   "contesto": "pulsante Salta Inquisitore",
   "tipo": "jsx",
@@ -3499,20 +3479,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneCondizioneSingola.jsx",
-  "riga": 43,
+  "riga": 61,
   "schermata": "Notte — Paladino / Untore / Fattucchiera / Maga (scelta di un giocatore)",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0269",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 65,
+  "riga": 63,
   "schermata": "Notte — Chupacabra",
   "contesto": "avviso Chupacabra: bersaglio non lupo",
   "tipo": "template",
@@ -3558,20 +3538,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 84,
+  "riga": 85,
   "schermata": "Notte — Chupacabra",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0273",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 89,
+  "riga": 92,
   "schermata": "Notte — Chupacabra",
   "contesto": "titolo scelta Chupacabra",
   "tipo": "jsx",
@@ -3584,7 +3564,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 90,
+  "riga": 92,
   "schermata": "Notte — Chupacabra",
   "contesto": "aria-label gruppo chip Chupacabra",
   "tipo": "aria",
@@ -3597,7 +3577,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 104,
+  "riga": 99,
   "schermata": "Notte — Chupacabra",
   "contesto": "prefisso avviso Chupacabra (emoji)",
   "tipo": "jsx",
@@ -3610,7 +3590,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneChupacabra.jsx",
-  "riga": 106,
+  "riga": 99,
   "schermata": "Notte — Chupacabra",
   "contesto": "prefisso avviso effetti Chupacabra (emoji)",
   "tipo": "jsx",
@@ -3623,7 +3603,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 95,
+  "riga": 100,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "registro: chi trasforma (Mimo del Progenitore)",
   "tipo": "template",
@@ -3638,7 +3618,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 95,
+  "riga": 100,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "registro: chi trasforma (Progenitore)",
   "tipo": "template",
@@ -3653,7 +3633,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 96,
+  "riga": 101,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "registro: Progenitore trasforma in Lupo Mannaro",
   "tipo": "template",
@@ -3669,7 +3649,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 161,
+  "riga": 171,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "messaggio branco stordito dall'Ubriaco",
   "tipo": "jsx",
@@ -3682,7 +3662,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 167,
+  "riga": 180,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "branco ha già sbranato, parte 1/3",
   "tipo": "jsx",
@@ -3695,7 +3675,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 167,
+  "riga": 180,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "branco ha già sbranato, parte 2/3 (plurale)",
   "tipo": "stringa",
@@ -3708,7 +3688,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 167,
+  "riga": 180,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "branco ha già sbranato, parte 2/3 (singolare)",
   "tipo": "stringa",
@@ -3721,7 +3701,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 167,
+  "riga": 180,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "branco ha già sbranato, parte 3/3",
   "tipo": "jsx",
@@ -3734,7 +3714,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 226,
+  "riga": 244,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "motivo morso senza effetto: Nano / Criceto Malvagio",
   "tipo": "template",
@@ -3749,7 +3729,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 228,
+  "riga": 246,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "motivo morso senza effetto: protetto",
   "tipo": "stringa",
@@ -3762,7 +3742,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 229,
+  "riga": 247,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "motivo morso senza effetto: non sbranabile",
   "tipo": "stringa",
@@ -3775,7 +3755,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 230,
+  "riga": 248,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "avviso morso senza effetto",
   "tipo": "template",
@@ -3791,7 +3771,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 322,
+  "riga": 343,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "aria-label scelta lupo che muore col Berserker",
   "tipo": "aria",
@@ -3804,7 +3784,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 323,
+  "riga": 344,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "domanda parità Berserker",
   "tipo": "jsx",
@@ -3817,7 +3797,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 334,
+  "riga": 355,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "pulsante Annulla (cambia bersaglio)",
   "tipo": "jsx",
@@ -3830,7 +3810,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 351,
+  "riga": 378,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "titolo scelta branco",
   "tipo": "jsx",
@@ -3843,7 +3823,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 353,
+  "riga": 380,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "avviso Vendetta del Cucciolo, parte 1/2",
   "tipo": "jsx",
@@ -3856,7 +3836,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 355,
+  "riga": 381,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "avviso Vendetta del Cucciolo, parte 2/2",
   "tipo": "jsx",
@@ -3869,7 +3849,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 358,
+  "riga": 378,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "aria-label gruppo chip branco",
   "tipo": "aria",
@@ -3882,7 +3862,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 371,
+  "riga": 397,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "branco ha già sbranato le vittime (vendetta)",
   "tipo": "jsx",
@@ -3895,7 +3875,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 372,
+  "riga": 398,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "prefisso avviso esito branco (emoji)",
   "tipo": "jsx",
@@ -3908,7 +3888,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 374,
+  "riga": 398,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "prefisso avviso morsi branco (emoji)",
   "tipo": "jsx",
@@ -3934,20 +3914,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 378,
+  "riga": 403,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "avviso trasformazione in Lupo Mannaro, parte 2/2",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": " verrà trasformato in Lupo Mannaro.\n        ",
+  "originale": " verrà trasformato in Lupo Mannaro, anche se protetto/a o immune. Svegliane segretamente il giocatore e fagli riconoscere gli altri lupi.\n        ",
   "dinamico": [],
   "id": "T0301",
-  "mostrato": " verrà trasformato in Lupo Mannaro. "
+  "mostrato": " verrà trasformato in Lupo Mannaro, anche se protetto/a o immune. Svegliane segretamente il giocatore e fagli riconoscere gli altri lupi. "
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 390,
+  "riga": 411,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "pulsante Progenitore: sbrana normalmente",
   "tipo": "stringa",
@@ -3960,7 +3940,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneBrancoLupi.jsx",
-  "riga": 391,
+  "riga": 416,
   "schermata": "Notte — Branco dei Lupi",
   "contesto": "pulsante Progenitore: trasforma in Lupo Mannaro",
   "tipo": "template",
@@ -3975,7 +3955,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 10,
+  "riga": 20,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "nome ruolo sconosciuto",
   "tipo": "stringa",
@@ -3988,7 +3968,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 124,
+  "riga": 173,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "domanda Guardia / Guardia Mannara",
   "tipo": "template",
@@ -4003,7 +3983,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 125,
+  "riga": 176,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "domanda carta sconosciuta",
   "tipo": "template",
@@ -4018,7 +3998,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 127,
+  "riga": 178,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "aria-label gruppo chip ruolo rivelato",
   "tipo": "aria",
@@ -4031,7 +4011,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 146,
+  "riga": 198,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "pulsante Annulla (cambia bersaglio)",
   "tipo": "jsx",
@@ -4044,20 +4024,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 154,
+  "riga": 206,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "nessun bersaglio disponibile",
-  "tipo": "jsx",
-  "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "tipo": "stringa",
+  "delimitatore": "'",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0309",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 162,
+  "riga": 216,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "titolo scelta Medium",
   "tipo": "stringa",
@@ -4070,7 +4050,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 162,
+  "riga": 216,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "titolo scelta Cartomante",
   "tipo": "stringa",
@@ -4083,7 +4063,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 163,
+  "riga": 216,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "aria-label gruppo chip Medium",
   "tipo": "stringa",
@@ -4096,7 +4076,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 163,
+  "riga": 216,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "aria-label gruppo chip Cartomante",
   "tipo": "stringa",
@@ -4109,12 +4089,12 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 177,
+  "riga": 135,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "mostra carta, parte 1/3",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "\n          Mostra a ",
+  "originale": "\n        Mostra a ",
   "dinamico": [],
   "id": "T0314",
   "mostrato": " Mostra a "
@@ -4122,7 +4102,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneRivelaRuolo.jsx",
-  "riga": 178,
+  "riga": 136,
   "schermata": "Notte — Cartomante / Medium",
   "contesto": "mostra carta, parte 2/3",
   "tipo": "jsx",
@@ -4148,7 +4128,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneCondizioneDoppia.jsx",
-  "riga": 146,
+  "riga": 145,
   "schermata": "Notte — Pifferaio / Sacerdote (scelta di due giocatori)",
   "contesto": "avviso coppia innamorati incompleta",
   "tipo": "stringa",
@@ -4161,7 +4141,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 60,
+  "riga": 59,
   "schermata": "Notte — Mimo",
   "contesto": "etichetta scelta Mimo",
   "tipo": "attributo",
@@ -4174,7 +4154,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 67,
+  "riga": 66,
   "schermata": "Notte — Mimo",
   "contesto": "avviso Mimo senza carta",
   "tipo": "jsx",
@@ -4187,7 +4167,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 86,
+  "riga": 85,
   "schermata": "Notte — Mimo",
   "contesto": "Mimo imita, parte 1/3",
   "tipo": "jsx",
@@ -4200,7 +4180,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 87,
+  "riga": 86,
   "schermata": "Notte — Mimo",
   "contesto": "Mimo imita, parte 2/3",
   "tipo": "jsx",
@@ -4213,7 +4193,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 87,
+  "riga": 86,
   "schermata": "Notte — Mimo",
   "contesto": "Mimo imita, parte 3/3",
   "tipo": "jsx",
@@ -4226,7 +4206,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 110,
+  "riga": 109,
   "schermata": "Notte — Mimo",
   "contesto": "domanda carta del bersaglio del Mimo, parte 1/2",
   "tipo": "jsx",
@@ -4239,7 +4219,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 110,
+  "riga": 109,
   "schermata": "Notte — Mimo",
   "contesto": "domanda carta del bersaglio del Mimo, parte 2/2",
   "tipo": "jsx",
@@ -4252,7 +4232,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneMimo.jsx",
-  "riga": 111,
+  "riga": 110,
   "schermata": "Notte — Mimo",
   "contesto": "aria-label gruppo chip Mimo",
   "tipo": "aria",
@@ -4265,7 +4245,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 66,
+  "riga": 62,
   "schermata": "Notte — Strega",
   "contesto": "avviso Strega: pozione vitale su già protetto",
   "tipo": "template",
@@ -4280,7 +4260,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 93,
+  "riga": 85,
   "schermata": "Notte — Strega",
   "contesto": "avviso Strega: pozione mortale su immune",
   "tipo": "template",
@@ -4296,7 +4276,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 94,
+  "riga": 86,
   "schermata": "Notte — Strega",
   "contesto": "avviso Strega: pozione mortale senza effetto",
   "tipo": "template",
@@ -4311,7 +4291,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 103,
+  "riga": 96,
   "schermata": "Notte — Strega",
   "contesto": "titolo pozione vitale",
   "tipo": "jsx",
@@ -4324,7 +4304,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 105,
+  "riga": 96,
   "schermata": "Notte — Strega",
   "contesto": "pozione vitale già usata",
   "tipo": "jsx",
@@ -4337,7 +4317,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 108,
+  "riga": 100,
   "schermata": "Notte — Strega",
   "contesto": "titolo scelta pozione vitale",
   "tipo": "jsx",
@@ -4350,7 +4330,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 109,
+  "riga": 100,
   "schermata": "Notte — Strega",
   "contesto": "aria-label gruppo chip pozione vitale",
   "tipo": "aria",
@@ -4376,7 +4356,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 127,
+  "riga": 111,
   "schermata": "Notte — Strega",
   "contesto": "titolo pozione mortale",
   "tipo": "jsx",
@@ -4389,7 +4369,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 129,
+  "riga": 111,
   "schermata": "Notte — Strega",
   "contesto": "pozione mortale già usata",
   "tipo": "jsx",
@@ -4402,7 +4382,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 132,
+  "riga": 118,
   "schermata": "Notte — Strega",
   "contesto": "titolo scelta pozione mortale",
   "tipo": "jsx",
@@ -4415,7 +4395,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 133,
+  "riga": 118,
   "schermata": "Notte — Strega",
   "contesto": "aria-label gruppo chip pozione mortale",
   "tipo": "aria",
@@ -4428,7 +4408,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneStrega.jsx",
-  "riga": 154,
+  "riga": 124,
   "schermata": "Notte — Strega",
   "contesto": "prefisso avviso pozione mortale (emoji)",
   "tipo": "jsx",
@@ -4441,7 +4421,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 27,
+  "riga": 33,
   "schermata": "Notte — Addolorata",
   "contesto": "nessuna vittima al rogo",
   "tipo": "jsx",
@@ -4454,7 +4434,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 61,
+  "riga": 70,
   "schermata": "Notte — Addolorata",
   "contesto": "suffisso nome attore Addolorata",
   "tipo": "template",
@@ -4469,7 +4449,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 64,
+  "riga": 73,
   "schermata": "Notte — Addolorata",
   "contesto": "Addolorata: potere già usato, parte 1/2",
   "tipo": "jsx",
@@ -4482,7 +4462,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 64,
+  "riga": 65,
   "schermata": "Notte — Addolorata",
   "contesto": "Addolorata: potere già usato, parte 2/2",
   "tipo": "jsx",
@@ -4495,7 +4475,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 70,
+  "riga": 79,
   "schermata": "Notte — Addolorata",
   "contesto": "Addolorata: ruolo già scambiato, parte 1/3",
   "tipo": "jsx",
@@ -4508,7 +4488,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 70,
+  "riga": 79,
   "schermata": "Notte — Addolorata",
   "contesto": "Addolorata: ruolo già scambiato, parte 2/3",
   "tipo": "jsx",
@@ -4534,7 +4514,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 113,
+  "riga": 140,
   "schermata": "Notte — Addolorata",
   "contesto": "domanda scambio Addolorata, parte 1/3",
   "tipo": "jsx",
@@ -4547,7 +4527,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 113,
+  "riga": 140,
   "schermata": "Notte — Addolorata",
   "contesto": "domanda scambio Addolorata, parte 2/3",
   "tipo": "jsx",
@@ -4560,7 +4540,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 113,
+  "riga": 140,
   "schermata": "Notte — Addolorata",
   "contesto": "domanda scambio Addolorata, parte 3/3",
   "tipo": "jsx",
@@ -4573,7 +4553,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 115,
+  "riga": 142,
   "schermata": "Notte — Addolorata",
   "contesto": "avviso ruolo ignoto Addolorata, parte 1/2",
   "tipo": "jsx",
@@ -4586,7 +4566,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 115,
+  "riga": 142,
   "schermata": "Notte — Addolorata",
   "contesto": "avviso ruolo ignoto Addolorata, parte 2/2",
   "tipo": "jsx",
@@ -4599,7 +4579,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 118,
+  "riga": 145,
   "schermata": "Notte — Addolorata",
   "contesto": "pulsante Annulla scambio",
   "tipo": "stringa",
@@ -4612,7 +4592,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneAddolorata.jsx",
-  "riga": 118,
+  "riga": 140,
   "schermata": "Notte — Addolorata",
   "contesto": "pulsante Scambia",
   "tipo": "stringa",
@@ -4625,7 +4605,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 119,
+  "riga": 160,
   "schermata": "Notte — Ladro",
   "contesto": "domanda carte scartate Ladro",
   "tipo": "jsx",
@@ -4638,7 +4618,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 122,
+  "riga": 163,
   "schermata": "Notte — Ladro",
   "contesto": "etichetta prima carta scartata",
   "tipo": "jsx",
@@ -4651,7 +4631,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 124,
+  "riga": 169,
   "schermata": "Notte — Ladro",
   "contesto": "opzione vuota selettore prima carta",
   "tipo": "jsx",
@@ -4664,7 +4644,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 133,
+  "riga": 164,
   "schermata": "Notte — Ladro",
   "contesto": "etichetta seconda carta scartata",
   "tipo": "jsx",
@@ -4677,7 +4657,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 135,
+  "riga": 169,
   "schermata": "Notte — Ladro",
   "contesto": "opzione vuota selettore seconda carta",
   "tipo": "jsx",
@@ -4690,7 +4670,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 147,
+  "riga": 182,
   "schermata": "Notte — Ladro",
   "contesto": "Ladro guarda le carte, parte 1/3",
   "tipo": "jsx",
@@ -4703,7 +4683,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 148,
+  "riga": 136,
   "schermata": "Notte — Ladro",
   "contesto": "Ladro guarda le carte, parte 2/3",
   "tipo": "jsx",
@@ -4716,7 +4696,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 148,
+  "riga": 183,
   "schermata": "Notte — Ladro",
   "contesto": "Ladro guarda le carte, parte 3/3",
   "tipo": "jsx",
@@ -4729,7 +4709,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 150,
+  "riga": 186,
   "schermata": "Notte — Ladro",
   "contesto": "aria-label gruppo chip Ladro",
   "tipo": "aria",
@@ -4742,20 +4722,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 173,
+  "riga": 36,
   "schermata": "Notte — Ladro",
   "contesto": "pulsante Ladro resta Villico",
-  "tipo": "jsx",
-  "delimitatore": "jsx",
-  "originale": "\n                Resta Villico\n              ",
+  "tipo": "stringa",
+  "delimitatore": "'",
+  "originale": "Resta Villico",
   "dinamico": [],
   "id": "T0362",
-  "mostrato": " Resta Villico "
+  "mostrato": "Resta Villico"
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 183,
+  "riga": 196,
   "schermata": "Notte — Ladro",
   "contesto": "scelta del Mimo imitatore del Ladro, parte 1/2",
   "tipo": "jsx",
@@ -4768,7 +4748,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 183,
+  "riga": 196,
   "schermata": "Notte — Ladro",
   "contesto": "scelta del Mimo imitatore del Ladro, parte 2/2",
   "tipo": "jsx",
@@ -4781,7 +4761,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 184,
+  "riga": 198,
   "schermata": "Notte — Ladro",
   "contesto": "aria-label gruppo chip Mimo imitatore del Ladro",
   "tipo": "aria",
@@ -4794,7 +4774,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneLadro.jsx",
-  "riga": 193,
+  "riga": 36,
   "schermata": "Notte — Ladro",
   "contesto": "chip Resta Villico (Mimo)",
   "tipo": "stringa",
@@ -4807,7 +4787,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 15,
+  "riga": 5,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "etichetta attore predefinita Veggente",
   "tipo": "stringa",
@@ -4820,20 +4800,20 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 80,
+  "riga": 107,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "nessun bersaglio disponibile",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
+  "originale": "Nessun giocatore da scegliere.",
   "dinamico": [],
   "id": "T0368",
-  "mostrato": "Nessun bersaglio disponibile."
+  "mostrato": "Nessun giocatore da scegliere."
  },
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 89,
+  "riga": 116,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "titolo scelta Veggente (defunto)",
   "tipo": "stringa",
@@ -4846,7 +4826,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 89,
+  "riga": 116,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "titolo scelta Veggente",
   "tipo": "stringa",
@@ -4859,7 +4839,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 90,
+  "riga": 116,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "aria-label gruppo chip Veggente",
   "tipo": "aria",
@@ -4872,7 +4852,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 108,
+  "riga": 126,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso Polpo Mannaro, parte 1/4",
   "tipo": "jsx",
@@ -4885,7 +4865,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 108,
+  "riga": 107,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso Polpo Mannaro, desinenza plurale (Accecati)",
   "tipo": "stringa",
@@ -4898,7 +4878,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 108,
+  "riga": 107,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso Polpo Mannaro, desinenza singolare (Accecato)",
   "tipo": "stringa",
@@ -4911,7 +4891,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 108,
+  "riga": 126,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso Polpo Mannaro, parte 3/4",
   "tipo": "jsx",
@@ -4924,7 +4904,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 108,
+  "riga": 107,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso Polpo Mannaro, punto finale",
   "tipo": "jsx",
@@ -4937,7 +4917,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 111,
+  "riga": 129,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso inibito dalla Fattucchiera, parte 1/3",
   "tipo": "jsx",
@@ -4950,7 +4930,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 111,
+  "riga": 129,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "avviso inibito dalla Fattucchiera, parte 3/3",
   "tipo": "jsx",
@@ -4963,7 +4943,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 114,
+  "riga": 132,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "esito indagine, parte 1/2 (\"Aura \")",
   "tipo": "jsx",
@@ -4976,7 +4956,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 115,
+  "riga": 133,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "esito indagine: aura malvagia",
   "tipo": "stringa",
@@ -4989,7 +4969,7 @@
  {
   "parte": "notte",
   "file": "src/features/notte/azioni/AzioneIndagine.jsx",
-  "riga": 115,
+  "riga": 133,
   "schermata": "Notte — Veggente / Veggente Mannaro",
   "contesto": "esito indagine: aura benevola",
   "tipo": "stringa",
@@ -5002,7 +4982,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 17,
+  "riga": 16,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5015,7 +4995,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 18,
+  "riga": 17,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5028,7 +5008,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 25,
+  "riga": 24,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5041,7 +5021,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 26,
+  "riga": 25,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5054,7 +5034,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 27,
+  "riga": 26,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5067,7 +5047,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 28,
+  "riga": 27,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5080,7 +5060,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 31,
+  "riga": 30,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5093,7 +5073,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 42,
+  "riga": 41,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5106,7 +5086,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 43,
+  "riga": 42,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5119,7 +5099,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 44,
+  "riga": 43,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5132,7 +5112,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 45,
+  "riga": 44,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5145,7 +5125,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 46,
+  "riga": 45,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5158,7 +5138,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 47,
+  "riga": 46,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5171,7 +5151,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 48,
+  "riga": 47,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5184,7 +5164,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 49,
+  "riga": 48,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5197,7 +5177,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 53,
+  "riga": 52,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5210,7 +5190,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 54,
+  "riga": 53,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5223,7 +5203,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 55,
+  "riga": 54,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5236,7 +5216,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 56,
+  "riga": 55,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5249,7 +5229,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 57,
+  "riga": 56,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5262,7 +5242,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 58,
+  "riga": 57,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5288,7 +5268,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 61,
+  "riga": 60,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5301,7 +5281,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 66,
+  "riga": 65,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5314,7 +5294,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 70,
+  "riga": 69,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5327,7 +5307,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 71,
+  "riga": 70,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5340,7 +5320,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 74,
+  "riga": 73,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5353,7 +5333,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 75,
+  "riga": 74,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5366,7 +5346,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 76,
+  "riga": 75,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5379,7 +5359,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 77,
+  "riga": 76,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5392,7 +5372,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 78,
+  "riga": 77,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5405,7 +5385,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 79,
+  "riga": 78,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5418,7 +5398,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 80,
+  "riga": 79,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5431,7 +5411,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 81,
+  "riga": 80,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5444,7 +5424,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 82,
+  "riga": 81,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5457,7 +5437,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 83,
+  "riga": 82,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5483,7 +5463,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 85,
+  "riga": 84,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5496,7 +5476,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 90,
+  "riga": 89,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5509,7 +5489,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 91,
+  "riga": 90,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5522,7 +5502,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 94,
+  "riga": 93,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5535,7 +5515,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 97,
+  "riga": 96,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5561,7 +5541,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 112,
+  "riga": 113,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5574,7 +5554,7 @@
  {
   "parte": "notte",
   "file": "src/data/nightSteps.js",
-  "riga": 159,
+  "riga": 49,
   "schermata": "Notte — titolo del passo",
   "contesto": "titolo del passo",
   "tipo": "stringa",
@@ -5587,7 +5567,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 27,
+  "riga": 28,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso immunità notturna Nano / Criceto Malvagio",
   "tipo": "template",
@@ -5602,7 +5582,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 113,
+  "riga": 116,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Cavaliere si immola (schermo)",
   "tipo": "template",
@@ -5619,7 +5599,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 114,
+  "riga": 117,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Cavaliere si immola (log)",
   "tipo": "template",
@@ -5636,7 +5616,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 122,
+  "riga": 125,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Berserker sbranato con lupo (schermo)",
   "tipo": "template",
@@ -5651,7 +5631,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 123,
+  "riga": 126,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Berserker sbranato senza lupi (schermo)",
   "tipo": "stringa",
@@ -5664,7 +5644,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 125,
+  "riga": 128,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Berserker sbranato con lupo (log)",
   "tipo": "template",
@@ -5680,7 +5660,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 126,
+  "riga": 129,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Berserker sbranato senza lupi (log)",
   "tipo": "template",
@@ -5695,7 +5675,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 133,
+  "riga": 136,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Ubriaco sbranato (schermo)",
   "tipo": "template",
@@ -5710,7 +5690,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 134,
+  "riga": 137,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Ubriaco sbranato (log)",
   "tipo": "template",
@@ -5725,7 +5705,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 140,
+  "riga": 143,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Mezzosangue sbranato (schermo)",
   "tipo": "template",
@@ -5740,7 +5720,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 141,
+  "riga": 144,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Mezzosangue sbranato (log)",
   "tipo": "template",
@@ -5755,7 +5735,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 149,
+  "riga": 155,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso cliente della Cortigiana sbranato (schermo)",
   "tipo": "template",
@@ -5771,7 +5751,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 150,
+  "riga": 158,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Cortigiana muore col cliente (log)",
   "tipo": "template",
@@ -5787,22 +5767,22 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 159,
+  "riga": 167,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Cucciolo ucciso, vendetta (schermo)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta.",
+  "originale": "Il Cucciolo ${target.nome} è stato ucciso: la prossima notte il branco sbranerà due persone per vendetta.",
   "dinamico": [
    "${target.nome}"
   ],
   "id": "T0440",
-  "mostrato": "Il Cucciolo ${target.nome} è stato ucciso: il branco sbranerà due persone per vendetta."
+  "mostrato": "Il Cucciolo ${target.nome} è stato ucciso: la prossima notte il branco sbranerà due persone per vendetta."
  },
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 160,
+  "riga": 168,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Cucciolo ucciso, vendetta (log)",
   "tipo": "template",
@@ -5817,7 +5797,7 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 165,
+  "riga": 180,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "avviso Cucciolo diventa adulto (schermo)",
   "tipo": "template",
@@ -5832,18 +5812,18 @@
  {
   "parte": "notte",
   "file": "src/data/effettiNotte.js",
-  "riga": 166,
+  "riga": 181,
   "schermata": "Notte — avvisi dopo un colpo",
   "contesto": "registro Cucciolo diventa adulto (log)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}.",
+  "originale": "Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${lupiMorti[0].nome}.",
   "dinamico": [
    "${c.nome}",
-   "${target.nome}"
+   "${lupiMorti[0].nome}"
   ],
   "id": "T0443",
-  "mostrato": "Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${target.nome}."
+  "mostrato": "Il Cucciolo ${c.nome} diventa adulto: è morto il lupo ${lupiMorti[0].nome}."
  },
  {
   "parte": "notte",
@@ -5861,25 +5841,12 @@
  {
   "parte": "notte",
   "file": "src/components/SceltaGiocatore.jsx",
-  "riga": 28,
-  "schermata": "Notte — scelta di un giocatore",
-  "contesto": "nessun bersaglio disponibile",
-  "tipo": "jsx",
-  "delimitatore": "jsx",
-  "originale": "Nessun bersaglio disponibile.",
-  "dinamico": [],
-  "id": "T0445",
-  "mostrato": "Nessun bersaglio disponibile."
- },
- {
-  "parte": "notte",
-  "file": "src/components/SceltaGiocatore.jsx",
-  "riga": 29,
+  "riga": 31,
   "schermata": "Notte — scelta di un giocatore",
   "contesto": "pulsante Chiudi",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": "\n          Chiudi\n        ",
+  "originale": "\n            Chiudi\n          ",
   "dinamico": [],
   "id": "T0446",
   "mostrato": " Chiudi "
@@ -5887,7 +5854,7 @@
  {
   "parte": "notte",
   "file": "src/components/SceltaGiocatore.jsx",
-  "riga": 54,
+  "riga": 57,
   "schermata": "Notte — scelta di un giocatore",
   "contesto": "pulsante Conferma",
   "tipo": "jsx",
@@ -5952,7 +5919,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 13,
+  "riga": 14,
   "schermata": "Alba (annunci)",
   "contesto": "Belati se un Pastore ha un Lupo vicino",
   "tipo": "stringa",
@@ -5965,7 +5932,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 21,
+  "riga": 22,
   "schermata": "Alba (annunci)",
   "contesto": "Messaggio dell'Ambasciatore",
   "tipo": "stringa",
@@ -5978,7 +5945,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 27,
+  "riga": 28,
   "schermata": "Alba (annunci)",
   "contesto": "Giocatore resuscitato",
   "tipo": "template",
@@ -5993,7 +5960,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 34,
+  "riga": 35,
   "schermata": "Alba (annunci)",
   "contesto": "Giocatore unto dall'Untore",
   "tipo": "template",
@@ -6008,7 +5975,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 37,
+  "riga": 38,
   "schermata": "Alba (annunci)",
   "contesto": "Giocatore trasformato in maiale",
   "tipo": "template",
@@ -6023,7 +5990,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 42,
+  "riga": 43,
   "schermata": "Alba (annunci)",
   "contesto": "Antico sbranato di notte",
   "tipo": "template",
@@ -6038,7 +6005,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 46,
+  "riga": 47,
   "schermata": "Alba (annunci)",
   "contesto": "Cavaliere immolato",
   "tipo": "template",
@@ -6053,7 +6020,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 53,
+  "riga": 54,
   "schermata": "Alba (annunci)",
   "contesto": "Crepacuore del partner",
   "tipo": "template",
@@ -6068,7 +6035,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 56,
+  "riga": 57,
   "schermata": "Alba (annunci)",
   "contesto": "Mezzosangue sbranato",
   "tipo": "template",
@@ -6083,7 +6050,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 61,
+  "riga": 68,
   "schermata": "Alba (annunci)",
   "contesto": "Apprendista eredita il ruolo (frase intera, con maestro opzionale)",
   "tipo": "template",
@@ -6100,7 +6067,7 @@
  {
   "parte": "giorno",
   "file": "src/data/alba.js",
-  "riga": 65,
+  "riga": 74,
   "schermata": "Alba (annunci)",
   "contesto": "Figlia dei Lupi diventa lupo",
   "tipo": "template",
@@ -6375,7 +6342,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 106,
+  "riga": 83,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Vendetta del Cucciolo",
   "tipo": "stringa",
@@ -6388,7 +6355,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 107,
+  "riga": 84,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Antico prima vita, villaggio maledetto",
   "tipo": "stringa",
@@ -6401,7 +6368,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 134,
+  "riga": 111,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Crepacuore già avvenuto del partner",
   "tipo": "template",
@@ -6416,7 +6383,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 140,
+  "riga": 121,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Spilungone al primo rogo",
   "tipo": "stringa",
@@ -6429,7 +6396,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 147,
+  "riga": 128,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Cavaliere immolato (versione al passato, fatto=true)",
   "tipo": "template",
@@ -6446,7 +6413,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 147,
+  "riga": 128,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Cavaliere protegge (previsione, fatto=false)",
   "tipo": "template",
@@ -6461,7 +6428,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 157,
+  "riga": 138,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Antico partner sopravvive al crepacuore",
   "tipo": "template",
@@ -6476,23 +6443,23 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 160,
+  "riga": 128,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Cavaliere si immola per il partner (crepacuore)",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "Il Cavaliere ${protettoDa.map((g) => g.nome).join(', ')} si immola al posto di ${p.nome} (crepacuore).",
+  "originale": "Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive.",
   "dinamico": [
-   "${protettoDa.map((g) => g.nome).join(', ')}",
-   "${p.nome}"
+   "${g.nome}",
+   "${t.nome}"
   ],
   "id": "T0490",
-  "mostrato": "Il Cavaliere ${protettoDa.map((g) => g.nome).join(', ')} si immola al posto di ${p.nome} (crepacuore)."
+  "mostrato": "Il Cavaliere ${g.nome} si è immolato al posto di ${t.nome}: ${t.nome} sopravvive."
  },
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 163,
+  "riga": 140,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Morte del partner (crepacuore), versione al passato",
   "tipo": "template",
@@ -6507,7 +6474,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 163,
+  "riga": 140,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Morte del partner (crepacuore), previsione",
   "tipo": "template",
@@ -6522,7 +6489,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 170,
+  "riga": 147,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Apprendista eredita (passato)",
   "tipo": "template",
@@ -6537,7 +6504,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 170,
+  "riga": 147,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Apprendista erediterà (previsione)",
   "tipo": "template",
@@ -6552,7 +6519,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 173,
+  "riga": 150,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Figlia dei Lupi diventata lupo (passato)",
   "tipo": "template",
@@ -6567,7 +6534,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 173,
+  "riga": 150,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Figlia dei Lupi diventa lupo (previsione)",
   "tipo": "template",
@@ -6582,7 +6549,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 177,
+  "riga": 154,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Cucciolo adulto (passato)",
   "tipo": "stringa",
@@ -6595,7 +6562,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 177,
+  "riga": 154,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Cucciolo adulto (previsione)",
   "tipo": "stringa",
@@ -6608,7 +6575,7 @@
  {
   "parte": "giorno",
   "file": "src/data/eventiSpeciali.js",
-  "riga": 180,
+  "riga": 157,
   "schermata": "Eventi speciali / Promemoria morte",
   "contesto": "Alchimista esplode (previsione)",
   "tipo": "stringa",
@@ -6621,7 +6588,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 6,
+  "riga": 7,
   "schermata": "Registro (messaggi)",
   "contesto": "Suffisso \"(Mimo)\" nel nome del giocatore",
   "tipo": "template",
@@ -6636,7 +6603,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 9,
+  "riga": 10,
   "schermata": "Registro (messaggi)",
   "contesto": "Causa morte: di notte",
   "tipo": "stringa",
@@ -6649,7 +6616,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 10,
+  "riga": 11,
   "schermata": "Registro (messaggi)",
   "contesto": "Causa morte: al rogo",
   "tipo": "stringa",
@@ -6662,7 +6629,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 11,
+  "riga": 12,
   "schermata": "Registro (messaggi)",
   "contesto": "Causa morte: sul colpo",
   "tipo": "stringa",
@@ -6675,7 +6642,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 12,
+  "riga": 13,
   "schermata": "Registro (messaggi)",
   "contesto": "Causa morte: crepacuore",
   "tipo": "stringa",
@@ -6688,15 +6655,17 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 13,
+  "riga": 96,
   "schermata": "Registro (messaggi)",
   "contesto": "Causa morte: sacrificio del Cavaliere",
-  "tipo": "stringa",
-  "delimitatore": "'",
-  "originale": ": il Cavaliere si è rivelato e immolato al posto della vittima",
-  "dinamico": [],
+  "tipo": "template",
+  "delimitatore": "`",
+  "originale": "Il Cavaliere ${nome} si immola al posto della vittima e muore",
+  "dinamico": [
+   "${nome}"
+  ],
   "id": "T0505",
-  "mostrato": ": il Cavaliere si è rivelato e immolato al posto della vittima"
+  "mostrato": "Il Cavaliere ${nome} si immola al posto della vittima e muore"
  },
  {
   "parte": "giorno",
@@ -6706,10 +6675,10 @@
   "contesto": "Morte sul colpo: Boia",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": ": giustiziato/a dal Boia",
+  "originale": " giustiziato/a dal Boia",
   "dinamico": [],
   "id": "T0506",
-  "mostrato": ": giustiziato/a dal Boia"
+  "mostrato": " giustiziato/a dal Boia"
  },
  {
   "parte": "giorno",
@@ -6719,10 +6688,10 @@
   "contesto": "Morte sul colpo: Alchimista",
   "tipo": "stringa",
   "delimitatore": "\"",
-  "originale": ": morto/a per l'esplosione dell'Alchimista",
+  "originale": " per l'esplosione dell'Alchimista",
   "dinamico": [],
   "id": "T0507",
-  "mostrato": ": morto/a per l'esplosione dell'Alchimista"
+  "mostrato": " per l'esplosione dell'Alchimista"
  },
  {
   "parte": "giorno",
@@ -6732,10 +6701,10 @@
   "contesto": "Morte sul colpo: rima sbagliata",
   "tipo": "stringa",
   "delimitatore": "'",
-  "originale": ": ha sbagliato la rima (Scemo del Villaggio)",
+  "originale": " per aver sbagliato la rima (Scemo del Villaggio)",
   "dinamico": [],
   "id": "T0508",
-  "mostrato": ": ha sbagliato la rima (Scemo del Villaggio)"
+  "mostrato": " per aver sbagliato la rima (Scemo del Villaggio)"
  },
  {
   "parte": "giorno",
@@ -6758,12 +6727,12 @@
   "contesto": "Bardo salta la notte",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta",
+  "originale": "Il Bardo ${nome} inizia a suonare: tutti restano svegli e la notte salta",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0510",
-  "mostrato": "${nome} (Bardo) inizia a suonare: tutti restano svegli e la notte salta"
+  "mostrato": "Il Bardo ${nome} inizia a suonare: tutti restano svegli e la notte salta"
  },
  {
   "parte": "giorno",
@@ -6773,17 +6742,17 @@
   "contesto": "Gallo Mannaro salta il giorno",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta",
+  "originale": "Il Gallo Mannaro ${nome} oggi non canta: tutti dormono e il giorno salta",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0511",
-  "mostrato": "${nome} (Gallo Mannaro) oggi non canta: tutti dormono e il giorno salta"
+  "mostrato": "Il Gallo Mannaro ${nome} oggi non canta: tutti dormono e il giorno salta"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 40,
+  "riga": 34,
   "schermata": "Registro (messaggi)",
   "contesto": "Cavaliere sceglie chi proteggere",
   "tipo": "template",
@@ -6799,7 +6768,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 41,
+  "riga": 35,
   "schermata": "Registro (messaggi)",
   "contesto": "Apprendista sceglie il maestro",
   "tipo": "template",
@@ -6815,7 +6784,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 42,
+  "riga": 36,
   "schermata": "Registro (messaggi)",
   "contesto": "Figlia dei Lupi sceglie",
   "tipo": "template",
@@ -6831,7 +6800,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 82,
+  "riga": 92,
   "schermata": "Registro (messaggi)",
   "contesto": "Boia giustizia",
   "tipo": "template",
@@ -6847,7 +6816,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 82,
+  "riga": 92,
   "schermata": "Registro (messaggi)",
   "contesto": "Morte generica (${causa} è una delle etichette sopra)",
   "tipo": "template",
@@ -6863,7 +6832,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 86,
+  "riga": 113,
   "schermata": "Registro (messaggi)",
   "contesto": "Borgomastro morto",
   "tipo": "template",
@@ -6878,7 +6847,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 96,
+  "riga": 123,
   "schermata": "Registro (messaggi)",
   "contesto": "Resuscitato/a",
   "tipo": "template",
@@ -6893,7 +6862,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 96,
+  "riga": 123,
   "schermata": "Registro (messaggi)",
   "contesto": "Tornato/a in vita",
   "tipo": "template",
@@ -6908,7 +6877,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 105,
+  "riga": 132,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: Guaritore (parte di una frase)",
   "tipo": "stringa",
@@ -6921,7 +6890,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 105,
+  "riga": 132,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: Sciacallo Mannaro (parte di una frase)",
   "tipo": "stringa",
@@ -6934,7 +6903,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 105,
+  "riga": 132,
   "schermata": "Registro (messaggi)",
   "contesto": "Chi resuscita: fallback",
   "tipo": "stringa",
@@ -6947,7 +6916,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 106,
+  "riga": 133,
   "schermata": "Registro (messaggi)",
   "contesto": "Scelta di resuscitare (${chi} è una delle tre stringhe sopra)",
   "tipo": "template",
@@ -6963,7 +6932,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 108,
+  "riga": 169,
   "schermata": "Registro (messaggi)",
   "contesto": "Antico rivelato",
   "tipo": "template",
@@ -6978,7 +6947,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 112,
+  "riga": 173,
   "schermata": "Registro (messaggi)",
   "contesto": "Villaggio maledetto",
   "tipo": "stringa",
@@ -6991,7 +6960,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 124,
+  "riga": 185,
   "schermata": "Registro (messaggi)",
   "contesto": "Rivelazione diurna di un ruolo",
   "tipo": "template",
@@ -7007,7 +6976,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 128,
+  "riga": 189,
   "schermata": "Registro (messaggi)",
   "contesto": "Borgomastro eletto",
   "tipo": "template",
@@ -7022,7 +6991,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 131,
+  "riga": 192,
   "schermata": "Registro (messaggi)",
   "contesto": "Fantasma Onnisciente",
   "tipo": "template",
@@ -7037,7 +7006,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 142,
+  "riga": 203,
   "schermata": "Registro (messaggi)",
   "contesto": "Sacerdote unisce due giocatori",
   "tipo": "template",
@@ -7053,7 +7022,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 149,
+  "riga": 211,
   "schermata": "Registro (messaggi)",
   "contesto": "Condizione ottenuta (il valore è lo slug)",
   "tipo": "template",
@@ -7069,7 +7038,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 154,
+  "riga": 217,
   "schermata": "Registro (messaggi)",
   "contesto": "Condizione persa (il valore è lo slug)",
   "tipo": "template",
@@ -7085,7 +7054,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 164,
+  "riga": 227,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato (Gallo/Bardo): frase intera",
   "tipo": "template",
@@ -7101,7 +7070,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 161,
+  "riga": 224,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato: Gallo (dentro la frase)",
   "tipo": "stringa",
@@ -7114,7 +7083,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 164,
+  "riga": 227,
   "schermata": "Registro (messaggi)",
   "contesto": "Gesto annullato: Bardo (dentro la frase)",
   "tipo": "stringa",
@@ -7140,39 +7109,39 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 194,
+  "riga": 277,
   "schermata": "Registro (messaggi)",
   "contesto": "Apprendista eredita il ruolo",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} (Apprendista) eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}",
+  "originale": "L'Apprendista ${nome} eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeDi(correnti, l0.targetId)}",
   "dinamico": [
-   "${nome}",
+   "${nomeDi(correnti, l0.targetId)}",
    "${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))}",
-   "${nomeTarget(l0.targetId)}"
+   "${nome}"
   ],
   "id": "T0536",
-  "mostrato": "${nome} (Apprendista) eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}"
+  "mostrato": "L'Apprendista ${nome} eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeDi(correnti, l0.targetId)}"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 198,
+  "riga": 282,
   "schermata": "Registro (messaggi)",
   "contesto": "Figlia dei Lupi si rivela",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": "${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro",
+  "originale": "La Figlia dei Lupi ${nome} si rivela e diventa Lupo Mannaro",
   "dinamico": [
    "${nome}"
   ],
   "id": "T0537",
-  "mostrato": "${nome} (Figlia dei Lupi) si rivela e diventa Lupo Mannaro"
+  "mostrato": "La Figlia dei Lupi ${nome} si rivela e diventa Lupo Mannaro"
  },
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 214,
+  "riga": 299,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro: carte scartate (suffisso)",
   "tipo": "template",
@@ -7187,7 +7156,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 198,
+  "riga": 203,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro: separatore tra le carte scartate (dentro il suffisso sopra)",
   "tipo": "stringa",
@@ -7200,7 +7169,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 215,
+  "riga": 301,
   "schermata": "Registro (messaggi)",
   "contesto": "Mimo del Ladro come soggetto",
   "tipo": "template",
@@ -7215,7 +7184,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 215,
+  "riga": 301,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro come soggetto",
   "tipo": "template",
@@ -7230,7 +7199,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 221,
+  "riga": 308,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro resta Villico",
   "tipo": "template",
@@ -7246,7 +7215,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 222,
+  "riga": 309,
   "schermata": "Registro (messaggi)",
   "contesto": "Ladro sceglie un ruolo",
   "tipo": "template",
@@ -7263,7 +7232,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 240,
+  "riga": 328,
   "schermata": "Registro (messaggi)",
   "contesto": "Mimo imita un ruolo",
   "tipo": "template",
@@ -7280,7 +7249,7 @@
  {
   "parte": "giorno",
   "file": "src/data/log.js",
-  "riga": 243,
+  "riga": 332,
   "schermata": "Registro (messaggi)",
   "contesto": "Cambio di ruolo generico",
   "tipo": "template",
@@ -7309,7 +7278,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 53,
+  "riga": 67,
   "schermata": "Vittoria",
   "contesto": "Pifferaio ha ipnotizzato tutti",
   "tipo": "stringa",
@@ -7322,7 +7291,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 58,
+  "riga": 72,
   "schermata": "Vittoria",
   "contesto": "Ultimo sopravvissuto",
   "tipo": "template",
@@ -7337,7 +7306,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 67,
+  "riga": 81,
   "schermata": "Vittoria",
   "contesto": "Ultimi due sopravvissuti (team Mimo)",
   "tipo": "template",
@@ -7353,7 +7322,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 81,
+  "riga": 95,
   "schermata": "Vittoria",
   "contesto": "Innamorati superstiti",
   "tipo": "stringa",
@@ -7366,7 +7335,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 88,
+  "riga": 102,
   "schermata": "Vittoria",
   "contesto": "Vittoria del Villaggio",
   "tipo": "stringa",
@@ -7379,7 +7348,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 100,
+  "riga": 114,
   "schermata": "Vittoria",
   "contesto": "Criceti Malvagi (plurale, con Mimo)",
   "tipo": "stringa",
@@ -7392,7 +7361,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 101,
+  "riga": 115,
   "schermata": "Vittoria",
   "contesto": "Criceto Malvagio (singolare)",
   "tipo": "stringa",
@@ -7405,7 +7374,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 105,
+  "riga": 119,
   "schermata": "Vittoria",
   "contesto": "Capobranco e Mimo-Capobranco",
   "tipo": "stringa",
@@ -7418,7 +7387,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 108,
+  "riga": 121,
   "schermata": "Vittoria",
   "contesto": "Lupi e Mucca Mannara",
   "tipo": "stringa",
@@ -7431,7 +7400,7 @@
  {
   "parte": "giorno",
   "file": "src/data/vittoria.js",
-  "riga": 110,
+  "riga": 121,
   "schermata": "Vittoria",
   "contesto": "Vittoria dei Lupi",
   "tipo": "stringa",
@@ -7444,7 +7413,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 16,
+  "riga": 22,
   "schermata": "Alba — morti",
   "contesto": "Etichetta morto giustiziato dal Boia",
   "tipo": "template",
@@ -7459,7 +7428,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 17,
+  "riga": 23,
   "schermata": "Alba — morti",
   "contesto": "Etichetta morto per crepacuore",
   "tipo": "template",
@@ -7474,7 +7443,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 116,
+  "riga": 97,
   "schermata": "Alba",
   "contesto": "Titolo dell'Alba (segue il numero del round)",
   "tipo": "jsx",
@@ -7489,7 +7458,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 118,
+  "riga": 99,
   "schermata": "Alba — morti",
   "contesto": "Nessun morto",
   "tipo": "jsx",
@@ -7502,7 +7471,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 136,
+  "riga": 117,
   "schermata": "Alba — Antico sbranato",
   "contesto": "Avviso Antico (dopo {g.nome}; frase su due righe)",
   "tipo": "jsx",
@@ -7515,7 +7484,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 140,
+  "riga": 120,
   "schermata": "Alba — Antico sbranato",
   "contesto": "Pulsante di conferma (prima parte, segue il nome)",
   "tipo": "jsx",
@@ -7528,7 +7497,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 148,
+  "riga": 128,
   "schermata": "Alba — vittoria",
   "contesto": "Emoji davanti al messaggio di vittoria",
   "tipo": "jsx",
@@ -7541,7 +7510,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 155,
+  "riga": 135,
   "schermata": "Alba — avviso Borgomastro",
   "contesto": "Avviso elezione Borgomastro (con emoji iniziale)",
   "tipo": "jsx",
@@ -7554,7 +7523,7 @@
  {
   "parte": "giorno",
   "file": "src/features/alba/AlbaPanel.jsx",
-  "riga": 158,
+  "riga": 138,
   "schermata": "Alba",
   "contesto": "Pulsante per andare al voto",
   "tipo": "jsx",
@@ -7567,7 +7536,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 32,
+  "riga": 31,
   "schermata": "Eventi speciali",
   "contesto": "Etichetta Annulla nei sotto-eventi (3 occorrenze)",
   "tipo": "attributo",
@@ -7593,7 +7562,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 82,
+  "riga": 85,
   "schermata": "Eventi speciali",
   "contesto": "Etichetta Annulla nei sotto-eventi (3 occorrenze)",
   "tipo": "attributo",
@@ -7606,7 +7575,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 96,
+  "riga": 83,
   "schermata": "Eventi speciali",
   "contesto": "Pulsante Conferma nella conferma semplice",
   "tipo": "jsx",
@@ -7619,7 +7588,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 99,
+  "riga": 86,
   "schermata": "Eventi speciali",
   "contesto": "Pulsante Annulla nella conferma semplice",
   "tipo": "jsx",
@@ -7632,7 +7601,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 154,
+  "riga": 138,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Nessun vicino (dentro l'esito)",
   "tipo": "stringa",
@@ -7645,7 +7614,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 154,
+  "riga": 155,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Congiunzione tra i due vicini (dentro l'esito)",
   "tipo": "stringa",
@@ -7658,7 +7627,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 210,
+  "riga": 206,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Antico",
   "tipo": "stringa",
@@ -7671,7 +7640,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 214,
+  "riga": 210,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Boia",
   "tipo": "stringa",
@@ -7684,7 +7653,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 219,
+  "riga": 215,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Alchimista",
   "tipo": "stringa",
@@ -7697,7 +7666,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 224,
+  "riga": 220,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Scemo",
   "tipo": "stringa",
@@ -7710,7 +7679,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 228,
+  "riga": 224,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Innocente",
   "tipo": "stringa",
@@ -7723,7 +7692,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 230,
+  "riga": 226,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Unzione",
   "tipo": "stringa",
@@ -7736,7 +7705,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 231,
+  "riga": 227,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Bardo",
   "tipo": "stringa",
@@ -7749,7 +7718,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 234,
+  "riga": 230,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Gallo",
   "tipo": "stringa",
@@ -7762,7 +7731,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 236,
+  "riga": 232,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Borgomastro",
   "tipo": "stringa",
@@ -7775,7 +7744,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 237,
+  "riga": 233,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Fantasma",
   "tipo": "stringa",
@@ -7788,7 +7757,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 238,
+  "riga": 234,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Suocera",
   "tipo": "stringa",
@@ -7801,7 +7770,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 243,
+  "riga": 239,
   "schermata": "Eventi speciali",
   "contesto": "Voce menu: Annulla morte",
   "tipo": "stringa",
@@ -7814,7 +7783,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 259,
+  "riga": 263,
   "schermata": "Eventi speciali",
   "contesto": "Pulsante che apre il popup (accanto all'icona)",
   "tipo": "jsx",
@@ -7827,7 +7796,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 266,
+  "riga": 263,
   "schermata": "Eventi speciali",
   "contesto": "aria-label del popup",
   "tipo": "aria",
@@ -7840,7 +7809,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 270,
+  "riga": 278,
   "schermata": "Eventi speciali",
   "contesto": "aria-label del pulsante di chiusura",
   "tipo": "aria",
@@ -7853,7 +7822,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 271,
+  "riga": 279,
   "schermata": "Eventi speciali",
   "contesto": "Simbolo del pulsante di chiusura",
   "tipo": "jsx",
@@ -7866,7 +7835,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 281,
+  "riga": 278,
   "schermata": "Eventi speciali",
   "contesto": "Pulsante Chiudi del menu",
   "tipo": "jsx",
@@ -7879,7 +7848,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 289,
+  "riga": 297,
   "schermata": "Eventi speciali — Scemo",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -7892,7 +7861,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 290,
+  "riga": 298,
   "schermata": "Eventi speciali — Scemo",
   "contesto": "Messaggio introduttivo",
   "tipo": "attributo",
@@ -7905,7 +7874,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 293,
+  "riga": 301,
   "schermata": "Eventi speciali — Scemo",
   "contesto": "Esito (frase intera, con variante sopravvive/morto)",
   "tipo": "template",
@@ -7921,7 +7890,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 293,
+  "riga": 301,
   "schermata": "Eventi speciali — Scemo",
   "contesto": "Variante dentro l'esito: sopravvive",
   "tipo": "stringa",
@@ -7934,7 +7903,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 293,
+  "riga": 301,
   "schermata": "Eventi speciali — Scemo",
   "contesto": "Variante dentro l'esito: morto",
   "tipo": "stringa",
@@ -7947,7 +7916,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 306,
+  "riga": 314,
   "schermata": "Eventi speciali — Innocente",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -7960,7 +7929,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 307,
+  "riga": 315,
   "schermata": "Eventi speciali — Innocente",
   "contesto": "Messaggio introduttivo",
   "tipo": "attributo",
@@ -7973,7 +7942,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 309,
+  "riga": 317,
   "schermata": "Eventi speciali — Innocente",
   "contesto": "Esito",
   "tipo": "template",
@@ -7988,7 +7957,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 318,
+  "riga": 326,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8001,7 +7970,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 319,
+  "riga": 327,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Messaggio introduttivo (stringa dentro {...} con apici escapati)",
   "tipo": "stringa",
@@ -8014,7 +7983,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 323,
+  "riga": 331,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Esito: sopravvive",
   "tipo": "template",
@@ -8029,7 +7998,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 324,
+  "riga": 332,
   "schermata": "Eventi speciali — Unzione",
   "contesto": "Esito: morto",
   "tipo": "template",
@@ -8045,7 +8014,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 336,
+  "riga": 344,
   "schermata": "Eventi speciali — Antico",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8058,7 +8027,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 339,
+  "riga": 347,
   "schermata": "Eventi speciali — Antico",
   "contesto": "Esito, prima parte (concatenata con la parte seguente)",
   "tipo": "template",
@@ -8073,7 +8042,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 342,
+  "riga": 350,
   "schermata": "Eventi speciali — Antico",
   "contesto": "Esito, parte aggiuntiva se il villaggio è maledetto",
   "tipo": "stringa",
@@ -8086,7 +8055,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 355,
+  "riga": 363,
   "schermata": "Eventi speciali — Boia",
   "contesto": "Etichetta primo passo",
   "tipo": "attributo",
@@ -8099,7 +8068,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 356,
+  "riga": 364,
   "schermata": "Eventi speciali — Boia",
   "contesto": "Etichetta secondo passo",
   "tipo": "attributo",
@@ -8112,7 +8081,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 360,
+  "riga": 367,
   "schermata": "Eventi speciali — Boia",
   "contesto": "Esito (frase intera)",
   "tipo": "template",
@@ -8129,7 +8098,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 360,
+  "riga": 367,
   "schermata": "Eventi speciali — Boia",
   "contesto": "Variante dentro l'esito: sopravvive",
   "tipo": "stringa",
@@ -8142,7 +8111,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 374,
+  "riga": 381,
   "schermata": "Eventi speciali — Alchimista",
   "contesto": "Etichetta primo passo",
   "tipo": "attributo",
@@ -8155,7 +8124,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 375,
+  "riga": 382,
   "schermata": "Eventi speciali — Alchimista",
   "contesto": "Etichetta secondo passo",
   "tipo": "attributo",
@@ -8168,7 +8137,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 380,
+  "riga": 386,
   "schermata": "Eventi speciali — Alchimista",
   "contesto": "Esito: la vittima sopravvive",
   "tipo": "template",
@@ -8184,7 +8153,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 381,
+  "riga": 387,
   "schermata": "Eventi speciali — Alchimista",
   "contesto": "Esito: la vittima muore",
   "tipo": "template",
@@ -8200,7 +8169,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 393,
+  "riga": 399,
   "schermata": "Eventi speciali — Bardo",
   "contesto": "Messaggio di conferma",
   "tipo": "attributo",
@@ -8213,7 +8182,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 394,
+  "riga": 400,
   "schermata": "Eventi speciali — Bardo",
   "contesto": "Esito",
   "tipo": "stringa",
@@ -8226,7 +8195,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 401,
+  "riga": 407,
   "schermata": "Eventi speciali — Gallo Mannaro",
   "contesto": "Messaggio di conferma",
   "tipo": "attributo",
@@ -8239,7 +8208,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 402,
+  "riga": 408,
   "schermata": "Eventi speciali — Gallo Mannaro",
   "contesto": "Esito",
   "tipo": "stringa",
@@ -8252,7 +8221,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 410,
+  "riga": 416,
   "schermata": "Eventi speciali — Borgomastro",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8265,7 +8234,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 412,
+  "riga": 418,
   "schermata": "Eventi speciali — Borgomastro",
   "contesto": "Esito",
   "tipo": "template",
@@ -8280,7 +8249,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 421,
+  "riga": 427,
   "schermata": "Eventi speciali — Fantasma Onnisciente",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8293,7 +8262,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 422,
+  "riga": 428,
   "schermata": "Eventi speciali — Fantasma Onnisciente",
   "contesto": "Messaggio introduttivo",
   "tipo": "attributo",
@@ -8306,7 +8275,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 424,
+  "riga": 430,
   "schermata": "Eventi speciali — Fantasma Onnisciente",
   "contesto": "Esito",
   "tipo": "template",
@@ -8321,7 +8290,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 433,
+  "riga": 439,
   "schermata": "Eventi speciali — Suocera",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8334,7 +8303,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 434,
+  "riga": 440,
   "schermata": "Eventi speciali — Suocera",
   "contesto": "Messaggio introduttivo",
   "tipo": "attributo",
@@ -8347,7 +8316,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 436,
+  "riga": 443,
   "schermata": "Eventi speciali — Suocera",
   "contesto": "Esito",
   "tipo": "template",
@@ -8362,7 +8331,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 445,
+  "riga": 452,
   "schermata": "Eventi speciali — Annulla morte",
   "contesto": "Etichetta scelta giocatore",
   "tipo": "attributo",
@@ -8375,7 +8344,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 446,
+  "riga": 453,
   "schermata": "Eventi speciali — Annulla morte",
   "contesto": "Messaggio introduttivo",
   "tipo": "attributo",
@@ -8388,7 +8357,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 447,
+  "riga": 454,
   "schermata": "Eventi speciali — Annulla morte",
   "contesto": "Esito",
   "tipo": "template",
@@ -8403,7 +8372,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/EventiSpeciali.jsx",
-  "riga": 457,
+  "riga": 464,
   "schermata": "Eventi speciali — esito",
   "contesto": "Pulsante Ok",
   "tipo": "jsx",
@@ -8416,7 +8385,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/GiornoPanel.jsx",
-  "riga": 169,
+  "riga": 115,
   "schermata": "Giorno — titolo",
   "contesto": "Titolo fase: esito rogo",
   "tipo": "stringa",
@@ -8429,7 +8398,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/GiornoPanel.jsx",
-  "riga": 169,
+  "riga": 102,
   "schermata": "Giorno — titolo",
   "contesto": "Titolo fase: giorno (segue il numero)",
   "tipo": "stringa",
@@ -8442,7 +8411,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/GiornoPanel.jsx",
-  "riga": 170,
+  "riga": 103,
   "schermata": "Giorno — titolo",
   "contesto": "Numero del giorno accodato al titolo",
   "tipo": "template",
@@ -8470,7 +8439,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/TimerSpareggio.jsx",
-  "riga": 48,
+  "riga": 47,
   "schermata": "Giorno — timer spareggio",
   "contesto": "Timer scaduto",
   "tipo": "stringa",
@@ -8483,7 +8452,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/TimerSpareggio.jsx",
-  "riga": 51,
+  "riga": 50,
   "schermata": "Giorno — timer spareggio",
   "contesto": "Pulsante pausa",
   "tipo": "stringa",
@@ -8496,7 +8465,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/TimerSpareggio.jsx",
-  "riga": 51,
+  "riga": 50,
   "schermata": "Giorno — timer spareggio",
   "contesto": "Pulsante avvia",
   "tipo": "stringa",
@@ -8509,7 +8478,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/TimerSpareggio.jsx",
-  "riga": 54,
+  "riga": 53,
   "schermata": "Giorno — timer spareggio",
   "contesto": "Pulsante azzera",
   "tipo": "jsx",
@@ -8522,7 +8491,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 40,
+  "riga": 39,
   "schermata": "Giorno — votazione/esito",
   "contesto": "alt dell'icona ruolo quando non è ancora rivelato",
   "tipo": "stringa",
@@ -8535,23 +8504,23 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 49,
+  "riga": 48,
   "schermata": "Giorno — elenco morti",
   "contesto": "Ruolo del giocatore tra parentesi, dopo il nome",
   "tipo": "template",
   "delimitatore": "`",
-  "originale": " (${ruolo.nome}${exAntico ? ', ex Antico' : ''})",
+  "originale": " (${nome}${exAntico ? ', ex Antico' : ''})",
   "dinamico": [
-   "${ruolo.nome}",
-   "${exAntico ? ', ex Antico' : ''}"
+   "${exAntico ? ', ex Antico' : ''}",
+   "${nome}"
   ],
   "id": "T0638",
-  "mostrato": " (${ruolo.nome}${exAntico ? ', ex Antico' : ''})"
+  "mostrato": " (${nome}${exAntico ? ', ex Antico' : ''})"
  },
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 49,
+  "riga": 48,
   "schermata": "Giorno — elenco morti",
   "contesto": "Parte dentro la parentesi: ex Antico",
   "tipo": "stringa",
@@ -8564,7 +8533,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 60,
+  "riga": 59,
   "schermata": "Giorno — elenco morti",
   "contesto": "Titolo sezione",
   "tipo": "jsx",
@@ -8577,7 +8546,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 80,
+  "riga": 79,
   "schermata": "Giorno — elenco morti",
   "contesto": "alt icona Fantasma Onnisciente",
   "tipo": "attributo",
@@ -8590,7 +8559,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 310,
+  "riga": 335,
   "schermata": "Giorno — esito rogo",
   "contesto": "Cavaliere si sacrifica (1/4, prima del nome del Cavaliere)",
   "tipo": "jsx",
@@ -8603,7 +8572,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 310,
+  "riga": 335,
   "schermata": "Giorno — esito rogo",
   "contesto": "Cavaliere si sacrifica (2/4, dopo il nome del Cavaliere)",
   "tipo": "jsx",
@@ -8616,7 +8585,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 310,
+  "riga": 311,
   "schermata": "Giorno — esito rogo",
   "contesto": "Cavaliere si sacrifica (3/4, tra i due nomi)",
   "tipo": "jsx",
@@ -8629,7 +8598,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 310,
+  "riga": 335,
   "schermata": "Giorno — esito rogo",
   "contesto": "Cavaliere si sacrifica (4/4, finale)",
   "tipo": "jsx",
@@ -8642,7 +8611,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 323,
+  "riga": 347,
   "schermata": "Giorno — esito rogo",
   "contesto": "Spilungone rivelato (dopo {nome}; frase su due righe)",
   "tipo": "jsx",
@@ -8655,7 +8624,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 332,
+  "riga": 354,
   "schermata": "Giorno — esito rogo",
   "contesto": "Antico rivelato (dopo {nome}; frase su due righe)",
   "tipo": "jsx",
@@ -8668,7 +8637,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 345,
+  "riga": 365,
   "schermata": "Giorno — esito rogo",
   "contesto": "Alchimista esplode (1/2, dopo {nome}; segue la variante)",
   "tipo": "jsx",
@@ -8681,7 +8650,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 347,
+  "riga": 367,
   "schermata": "Giorno — esito rogo",
   "contesto": "Alchimista: la vittima sopravvive (2/2)",
   "tipo": "template",
@@ -8696,7 +8665,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 348,
+  "riga": 368,
   "schermata": "Giorno — esito rogo",
   "contesto": "Alchimista: la vittima muore (2/2)",
   "tipo": "template",
@@ -8711,7 +8680,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 360,
+  "riga": 380,
   "schermata": "Giorno — esito rogo (Alchimista)",
   "contesto": "Etichetta scelta della vittima",
   "tipo": "attributo",
@@ -8724,7 +8693,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 380,
+  "riga": 401,
   "schermata": "Giorno — esito rogo",
   "contesto": "Conferma rivelazione: nome ruolo Spilungone (dentro la domanda)",
   "tipo": "stringa",
@@ -8737,7 +8706,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 380,
+  "riga": 401,
   "schermata": "Giorno — esito rogo",
   "contesto": "Conferma rivelazione: nome ruolo Antico (dentro la domanda)",
   "tipo": "stringa",
@@ -8750,7 +8719,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 384,
+  "riga": 405,
   "schermata": "Giorno — esito rogo",
   "contesto": "Conferma rivelazione (1/3, prima del nome)",
   "tipo": "jsx",
@@ -8763,7 +8732,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 384,
+  "riga": 365,
   "schermata": "Giorno — esito rogo",
   "contesto": "Conferma rivelazione (2/3, tra nome e ruolo)",
   "tipo": "jsx",
@@ -8776,7 +8745,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 384,
+  "riga": 393,
   "schermata": "Giorno — esito rogo",
   "contesto": "Conferma rivelazione (3/3, dopo il ruolo)",
   "tipo": "jsx",
@@ -8789,7 +8758,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 393,
+  "riga": 389,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Conferma",
   "tipo": "jsx",
@@ -8802,7 +8771,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 396,
+  "riga": 417,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Annulla",
   "tipo": "jsx",
@@ -8815,7 +8784,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 405,
+  "riga": 426,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante dichiara morte sul rogo",
   "tipo": "jsx",
@@ -8828,7 +8797,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 409,
+  "riga": 430,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Spilungone si rivela",
   "tipo": "jsx",
@@ -8841,7 +8810,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 414,
+  "riga": 435,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Antico si rivela",
   "tipo": "jsx",
@@ -8854,7 +8823,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 419,
+  "riga": 440,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Alchimista si rivela",
   "tipo": "jsx",
@@ -8867,7 +8836,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 424,
+  "riga": 339,
   "schermata": "Giorno — esito rogo",
   "contesto": "Avviso Cavaliere protegge presunto Alchimista (1/3, prima dei nomi dei Cavalieri)",
   "tipo": "jsx",
@@ -8880,33 +8849,33 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 424,
+  "riga": 446,
   "schermata": "Giorno — esito rogo",
   "contesto": "Avviso Cavaliere protegge presunto Alchimista (2/3, tra i Cavalieri e il bersaglio)",
-  "tipo": "jsx",
-  "delimitatore": "jsx",
-  "originale": " protegge ",
+  "tipo": "stringa",
+  "delimitatore": "'",
+  "originale": "protegge",
   "dinamico": [],
   "id": "T0664",
-  "mostrato": " protegge "
+  "mostrato": "protegge"
  },
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 424,
+  "riga": 447,
   "schermata": "Giorno — esito rogo",
   "contesto": "Avviso Cavaliere protegge presunto Alchimista (3/3, finale)",
   "tipo": "jsx",
   "delimitatore": "jsx",
-  "originale": ": se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto.",
+  "originale": "rivelarsi (se fosse l'Alchimista non esploderebbe, se fosse L'Antico o lo Spilungone non perderebbe la vita né la maledizione).",
   "dinamico": [],
   "id": "T0665",
-  "mostrato": ": se fosse l'Alchimista non esploderebbe, perché si immolerebbe il Cavaliere al suo posto."
+  "mostrato": "rivelarsi (se fosse l'Alchimista non esploderebbe, se fosse L'Antico o lo Spilungone non perderebbe la vita né la maledizione)."
  },
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 451,
+  "riga": 473,
   "schermata": "Giorno — esito rogo",
   "contesto": "Vittima designata (singola, prima del nome)",
   "tipo": "jsx",
@@ -8919,7 +8888,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 461,
+  "riga": 473,
   "schermata": "Giorno — esito rogo (spareggio)",
   "contesto": "Vittima designata dopo la conferma (prima del nome)",
   "tipo": "jsx",
@@ -8932,7 +8901,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 470,
+  "riga": 492,
   "schermata": "Giorno — spareggio",
   "contesto": "Elenco dei contendenti (prima dell'elenco dei nomi)",
   "tipo": "jsx",
@@ -8945,20 +8914,20 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 484,
+  "riga": 508,
   "schermata": "Giorno — spareggio",
   "contesto": "aria-label del gruppo di scelta",
   "tipo": "aria",
   "delimitatore": "\"",
-  "originale": "Chi muore nello spareggio",
+  "originale": "Condanna",
   "dinamico": [],
   "id": "T0669",
-  "mostrato": "Chi muore nello spareggio"
+  "mostrato": "Condanna"
  },
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 508,
+  "riga": 519,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante Torna al voto",
   "tipo": "jsx",
@@ -8971,7 +8940,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 515,
+  "riga": 530,
   "schermata": "Giorno — esito rogo",
   "contesto": "Avviso Fantasma Onnisciente",
   "tipo": "jsx",
@@ -8984,7 +8953,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 520,
+  "riga": 535,
   "schermata": "Giorno — esito rogo",
   "contesto": "Pulsante È notte nel villaggio (esito)",
   "tipo": "jsx",
@@ -8997,7 +8966,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 576,
+  "riga": 568,
   "schermata": "Giorno — votazione",
   "contesto": "alt icona Borgomastro",
   "tipo": "attributo",
@@ -9010,7 +8979,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 579,
+  "riga": 571,
   "schermata": "Giorno — votazione",
   "contesto": "Singolare del conteggio voti",
   "tipo": "stringa",
@@ -9023,7 +8992,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 579,
+  "riga": 584,
   "schermata": "Giorno — votazione",
   "contesto": "Plurale del conteggio voti",
   "tipo": "stringa",
@@ -9036,7 +9005,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 581,
+  "riga": 573,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante -1",
   "tipo": "jsx",
@@ -9049,7 +9018,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 584,
+  "riga": 576,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante +1",
   "tipo": "jsx",
@@ -9062,7 +9031,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 591,
+  "riga": 584,
   "schermata": "Giorno — votazione",
   "contesto": "Conferma azzeramento voti (testo prima dei pulsanti)",
   "tipo": "jsx",
@@ -9075,7 +9044,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 600,
+  "riga": 593,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante Sì, ricomincia",
   "tipo": "jsx",
@@ -9088,7 +9057,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 603,
+  "riga": 596,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante Annulla (azzeramento voti)",
   "tipo": "jsx",
@@ -9101,7 +9070,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 608,
+  "riga": 601,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante Ricomincia votazione",
   "tipo": "jsx",
@@ -9114,7 +9083,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 613,
+  "riga": 606,
   "schermata": "Giorno — votazione",
   "contesto": "Nessuno in vita",
   "tipo": "jsx",
@@ -9127,7 +9096,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 615,
+  "riga": 608,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante È notte nel villaggio (nessuno in vita)",
   "tipo": "jsx",
@@ -9140,7 +9109,7 @@
  {
   "parte": "giorno",
   "file": "src/features/giorno/Votazione.jsx",
-  "riga": 621,
+  "riga": 614,
   "schermata": "Giorno — votazione",
   "contesto": "Pulsante Vai all'esito",
   "tipo": "jsx",
@@ -9153,7 +9122,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 2,
+  "riga": 5,
   "schermata": "Ruolo: Addolorata",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9166,7 +9135,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 3,
+  "riga": 6,
   "schermata": "Ruolo: Addolorata",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9179,7 +9148,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 4,
+  "riga": 7,
   "schermata": "Ruolo: Alchimista",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9192,7 +9161,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 5,
+  "riga": 8,
   "schermata": "Ruolo: Alchimista",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9205,7 +9174,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 6,
+  "riga": 9,
   "schermata": "Ruolo: Ambasciatore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9218,7 +9187,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 7,
+  "riga": 10,
   "schermata": "Ruolo: Ambasciatore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9231,7 +9200,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 8,
+  "riga": 11,
   "schermata": "Ruolo: Apprendista",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9244,7 +9213,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 9,
+  "riga": 12,
   "schermata": "Ruolo: Apprendista",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9257,7 +9226,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 10,
+  "riga": 13,
   "schermata": "Ruolo: Bardo",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9270,7 +9239,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 11,
+  "riga": 14,
   "schermata": "Ruolo: Bardo",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9283,7 +9252,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 12,
+  "riga": 15,
   "schermata": "Ruolo: Berserker",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9296,7 +9265,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 13,
+  "riga": 16,
   "schermata": "Ruolo: Berserker",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9309,7 +9278,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 14,
+  "riga": 17,
   "schermata": "Ruolo: Boia",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9322,7 +9291,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 15,
+  "riga": 18,
   "schermata": "Ruolo: Boia",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9335,7 +9304,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 16,
+  "riga": 19,
   "schermata": "Ruolo: Borgomastro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9348,7 +9317,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 17,
+  "riga": 20,
   "schermata": "Ruolo: Borgomastro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9361,7 +9330,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 18,
+  "riga": 21,
   "schermata": "Ruolo: Cartomante",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9374,7 +9343,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 19,
+  "riga": 22,
   "schermata": "Ruolo: Cartomante",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9387,7 +9356,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 20,
+  "riga": 23,
   "schermata": "Ruolo: Cavaliere",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9400,7 +9369,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 21,
+  "riga": 24,
   "schermata": "Ruolo: Cavaliere",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9413,7 +9382,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 22,
+  "riga": 25,
   "schermata": "Ruolo: Chupacabra",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9426,7 +9395,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 23,
+  "riga": 26,
   "schermata": "Ruolo: Chupacabra",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9439,7 +9408,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 24,
+  "riga": 27,
   "schermata": "Ruolo: Cortigiana",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9452,7 +9421,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 25,
+  "riga": 28,
   "schermata": "Ruolo: Cortigiana",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9465,7 +9434,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 26,
+  "riga": 29,
   "schermata": "Ruolo: Criceto Malvagio",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9478,7 +9447,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 27,
+  "riga": 30,
   "schermata": "Ruolo: Criceto Malvagio",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9491,7 +9460,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 28,
+  "riga": 31,
   "schermata": "Ruolo: Cucciolo di Lupo Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9504,7 +9473,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 29,
+  "riga": 32,
   "schermata": "Ruolo: Cucciolo di Lupo Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9517,7 +9486,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 30,
+  "riga": 33,
   "schermata": "Ruolo: Eremita",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9530,7 +9499,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 31,
+  "riga": 34,
   "schermata": "Ruolo: Eremita",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9543,7 +9512,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 32,
+  "riga": 35,
   "schermata": "Ruolo: Fantasma Onnisciente",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9556,7 +9525,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 33,
+  "riga": 36,
   "schermata": "Ruolo: Fantasma Onnisciente",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9569,7 +9538,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 34,
+  "riga": 37,
   "schermata": "Ruolo: Fattucchiera",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9582,7 +9551,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 35,
+  "riga": 38,
   "schermata": "Ruolo: Fattucchiera",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9595,7 +9564,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 36,
+  "riga": 39,
   "schermata": "Ruolo: Figlia dei Lupi",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9608,7 +9577,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 37,
+  "riga": 40,
   "schermata": "Ruolo: Figlia dei Lupi",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9621,7 +9590,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 38,
+  "riga": 41,
   "schermata": "Ruolo: Gallo Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9634,7 +9603,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 39,
+  "riga": 42,
   "schermata": "Ruolo: Gallo Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9647,7 +9616,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 40,
+  "riga": 43,
   "schermata": "Ruolo: Guardia",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9660,7 +9629,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 41,
+  "riga": 44,
   "schermata": "Ruolo: Guardia",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9673,7 +9642,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 42,
+  "riga": 45,
   "schermata": "Ruolo: Guardia Mannara",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9686,7 +9655,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 43,
+  "riga": 46,
   "schermata": "Ruolo: Guardia Mannara",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9699,7 +9668,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 44,
+  "riga": 47,
   "schermata": "Ruolo: Guaritore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9712,7 +9681,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 45,
+  "riga": 48,
   "schermata": "Ruolo: Guaritore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9725,7 +9694,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 46,
+  "riga": 49,
   "schermata": "Ruolo: Innocente",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9738,7 +9707,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 47,
+  "riga": 50,
   "schermata": "Ruolo: Innocente",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9751,7 +9720,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 48,
+  "riga": 51,
   "schermata": "Ruolo: Inquisitore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9764,7 +9733,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 49,
+  "riga": 52,
   "schermata": "Ruolo: Inquisitore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9777,7 +9746,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 50,
+  "riga": 53,
   "schermata": "Ruolo: Ladro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9790,7 +9759,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 51,
+  "riga": 54,
   "schermata": "Ruolo: Ladro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9803,7 +9772,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 52,
+  "riga": 55,
   "schermata": "Ruolo: L'Antico",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9816,7 +9785,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 53,
+  "riga": 56,
   "schermata": "Ruolo: L'Antico",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9829,7 +9798,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 54,
+  "riga": 57,
   "schermata": "Ruolo: Lupo Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9842,7 +9811,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 55,
+  "riga": 58,
   "schermata": "Ruolo: Lupo Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9855,7 +9824,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 56,
+  "riga": 59,
   "schermata": "Ruolo: Lupo Mannaro Capobranco",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9868,7 +9837,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 57,
+  "riga": 60,
   "schermata": "Ruolo: Lupo Mannaro Capobranco",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9881,7 +9850,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 58,
+  "riga": 61,
   "schermata": "Ruolo: Lupo Mannaro Progenitore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9894,7 +9863,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 59,
+  "riga": 62,
   "schermata": "Ruolo: Lupo Mannaro Progenitore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9907,7 +9876,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 60,
+  "riga": 63,
   "schermata": "Ruolo: Maga",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9920,7 +9889,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 61,
+  "riga": 64,
   "schermata": "Ruolo: Maga",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9933,7 +9902,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 62,
+  "riga": 65,
   "schermata": "Ruolo: Medium",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9946,7 +9915,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 63,
+  "riga": 66,
   "schermata": "Ruolo: Medium",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9959,7 +9928,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 64,
+  "riga": 67,
   "schermata": "Ruolo: Mezzosangue",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9972,7 +9941,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 65,
+  "riga": 68,
   "schermata": "Ruolo: Mezzosangue",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -9985,7 +9954,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 66,
+  "riga": 69,
   "schermata": "Ruolo: Mimo",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -9998,7 +9967,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 67,
+  "riga": 70,
   "schermata": "Ruolo: Mimo",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10011,7 +9980,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 68,
+  "riga": 71,
   "schermata": "Ruolo: Mucca Mannara",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10024,7 +9993,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 69,
+  "riga": 72,
   "schermata": "Ruolo: Mucca Mannara",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10037,7 +10006,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 70,
+  "riga": 73,
   "schermata": "Ruolo: Nano",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10050,7 +10019,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 71,
+  "riga": 74,
   "schermata": "Ruolo: Nano",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10063,7 +10032,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 72,
+  "riga": 75,
   "schermata": "Ruolo: Nonna",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10076,7 +10045,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 73,
+  "riga": 76,
   "schermata": "Ruolo: Nonna",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10089,7 +10058,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 74,
+  "riga": 77,
   "schermata": "Ruolo: Paladino",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10102,7 +10071,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 75,
+  "riga": 78,
   "schermata": "Ruolo: Paladino",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10115,7 +10084,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 76,
+  "riga": 79,
   "schermata": "Ruolo: Pastore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10128,7 +10097,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 77,
+  "riga": 80,
   "schermata": "Ruolo: Pastore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10141,7 +10110,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 78,
+  "riga": 81,
   "schermata": "Ruolo: Pifferaio",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10154,7 +10123,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 79,
+  "riga": 82,
   "schermata": "Ruolo: Pifferaio",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10167,7 +10136,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 80,
+  "riga": 83,
   "schermata": "Ruolo: Polpo Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10180,7 +10149,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 81,
+  "riga": 84,
   "schermata": "Ruolo: Polpo Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10193,7 +10162,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 82,
+  "riga": 85,
   "schermata": "Ruolo: Sacerdote",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10206,7 +10175,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 83,
+  "riga": 86,
   "schermata": "Ruolo: Sacerdote",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10219,7 +10188,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 84,
+  "riga": 87,
   "schermata": "Ruolo: Scemo del Villaggio",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10232,7 +10201,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 85,
+  "riga": 88,
   "schermata": "Ruolo: Scemo del Villaggio",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10245,7 +10214,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 86,
+  "riga": 89,
   "schermata": "Ruolo: Sciacallo Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10258,20 +10227,20 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 87,
+  "riga": 90,
   "schermata": "Ruolo: Sciacallo Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
   "delimitatore": "\"",
-  "originale": "Ha il potere di far resuscitare, una volta per partita, un altro giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro.",
+  "originale": "Ha il potere di far resuscitare, una volta per partita, un giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro.",
   "dinamico": [],
   "id": "T0770",
-  "mostrato": "Ha il potere di far resuscitare, una volta per partita, un altro giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro."
+  "mostrato": "Ha il potere di far resuscitare, una volta per partita, un giocatore. Può utilizzare questo potere anche se lui stesso è morto. Non conosce chi sono i lupi mannari e non caccia con loro."
  },
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 88,
+  "riga": 91,
   "schermata": "Ruolo: Spilungone",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10284,20 +10253,20 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 89,
+  "riga": 92,
   "schermata": "Ruolo: Spilungone",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
   "delimitatore": "\"",
-  "originale": "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime.",
+  "originale": "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime (in qualsiasi giorno: una volta rivelato resta immune al rogo).",
   "dinamico": [],
   "id": "T0772",
-  "mostrato": "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime."
+  "mostrato": "Essendo troppo alto per qualsiasi patibolo, non può essere messo al rogo dal villaggio durante il giorno. Nel caso in cui sia il favorito al rogo, svela la propria carta e la notte cala senza vittime (in qualsiasi giorno: una volta rivelato resta immune al rogo)."
  },
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 90,
+  "riga": 93,
   "schermata": "Ruolo: Strega",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10310,7 +10279,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 91,
+  "riga": 94,
   "schermata": "Ruolo: Strega",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10323,7 +10292,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 92,
+  "riga": 95,
   "schermata": "Ruolo: Suocera",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10336,7 +10305,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 93,
+  "riga": 96,
   "schermata": "Ruolo: Suocera",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10349,7 +10318,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 94,
+  "riga": 97,
   "schermata": "Ruolo: Ubriaco",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10362,7 +10331,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 95,
+  "riga": 98,
   "schermata": "Ruolo: Ubriaco",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10375,7 +10344,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 96,
+  "riga": 99,
   "schermata": "Ruolo: Untore",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10388,7 +10357,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 97,
+  "riga": 100,
   "schermata": "Ruolo: Untore",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10401,7 +10370,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 98,
+  "riga": 101,
   "schermata": "Ruolo: Veggente",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10414,7 +10383,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 99,
+  "riga": 102,
   "schermata": "Ruolo: Veggente",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10427,7 +10396,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 100,
+  "riga": 103,
   "schermata": "Ruolo: Veggente Mannaro",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10440,7 +10409,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 101,
+  "riga": 104,
   "schermata": "Ruolo: Veggente Mannaro",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -10453,7 +10422,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 102,
+  "riga": 105,
   "schermata": "Ruolo: Villico",
   "contesto": "nome del ruolo",
   "tipo": "stringa",
@@ -10466,7 +10435,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/roles.js",
-  "riga": 103,
+  "riga": 106,
   "schermata": "Ruolo: Villico",
   "contesto": "testo delle regole del ruolo",
   "tipo": "stringa",
@@ -11147,10 +11116,10 @@
   "contesto": "voce di elenco",
   "tipo": "stringa",
   "delimitatore": "`",
-  "originale": "Utilizzare con parsimonia i **ruoli che rivelano**** ****sè stessi** alla morte o dopo un'azione",
+  "originale": "Utilizzare con parsimonia i **ruoli che rivelano**** ****se stessi** alla morte o dopo un'azione",
   "dinamico": [],
   "id": "T0838",
-  "mostrato": "Utilizzare con parsimonia i **ruoli che rivelano**** ****sè stessi** alla morte o dopo un'azione"
+  "mostrato": "Utilizzare con parsimonia i **ruoli che rivelano**** ****se stessi** alla morte o dopo un'azione"
  },
  {
   "parte": "contenuti",
@@ -11922,7 +11891,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 19,
+  "riga": 17,
   "schermata": "Mazzo — sfogliatore carte (ruolo con più copie)",
   "contesto": "etichetta carta con copie",
   "tipo": "template",
@@ -11939,7 +11908,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 24,
+  "riga": 22,
   "schermata": "Mazzo — sfogliatore carte",
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
@@ -11952,7 +11921,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 25,
+  "riga": 23,
   "schermata": "Mazzo — sfogliatore carte",
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
@@ -11965,7 +11934,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 26,
+  "riga": 24,
   "schermata": "Mazzo — sfogliatore carte",
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
@@ -11978,7 +11947,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 27,
+  "riga": 25,
   "schermata": "Mazzo — sfogliatore carte",
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
@@ -11991,7 +11960,7 @@
  {
   "parte": "contenuti",
   "file": "src/data/mazzoCompleto.js",
-  "riga": 28,
+  "riga": 26,
   "schermata": "Mazzo — sfogliatore carte",
   "contesto": "etichetta carta di riferimento",
   "tipo": "stringa",
