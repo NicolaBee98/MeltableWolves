@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { ROLES, FAZIONI_ORDINE } from '../../data/roles'
-import { cartaPath } from '../../data/assetRuoli'
+import { cartaFisicaPath } from '../../data/assetRuoli'
 import { SfogliaMazzo } from './SfogliaMazzo'
 
 const FAZIONE_LABEL = {
@@ -47,7 +47,7 @@ export function MazzoGalleria({ onTornaAllaHome }) {
             <h3>{FAZIONE_LABEL[fazione]}</h3>
             <div className="mazzo-galleria__carte">
               {ruoli.map((ruolo) => (
-                <img key={ruolo.slug} src={cartaPath(ruolo.slug)} alt={ruolo.nome} className="mazzo-galleria__carta" loading="lazy" />
+                <img key={ruolo.slug} src={cartaFisicaPath(ruolo.slug)} alt={ruolo.nome} className="mazzo-galleria__carta" loading="lazy" />
               ))}
             </div>
           </div>

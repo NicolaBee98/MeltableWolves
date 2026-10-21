@@ -16,9 +16,10 @@ const VOCI = self.__WB_MANIFEST
 let hash = 0
 for (const c of JSON.stringify(VOCI)) hash = (hash * 31 + c.charCodeAt(0)) | 0
 const CACHE_NAME = `meltable-wolves-${(hash >>> 0).toString(36)}`
-// '/' oltre ai file del build: è l'URL di start_url, cioè quello che apre la PWA
-// Set: le icone del manifest compaiono due volte in __WB_MANIFEST e addAll()
-// rifiuta tutto l'elenco per richieste duplicate (il SW non si installava mai)
+// '/' oltre ai file del build: è l'URL di start_url, cioè quello che apre la PWA.
+// Set: addAll() rifiuta tutto l'elenco se c'è anche una sola richiesta doppia
+// (il SW non si installerebbe mai), per esempio se un file finisse due volte
+// in __WB_MANIFEST
 const URL_DA_PRECARICARE = [...new Set(['/', ...VOCI.map((voce) => voce.url)])]
 
 // niente self.skipWaiting(): una nuova versione resta in attesa e si attiva
@@ -41,18 +42,15 @@ self.addEventListener('activate', (event) => {
 })
 
 // "cache, con aggiornamento in cache per la prossima volta": risponde subito
-// con quello che c'è già (compresi i font di Google, non precaricati ma
-// salvati qui la prima volta che vengono richiesti), e nel frattempo tiene
-// la cache aggiornata con l'ultima risposta valida dalla rete.
+// con quello che c'è già, e nel frattempo tiene la cache aggiornata con
+// l'ultima risposta valida dalla rete.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
   event.respondWith(
     caches.match(event.request, OPZ).then((cached) => {
       const rete = fetch(event.request).then((risposta) => {
-        // le risposte opache (font di Google cross-origin senza CORS) non
-        // hanno .ok ma sono comunque cacheabili
-        if (risposta.ok || risposta.type === 'opaque') {
+        if (risposta.ok) {
           const copia = risposta.clone()
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copia))
         }

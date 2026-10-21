@@ -10,7 +10,7 @@ export default defineConfig({
     // mette in cache tutti gli asset del build al primo caricamento —
     // compresi tutti gli assets/ pubblici (facce, illustrazioni, icone),
     // visto che durante una partita può servire in qualunque momento un
-    // ruolo qualsiasi — e i font di Google al primo utilizzo.
+    // ruolo qualsiasi — compresi i font, ospitati in public/assets/fonts.
     // "injectManifest" invece di "generateSW": costruiamo la logica del SW
     // noi stessi (poche righe, ispezionabili), il plugin si limita a
     // iniettare l'elenco dei file del build al posto di self.__WB_MANIFEST.
@@ -21,8 +21,13 @@ export default defineConfig({
       // 'prompt' + nessun onNeedRefresh in main.jsx: la nuova versione si
       // attiva al prossimo avvio, senza reload forzato a metà partita
       registerType: 'prompt',
+      // le icone del manifest servono solo al browser quando installa l'app
+      // (le scarica da sé): non vanno nella precache, né in doppio
+      // (globPatterns + includeManifestIcons) né le PNG grandi che l'app non mostra mai
+      includeManifestIcons: false,
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globIgnores: ['**/icone/app/icon-*.png'],
       },
       manifest: {
         name: 'Meltable Wolves — Narratore',

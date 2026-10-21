@@ -157,17 +157,9 @@ export function disponiFigure(dim, larghezza, { altezzaMinima = 90 } = {}) {
 }
 
 // carte/: la carta stampata così com'è (bordo, nome, illustrazione, testo
-// abilità), un file rappresentativo per ruolo anche quando il mazzo reale ne
-// contiene più copie fisiche (es. Villico).
-export function cartaPath(slug) {
-  const file = FILE_RUOLI[slug]
-  if (!file) return null
-  return `/assets/carte/${file}.svg`
-}
-
-// La carta fisica di UN giocatore, per mostrarla a schermo intero (Cartomante/Medium):
-// per i ruoli con più copie (Villico, Lupo Mannaro, Guardia) la variante numerata,
-// come nel mazzo reale; altrimenti la carta del ruolo.
+// abilità). Per i ruoli con più copie (Villico, Lupo Mannaro, Guardia) la
+// variante numerata di UN giocatore, come nel mazzo reale (Cartomante/Medium);
+// senza variante la prima, come carta rappresentativa del ruolo (galleria).
 export function cartaFisicaPath(slug, variante) {
   const file = FILE_RUOLI[slug]
   if (!file) return null
