@@ -1,11 +1,10 @@
-import { ROLES } from './roles'
-import { FILE_RUOLI } from './assetRuoli'
+import { ROLES, FAZIONI_ORDINE } from './roles'
+import { VARIANTI_PERSONAGGIO, cartaFisicaPath } from './assetRuoli'
 
 // Quante copie fisiche di ciascun ruolo ci sono nel mazzo reale (78 carte
-// ruolo, pag. 3 del libretto: 15 Villici, 5 Lupi Mannari, gli altri 51 unici).
-const COPIE = { villico: 15, 'lupo-mannaro': 5, guardia: 2 }
-
-const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
+// ruolo, pag. 3 del libretto: 15 Villici, 5 Lupi Mannari, gli altri 51 unici):
+// le stesse delle varianti illustrate
+const COPIE = VARIANTI_PERSONAGGIO
 
 // Il "vero mazzo" per lo sfogliatore a schermo intero: una voce per ogni
 // carta fisica (non una per ruolo, come nella galleria), nello stesso ordine
@@ -13,11 +12,10 @@ const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
 export const MAZZO_COMPLETO = [
   ...FAZIONI_ORDINE.flatMap((fazione) =>
     ROLES.filter((r) => r.fazione === fazione).flatMap((ruolo) => {
-      const file = FILE_RUOLI[ruolo.slug]
       const copie = COPIE[ruolo.slug] ?? 1
       return Array.from({ length: copie }, (_, i) => ({
         etichetta: copie > 1 ? `${ruolo.nome} (${i + 1}/${copie})` : ruolo.nome,
-        path: copie > 1 ? `/assets/carte/${file}_${i + 1}.svg` : `/assets/carte/${file}.svg`,
+        path: cartaFisicaPath(ruolo.slug, i + 1),
       }))
     }),
   ),

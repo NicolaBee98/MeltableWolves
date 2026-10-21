@@ -99,7 +99,7 @@ export function variantePerGiocatore(giocatori, giocatoreId) {
 // ruolo; passando `variante` (1-based, cicla se supera il totale) si sceglie
 // quella di un giocatore specifico, così più titolari dello stesso ruolo
 // mostrati insieme (es. il branco) non hanno tutti la stessa immagine.
-const VARIANTI_PERSONAGGIO = {
+export const VARIANTI_PERSONAGGIO = {
   villico: 15,
   'lupo-mannaro': 5,
   guardia: 2,
@@ -179,6 +179,15 @@ export function cartaFisicaPath(slug, variante) {
 // condizioni/: uno slug (src/data/conditions.js) -> un file
 export function condizionePath(slug) {
   return `/assets/condizioni/${slug}.svg`
+}
+
+// icone/: simbolo di ciascuna fazione (voltagabbana: Mezzosangue e Figlia dei Lupi)
+export const FAZIONE_ICONA = {
+  villaggio: 'icona_fazione_villaggio',
+  lupi: 'icona_fazione_branco',
+  indipendente: 'icona_fazione_indipendente',
+  sconosciuto: 'icona_ruolo_sconosciuto_cerchiato',
+  voltagabbana: 'icona_voltagabbana',
 }
 
 // icone/: badge unico per i pochi ruoli che nel libretto hanno un proprio

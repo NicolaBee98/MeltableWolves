@@ -1,4 +1,6 @@
 import { auraDi } from '../../../data/aura'
+import { ChipsIndagine } from './AzioneIndagine'
+
 const POTERE_PERSO = 'inquisitore-potere-perso'
 const POTERE_NOTTE = 'inquisitore-indagine'
 
@@ -15,7 +17,6 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
   const inquisitore = attoreId ? giocatori.find((g) => g.id === attoreId) : giocatori.find((g) => g.ruoloSlug === 'inquisitore')
   const candidati = giocatori.filter((g) => vivoAIngresso(g) && g.id !== inquisitore?.id)
   const indagineStanotte = inquisitore?.ultimaIndagine?.notte === round ? inquisitore.ultimaIndagine : null
-  const giaUsato = Boolean(indagineStanotte)
   // true se un click PRECEDENTE di questa stessa notte (non ancora "Avanti",
   // quindi ancora ripensabile) ha già segnato il potere perso: serve per
   // sapere se un ripensamento successivo deve esplicitamente toglierlo
@@ -73,24 +74,15 @@ export function AzioneInquisitore({ giocatori, aggiornaGiocatore, round, attoreI
   return (
     <div className="azione-indagine">
       <p>Chi interrogare</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Chi interrogare">
-        {candidati.map((g) => {
-          const indagato = giaUsato && indagineStanotte?.targetId === g.id
-          const classeEsito = indagato ? `chip--${indagineStanotte.esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
-          return (
-            <button
-              key={g.id}
-              type="button"
-              className={`chip ${classeEsito}`.trim()}
-              aria-pressed={indagato}
-              onClick={() => (indagato ? annullaScelta() : confermaScelta(g.id))}
-            >
-              {g.nome}
-            </button>
-          )
-        })}
-      </div>
-      {giaUsato && indagineStanotte && (
+      <ChipsIndagine
+        candidati={candidati}
+        etichetta="Chi interrogare"
+        indagatoId={indagineStanotte?.targetId}
+        esito={indagineStanotte?.esito}
+        onScegli={confermaScelta}
+        onAnnulla={annullaScelta}
+      />
+      {indagineStanotte && (
         <p className="azione-indagine__etichetta-esito">
           Rispondi all'Inquisitore: {indagineStanotte.esito === 'malvagia' ? 'sì (aura malvagia)' : 'no (aura benevola)'}
         </p>

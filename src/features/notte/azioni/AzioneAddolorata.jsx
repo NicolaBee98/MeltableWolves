@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { eMimoCopiante, conRuolo } from '../../../data/assegnazione'
 import { nomeRuolo } from '../../../data/roles'
+import { conPotere } from '../../../data/eventiSpeciali'
 import { promemoriaCompagni } from '../../../data/compagni'
 import { patchEredita, LEGAMI_PRIMA_NOTTE } from '../../../data/risoluzioneNotte'
 
@@ -113,7 +114,7 @@ function ScambioAddolorata({ attore, vittima, conNome, aggiornaGiocatore, eredit
     if (!LEGAMI_PRIMA_NOTTE.includes(ruoloOriginaleVittima)) delete eredita[campo]
     aggiornaGiocatore(attore.id, {
       ...eredita,
-      poteriUsati: [...new Set([...(eredita.poteriUsati ?? attore.poteriUsati ?? []), SCAMBIO])],
+      poteriUsati: conPotere(eredita.poteriUsati ?? attore.poteriUsati, SCAMBIO),
       scambioAddolorata: { round, vittimaId: vittima.id, originali },
     })
     // la vittima non tiene più il legame del vecchio ruolo (se resuscitata non deve agire)

@@ -1,5 +1,6 @@
 import { segnaUsoStanotte, annullaUsoStanotte } from '../../../data/effettiNotte'
-import { ROLES } from '../../../data/roles'
+import { nomeRuolo } from '../../../data/roles'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 // la chip scelta resta sempre modificabile finché non si preme "Avanti"
 // (principio generale di tutte le azioni notturne): niente più
@@ -61,26 +62,19 @@ export function AzioneCondizioneSingola({
   }
 
   return (
-    <div className="scelta-giocatore">
-      <p>{etichetta}</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
-        {vivi.map((g) => (
-          <button
-            key={g.id}
-            type="button"
-            className="chip"
-            aria-pressed={g.id === scelto?.id}
-            onClick={() => confermaScelta(g.id)}
-          >
-            {g.nome}
-          </button>
-        ))}
-      </div>
+    <>
+      <SceltaGiocatore
+        candidati={vivi}
+        etichetta={etichetta}
+        selezionatoEsternoId={scelto?.id ?? null}
+        onConferma={confermaScelta}
+        mostraSalta={false}
+      />
       {motivoScelto && (
         <p className="avviso">
-          ⚠️ Non può inibire {ROLES.find((r) => r.slug === scelto.ruoloSlug)?.nome ?? scelto.nome}: {motivoScelto}.
+          ⚠️ Non può inibire {nomeRuolo(scelto.ruoloSlug)}: {motivoScelto}.
         </p>
       )}
-    </div>
+    </>
   )
 }

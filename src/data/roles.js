@@ -1,3 +1,6 @@
+// ordine in cui le fazioni si elencano (mazzo, galleria, sfoglia il mazzo)
+export const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
+
 export const ROLES = [
   { slug: 'addolorata', nome: 'Addolorata', fazione: 'villaggio', notturno: true,
     testoRegole: "Ogni notte sceglie se scambiare permanentemente il proprio ruolo con quello della vittima del rogo del giorno precedente; può farlo solo una volta per partita. Se al rogo nessuno viene ucciso (es. *Spilungone*) non può utilizzare il proprio potere." },

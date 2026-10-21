@@ -1,3 +1,7 @@
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
+import { mortoStanotte } from '../../../data/assegnazione'
+import { conPotere } from '../../../data/eventiSpeciali'
+
 // Il bersaglio NON torna in vita subito: resta morto per il resto della notte
 // (non agisce nei passi successivi) e viene solo marcato `resuscitaAllAlba`;
 // rinasce all'Alba, quando il narratore annuncia la resurrezione (AlbaPanel).
@@ -19,10 +23,9 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
   // I morti di QUESTA notte (non da rogo: quello è del giorno prima) non sono
   // candidati: la resurrezione si annuncia all'alba e chi resuscita non può
   // sapere che sono morti stanotte
-  const mortoStanotte = (g) => g.mortoNotte !== undefined && g.mortoNotte === round && g.causaMorte !== 'rogo' && !g.vivo
   // il Fantasma Onnisciente non può essere resuscitato
   const morti = giocatori.filter(
-    (g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba && !mortoStanotte(g) && !g.eFantasmaOnnisciente) || g.id === target,
+    (g) => (!vivoAIngresso(g) && !g.resuscitaAllAlba && !mortoStanotte(g, round) && !g.eFantasmaOnnisciente) || g.id === target,
   )
 
   if (giaUsato) {
@@ -49,7 +52,7 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
     if (target) togliMarcatore(target)
     aggiornaGiocatore(targetId, { resuscitaAllAlba: round })
     aggiornaGiocatore(attore.id, {
-      poteriUsati: [...new Set([...(attore.poteriUsati ?? []), potereSlug])],
+      poteriUsati: conPotere(attore.poteriUsati, potereSlug),
       sceltaNotte: { ...attore.sceltaNotte, [potereSlug]: targetId },
     })
   }
@@ -59,21 +62,12 @@ export function AzioneResuscita({ giocatori, aggiornaGiocatore, potereSlug, ruol
   }
 
   return (
-    <div className="scelta-giocatore">
-      <p>Chi resuscitare</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Chi resuscitare">
-        {morti.map((g) => (
-          <button
-            key={g.id}
-            type="button"
-            className="chip"
-            aria-pressed={target === g.id}
-            onClick={() => confermaScelta(g.id)}
-          >
-            {g.nome}
-          </button>
-        ))}
-      </div>
-    </div>
+    <SceltaGiocatore
+      candidati={morti}
+      etichetta="Chi resuscitare"
+      selezionatoEsternoId={target ?? null}
+      onConferma={confermaScelta}
+      mostraSalta={false}
+    />
   )
 }

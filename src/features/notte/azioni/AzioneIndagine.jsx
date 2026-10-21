@@ -6,6 +6,30 @@ import { usatoStanotte, segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRu
 // come prop dalla registrazione in azioni/index.js invece che dedotto qui
 // dallo slug dell'attore, così un futuro potere analogo non richiede un
 // altro controllo inline sull'identità del ruolo.
+// chip dei candidati: quella indagata stanotte ha il colore dell'esito e, se
+// ricliccata, annulla l'indagine (condivisa con AzioneInquisitore)
+export function ChipsIndagine({ candidati, etichetta, indagatoId, esito, onScegli, onAnnulla }) {
+  return (
+    <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
+      {candidati.map((g) => {
+        const indagato = indagatoId === g.id
+        const classeEsito = indagato ? ` chip--${esito === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
+        return (
+          <button
+            key={g.id}
+            type="button"
+            className={`chip${classeEsito}`}
+            aria-pressed={indagato}
+            onClick={() => (indagato ? onAnnulla() : onScegli(g.id))}
+          >
+            {g.nome}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function AzioneIndagine({
   giocatori,
   aggiornaGiocatore,
@@ -90,23 +114,14 @@ export function AzioneIndagine({
   return (
     <div className="azione-indagine">
       <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Chi indagare">
-        {candidati.map((g) => {
-          const indagato = giaUsato && indagineStanotte?.targetId === g.id
-          const classeEsito = indagato ? `chip--${esitoIndagine === 'malvagia' ? 'malvagia' : 'benevola'}` : ''
-          return (
-            <button
-              key={g.id}
-              type="button"
-              className={`chip ${classeEsito}`.trim()}
-              aria-pressed={indagato}
-              onClick={() => (indagato ? annullaScelta() : confermaScelta(g.id))}
-            >
-              {g.nome}
-            </button>
-          )
-        })}
-      </div>
+      <ChipsIndagine
+        candidati={candidati}
+        etichetta="Chi indagare"
+        indagatoId={giaUsato ? indagineStanotte?.targetId : null}
+        esito={esitoIndagine}
+        onScegli={confermaScelta}
+        onAnnulla={annullaScelta}
+      />
       {attori.some((g) => (g.condizioni ?? []).includes('accecato')) && (
         <p>🐙 Accecat{attori.length > 1 ? 'i' : 'o'} dal Polpo Mannaro: {attori.map((g) => g.nome).join(', ')}.</p>
       )}

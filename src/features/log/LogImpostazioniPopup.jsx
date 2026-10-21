@@ -84,54 +84,19 @@ export function LogImpostazioniPopup({
                 <LogPartita eventi={eventi} />
               ) : (
                 <div className="log-impostazioni__impostazioni">
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={mostraRuoliInVotazione}
-                      onChange={(e) => onCambiaMostraRuoliInVotazione(e.target.checked)}
-                    />
-                    Mostra le icone dei ruoli durante la votazione
-                  </label>
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={variantiFaccia}
-                      onChange={(e) => onCambiaVariantiFaccia(e.target.checked)}
-                    />
-                    Utilizza le varianti di icona per Lupi Mannari e Villici
-                  </label>
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={mostraNomeRuolo}
-                      onChange={(e) => onCambiaMostraNomeRuolo(e.target.checked)}
-                    />
-                    Mostra il ruolo di un giocatore tra parentesi durante la votazione
-                  </label>
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={promemoriaRuoliMorti}
-                      onChange={(e) => onCambiaPromemoriaRuoliMorti(e.target.checked)}
-                    />
-                    Promemoria durante la notte per i ruoli morti che agirebbero
-                  </label>
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={varianteMedium}
-                      onChange={(e) => onCambiaVarianteMedium(e.target.checked)}
-                    />
-                    Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto
-                  </label>
-                  <label className="impostazioni__toggle">
-                    <input
-                      type="checkbox"
-                      checked={addolorataEreditaScelte}
-                      onChange={(e) => onCambiaAddolorataEreditaScelte(e.target.checked)}
-                    />
-                    L'Addolorata eredita le scelte dei legami (maestro, protetto, genitore)
-                  </label>
+                  {[
+                    [mostraRuoliInVotazione, onCambiaMostraRuoliInVotazione, 'Mostra le icone dei ruoli durante la votazione'],
+                    [variantiFaccia, onCambiaVariantiFaccia, 'Utilizza le varianti di icona per Lupi Mannari e Villici'],
+                    [mostraNomeRuolo, onCambiaMostraNomeRuolo, 'Mostra il ruolo di un giocatore tra parentesi durante la votazione'],
+                    [promemoriaRuoliMorti, onCambiaPromemoriaRuoliMorti, 'Promemoria durante la notte per i ruoli morti che agirebbero'],
+                    [varianteMedium, onCambiaVarianteMedium, "Variante Medium: percepisce solo l'aura del defunto, non il ruolo esatto"],
+                    [addolorataEreditaScelte, onCambiaAddolorataEreditaScelte, "L'Addolorata eredita le scelte dei legami (maestro, protetto, genitore)"],
+                  ].map(([valore, onCambia, testo]) => (
+                    <label key={testo} className="impostazioni__toggle">
+                      <input type="checkbox" checked={valore} onChange={(e) => onCambia(e.target.checked)} />
+                      {testo}
+                    </label>
+                  ))}
                   <label className="impostazioni__campo">
                     Durata timer spareggio (secondi)
                     <input

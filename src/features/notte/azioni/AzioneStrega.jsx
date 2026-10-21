@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { aggiungiCondizionePatch, uccidiPatch, avvisoImmuneNotte, RUOLI_IMMUNI_ALLA_NOTTE } from '../../../data/effettiNotte'
 import { annullaColpo } from './annullaColpo'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 // le pozioni sono uniche per l'intera partita (non per notte): una volta
 // davvero utilizzata (notte precedente) resta bloccata per sempre. Ma finché
@@ -94,22 +95,13 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
         {giaUsataVitale ? (
           <p>Pozione vitale già utilizzata in questa partita.</p>
         ) : (
-          <div className="scelta-giocatore">
-            <p>Chi proteggere</p>
-            <div className="scelta-giocatore__chips" role="group" aria-label="Chi proteggere">
-              {vivi.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  className="chip"
-                  aria-pressed={targetVitale === g.id}
-                  onClick={() => usaPozioneVitale(g.id)}
-                >
-                  {g.nome}
-                </button>
-              ))}
-            </div>
-          </div>
+          <SceltaGiocatore
+            candidati={vivi}
+            etichetta="Chi proteggere"
+            selezionatoEsternoId={targetVitale ?? null}
+            onConferma={usaPozioneVitale}
+            mostraSalta={false}
+          />
         )}
         {avvisoVitale && <p className="avviso">⚠️ {avvisoVitale}</p>}
       </div>
@@ -118,28 +110,16 @@ export function AzioneStrega({ giocatori, aggiornaGiocatore, annullaMorte, round
         {giaUsataMortale ? (
           <p>Pozione mortale già utilizzata in questa partita.</p>
         ) : (
-          <div className="scelta-giocatore">
-            <p>Chi uccidere</p>
-            <div className="scelta-giocatore__chips" role="group" aria-label="Chi uccidere">
-              {/* il bersaglio appena colpito (pending, non ancora "Avanti")
-                  resta comunque nella lista anche se non è più vivo,
-                  altrimenti la sua chip sparirebbe subito dopo il click e non
-                  si potrebbe più vedere né ripensare la scelta */}
-              {giocatori
-                .filter((g) => vivoAIngresso(g) || g.id === targetMortale)
-                .map((g) => (
-                  <button
-                    key={g.id}
-                    type="button"
-                    className="chip"
-                    aria-pressed={targetMortale === g.id}
-                    onClick={() => usaPozioneMortale(g.id)}
-                  >
-                    {g.nome}
-                  </button>
-                ))}
-            </div>
-          </div>
+          // il bersaglio appena colpito (pending, non ancora "Avanti") resta
+          // nella lista anche se non è più vivo, altrimenti la sua chip
+          // sparirebbe subito dopo il click e non si potrebbe ripensare la scelta
+          <SceltaGiocatore
+            candidati={giocatori.filter((g) => vivoAIngresso(g) || g.id === targetMortale)}
+            etichetta="Chi uccidere"
+            selezionatoEsternoId={targetMortale ?? null}
+            onConferma={usaPozioneMortale}
+            mostraSalta={false}
+          />
         )}
         {avvisoMortale && <p className="avviso">⚠️ {avvisoMortale}</p>}
       </div>

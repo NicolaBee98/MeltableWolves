@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { risolviAttaccoBranco, berserkerLupiCandidati, avvisiColpo, vendettaAttivaIn, RUOLI_NON_SELEZIONABILI_DAL_BRANCO } from '../../../data/effettiNotte'
-import { annullaColpo, eColpoLetale } from './annullaColpo'
+import { annullaColpo, eColpoLetale, useEventiAvanti } from './annullaColpo'
 import { conRuolo, eMimoCopiante } from '../../../data/assegnazione'
 import { eLupo } from '../../../data/roles'
+import { applicaPatchMap } from '../../../data/risoluzioneNotte'
 
 const POTERE = 'branco-lupi-sbrana'
 const POTERE_TRASFORMA = 'progenitore-trasforma'
@@ -74,7 +75,7 @@ function colpiDaStato(ingresso, giocatori, ruoli) {
     const patch = Object.fromEntries(m.campi.map((k) => [k, m.ora[k]]))
     colpo.originali[m.id] = Object.fromEntries(m.campi.map((k) => [k, m.prima[k]]))
     colpo.patches[m.id] = patch
-    if (patch.vivo === false || patch.anticoSbranatoNotte !== undefined) colpo.letali.push(m.id)
+    if (eColpoLetale(patch)) colpo.letali.push(m.id)
   }
   for (const c of colpi) {
     c.avvisi = c.tipo === 'trasforma' ? avvisoTrasforma(ingresso, c.targetId, chiTrasforma(ingresso)) : avvisiColpo(ingresso, c.targetId, c.patches, 'branco')
@@ -133,11 +134,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   // effetti speciali dei morsi (Berserker, Mezzosangue, Cavaliere, Cortigiana...):
   // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
   const avvisiMorsi = colpi.flatMap((c) => c.avvisi ?? [])
-  const logMorsi = avvisiMorsi.map((a) => a.log).join('\n')
-  useEffect(() => {
-    impostaEventiAvanti?.('branco', logMorsi ? logMorsi.split('\n') : [])
-    return () => impostaEventiAvanti?.('branco', [])
-  }, [logMorsi])
+  useEventiAvanti(impostaEventiAvanti, 'branco', avvisiMorsi.map((a) => a.log))
   // vendetta già attiva prima di cominciare (Cucciolo morto in precedenza):
   // se invece l'ha fatta scattare il primo colpo, disfarlo la disattiva
   const [vendettaIniziale] = useState(() => iniziali.some((g) => ruoli.includes(g.ruoloSlug) && vendettaAttivaIn(g, round)))
@@ -224,7 +221,7 @@ export function AzioneBrancoLupi({ giocatori, giocatoriIngresso, aggiornaGiocato
   function baseDi(indice) {
     const colpo = colpi[indice]
     if (!colpo) return giocatori
-    return giocatori.map((g) => (colpo.originali[g.id] ? { ...g, ...colpo.originali[g.id] } : g))
+    return applicaPatchMap(giocatori, colpo.originali)
   }
   // disfa gli effetti di un colpo (non gli usi): le morti con annullaMorte
   // (catena inclusa), gli altri campi ripristinando i valori di prima

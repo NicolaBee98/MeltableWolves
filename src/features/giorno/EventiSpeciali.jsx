@@ -162,7 +162,7 @@ export function EventiSpeciali({
     (g) =>
       ((['notte', 'crepacuore'].includes(g.causaMorte) && g.mortoNotte === round) ||
         (['colpo', 'crepacuore'].includes(g.causaMorte) && g.mortoGiorno === round + 1)) &&
-      ((!g.ruoloSlug && anticoAssegnabile) || (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined)),
+      ((!g.ruoloSlug && anticoAssegnabile) || primaVitaAntico(g)),
   )
   // Alchimista (come lo Spilungone, che si rivela solo dal chip del designato
   // in Votazione) esplode solo al rogo: attore = solo il condannato di oggi

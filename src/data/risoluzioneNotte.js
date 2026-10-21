@@ -1,5 +1,6 @@
 import { eLupo } from './roles'
 import { conRuolo } from './assegnazione'
+import { primaVitaAntico } from './eventiSpeciali'
 
 // applica una mappa {id: patch} (come quelle ritornate da risolviLegami/
 // risolviCortigiana) a una lista di giocatori, senza richiamare
@@ -89,8 +90,7 @@ export function risolviLegami(giocatori) {
 
       // L'Antico morto con la prima vita ancora intera (es. crepacuore) non lascia
       // nulla: l'Apprendista si svela solo alla morte vera, sempre come Villico
-      const primaVitaAntico = target.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined
-      if (legame.tipo === 'apprendista' && target.ruoloSlug && !primaVitaAntico) {
+      if (legame.tipo === 'apprendista' && target.ruoloSlug && !primaVitaAntico(target)) {
         // l'Apprendista scambia la carta: i poteri già usati dal maestro (pozioni
         // della Strega, resurrezione di Guaritore/Sciacallo...) restano usati.
         // Un Cavaliere morto senza sacrificarsi ha ancora il legame: l'erede

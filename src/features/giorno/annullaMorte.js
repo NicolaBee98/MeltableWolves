@@ -1,6 +1,6 @@
 import { eMimoCopiante, conRuolo } from '../../data/assegnazione'
-import { roundMorteDiurna } from '../../data/effettiNotte'
-import { conPotere } from '../../data/eventiSpeciali'
+import { roundMorteDiurna, anticoDiventaVillico, propagaUnzione } from '../../data/effettiNotte'
+import { conPotere, primaVitaAntico, cavalieriDi } from '../../data/eventiSpeciali'
 
 // patch che riporta in vita un giocatore la cui morte era stata dichiarata
 // per errore (un tap sbagliato durante il rogo o un evento speciale).
@@ -71,14 +71,9 @@ export function dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annulla
 // come uccidiPatch di notte). Ritorna true se il giocatore è morto davvero.
 export function dichiaraColpo(id, giocatori, aggiornaGiocatore, roundGiorno, extra = {}) {
   const g = giocatori.find((x) => x.id === id)
-  if (g?.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined) {
+  if (g && primaVitaAntico(g)) {
     // la prima vita consumata di giorno maledice il villaggio (come al rogo)
-    aggiornaGiocatore(id, {
-      ruoloSlug: 'villico',
-      storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'],
-      anticoSbranatoNotte: null,
-      villaggioMaledettoFinoA: roundGiorno,
-    })
+    aggiornaGiocatore(id, anticoDiventaVillico(g, roundGiorno))
     return false
   }
   aggiornaGiocatore(id, { ...extra, vivo: false, causaMorte: 'colpo', mortoGiorno: roundGiorno })
@@ -94,4 +89,56 @@ export function dichiaraBoiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGioc
     poteriUsati: conPotere(boia?.poteriUsati, 'boia-giustizia'),
   })
   dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'boia', giustiziatoDa: boiaId })
+}
+
+// Eventi speciali comuni a giorno (GiornoPanel) e alba (AlbaPanel): sempre
+// con il round del giorno in corso, come dichiaraColpo.
+
+// assegna l'identità di un ruolo a rivelazione diurna solo quando si
+// rivela davvero, non preventivamente a inizio partita
+export function dichiaraRivelazione(ruoloSlug, id, giocatori, aggiornaGiocatore, roundGiorno, annullaMorte) {
+  const target = giocatori.find((g) => g.id === id)
+  if (ruoloSlug === 'lantico' && target && !target.vivo) {
+    dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
+    return
+  }
+  // la Suocera si rivela una volta sola (anche già nota: Mimo, o carta
+  // data da Cartomante/Medium); il marcatore evita che l'evento si ripresenti
+  aggiornaGiocatore(id, {
+    ruoloSlug,
+    storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
+    ...(ruoloSlug === 'suocera' && { poteriUsati: conPotere(target?.poteriUsati, 'suocera-rivelata') }),
+    // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
+    ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
+    // lo Spilungone non muore al primo rogo: il marcatore (con il giorno) resta
+    // anche dopo un reload, così l'esito del rogo si ricostruisce dallo stato
+    ...(ruoloSlug === 'spilungone' && { spilungoneRivelatoRound: roundGiorno }),
+  })
+}
+
+export function dichiaraElezioneBorgomastro(id, giocatori, aggiornaGiocatore) {
+  giocatori.filter((g) => g.eBorgomastro).forEach((g) => aggiornaGiocatore(g.id, { eBorgomastro: false }))
+  aggiornaGiocatore(id, { eBorgomastro: true })
+}
+
+// sbagliare la rima rivela e uccide lo Scemo del Villaggio nello stesso
+// istante (pag. 20): stessa logica del Boia/Alchimista, identità mai
+// assegnata in anticipo
+export function dichiaraScemoSbaglia(id, giocatori, aggiornaGiocatore, roundGiorno) {
+  const target = giocatori.find((g) => g.id === id)
+  dichiaraColpo(id, giocatori, aggiornaGiocatore, roundGiorno, {
+    ruoloSlug: 'scemo-del-villaggio',
+    mortoDa: 'scemo',
+    storiaRuoli: conRuolo(target?.storiaRuoli, 'scemo-del-villaggio'),
+  })
+}
+
+// l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
+// vivi ai suoi due fianchi (pag. 22). Se un Cavaliere lo salva non muore:
+// l'unzione non si trasmette
+export function dichiaraMorteUnzione(id, giocatori, aggiornaGiocatore, roundGiorno) {
+  if (!dichiaraColpo(id, giocatori, aggiornaGiocatore, roundGiorno, { mortoDa: 'unzione' }) || cavalieriDi(giocatori, id).length > 0) return
+  for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
+    aggiornaGiocatore(vicinoId, patch)
+  }
 }

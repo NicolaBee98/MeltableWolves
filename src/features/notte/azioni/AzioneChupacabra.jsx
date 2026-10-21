@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { eLupo } from '../../../data/roles'
-import { uccidiPatch, avvisiColpo, segnaUsoStanotte, avvisoImmuneNotte, RUOLI_IMMUNI_ALLA_NOTTE } from '../../../data/effettiNotte'
-import { annullaColpo } from './annullaColpo'
+import { uccidiPatch, avvisiColpo, segnaUsoStanotte, annullaUsoStanotte, avvisoImmuneNotte, RUOLI_IMMUNI_ALLA_NOTTE } from '../../../data/effettiNotte'
+import { annullaColpo, useEventiAvanti } from './annullaColpo'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 const RUOLI = ['chupacabra']
 const POTERE = 'chupacabra-caccia'
@@ -26,11 +27,7 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // effetti speciali della morte del bersaglio (Cortigiana, Cucciolo, Cavaliere):
   // spiegati qui sotto, nel registro solo con "Avanti" (vedi impostaEventiAvanti)
   const [avvisiEffetti, setAvvisiEffetti] = useState([])
-  const logEffetti = avvisiEffetti.map((a) => a.log).join('\n')
-  useEffect(() => {
-    impostaEventiAvanti?.('chupacabra', logEffetti ? logEffetti.split('\n') : [])
-    return () => impostaEventiAvanti?.('chupacabra', [])
-  }, [logEffetti])
+  useEventiAvanti(impostaEventiAvanti, 'chupacabra', avvisiEffetti.map((a) => a.log))
   // il bersaglio appena colpito resta in lista anche se non è più vivo,
   // altrimenti la sua chip sparirebbe subito dopo il click
   const candidati = giocatori.filter(
@@ -40,31 +37,26 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   // ucciso l'ultimo lupo, cambiare bersaglio non deve poter uccidere un non-lupo
   const nessunLupoVivo = !candidati.some((g) => eLupo(g.ruoloSlug))
 
-  // deselezione (click sulla chip premuta): niente bersaglio, uso del potere tolto
-  function deseleziona() {
-    if (colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
+  // disfa gli effetti del bersaglio precedente (colpo, visita) e i suoi avvisi
+  function disfaPrecedente() {
+    if (target && colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
     if (target) aggiornaGiocatore(target, { visitatoDaiLupi: undefined })
-    giocatori
-      .filter((g) => RUOLI.includes(g.ruoloSlug))
-      .forEach((g) => {
-        const usi = [...(g.usiNotte ?? [])]
-        const idx = usi.lastIndexOf(POTERE)
-        if (idx >= 0) usi.splice(idx, 1)
-        aggiornaGiocatore(g.id, { usiNotte: usi })
-      })
-    salvaScelta(undefined)
     setAvviso(null)
     setAvvisiEffetti([])
   }
 
+  // deselezione (click sulla chip premuta): niente bersaglio, uso del potere tolto
+  function deseleziona() {
+    disfaPrecedente()
+    annullaUsoStanotte(giocatori, aggiornaGiocatore, RUOLI, POTERE)
+    salvaScelta(undefined)
+  }
+
   function confermaScelta(targetId) {
     if (targetId === target) return deseleziona()
-    if (target && colpito) annullaColpo(target, aggiornaGiocatore, annullaMorte)
-    if (target) aggiornaGiocatore(target, { visitatoDaiLupi: undefined })
+    disfaPrecedente()
     const eraScelto = Boolean(target)
     let colpitoOra = false
-    setAvviso(null)
-    setAvvisiEffetti([])
     const bersaglio = giocatori.find((g) => g.id === targetId)
     if (bersaglio) {
       if (!eLupo(bersaglio.ruoloSlug) && !nessunLupoVivo) {
@@ -94,26 +86,18 @@ export function AzioneChupacabra({ giocatori, aggiornaGiocatore, annullaMorte, r
   }
 
   return (
-    <div className="scelta-giocatore">
-      <p>Il Chupacabra caccia</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Il Chupacabra caccia">
-        {candidati
-          .map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              className="chip"
-              aria-pressed={target === g.id}
-              onClick={() => confermaScelta(g.id)}
-            >
-              {g.nome}
-            </button>
-          ))}
-      </div>
+    <>
+      <SceltaGiocatore
+        candidati={candidati}
+        etichetta="Il Chupacabra caccia"
+        selezionatoEsternoId={target ?? null}
+        onConferma={confermaScelta}
+        mostraSalta={false}
+      />
       {avviso && <p className="avviso">⚠️ {avviso}</p>}
       {avvisiEffetti.map((a) => (
         <p key={a.testo} className="avviso">⚠️ {a.testo}</p>
       ))}
-    </div>
+    </>
   )
 }

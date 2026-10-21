@@ -1,7 +1,7 @@
 import { eLupo } from './roles'
 import { conRuolo } from './assegnazione'
 import { viciniPiuViciniChe, viciniVivi } from './vicinanza'
-import { cavalieriDi } from './eventiSpeciali'
+import { cavalieriDi, primaVitaAntico } from './eventiSpeciali'
 
 // Cortigiana, Nano e Criceto Malvagio non possono essere uccisi
 // direttamente dai lupi di notte (libretto pag. 12, 12, 18): usata da
@@ -109,9 +109,7 @@ export function avvisiColpo(giocatori, targetId, patches, mortoDa) {
   const avvisi = []
 
   // il Cavaliere salva il bersaglio (qualunque sia la causa di morte) e muore al suo posto
-  const cavalieri = giocatori.filter(
-    (g) => g.vivo && g.id !== targetId && [g.legame, g.legameMimo].some((l) => l?.tipo === 'cavaliere' && l.targetId === targetId),
-  )
+  const cavalieri = cavalieriDi(giocatori, targetId)
   if (muore && cavalieri.length > 0) {
     const nomi = cavalieri.map((c) => c.nome).join(', ')
     avvisi.push({
@@ -256,7 +254,7 @@ export function uccidiPatch(giocatore, round, { ignoraProtezione = false, mortoD
   // `anticoSbranatoNotte: round` (vivo, vita sola), così annunciAlba lo fa
   // emergere all'alba (vedi alba.js) e la UI lo rivela e lo converte in
   // Villico. Se il flag c'è già, la seconda vita è persa: muore normalmente.
-  if (giocatore.ruoloSlug === 'lantico' && giocatore.anticoSbranatoNotte === undefined) {
+  if (primaVitaAntico(giocatore)) {
     return { vivo: true, anticoSbranatoNotte: round }
   }
   return { vivo: false, causaMorte: 'notte', mortoNotte: round, mortoDa }
@@ -350,8 +348,14 @@ export function roundMorteDiurna(g) {
 // resta 'lantico' con il flag, come per il morso (vedi uccidiPatch).
 function anticoSopravvive(g, morto, giorno) {
   if (giorno === undefined) return { ...g, anticoSbranatoNotte: morto.mortoNotte ?? null }
+  return { ...g, ...anticoDiventaVillico(g, giorno) }
+}
+
+// patch dell'Antico che perde la prima vita di giorno (`giorno`): resta vivo
+// da Villico, il flag definito (null) segna la vita persa, e il villaggio è
+// maledetto per la notte successiva
+export function anticoDiventaVillico(g, giorno) {
   return {
-    ...g,
     ruoloSlug: 'villico',
     storiaRuoli: [...(g.storiaRuoli ?? []), 'villico'],
     anticoSbranatoNotte: null,
@@ -382,7 +386,7 @@ export function applicaCrepacuore(giocatori, idAppenaMorto) {
     if (g.id === idAppenaMorto || !g.vivo || !eIlSuoPartner(g)) return g
     // il crepacuore notturno non uccide Nano e Criceto Malvagio (di giorno sì)
     if (giorno === undefined && RUOLI_IMMUNI_ALLA_NOTTE.includes(g.ruoloSlug)) return g
-    if (g.ruoloSlug === 'lantico' && g.anticoSbranatoNotte === undefined) return anticoSopravvive(g, morto, giorno)
+    if (primaVitaAntico(g)) return anticoSopravvive(g, morto, giorno)
     // mortoGiorno: il lutto di una morte diurna resta "di giorno" (Boia all'alba, Antico)
     return { ...g, vivo: false, causaMorte: 'crepacuore', mortoNotte: morto.causaMorte === 'rogo' ? undefined : morto.mortoNotte, mortoGiorno: giorno }
   })

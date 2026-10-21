@@ -1,4 +1,5 @@
 import { MARCATORE_LEGAME_EREDITATO } from '../../../data/risoluzioneNotte'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 const AVVISO_LEGAME = {
   apprendista: 'Non hai scelto il maestro',
@@ -51,23 +52,16 @@ export function AzioneLegame({ giocatori, aggiornaGiocatore, ruoloSlugAttore, ti
   }
 
   return (
-    <div className="scelta-giocatore">
-      <p>{etichetta}</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
-        {candidati.map((g) => (
-          <button
-            key={g.id}
-            type="button"
-            className="chip"
-            aria-pressed={bersaglioAttuale === g.id}
-            onClick={() => confermaScelta(g.id)}
-          >
-            {g.nome}
-          </button>
-        ))}
-      </div>
+    <>
+      <SceltaGiocatore
+        candidati={candidati}
+        etichetta={etichetta}
+        selezionatoEsternoId={bersaglioAttuale ?? null}
+        onConferma={confermaScelta}
+        mostraSalta={false}
+      />
       {/* non bloccante: il narratore può voler lasciare Avanti senza scelta */}
       {!bersaglioAttuale && <p className="avviso">⚠️ {AVVISO_LEGAME[tipoLegame]}: il legame andrà perso.</p>}
-    </div>
+    </>
   )
 }

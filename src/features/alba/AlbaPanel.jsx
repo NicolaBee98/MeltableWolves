@@ -2,11 +2,17 @@ import { useEffect } from 'react'
 import { annunciAlba } from '../../data/alba'
 import { ConcludiPartita } from '../../components/ConcludiPartita'
 import { condizioniVittoria } from '../../data/vittoria'
-import { resuscitaPatch, propagaUnzione } from '../../data/effettiNotte'
-import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile, conPotere, cavalieriDi } from '../../data/eventiSpeciali'
+import { resuscitaPatch } from '../../data/effettiNotte'
+import { conPotereDisponibile, conPotere } from '../../data/eventiSpeciali'
 import { EventiSpeciali } from '../giorno/EventiSpeciali'
-import { annullaMorteCompleta, dichiaraAnticoSbranato, dichiaraBoiaGiustizia, dichiaraColpo } from '../giorno/annullaMorte'
+import {
+  annullaMorteCompleta,
+  dichiaraBoiaGiustizia,
+  dichiaraRivelazione,
+  dichiaraElezioneBorgomastro,
+  dichiaraScemoSbaglia,
+  dichiaraMorteUnzione,
+} from '../giorno/annullaMorte'
 
 // solo le morti notturne (poteri mortali o inconvenienti): rogo e morte
 // improvvisa sono decessi diurni e non vanno mostrati all'alba
@@ -51,46 +57,8 @@ export function AlbaPanel({
   const borgomastroDaEleggere =
     ruoliSelezionati.includes('borgomastro') && !giocatori.some((g) => g.eBorgomastro && g.vivo) && vittoria.length === 0
 
-  // assegna l'identità di un ruolo a rivelazione diurna solo quando si
-  // rivela davvero (vedi nightSteps.js), non preventivamente a inizio partita
-  function dichiaraRivelazione(ruoloSlug, id) {
-    const target = giocatori.find((g) => g.id === id)
-    if (ruoloSlug === 'lantico' && target && !target.vivo) {
-      dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
-      return
-    }
-    // la Suocera si rivela una volta sola (anche già nota: Mimo, o carta
-    // data da Cartomante/Medium); il marcatore evita che l'evento si ripresenti
-    aggiornaGiocatore(id, {
-      ruoloSlug,
-      storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
-      ...(ruoloSlug === 'suocera' && { poteriUsati: conPotere(target?.poteriUsati, 'suocera-rivelata') }),
-      // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
-      ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
-    })
-  }
-
-  function dichiaraElezioneBorgomastro(id) {
-    giocatori.filter((g) => g.eBorgomastro).forEach((g) => aggiornaGiocatore(g.id, { eBorgomastro: false }))
-    aggiornaGiocatore(id, { eBorgomastro: true })
-  }
-
-  // come in giorno (GiornoPanel), ma la morte conta nel giorno che segue l'alba
-  function dichiaraScemoSbaglia(id) {
-    const target = giocatori.find((g) => g.id === id)
-    dichiaraColpo(id, giocatori, aggiornaGiocatore, round + 1, {
-      ruoloSlug: 'scemo-del-villaggio',
-      mortoDa: 'scemo',
-      storiaRuoli: conRuolo(target?.storiaRuoli, 'scemo-del-villaggio'),
-    })
-  }
-
-  function dichiaraMorteUnzione(id) {
-    if (!dichiaraColpo(id, giocatori, aggiornaGiocatore, round + 1, { mortoDa: 'unzione' }) || cavalieriDi(giocatori, id).length > 0) return
-    for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
-      aggiornaGiocatore(vicinoId, patch)
-    }
-  }
+  // le morti dichiarate all'alba contano nel giorno che segue
+  const giorno = round + 1
 
   function dichiaraGalloSaltaGiorno() {
     const gallo = conPotereDisponibile(giocatori, 'gallo-mannaro', 'gallo-salta-giorno')
@@ -123,13 +91,6 @@ export function AlbaPanel({
       }
     }
   }, [daResuscitare, round, aggiornaGiocatore])
-
-  // corregge una morte dichiarata per errore (anche la sua catena: crepacuore,
-  // Cucciolo, Apprendista...): qui serve per un decesso notturno visto solo
-  // all'alba
-  function dichiaraAnnullaMorte(id) {
-    annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)
-  }
 
   return (
     <section className="alba-panel">
@@ -182,18 +143,20 @@ export function AlbaPanel({
         quantita={quantita}
         contesto="alba"
         round={round}
-        onRivelazione={dichiaraRivelazione}
-        // il Boia può giustiziare anche all'alba: la morte conta nel giorno che segue
-        onBoiaGiustizia={(boiaId, id) => dichiaraBoiaGiustizia(boiaId, id, giocatori, aggiornaGiocatore, round + 1)}
-        onScemoSbaglia={dichiaraScemoSbaglia}
-        onMorteUnzione={dichiaraMorteUnzione}
-        onElezioneBorgomastro={dichiaraElezioneBorgomastro}
+        onRivelazione={(ruoloSlug, id) => dichiaraRivelazione(ruoloSlug, id, giocatori, aggiornaGiocatore, giorno, annullaMorte)}
+        // il Boia può giustiziare anche all'alba
+        onBoiaGiustizia={(boiaId, id) => dichiaraBoiaGiustizia(boiaId, id, giocatori, aggiornaGiocatore, giorno)}
+        onScemoSbaglia={(id) => dichiaraScemoSbaglia(id, giocatori, aggiornaGiocatore, giorno)}
+        onMorteUnzione={(id) => dichiaraMorteUnzione(id, giocatori, aggiornaGiocatore, giorno)}
+        onElezioneBorgomastro={(id) => dichiaraElezioneBorgomastro(id, giocatori, aggiornaGiocatore)}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}
         // la Suocera resta "?" per tutta la partita finché non muore (pag.
         // 21, può capitare anche di notte): è a tutti gli effetti una
         // rivelazione diurna a ruolo fisso, riusa lo stesso handler
-        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id)}
-        onAnnullaMorte={dichiaraAnnullaMorte}
+        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id, giocatori, aggiornaGiocatore, giorno, annullaMorte)}
+        // corregge una morte dichiarata per errore (anche la sua catena:
+        // crepacuore, Cucciolo, Apprendista...), qui per un decesso notturno visto solo all'alba
+        onAnnullaMorte={(id) => annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)}
       />
     </section>
   )

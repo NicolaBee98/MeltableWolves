@@ -1,4 +1,5 @@
 import { segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 const RUOLI = ['cortigiana']
 const POTERE = 'cortigiana-visita'
@@ -28,21 +29,12 @@ export function AzioneCortigiana({ giocatori, aggiornaGiocatore, vivoAIngresso =
   }
 
   return (
-    <div className="scelta-giocatore">
-      <p>Chi visita la Cortigiana</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label="Chi visita la Cortigiana">
-        {candidati.map((g) => (
-          <button
-            key={g.id}
-            type="button"
-            className="chip"
-            aria-pressed={cortigiana?.visitaNotturna === g.id}
-            onClick={() => confermaScelta(g.id)}
-          >
-            {g.nome}
-          </button>
-        ))}
-      </div>
-    </div>
+    <SceltaGiocatore
+      candidati={candidati}
+      etichetta="Chi visita la Cortigiana"
+      selezionatoEsternoId={cortigiana?.visitaNotturna ?? null}
+      onConferma={confermaScelta}
+      mostraSalta={false}
+    />
   )
 }

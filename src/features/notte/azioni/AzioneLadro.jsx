@@ -27,6 +27,19 @@ export function ladroRestaVillico(g, quantita, aggiornaGiocatore, onCambiaQuanti
   }
 }
 
+// una chip per carta (doppioni una volta sola); il Villico è "Resta Villico"
+function ChipsCarte({ etichetta, carte, scelta, onScegli }) {
+  return (
+    <div className="scelta-giocatore__chips" role="group" aria-label={etichetta}>
+      {[...new Set(carte)].map((slug) => (
+        <button key={slug} type="button" className="chip" aria-pressed={scelta === slug} onClick={() => onScegli(slug)}>
+          {slug === 'villico' ? 'Resta Villico' : nomeRuolo(slug)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // Il mazzo fisico ha due carte in più quando c'è il Ladro (pag. 15): quali
 // due ruoli siano non si decide componendo il mazzo, ma qui, quando tocca al
 // Ladro guardarle. Le due carte candidate si tengono sul giocatore stesso
@@ -72,14 +85,13 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
   // ne ha ancora due da assegnare o se è già così
   const puoRipetersi = (slug) =>
     carta1 === carta2 || (quantita[slug] ?? 1) - contaAssegnati(giocatori, slug) >= 2
-  const opzioniPrimaCarta = disponibili.filter((slug) => slug !== carta2 || puoRipetersi(slug))
-  const opzioniSecondaCarta = disponibili.filter((slug) => slug !== carta1 || puoRipetersi(slug))
+  const opzioniCarta = (altra) => disponibili.filter((slug) => slug !== altra || puoRipetersi(slug))
 
   if (!ladro) return null
 
   // la regola "entrambe Lupi Mannari: deve scambiare" vale solo per i lupi
   // veri (eLupo), non per Gallo/Mucca/Sciacallo
-  const entrambiLupi = Boolean(carta1) && Boolean(carta2) && eLupo(carta1) && eLupo(carta2)
+  const entrambiLupi = ladroDeveScambiare(ladro)
 
   // la carta non presa dal Ladro resta fuori dal mazzo per il resto della
   // partita (pag. 15): se il Ladro sceglie una delle due, l'altra si scarta;
@@ -147,28 +159,22 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
     <div className="azione-ladro">
       <p>Quali due carte sono rimaste fuori dal mazzo, tra quelle non assegnate a nessuno?</p>
       <div className="azione-ladro__scarto">
-        <label>
-          <span>Prima carta</span>
-          <select value={carta1 ?? ''} onChange={(e) => impostaCarta(0, e.target.value)}>
-            <option value="">— scegli —</option>
-            {opzioniPrimaCarta.map((slug) => (
-              <option key={slug} value={slug}>
-                {nomeRuolo(slug)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Seconda carta</span>
-          <select value={carta2 ?? ''} onChange={(e) => impostaCarta(1, e.target.value)}>
-            <option value="">— scegli —</option>
-            {opzioniSecondaCarta.map((slug) => (
-              <option key={slug} value={slug}>
-                {nomeRuolo(slug)}
-              </option>
-            ))}
-          </select>
-        </label>
+        {[
+          ['Prima carta', carta1, carta2],
+          ['Seconda carta', carta2, carta1],
+        ].map(([etichetta, carta, altra], indice) => (
+          <label key={etichetta}>
+            <span>{etichetta}</span>
+            <select value={carta ?? ''} onChange={(e) => impostaCarta(indice, e.target.value)}>
+              <option value="">— scegli —</option>
+              {opzioniCarta(altra).map((slug) => (
+                <option key={slug} value={slug}>
+                  {nomeRuolo(slug)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
       </div>
 
       {carta1 && carta2 && (
@@ -176,55 +182,24 @@ export function AzioneLadro({ giocatori, aggiornaGiocatore, ruoliSelezionati = [
           <p>
             Il Ladro guarda le due carte rimaste: {nomeRuolo(carta1)} e {nomeRuolo(carta2)}.
           </p>
-          <div className="scelta-giocatore__chips" role="group" aria-label="Cosa sceglie il Ladro">
-            <button
-              type="button"
-              className="chip"
-              aria-pressed={usato && ladro.ruoloSlug === carta1}
-              onClick={() => scegli(carta1)}
-            >
-              {nomeRuolo(carta1)}
-            </button>
-            {carta2 !== carta1 && (
-              <button
-                type="button"
-                className="chip"
-                aria-pressed={usato && ladro.ruoloSlug === carta2}
-                onClick={() => scegli(carta2)}
-              >
-                {nomeRuolo(carta2)}
-              </button>
-            )}
-            {!entrambiLupi && (
-              <button
-                type="button"
-                className="chip"
-                aria-pressed={usato && ladro.ruoloSlug === 'villico'}
-                onClick={() => scegli('villico')}
-              >
-                Resta Villico
-              </button>
-            )}
-          </div>
+          <ChipsCarte
+            etichetta="Cosa sceglie il Ladro"
+            carte={[carta1, carta2, ...(entrambiLupi ? [] : ['villico'])]}
+            scelta={usato && ladro.ruoloSlug}
+            onScegli={scegli}
+          />
         </>
       )}
 
       {mimo && usato && (
         <>
           <p>Ora sceglie {mimo.nome} (Mimo, imita il Ladro), tra le carte rimaste.</p>
-          <div className="scelta-giocatore__chips" role="group" aria-label="Cosa sceglie il Mimo">
-            {[...rimaste, 'villico'].map((slug) => (
-              <button
-                key={slug}
-                type="button"
-                className="chip"
-                aria-pressed={haScelto(mimo) && mimo.ruoloSlug === slug}
-                onClick={() => scegliMimo(slug)}
-              >
-                {slug === 'villico' ? 'Resta Villico' : nomeRuolo(slug)}
-              </button>
-            ))}
-          </div>
+          <ChipsCarte
+            etichetta="Cosa sceglie il Mimo"
+            carte={[...rimaste, 'villico']}
+            scelta={haScelto(mimo) && mimo.ruoloSlug}
+            onScegli={scegliMimo}
+          />
         </>
       )}
     </div>

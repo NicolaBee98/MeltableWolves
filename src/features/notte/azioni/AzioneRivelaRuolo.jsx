@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { nomeRuolo } from '../../../data/roles'
-import { segnaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
+import { segnaUsoStanotte, annullaUsoStanotte, aggiornaTuttiConRuolo } from '../../../data/effettiNotte'
 import { ruoliAssegnabili, guardiaIncerta, distinguiGuardia, conRuolo, cartaInMano } from '../../../data/assegnazione'
 import { cartaFisicaPath, variantePerGiocatore } from '../../../data/assetRuoli'
 import { CartaSchermoIntero } from '../../../components/CartaSchermoIntero'
+import { applicaPatchMap } from '../../../data/risoluzioneNotte'
+import { SceltaGiocatore } from '../../../components/SceltaGiocatore'
 
 // Carte non proponibili per un bersaglio ignoto: il Borgomastro è un titolo
 // (non una carta fisica) e la Cartomante sta già guardando la carta di un
@@ -65,12 +67,8 @@ export function AzioneRivelaRuolo({
 
   // toglie l'indagine di stanotte e il suo uso: si torna a "nessuna scelta"
   function liberaIndagine() {
-    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, (g) => {
-      const usi = [...(g.usiNotte ?? [])]
-      const idx = usi.lastIndexOf(potere)
-      if (idx >= 0) usi.splice(idx, 1)
-      return { ultimaIndagine: null, usiNotte: usi }
-    })
+    aggiornaTuttiConRuolo(giocatori, aggiornaGiocatore, ruoloSlugAttore, { ultimaIndagine: null })
+    annullaUsoStanotte(giocatori, aggiornaGiocatore, ruoli, potere)
   }
 
   // disfa la carta scritta sul bersaglio ignoto (ruolo e storia come prima)
@@ -101,7 +99,7 @@ export function AzioneRivelaRuolo({
     if (assegnato?.ruoloSlug === ruoloSlug) return disfaAssegnazione()
     // stato com'era prima di qualunque scelta fatta qui (anche la precedente)
     const prima = { ...assegnato?.prima }
-    const originali = giocatori.map((g) => (prima[g.id] ? { ...g, ...prima[g.id] } : g))
+    const originali = applicaPatchMap(giocatori, prima)
     const target = originali.find((g) => g.id === targetInAttesaDiRuolo)
     const patch = guardiaTarget
       ? distinguiGuardia(originali, target.id, ruoloSlug)
@@ -157,7 +155,7 @@ export function AzioneRivelaRuolo({
     // le chip si calcolano sullo stato di prima della scelta, altrimenti la carta
     // scelta uscirebbe dalla lista e le chip si riordinerebbero
     const prima = assegnato?.prima ?? {}
-    const giocatoriPrima = giocatori.map((g) => (prima[g.id] ? { ...g, ...prima[g.id] } : g))
+    const giocatoriPrima = applicaPatchMap(giocatori, prima)
     // qui, a differenza dell'assegnazione automatica di inizio notte, anche
     // il Villico va offerto: il narratore vede la carta fisica in mano, può
     // benissimo essere quella
@@ -213,20 +211,13 @@ export function AzioneRivelaRuolo({
   // bersaglio ignoto (qui sopra) si cambia o si toglie, senza residui.
   return (
     <div className="azione-indagine">
-      <p>{bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}</p>
-      <div className="scelta-giocatore__chips" role="group" aria-label={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}>
-        {candidati.map((g) => (
-          <button
-            key={g.id}
-            type="button"
-            className="chip"
-            aria-pressed={indagineStanotte?.targetId === g.id}
-            onClick={() => confermaScelta(g.id)}
-          >
-            {g.nome}
-          </button>
-        ))}
-      </div>
+      <SceltaGiocatore
+        candidati={candidati}
+        etichetta={bersaglio === 'morto' ? 'Chi interrogare (defunto)' : 'Chi indagare'}
+        selezionatoEsternoId={indagineStanotte?.targetId ?? null}
+        onConferma={confermaScelta}
+        mostraSalta={false}
+      />
       {esito}
     </div>
   )

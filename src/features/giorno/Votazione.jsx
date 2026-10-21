@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { risultatoVotazione } from '../../data/votazione'
 import { CONDIZIONI } from '../../data/conditions'
-import { ROLES, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
+import { nomeRuolo, ruoloPerDisplay, ruoloIconaGiocatore } from '../../data/roles'
 import { ruoliAssegnabili, ignotiSonoVillici } from '../../data/assegnazione'
 import { TimerSpareggio } from './TimerSpareggio'
 import { EventiSpeciali } from './EventiSpeciali'
@@ -30,23 +30,22 @@ function BadgeCondizioni({ condizioni = [] }) {
 // ignotiVillici: tutte le altre carte sono già uscite, il "?" può essere solo Villico
 function BadgeRuolo({ giocatore, variante, ignotiVillici }) {
   const slugVisibile = ruoloIconaGiocatore(giocatore) ?? (ignotiVillici ? 'villico' : undefined)
-  const ruolo = ROLES.find((r) => r.slug === slugVisibile)
   return (
     <RuoloIcona
       slug={slugVisibile}
       variante={variante}
       size={24}
       className="votazione__icona-ruolo"
-      alt={ruolo?.nome ?? 'Ruolo non ancora rivelato'}
+      alt={nomeRuolo(slugVisibile) ?? 'Ruolo non ancora rivelato'}
     />
   )
 }
 
 function nomeRuoloTraParentesi(giocatore) {
-  const ruolo = ROLES.find((r) => r.slug === ruoloPerDisplay(giocatore.ruoloSlug))
+  const nome = nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))
   // l'ex-Antico (ora Villico) conserva il segno della prima vita persa
   const exAntico = giocatore.ruoloSlug === 'villico' && (giocatore.storiaRuoli ?? []).includes('lantico')
-  return ruolo ? ` (${ruolo.nome}${exAntico ? ', ex Antico' : ''})` : ''
+  return nome ? ` (${nome}${exAntico ? ', ex Antico' : ''})` : ''
 }
 
 // elenco di tutti i morti della partita (non solo di questo giorno/notte),
@@ -120,6 +119,32 @@ export function Votazione({
 }) {
   const vivi = giocatori.filter((g) => g.vivo)
   const ignotiVillici = ignotiSonoVillici(giocatori, quantita)
+  // stessi Eventi speciali ed elenco dei morti in fase di voto e di esito
+  const propsEventi = {
+    giocatori,
+    ruoliSelezionati,
+    quantita,
+    round: round === undefined ? undefined : round - 1,
+    onScemoSbaglia,
+    onMorteUnzione,
+    onRivelazione,
+    onBoiaGiustizia,
+    onAlchimistaEsplode,
+    onBardoSaltaNotte,
+    onElezioneBorgomastro,
+    onFantasmaOnnisciente,
+    onSuoceraRivelazione,
+    onAnnullaMorte,
+  }
+  const sezioneMorti = (
+    <SezioneMorti
+      ignotiVillici={ignotiVillici}
+      giocatori={giocatori}
+      mostraRuoli={mostraRuoli}
+      variantiFaccia={variantiFaccia}
+      mostraNomeRuolo={mostraNomeRuolo}
+    />
+  )
   // Spilungone e L'Antico non muoiono mai al primo rogo: si rivelano e
   // basta (pag. 16, 21). Tracciati a parte perché non passano mai da onRogo.
   // ponytail: questo stato locale non si resetta tra un giorno e l'altro
@@ -231,7 +256,7 @@ export function Votazione({
         // immune al rogo per sempre (anche se già rivelato): il marcatore (onRivelazione) ricostruisce l'esito dopo un reload
         onRivelazione('spilungone', id)
         setSpilungoneRivelatoId(id)
-      } else if (target?.ruoloSlug === 'lantico' && target.anticoSbranatoNotte === undefined && cavalieriDi(giocatori, id).length === 0) {
+      } else if (target && primaVitaAntico(target) && cavalieriDi(giocatori, id).length === 0) {
         // con un Cavaliere che lo salva agisce prima lui (si immola): il designato
         // non muore, quindi non c'è nulla da rivelare (stessa regola dell'Alchimista).
         // già sbranato di notte (anticoSbranatoNotte definito) ha perso la sua
@@ -304,8 +329,8 @@ export function Votazione({
     }
 
     function renderEsitoDesignato(id) {
+      const nome = giocatori.find((g) => g.id === id)?.nome
       if (protettoImmolatoId === id) {
-        const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <>
             <p>
@@ -319,7 +344,6 @@ export function Votazione({
         )
       }
       if (spilungoneRivelatoId === id) {
-        const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <p>
             {nome} rivela la propria carta: è lo Spilungone, troppo alto per qualsiasi patibolo. La notte cala senza vittime.
@@ -327,7 +351,6 @@ export function Votazione({
         )
       }
       if (anticoRivelatoId === id) {
-        const nome = giocatori.find((g) => g.id === id)?.nome
         return (
           <p>
             {nome} rivela la propria carta: è L'Antico, ma sopravvive perdendo la sua prima vita. Il villaggio è maledetto: la notte successiva il villaggio non userà i suoi poteri.
@@ -335,7 +358,6 @@ export function Votazione({
         )
       }
       if (alchimistaEsploso?.alchimistaId === id) {
-        const nome = giocatori.find((g) => g.id === id)?.nome
         const vittima = giocatori.find((g) => g.id === alchimistaEsploso.vittimaId)
         // la vittima può essere tornata in vita dopo: era l'Antico, rivelato poi
         const salvo = alchimistaEsploso.salvo || (vittima?.vivo && (vittima.storiaRuoli ?? []).includes('lantico'))
@@ -483,22 +505,13 @@ export function Votazione({
               renderEsitoDesignato(protettoImmolatoId)
             ) : !morteConfermata ? (
               <div className="votazione__scelta-box">
-                <p id="spareggio-titolo">Condanna</p>
-                <div className="scelta-giocatore__chips" role="group" aria-labelledby="spareggio-titolo">
-                  {designati.map((id) => (
-                    <button
-                      key={id}
-                      type="button"
-                      className="chip"
-                      aria-pressed={designatoSpareggioValido === id}
-                      onClick={() => {
-                        setDesignatoSpareggio(id)
-                      }}
-                    >
-                      {giocatori.find((g) => g.id === id)?.nome}
-                    </button>
-                  ))}
-                </div>
+                <SceltaGiocatore
+                  candidati={giocatori.filter((g) => designati.includes(g.id))}
+                  etichetta="Condanna"
+                  selezionatoEsternoId={designatoSpareggioValido ?? null}
+                  onConferma={setDesignatoSpareggio}
+                  mostraSalta={false}
+                />
                 {designatoSpareggioValido && renderEsitoDesignato(designatoSpareggioValido)}
               </div>
             ) : null}
@@ -524,31 +537,8 @@ export function Votazione({
             È notte nel villaggio
           </button>
         )}
-        <EventiSpeciali
-          giocatori={giocatori}
-          ruoliSelezionati={ruoliSelezionati}
-          quantita={quantita}
-          contesto="esito"
-          round={round === undefined ? undefined : round - 1}
-          candidatiRogo={designati}
-          onScemoSbaglia={onScemoSbaglia}
-          onMorteUnzione={onMorteUnzione}
-          onRivelazione={onRivelazione}
-          onBoiaGiustizia={onBoiaGiustizia}
-          onAlchimistaEsplode={onAlchimistaEsplode}
-          onBardoSaltaNotte={onBardoSaltaNotte}
-          onElezioneBorgomastro={onElezioneBorgomastro}
-          onFantasmaOnnisciente={onFantasmaOnnisciente}
-          onSuoceraRivelazione={onSuoceraRivelazione}
-          onAnnullaMorte={onAnnullaMorte}
-        />
-        <SezioneMorti
-          ignotiVillici={ignotiVillici}
-          giocatori={giocatori}
-          mostraRuoli={mostraRuoli}
-          variantiFaccia={variantiFaccia}
-          mostraNomeRuolo={mostraNomeRuolo}
-        />
+        <EventiSpeciali {...propsEventi} contesto="esito" candidatiRogo={designati} />
+        {sezioneMorti}
       </section>
     )
   }
@@ -627,30 +617,8 @@ export function Votazione({
         </button>
       )}
       </div>
-      <EventiSpeciali
-        giocatori={giocatori}
-        ruoliSelezionati={ruoliSelezionati}
-        quantita={quantita}
-        contesto="voto"
-        round={round === undefined ? undefined : round - 1}
-        onScemoSbaglia={onScemoSbaglia}
-        onMorteUnzione={onMorteUnzione}
-        onRivelazione={onRivelazione}
-        onBoiaGiustizia={onBoiaGiustizia}
-        onAlchimistaEsplode={onAlchimistaEsplode}
-        onBardoSaltaNotte={onBardoSaltaNotte}
-        onElezioneBorgomastro={onElezioneBorgomastro}
-        onFantasmaOnnisciente={onFantasmaOnnisciente}
-        onSuoceraRivelazione={onSuoceraRivelazione}
-        onAnnullaMorte={onAnnullaMorte}
-      />
-      <SezioneMorti
-        ignotiVillici={ignotiVillici}
-        giocatori={giocatori}
-        mostraRuoli={mostraRuoli}
-        variantiFaccia={variantiFaccia}
-        mostraNomeRuolo={mostraNomeRuolo}
-      />
+      <EventiSpeciali {...propsEventi} contesto="voto" />
+      {sezioneMorti}
     </section>
   )
 }

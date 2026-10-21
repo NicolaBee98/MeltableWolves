@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { ROLES } from '../../data/roles'
+import { ROLES, FAZIONI_ORDINE } from '../../data/roles'
 import { cartaPath } from '../../data/assetRuoli'
 import { SfogliaMazzo } from './SfogliaMazzo'
 
-const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
 const FAZIONE_LABEL = {
   villaggio: 'Villaggio',
   lupi: 'Lupi',

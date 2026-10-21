@@ -75,9 +75,9 @@ export function AssegnaRuolo({
   }
 
   function toggle(giocatoreId) {
+    setAvviso(null)
     if (pendenti.includes(giocatoreId)) {
       onCambiaSelezioni({ ...selezioni, [chiavePendenti]: pendenti.filter((id) => id !== giocatoreId) })
-      setAvviso(null)
       return
     }
     const titolare = titolari.find((t) => t.id === giocatoreId)
@@ -85,7 +85,6 @@ export function AssegnaRuolo({
       // deseleziona una scelta già confermata: annulla davvero l'assegnazione
       // (per il gruppo guardie, qualunque sia il suo slug reale/nascosto)
       onRimuovi(giocatoreId, titolare.ruoloSlug)
-      setAvviso(null)
       return
     }
     if (selezionatiVisivi.length >= capacita) {
@@ -93,21 +92,17 @@ export function AssegnaRuolo({
         // un solo titolare possibile: un nuovo click sostituisce il
         // precedente invece di richiedere prima una deselezione esplicita
         const precedente = selezionatiVisivi[0]
-        if (pendenti.includes(precedente)) {
-          onCambiaSelezioni({ ...selezioni, [chiavePendenti]: [giocatoreId] })
-        } else {
+        if (!pendenti.includes(precedente)) {
           const precedenteTitolare = titolari.find((t) => t.id === precedente)
           onRimuovi(precedente, precedenteTitolare?.ruoloSlug ?? ruoloScelto)
-          onCambiaSelezioni({ ...selezioni, [chiavePendenti]: [giocatoreId] })
         }
-        setAvviso(null)
+        onCambiaSelezioni({ ...selezioni, [chiavePendenti]: [giocatoreId] })
         return
       }
-      setAvviso(`Puoi selezionare al massimo ${capacita} ${capacita === 1 ? 'giocatore' : 'giocatori'} per questo ruolo.`)
+      setAvviso(`Puoi selezionare al massimo ${capacita} giocatori per questo ruolo.`)
       return
     }
     onCambiaSelezioni({ ...selezioni, [chiavePendenti]: [...pendenti, giocatoreId] })
-    setAvviso(null)
   }
 
   // `illustrazioneSeparata=false` (passata da NightSequencer per i passi con

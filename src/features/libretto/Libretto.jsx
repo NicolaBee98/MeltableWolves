@@ -11,20 +11,13 @@ import {
   personaggioRiconoscimentoPath,
   altezzaNaturaleRiconoscimento,
   FAZIONE_RUOLO_ICONA,
+  FAZIONE_ICONA,
 } from '../../data/assetRuoli'
 
 // altezza a schermo del più alto dei quattro (Remo); gli altri si scalano
 // dallo stesso fattore, vedi altezzaNaturaleRiconoscimento
 const ALTEZZA_RICONOSCIMENTO_MASSIMA = 140
 const SCALA_RICONOSCIMENTO = ALTEZZA_RICONOSCIMENTO_MASSIMA / altezzaNaturaleRiconoscimento('remo')
-
-const FAZIONE_ICONA = {
-  villaggio: 'icona_fazione_villaggio',
-  lupi: 'icona_fazione_branco',
-  indipendente: 'icona_fazione_indipendente',
-  sconosciuto: 'icona_ruolo_sconosciuto_cerchiato',
-  voltagabbana: 'icona_voltagabbana',
-}
 
 const PERSONAGGINI_RICONOSCIMENTI = ['diletta', 'remo', 'filippo', 'nicola']
 
@@ -83,28 +76,14 @@ function Lista({ voci }) {
   )
 }
 
-function SezioneFazioni({ fazioni }) {
+// elenco "icona + testo" (fazioni, caratteristiche): `voci` = [{ chiave, icona, contenuto }]
+function ListaIcone({ voci }) {
   return (
     <ul className="libretto__fazioni">
-      {fazioni.map((f) => (
-        <li key={f.slug}>
-          {FAZIONE_ICONA[f.slug] && <img src={iconaPath(FAZIONE_ICONA[f.slug])} alt="" aria-hidden="true" className="libretto__icona" />}
-          <span>
-            <strong>{f.nome}:</strong> {f.descrizione}
-          </span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function SezioneCaratteristiche({ caratteristiche }) {
-  return (
-    <ul className="libretto__fazioni">
-      {caratteristiche.map((c) => (
-        <li key={c.testo}>
-          {c.icona && <img src={iconaPath(c.icona)} alt="" aria-hidden="true" className="libretto__icona" />}
-          <span>{c.testo}</span>
+      {voci.map((v) => (
+        <li key={v.chiave}>
+          {v.icona && <img src={iconaPath(v.icona)} alt="" aria-hidden="true" className="libretto__icona" />}
+          <span>{v.contenuto}</span>
         </li>
       ))}
     </ul>
@@ -247,7 +226,19 @@ export function Libretto({ onTornaAllaHome }) {
           <SezioneIllustrazione src={sezione.immagine} />
           <Paragrafi paragrafi={sezione.paragrafi} />
           <Lista voci={sezione.lista} />
-          {sezione.fazioni && <SezioneFazioni fazioni={sezione.fazioni} />}
+          {sezione.fazioni && (
+            <ListaIcone
+              voci={sezione.fazioni.map((f) => ({
+                chiave: f.slug,
+                icona: FAZIONE_ICONA[f.slug],
+                contenuto: (
+                  <>
+                    <strong>{f.nome}:</strong> {f.descrizione}
+                  </>
+                ),
+              }))}
+            />
+          )}
           <SezionePersonaggio slug={sezione.personaggioMeta} />
           {sezione.sottosezioni?.map((sotto, i) => (
             <div key={i} className="libretto__sottosezione">
@@ -265,7 +256,9 @@ export function Libretto({ onTornaAllaHome }) {
           ))}
           <SezionePersonaggio slug={sezione.personaggioFine} />
           <Paragrafi paragrafi={sezione.paragrafiDopo} />
-          {sezione.caratteristiche && <SezioneCaratteristiche caratteristiche={sezione.caratteristiche} />}
+          {sezione.caratteristiche && (
+            <ListaIcone voci={sezione.caratteristiche.map((c) => ({ chiave: c.testo, icona: c.icona, contenuto: c.testo }))} />
+          )}
           {sezione.speciale === 'ruoli' && <SezioneRuoli />}
           {sezione.speciale === 'condizioni' && <SezioneCondizioni />}
           {sezione.titolo === 'Riconoscimenti' && <SezionePersonaggini />}

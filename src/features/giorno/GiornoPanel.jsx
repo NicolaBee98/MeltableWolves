@@ -1,12 +1,14 @@
 import { Votazione } from './Votazione'
-import { propagaUnzione } from '../../data/effettiNotte'
 import { conRuolo } from '../../data/assegnazione'
-import { conPotereDisponibile, conPotere, cavalieriDi } from '../../data/eventiSpeciali'
+import { conPotereDisponibile, conPotere } from '../../data/eventiSpeciali'
 import {
   annullaMorteCompleta,
-  dichiaraAnticoSbranato,
-  dichiaraColpo as colpo,
-  dichiaraBoiaGiustizia as boiaGiustizia,
+  dichiaraColpo,
+  dichiaraBoiaGiustizia,
+  dichiaraRivelazione,
+  dichiaraElezioneBorgomastro,
+  dichiaraScemoSbaglia,
+  dichiaraMorteUnzione,
 } from './annullaMorte'
 
 export function GiornoPanel({
@@ -34,33 +36,6 @@ export function GiornoPanel({
     aggiornaGiocatore(id, { vivo: false, causaMorte: 'rogo', mortoNotte: round })
   }
 
-  // morte sul colpo di oggi: l'Antico non muore alla prima vita (vedi annullaMorte.js)
-  function dichiaraColpo(id, extra) {
-    return colpo(id, giocatori, aggiornaGiocatore, round, extra)
-  }
-
-  // sbagliare la rima rivela e uccide lo Scemo del Villaggio nello stesso
-  // istante (pag. 20): stessa logica del Boia/Alchimista, identità mai
-  // assegnata in anticipo
-  function dichiaraScemoSbaglia(id) {
-    const target = giocatori.find((g) => g.id === id)
-    dichiaraColpo(id, {
-      ruoloSlug: 'scemo-del-villaggio',
-      mortoDa: 'scemo',
-      storiaRuoli: conRuolo(target?.storiaRuoli, 'scemo-del-villaggio'),
-    })
-  }
-
-  // l'Unto che dice "sì" o "no" muore sul colpo e trasmette l'unzione ai
-  // vivi ai suoi due fianchi (pag. 22). Se un Cavaliere lo salva non muore:
-  // l'unzione non si trasmette
-  function dichiaraMorteUnzione(id) {
-    if (!dichiaraColpo(id, { mortoDa: 'unzione' }) || cavalieriDi(giocatori, id).length > 0) return
-    for (const [vicinoId, patch] of Object.entries(propagaUnzione(giocatori, id))) {
-      aggiornaGiocatore(vicinoId, patch)
-    }
-  }
-
   // L'Antico perde la sua prima vita al rogo: si rivela, sopravvive come un
   // normale Villico e maledice il villaggio per la notte successiva (pag.
   // 16, 25) — ma la maledizione blocca solo i poteri "buoni" (vedi
@@ -86,32 +61,6 @@ export function GiornoPanel({
     })
   }
 
-  // assegna l'identità di un ruolo a rivelazione diurna solo quando si
-  // rivela davvero (vedi nightSteps.js), non preventivamente a inizio partita
-  function dichiaraRivelazione(ruoloSlug, id) {
-    const target = giocatori.find((g) => g.id === id)
-    if (ruoloSlug === 'lantico' && target && !target.vivo) {
-      dichiaraAnticoSbranato(id, giocatori, aggiornaGiocatore, annullaMorte)
-      return
-    }
-    // la Suocera si rivela una volta sola (anche già nota: Mimo, o carta
-    // data da Cartomante/Medium); il marcatore evita che l'evento si ripresenti
-    aggiornaGiocatore(id, {
-      ruoloSlug,
-      storiaRuoli: conRuolo(target?.storiaRuoli, ruoloSlug),
-      ...(ruoloSlug === 'suocera' && { poteriUsati: conPotere(target?.poteriUsati, 'suocera-rivelata') }),
-      // l'Innocente (anche il Mimo che lo copia) si rivela una volta sola
-      ...(ruoloSlug === 'innocente' && { poteriUsati: conPotere(target?.poteriUsati, 'innocente-rivelato') }),
-      // lo Spilungone non muore al primo rogo: il marcatore (con il giorno) resta
-      // anche dopo un reload, così l'esito del rogo si ricostruisce dallo stato
-      ...(ruoloSlug === 'spilungone' && { spilungoneRivelatoRound: round }),
-    })
-  }
-
-  function dichiaraBoiaGiustizia(boiaId, vittimaId) {
-    boiaGiustizia(boiaId, vittimaId, giocatori, aggiornaGiocatore, round)
-  }
-
   // l'Alchimista si rivela ed esplode nel momento stesso in cui viene messo
   // al rogo (pag. 5): questo evento dichiara la sua morte per rogo, non un
   // "Dichiara morte sul rogo" separato in Votazione. mortoNotte come per
@@ -127,7 +76,7 @@ export function GiornoPanel({
       mortoNotte: round,
       poteriUsati: conPotere(alchimista?.poteriUsati, 'alchimista-esplosione'),
     })
-    dichiaraColpo(vittimaId, { mortoDa: 'alchimista' })
+    dichiaraColpo(vittimaId, giocatori, aggiornaGiocatore, round, { mortoDa: 'alchimista' })
   }
 
   function dichiaraBardoSaltaNotte() {
@@ -139,25 +88,11 @@ export function GiornoPanel({
     })
   }
 
-  function dichiaraElezioneBorgomastro(id) {
-    giocatori.filter((g) => g.eBorgomastro).forEach((g) => aggiornaGiocatore(g.id, { eBorgomastro: false }))
-    aggiornaGiocatore(id, { eBorgomastro: true })
-  }
-
   // il Fantasma Onnisciente non è distribuito a inizio partita: la sua
   // carta va consegnata al primo morto sul rogo (pag. 13). Un'unica carta
   // in gioco, quindi si assegna una sola volta.
   function dichiaraFantasmaOnnisciente(id) {
     aggiornaGiocatore(id, { eFantasmaOnnisciente: true })
-  }
-
-  // corregge una morte dichiarata per errore (un tap sbagliato durante il
-  // rogo o un evento speciale, il momento più pubblico e frenetico della
-  // partita): resta viva/o, e annullaMorte di usePartita ripristina anche le
-  // conseguenze a catena già innescate (crepacuore del partner, eredità
-  // dell'Apprendista...) dallo snapshot preso al momento della morte.
-  function dichiaraAnnullaMorte(id) {
-    annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)
   }
 
   return (
@@ -179,16 +114,19 @@ export function GiornoPanel({
         tornaAlVoto={tornaAlVoto}
         onRogo={dichiaraRogo}
         onAnticoRivelazione={dichiaraAnticoRivelazione}
-        onRivelazione={dichiaraRivelazione}
-        onBoiaGiustizia={dichiaraBoiaGiustizia}
+        onRivelazione={(ruoloSlug, id) => dichiaraRivelazione(ruoloSlug, id, giocatori, aggiornaGiocatore, round, annullaMorte)}
+        onBoiaGiustizia={(boiaId, id) => dichiaraBoiaGiustizia(boiaId, id, giocatori, aggiornaGiocatore, round)}
         onAlchimistaEsplode={dichiaraAlchimistaEsplode}
-        onScemoSbaglia={dichiaraScemoSbaglia}
-        onMorteUnzione={dichiaraMorteUnzione}
+        onScemoSbaglia={(id) => dichiaraScemoSbaglia(id, giocatori, aggiornaGiocatore, round)}
+        onMorteUnzione={(id) => dichiaraMorteUnzione(id, giocatori, aggiornaGiocatore, round)}
         onBardoSaltaNotte={dichiaraBardoSaltaNotte}
-        onElezioneBorgomastro={dichiaraElezioneBorgomastro}
+        onElezioneBorgomastro={(id) => dichiaraElezioneBorgomastro(id, giocatori, aggiornaGiocatore)}
         onFantasmaOnnisciente={dichiaraFantasmaOnnisciente}
-        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id)}
-        onAnnullaMorte={dichiaraAnnullaMorte}
+        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id, giocatori, aggiornaGiocatore, round, annullaMorte)}
+        // corregge una morte dichiarata per errore (un tap sbagliato durante il
+        // rogo o un evento speciale): annullaMorte di usePartita ripristina
+        // anche le conseguenze a catena dallo snapshot preso alla morte
+        onAnnullaMorte={(id) => annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)}
         ruoliSelezionati={ruoliSelezionati}
         quantita={quantita}
         onProsegui={onProsegui}

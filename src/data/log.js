@@ -235,7 +235,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     const trasformatoMezzosangue = coperto('trasformatoNotte')
     // Apprendista con maestro a ruolo ignoto: si rivela e prende la carta ignota
     if (giocatore.apprendistaRivelatoDa && giocatore.apprendistaRivelatoDa !== prima.apprendistaRivelatoDa && !coperto('ereditaNotte')) {
-      const maestro = correnti.find((g) => g.id === giocatore.apprendistaRivelatoDa)?.nome ?? '?'
+      const maestro = nomeDi(correnti, giocatore.apprendistaRivelatoDa)
       eventi.push({ round, fase, messaggio: `L'Apprendista ${nome} si rivela e prende la carta del maestro ${maestro} (ruolo ancora ignoto)`, tier: 3 })
     }
     let ereditato = false
@@ -260,14 +260,13 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
     for (const campo of ['legame', 'legameMimo']) {
       const l0 = prima[campo]
       const l1 = giocatore[campo]
-      const nomeTarget = (id) => correnti.find((g) => g.id === id)?.nome ?? '?'
       // (un legame ereditato di altro tipo, es. l'Apprendista che prende il Cavaliere
       // col suo protetto, non è una scelta nuova)
       if (l1 && LEGAME_SCELTO[l1.tipo] && l1.targetId !== l0?.targetId && (!l0 || l0.tipo === l1.tipo || l0.tipo === 'apprendista')) {
         // legame nuovo insieme a un cambio di carta: arriva con il ruolo, non è una scelta
         // (anche l'Apprendista che eredita: il suo legame di maestro è sostituito)
         const arrivatoConRuolo = (!l0 || l0.tipo === 'apprendista') && prima.ruoloSlug && prima.ruoloSlug !== giocatore.ruoloSlug
-        voceLegame.push({ round, fase, messaggio: (arrivatoConRuolo ? LEGAME_EREDITATO : LEGAME_SCELTO)[l1.tipo](nome, nomeTarget(l1.targetId)), ...(arrivatoConRuolo && { tier: 3 }) })
+        voceLegame.push({ round, fase, messaggio: (arrivatoConRuolo ? LEGAME_EREDITATO : LEGAME_SCELTO)[l1.tipo](nome, nomeDi(correnti, l1.targetId)), ...(arrivatoConRuolo && { tier: 3 }) })
       }
       if (!scambiataVittima && (!l1 || l1.tipo !== l0?.tipo) && l0 && prima.ruoloSlug !== giocatore.ruoloSlug && giocatore.ruoloSlug) {
         if (l0.tipo === 'apprendista') {
@@ -275,7 +274,7 @@ export function rilevaEventi(precedenti, correnti, round, fase) {
           if (!coperto('ereditaNotte')) eventi.push({
             round,
             fase,
-            messaggio: `L'Apprendista ${nome} eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeTarget(l0.targetId)}`,
+            messaggio: `L'Apprendista ${nome} eredita il ruolo di ${nomeRuolo(ruoloPerDisplay(giocatore.ruoloSlug))} dal maestro ${nomeDi(correnti, l0.targetId)}`,
             tier: 3,
           })
         } else if (l0.tipo === 'figlia-dei-lupi') {

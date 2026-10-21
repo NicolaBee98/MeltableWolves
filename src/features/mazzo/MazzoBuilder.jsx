@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { ROLES } from '../../data/roles'
+import { ROLES, FAZIONI_ORDINE } from '../../data/roles'
 import { maxQuantita } from '../../data/quantitaRuoli'
 import { validaMazzo } from '../../data/validaMazzo'
 import { RuoloIcona } from '../../components/RuoloIcona'
-import { iconaPath } from '../../data/assetRuoli'
+import { iconaPath, FAZIONE_ICONA } from '../../data/assetRuoli'
 
-const FAZIONI_ORDINE = ['villaggio', 'lupi', 'indipendente', 'sconosciuto']
 const FAZIONE_LABEL = {
   villaggio: 'Villaggio',
   lupi: 'Lupi',
@@ -14,12 +13,6 @@ const FAZIONE_LABEL = {
   // è ignoto all'inizio (Ladro, Mimo) sia voltagabbana (Mezzosangue, Figlia
   // dei Lupi), "Variabili" descrive meglio entrambi i casi
   sconosciuto: 'Variabili',
-}
-const FAZIONE_ICONA = {
-  villaggio: iconaPath('icona_fazione_villaggio'),
-  lupi: iconaPath('icona_fazione_branco'),
-  indipendente: iconaPath('icona_fazione_indipendente'),
-  sconosciuto: iconaPath('icona_ruolo_sconosciuto_cerchiato'),
 }
 // ruoli "infiniti": la chip disponibile resta sempre cliccabile per
 // aggiungerne un'altra unità, invece di sparire dopo il primo click
@@ -158,9 +151,7 @@ export function MazzoBuilder({ quantita, setQuantita }) {
         return (
           <fieldset key={fazione}>
             <legend>
-              {FAZIONE_ICONA[fazione] && (
-                <img src={FAZIONE_ICONA[fazione]} alt="" aria-hidden="true" className="mazzo-builder__icona-fazione" />
-              )}
+              <img src={iconaPath(FAZIONE_ICONA[fazione])} alt="" aria-hidden="true" className="mazzo-builder__icona-fazione" />
               {FAZIONE_LABEL[fazione]}
             </legend>
             <div className="scelta-giocatore__chips" role="group" aria-label={`${FAZIONE_LABEL[fazione]} disponibili`}>
@@ -169,70 +160,29 @@ export function MazzoBuilder({ quantita, setQuantita }) {
                 // può cliccarli di nuovo subito per aggiungerne un'altra
                 // copia): niente dissolvenza in uscita per loro, non escono
                 // mai davvero dalla lista
-                const inUscita = !RUOLI_INFINITI.includes(ruolo.slug) && uscenti.has(ruolo.slug)
+                const infinito = RUOLI_INFINITI.includes(ruolo.slug)
+                const inUscita = !infinito && uscenti.has(ruolo.slug)
                 // i colori per fazione (vedi .chip--fazione-* in index.css)
                 // si vedono solo nel box "Nel mazzo": tra i disponibili le
                 // chip restano tutte bianche, il colore è un'informazione
                 // sulla composizione del mazzo, non sul catalogo dei ruoli
                 const classe = `chip${inUscita ? ' chip--uscendo' : ''}`
 
-                if (RUOLI_INFINITI.includes(ruolo.slug)) {
-                  const valoreInfinito = quantita[ruolo.slug] ?? 0
-                  return (
-                    <button
-                      key={ruolo.slug}
-                      type="button"
-                      className="chip"
-                      onClick={() => setQuantita(ruolo.slug, valoreInfinito + 1)}
-                    >
-                      <RuoloIcona slug={ruolo.slug} size={22} />
-                      {ruolo.nome}
-                    </button>
-                  )
-                }
-
-                if (ruolo.slug === 'guardia-mannara') {
-                  return (
-                    <button
-                      key={ruolo.slug}
-                      type="button"
-                      className={classe}
-                      disabled={!guardiePresenti || inUscita}
-                      onClick={() => selezionaConDissolvenza(ruolo.slug, () => setQuantita(ruolo.slug, 1))}
-                    >
-                      <RuoloIcona slug={ruolo.slug} size={22} />
-                      {ruolo.nome}
-                      {!guardiePresenti && ' (richiede le Guardie)'}
-                    </button>
-                  )
-                }
-
-                if (ruolo.slug === 'guardia') {
-                  return (
-                    <button
-                      key={ruolo.slug}
-                      type="button"
-                      className={classe}
-                      disabled={inUscita}
-                      onClick={() => selezionaConDissolvenza('guardia', () => toggleGuardie(0))}
-                    >
-                      <RuoloIcona slug={ruolo.slug} size={22} />
-                      Guardie
-                    </button>
-                  )
-                }
-
-                const valore = quantita[ruolo.slug] ?? 0
+                // la Guardia entra in coppia; la Guardia Mannara solo con le Guardie già nel mazzo
+                const aggiungi =
+                  ruolo.slug === 'guardia' ? () => toggleGuardie(0) : () => setQuantita(ruolo.slug, (quantita[ruolo.slug] ?? 0) + 1)
+                const mannaraBloccata = ruolo.slug === 'guardia-mannara' && !guardiePresenti
                 return (
                   <button
                     key={ruolo.slug}
                     type="button"
                     className={classe}
-                    disabled={inUscita}
-                    onClick={() => selezionaConDissolvenza(ruolo.slug, () => setQuantita(ruolo.slug, valore + 1))}
+                    disabled={inUscita || mannaraBloccata}
+                    onClick={() => (infinito ? aggiungi() : selezionaConDissolvenza(ruolo.slug, aggiungi))}
                   >
                     <RuoloIcona slug={ruolo.slug} size={22} />
-                    {ruolo.nome}
+                    {ruolo.slug === 'guardia' ? 'Guardie' : ruolo.nome}
+                    {mannaraBloccata && ' (richiede le Guardie)'}
                   </button>
                 )
               })}
