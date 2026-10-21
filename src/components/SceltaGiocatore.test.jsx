@@ -44,3 +44,10 @@ test('senza candidati mostra un messaggio con un pulsante Chiudi che chiama onSa
   await user.click(screen.getByRole('button', { name: 'Chiudi' }))
   expect(onSalta).toHaveBeenCalled()
 })
+
+test('senza candidati e senza onSalta mostra solo il messaggio (nessun Chiudi che non fa nulla)', () => {
+  render(<SceltaGiocatore candidati={[]} onConferma={() => {}} etichetta="Scegli" mostraSalta={false} />)
+
+  expect(screen.getByText(/nessun giocatore da scegliere/i)).toBeInTheDocument()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+})

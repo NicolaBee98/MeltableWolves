@@ -387,6 +387,16 @@ test('se restano in mazzo solo Villici, i ruoli ignoti sono mostrati come Villic
   expect(screen.getByRole('img', { name: 'Villico' })).toBeInTheDocument()
 })
 
+test('in fase voto anche i morti ignoti nella sezione Morti sono mostrati come Villico se restano solo Villici', () => {
+  const giocatori = [
+    { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' },
+    { id: '2', nome: 'Marco', vivo: true },
+    { id: '3', nome: 'Luca', vivo: false },
+  ]
+  setup({ giocatori, mostraRuoli: true, quantita: { 'lupo-mannaro': 1, villico: 2 } })
+  expect(screen.getAllByRole('img', { name: 'Villico' })).toHaveLength(2)
+})
+
 test('con una carta non-Villico ancora da uscire il ruolo ignoto resta ignoto', () => {
   const giocatori = [
     { id: '1', nome: 'Anna', vivo: true, ruoloSlug: 'lupo-mannaro' },

@@ -56,7 +56,6 @@ export function AzioneMimo({
           ? annullaBersaglio()
           : (onScegliRuoloMimo(null), aggiornaGiocatore(mimo.id, { legame: { tipo: 'mimo', targetId } }))
       }
-      onSalta={() => {}}
       etichetta="Chi imitare"
       mostraSalta={false}
     />

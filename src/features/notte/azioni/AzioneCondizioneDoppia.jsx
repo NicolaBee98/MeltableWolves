@@ -139,7 +139,6 @@ export function AzioneCondizioneDoppia({
       candidati={vivi}
       onConferma={confermaScelta}
       onAnnulla={annullaScelta}
-      onSalta={() => {}}
       etichetta={etichetta}
       selezionatiIniziali={coppiaIniziale ?? []}
       avvisoIncompleta={

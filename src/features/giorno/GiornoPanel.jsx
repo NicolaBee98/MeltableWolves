@@ -153,9 +153,9 @@ export function GiornoPanel({
 
   // corregge una morte dichiarata per errore (un tap sbagliato durante il
   // rogo o un evento speciale, il momento più pubblico e frenetico della
-  // partita): resta viva/o, senza però disfare a catena le conseguenze già
-  // innescate da quella morte (crepacuore del partner, eredità
-  // dell'Apprendista...) — quelle restano da sistemare a mano dal narratore.
+  // partita): resta viva/o, e annullaMorte di usePartita ripristina anche le
+  // conseguenze a catena già innescate (crepacuore del partner, eredità
+  // dell'Apprendista...) dallo snapshot preso al momento della morte.
   function dichiaraAnnullaMorte(id) {
     annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)
   }

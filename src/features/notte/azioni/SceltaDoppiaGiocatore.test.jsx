@@ -9,14 +9,14 @@ const candidati = [
 ]
 
 test('non mostra il pulsante Salta: Pifferaio e Sacerdote non sono opzionali', () => {
-  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli due" />)
+  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} etichetta="Scegli due" />)
   expect(screen.queryByRole('button', { name: 'Salta' })).not.toBeInTheDocument()
 })
 
 test('selezionare il secondo bersaglio chiama subito onConferma con entrambi gli id (nessun passo di conferma separato)', async () => {
   const user = userEvent.setup()
   const onConferma = vi.fn()
-  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={onConferma} onSalta={() => {}} etichetta="Scegli due" />)
+  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={onConferma} etichetta="Scegli due" />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   expect(onConferma).not.toHaveBeenCalled()
@@ -28,7 +28,7 @@ test('selezionare il secondo bersaglio chiama subito onConferma con entrambi gli
 
 test('non è possibile selezionare più di due bersagli', async () => {
   const user = userEvent.setup()
-  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli due" />)
+  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} etichetta="Scegli due" />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Marco' }))
@@ -39,7 +39,7 @@ test('non è possibile selezionare più di due bersagli', async () => {
 
 test('cliccare due volte una chip la deseleziona', async () => {
   const user = userEvent.setup()
-  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} onSalta={() => {}} etichetta="Scegli due" />)
+  render(<SceltaDoppiaGiocatore candidati={candidati} onConferma={() => {}} etichetta="Scegli due" />)
 
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Anna' }))
@@ -47,14 +47,11 @@ test('cliccare due volte una chip la deseleziona', async () => {
   expect(screen.getByRole('button', { name: 'Anna' })).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('con meno di due candidati mostra un pulsante Chiudi che chiama onSalta', async () => {
-  const user = userEvent.setup()
-  const onSalta = vi.fn()
-  render(<SceltaDoppiaGiocatore candidati={[candidati[0]]} onConferma={() => {}} onSalta={onSalta} etichetta="Scegli due" />)
+test('con meno di due candidati mostra solo un messaggio, senza pulsanti che non fanno nulla', () => {
+  render(<SceltaDoppiaGiocatore candidati={[candidati[0]]} onConferma={() => {}} etichetta="Scegli due" />)
 
   expect(screen.getByText(/servono almeno due bersagli/i)).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Chiudi' }))
-  expect(onSalta).toHaveBeenCalled()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })
 
 test('un terzo click avvisa "al massimo 2" invece di essere ignorato in silenzio', async () => {
@@ -67,7 +64,7 @@ test('un terzo click avvisa "al massimo 2" invece di essere ignorato in silenzio
         { id: '3', nome: 'Luca' },
       ]}
       onConferma={() => {}}
-      onSalta={() => {}}
+     
       etichetta="Chi unire"
     />,
   )
@@ -90,7 +87,7 @@ test('deselezionare uno dei due dopo la conferma chiama onAnnulla', async () => 
       ]}
       onConferma={() => {}}
       onAnnulla={onAnnulla}
-      onSalta={() => {}}
+     
       etichetta="Chi unire"
     />,
   )

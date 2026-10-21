@@ -645,6 +645,7 @@ export function Votazione({
         onAnnullaMorte={onAnnullaMorte}
       />
       <SezioneMorti
+        ignotiVillici={ignotiVillici}
         giocatori={giocatori}
         mostraRuoli={mostraRuoli}
         variantiFaccia={variantiFaccia}

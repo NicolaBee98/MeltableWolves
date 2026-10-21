@@ -5,7 +5,7 @@ import { useState } from 'react'
 // non ipnotizzato rimasto ne sceglie uno (onConferma riceve un solo id)
 // onAnnulla (opzionale): chiamato quando si toglie un giocatore da una coppia
 // già confermata, così chi la usa può disfare ciò che onConferma aveva applicato
-export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalta, etichetta, selezionatiIniziali = [], avvisoIncompleta, massimo = 2 }) {
+export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, etichetta, selezionatiIniziali = [], avvisoIncompleta, massimo = 2 }) {
   const [selezionati, setSelezionati] = useState(selezionatiIniziali)
   const [avviso, setAvviso] = useState(null)
 
@@ -28,10 +28,7 @@ export function SceltaDoppiaGiocatore({ candidati, onConferma, onAnnulla, onSalt
   if (candidati.length < massimo) {
     return (
       <div className="scelta-giocatore">
-        <p>Servono almeno due bersagli disponibili.</p>
-        <button type="button" onClick={onSalta}>
-          Chiudi
-        </button>
+        <p>Servono almeno due bersagli disponibili: premi Avanti.</p>
       </div>
     )
   }

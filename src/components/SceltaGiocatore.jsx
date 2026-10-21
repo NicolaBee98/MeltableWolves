@@ -26,9 +26,12 @@ export function SceltaGiocatore({
     return (
       <div className="scelta-giocatore">
         <p>Nessun giocatore da scegliere.</p>
-        <button type="button" onClick={onSalta}>
-          Chiudi
-        </button>
+        {/* senza onSalta (le azioni notturne) non c'è niente da chiudere: si va Avanti */}
+        {onSalta && (
+          <button type="button" onClick={onSalta}>
+            Chiudi
+          </button>
+        )}
       </div>
     )
   }
