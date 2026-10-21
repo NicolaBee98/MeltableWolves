@@ -107,7 +107,6 @@ export function Votazione({
   onBardoSaltaNotte,
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
-  onSuoceraRivelazione,
   onAnnullaMorte,
   ruoliSelezionati = [],
   quantita = {},
@@ -133,8 +132,7 @@ export function Votazione({
     onBardoSaltaNotte,
     onElezioneBorgomastro,
     onFantasmaOnnisciente,
-    onSuoceraRivelazione,
-    onAnnullaMorte,
+      onAnnullaMorte,
   }
   const sezioneMorti = (
     <SezioneMorti

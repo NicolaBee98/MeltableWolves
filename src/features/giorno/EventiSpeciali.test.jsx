@@ -17,7 +17,6 @@ function setup(overrides = {}) {
     onGalloSaltaGiorno: vi.fn(),
     onElezioneBorgomastro: vi.fn(),
     onFantasmaOnnisciente: vi.fn(),
-    onSuoceraRivelazione: vi.fn(),
     onAnnullaMorte: vi.fn(),
     ...overrides,
   }
@@ -327,7 +326,7 @@ test('La Suocera si rivela propone solo i morti di identità ancora ignota, in q
     { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
     { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'villico' },
   ]
-  const { onSuoceraRivelazione } = setup({
+  const { onRivelazione } = setup({
     giocatori,
     ruoliSelezionati: ['suocera'],
     contesto: 'alba',
@@ -339,7 +338,7 @@ test('La Suocera si rivela propone solo i morti di identità ancora ignota, in q
   await user.click(screen.getByRole('button', { name: 'Anna' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
+  expect(onRivelazione).toHaveBeenCalledWith('suocera', '1')
 })
 
 test('La Suocera si rivela propone anche l\'Apprendista vivo che ha preso la carta ignota del maestro', async () => {
@@ -348,14 +347,14 @@ test('La Suocera si rivela propone anche l\'Apprendista vivo che ha preso la car
     { id: '1', nome: 'Anna', vivo: false, condizioni: [] },
     { id: '2', nome: 'Sara', vivo: true, condizioni: [], apprendistaRivelatoDa: '1' },
   ]
-  const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'alba' })
+  const { onRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'alba' })
 
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
   await user.click(screen.getByRole('button', { name: 'Sara' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
 
-  expect(onSuoceraRivelazione).toHaveBeenCalledWith('2')
+  expect(onRivelazione).toHaveBeenCalledWith('suocera', '2')
 })
 
 test('La Suocera si rivela non è più proposta una volta che qualcuno l\'ha già rivelata', async () => {
@@ -506,13 +505,13 @@ test('Mimo-Suocera morto può rivelarsi come Suocera, anche dopo che il titolare
     { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera', poteriUsati: ['suocera-rivelata'] },
     { id: '2', nome: 'Marco', vivo: false, condizioni: [], ruoloSlug: 'suocera', storiaRuoli: ['mimo', 'suocera'] },
   ]
-  const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
+  const { onRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], contesto: 'esito' })
   await user.click(screen.getByRole('button', { name: /eventi speciali/i }))
   await user.click(screen.getByRole('button', { name: 'La Suocera si rivela' }))
   expect(screen.queryByRole('button', { name: 'Anna' })).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Marco' }))
   await user.click(screen.getByRole('button', { name: 'Conferma' }))
-  expect(onSuoceraRivelazione).toHaveBeenCalledWith('2')
+  expect(onRivelazione).toHaveBeenCalledWith('suocera', '2')
 })
 
 test('Scemo salvato dal Cavaliere: il riepilogo non dice "è morto/a" e mostra la riga del sacrificio', async () => {
@@ -693,12 +692,12 @@ describe('ruolo già assegnato (Cartomante/Mimo) con evento dedicato', () => {
       { id: '1', nome: 'Anna', vivo: false, condizioni: [], ruoloSlug: 'suocera', storiaRuoli: ['suocera'] },
       { id: '2', nome: 'Marco', vivo: false, condizioni: [] },
     ]
-    const { onSuoceraRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], quantita: { suocera: 1 } })
+    const { onRivelazione } = setup({ giocatori, ruoliSelezionati: ['suocera'], quantita: { suocera: 1 } })
     await voce(user, 'La Suocera si rivela')
     expect(screen.queryByRole('button', { name: 'Marco' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Anna' }))
     await user.click(screen.getByRole('button', { name: 'Conferma' }))
-    expect(onSuoceraRivelazione).toHaveBeenCalledWith('1')
+    expect(onRivelazione).toHaveBeenCalledWith('suocera', '1')
   })
 
   test('Fantasma Onnisciente noto e morto: è lui a ricevere la carta, non un altro morto', async () => {

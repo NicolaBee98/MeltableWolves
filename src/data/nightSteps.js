@@ -1,8 +1,6 @@
 import { ruoliAssegnabili, mortoStanotte } from './assegnazione'
 import { ROLES, RUOLI_BRANCO_LUPI } from './roles'
 
-export { RUOLI_BRANCO_LUPI }
-
 // Il Villico non ha alcuna azione o caratteristica da tracciare (pag. 5): non
 // ha senso chiedere al narratore di individuarlo carta per carta come gli
 // altri ruoli. Va escluso dalla selezione manuale: chi resta senza ruolo a

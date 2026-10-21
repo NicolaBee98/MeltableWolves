@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { applicaCrepacuore, rimuoviAccecamentoSeMortoPolpo, maturaCucciolo, attivaVendettaCucciolo, liberaPartnerDi } from '../data/effettiNotte'
 import { risolviLegami, applicaPatchMap } from '../data/risoluzioneNotte'
-import { RUOLI_BRANCO_LUPI } from '../data/nightSteps'
+import { RUOLI_BRANCO_LUPI } from '../data/roles'
 import { salvaLocale } from './salvaLocale'
 
 const STORAGE_KEY = 'meltable-wolves-partita'
@@ -196,10 +196,6 @@ export function usePartita() {
     setGiocatori([])
   }
 
-  function impostaGiocatori(nuovi) {
-    setGiocatori(nuovi)
-  }
-
   return {
     giocatori,
     addGiocatore,
@@ -208,6 +204,6 @@ export function usePartita() {
     annullaMorte,
     resetPartita,
     svuotaGiocatori,
-    impostaGiocatori,
+    impostaGiocatori: setGiocatori,
   }
 }

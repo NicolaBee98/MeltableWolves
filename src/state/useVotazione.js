@@ -11,7 +11,7 @@ function loadStato() {
     // validazione minima: dati corrotti o di uno schema vecchio → stato iniziale
     const valido =
       parsed?.voti && typeof parsed.voti === 'object' && !Array.isArray(parsed.voti) && ['voto', 'esito'].includes(parsed.fase)
-    return valido ? parsed : DEFAULT_STATO
+    return valido ? { ...parsed, candidatiEsito: Array.isArray(parsed.candidatiEsito) ? parsed.candidatiEsito : [] } : DEFAULT_STATO
   } catch {
     return DEFAULT_STATO
   }
@@ -33,14 +33,14 @@ export function useVotazione() {
   }
 
   function ricominciaVotazione() {
-    setStato({ voti: {}, fase: 'voto', candidatiEsito: [] })
+    setStato(DEFAULT_STATO)
   }
 
   // un giocatore rimosso a partita in corso non deve restare tra voti e candidati
   function rimuoviGiocatoreDaVotazione(id) {
     setStato((prev) => {
       const { [id]: _rimosso, ...voti } = prev.voti
-      return { ...prev, voti, candidatiEsito: (prev.candidatiEsito ?? []).filter((c) => c !== id) }
+      return { ...prev, voti, candidatiEsito: prev.candidatiEsito.filter((c) => c !== id) }
     })
   }
 
@@ -55,7 +55,7 @@ export function useVotazione() {
   return {
     voti: stato.voti,
     fase: stato.fase,
-    candidatiEsito: stato.candidatiEsito ?? [],
+    candidatiEsito: stato.candidatiEsito,
     incrementaVoto,
     decrementaVoto,
     ricominciaVotazione,

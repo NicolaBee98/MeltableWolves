@@ -13,7 +13,7 @@ import { AzioneInquisitore } from './AzioneInquisitore'
 import { AzioneLadro } from './AzioneLadro'
 import { AzioneMimo } from './AzioneMimo'
 import { AzioneMedium } from './AzioneMedium'
-import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
+import { RUOLI_BRANCO_LUPI } from '../../../data/roles'
 
 // perAttore: se più giocatori hanno il ruolo (titolare + Mimo che lo copia) il
 // passo mostra una scelta indipendente per ciascuno (vedi NightSequencer).

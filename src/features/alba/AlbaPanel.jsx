@@ -150,10 +150,6 @@ export function AlbaPanel({
         onMorteUnzione={(id) => dichiaraMorteUnzione(id, giocatori, aggiornaGiocatore, giorno)}
         onElezioneBorgomastro={(id) => dichiaraElezioneBorgomastro(id, giocatori, aggiornaGiocatore)}
         onGalloSaltaGiorno={dichiaraGalloSaltaGiorno}
-        // la Suocera resta "?" per tutta la partita finché non muore (pag.
-        // 21, può capitare anche di notte): è a tutti gli effetti una
-        // rivelazione diurna a ruolo fisso, riusa lo stesso handler
-        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id, giocatori, aggiornaGiocatore, giorno, annullaMorte)}
         // corregge una morte dichiarata per errore (anche la sua catena:
         // crepacuore, Cucciolo, Apprendista...), qui per un decesso notturno visto solo all'alba
         onAnnullaMorte={(id) => annullaMorteCompleta(id, giocatori, aggiornaGiocatore, annullaMorte)}

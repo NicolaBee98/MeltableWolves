@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AzioneBrancoLupi } from './AzioneBrancoLupi'
 import { usePartita } from '../../../state/usePartita'
-import { RUOLI_BRANCO_LUPI } from '../../../data/nightSteps'
+import { RUOLI_BRANCO_LUPI } from '../../../data/roles'
 
 test('conferma uccide il bersaglio scelto e marca il branco come già usato', async () => {
   const user = userEvent.setup()

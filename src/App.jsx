@@ -69,16 +69,13 @@ export default function App() {
     Object.values(quantita).reduce((somma, n) => somma + n, 0) -
     (quantita.ladro > 0 ? 2 : 0) -
     (quantita['fantasma-onnisciente'] > 0 ? 1 : 0)
-  // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo:
-  // "escluse" le carte (femminile), "esclusi" i ruoli, ognuno con la sua "e" finale
-  const elenco = (voci) => (voci.length > 1 ? `${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}` : voci[0])
-  const escluseCarte = quantita.ladro > 0 ? ['le 2 carte extra del Ladro'] : []
-  const escluseRuoli = [quantita['fantasma-onnisciente'] > 0 && 'il Fantasma Onnisciente'].filter(Boolean)
-  const soloUnRuoloEscluso = escluseCarte.length === 0 && escluseRuoli.length === 1
+  // cosa è stato sottratto dal conteggio, solo per i ruoli davvero nel mazzo
   const esclusi = [
-    escluseCarte.length > 0 && `escluse ${elenco(escluseCarte)}`,
-    escluseRuoli.length > 0 && `${escluseRuoli.length > 1 ? 'esclusi' : 'escluso'} ${elenco(escluseRuoli)}`,
+    quantita.ladro > 0 && 'escluse le 2 carte extra del Ladro',
+    quantita['fantasma-onnisciente'] > 0 && 'escluso il Fantasma Onnisciente',
   ].filter(Boolean)
+  // solo il Fantasma: singolare ("che non è un giocatore in più")
+  const soloUnRuoloEscluso = esclusi.length === 1 && !(quantita.ladro > 0)
   const ruoliSelezionati = ruoliAttivi(
     // il Borgomastro non è una carta del mazzo: si elegge sempre in gioco
     [...ruoliInMazzo.map((r) => r.slug), 'borgomastro'],

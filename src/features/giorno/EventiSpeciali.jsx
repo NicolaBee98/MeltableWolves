@@ -116,7 +116,6 @@ export function EventiSpeciali({
   onGalloSaltaGiorno,
   onElezioneBorgomastro,
   onFantasmaOnnisciente,
-  onSuoceraRivelazione,
   onAnnullaMorte,
 }) {
   const [evento, setEvento] = useState(null)
@@ -439,8 +438,9 @@ export function EventiSpeciali({
               candidati={candidatiSuocera}
               etichetta="Chi era la Suocera"
               messaggio="Per lei non c'è differenza tra la vita e la morte: si rivela solo ora, morendo."
+              // rivelazione diurna a ruolo fisso: stesso handler delle altre
               onConferma={(id) =>
-                applica(`${nome(id)} si è rivelato/a: era la Suocera.`, () => onSuoceraRivelazione(id))
+                applica(`${nome(id)} si è rivelato/a: era la Suocera.`, () => onRivelazione('suocera', id))
               }
               onAnnulla={chiudi}
             />

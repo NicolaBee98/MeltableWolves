@@ -122,7 +122,6 @@ export function GiornoPanel({
         onBardoSaltaNotte={dichiaraBardoSaltaNotte}
         onElezioneBorgomastro={(id) => dichiaraElezioneBorgomastro(id, giocatori, aggiornaGiocatore)}
         onFantasmaOnnisciente={dichiaraFantasmaOnnisciente}
-        onSuoceraRivelazione={(id) => dichiaraRivelazione('suocera', id, giocatori, aggiornaGiocatore, round, annullaMorte)}
         // corregge una morte dichiarata per errore (un tap sbagliato durante il
         // rogo o un evento speciale): annullaMorte di usePartita ripristina
         // anche le conseguenze a catena dallo snapshot preso alla morte
